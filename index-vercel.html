@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .status-bar {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #4ade80;
+            animation: pulse 2s infinite;
+        }
+
+        .status-indicator.disconnected {
+            background: #ef4444;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .data-container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .data-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        .data-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .data-count {
+            background: #3b82f6;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .data-display {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid #e2e8f0;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .data-item {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-left: 4px solid #3b82f6;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease;
+        }
+
+        .data-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .data-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .data-timestamp {
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-bottom: 8px;
+        }
+
+        .data-content {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.9rem;
+            color: #1e293b;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #64748b;
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .connection-info {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            color: white;
+            text-align: center;
+        }
+
+        .connection-info h3 {
+            margin-bottom: 10px;
+        }
+
+        .connection-info code {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-family: monospace;
+        }
+
+        /* Cards for structured competitor data */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+        @media (max-width: 900px) {
+            .card-grid { grid-template-columns: 1fr; }
+        }
+        .card {
+            display: flex;
+            flex-direction: column;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+        }
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+        .avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid #e2e8f0;
+            background: #f1f5f9;
+        }
+        .title-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .title-row a {
+            color: #111827;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .badges { display: flex; gap: 6px; flex-wrap: wrap; }
+        .badge {
+            font-size: 12px;
+            background: #eef2ff;
+            color: #3730a3;
+            border: 1px solid #e0e7ff;
+            padding: 2px 8px;
+            border-radius: 999px;
+        }
+        .meta { color: #6b7280; font-size: 12px; margin-bottom: 8px; }
+        .ad-text { color: #111827; font-size: 14px; white-space: pre-wrap; }
+        .video-thumb {
+            width: 100%;
+            border-radius: 10px;
+            margin-top: 10px;
+            border: 1px solid #e5e7eb;
+            cursor: pointer;
+        }
+        .ai-preview {
+            background: #f8fafc;
+            border: 1px dashed #cbd5e1;
+            border-radius: 8px;
+            padding: 10px;
+            color: #334155;
+            font-size: 13px;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .status-bar {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .data-header {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>📊 Data Dashboard</h1>
+        <p>Real-time data display from n8n workflow</p>
+    </div>
+
+    <div class="status-bar">
+        <div class="status-item">
+            <div class="status-indicator" id="connectionStatus"></div>
+            <span id="connectionText">Connecting...</span>
+        </div>
+        <div class="status-item">
+            <span>📡 SSE: <span id="wsStatus">Disconnected</span></span>
+        </div>
+        <div class="status-item">
+            <span>🕒 Last Update: <span id="lastUpdate">Never</span></span>
+        </div>
+    </div>
+
+    <div class="data-container">
+        <div class="data-header">
+            <h2 class="data-title">📋 Incoming Data</h2>
+            <div class="data-count" id="dataCount">0 items</div>
+        </div>
+        <div class="data-display" id="dataDisplay">
+            <div class="empty-state">
+                <div class="empty-state-icon">📭</div>
+                <h3>No data received yet</h3>
+                <p>Waiting for data from your n8n workflow...</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="connection-info">
+        <h3>🔗 Connection Information</h3>
+        <p>SSE Endpoint: <code>/api/events</code></p>
+        <p>Update your n8n HTTP node to send data to: <code>/api/data</code></p>
+    </div>
+</div>
+
+<script>
+    class DataDashboard {
+        constructor() {
+            this.eventSource = null;
+            this.dataCount = 0;
+            this.maxItems = 50; // Keep only last 50 items
+            this.init();
+        }
+
+        init() {
+            this.connectSSE();
+            this.updateConnectionStatus('connecting', 'Connecting...');
+        }
+
+        connectSSE() {
+            const sseUrl = '/api/events';
+
+            this.eventSource = new EventSource(sseUrl);
+
+            this.eventSource.onopen = () => {
+                console.log('SSE connected');
+                this.updateConnectionStatus('connected', 'Connected');
+                this.updateWsStatus('Connected');
+            };
+
+            this.eventSource.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    if (data.type === 'data') {
+                        this.addDataItem(data);
+                    } else if (data.type === 'welcome') {
+                        console.log('Welcome message:', data.message);
+                    } else if (data.type === 'ping') {
+                        // Keep-alive ping, no action needed
+                    }
+                } catch (error) {
+                    console.error('Error parsing data:', error);
+                    this.addDataItem({ error: 'Invalid JSON received', raw: event.data });
+                }
+            };
+
+            this.eventSource.onerror = (error) => {
+                console.error('SSE error:', error);
+                this.updateConnectionStatus('disconnected', 'Connection Error');
+                this.updateWsStatus('Error');
+
+                // Attempt to reconnect after 3 seconds
+                setTimeout(() => {
+                    this.connectSSE();
+                }, 3000);
+            };
+        }
+
+        updateConnectionStatus(status, text) {
+            const indicator = document.getElementById('connectionStatus');
+            const textElement = document.getElementById('connectionText');
+
+            indicator.className = `status-indicator ${status === 'connected' ? '' : 'disconnected'}`;
+            textElement.textContent = text;
+        }
+
+        updateWsStatus(status) {
+            document.getElementById('wsStatus').textContent = status;
+        }
+
+        addDataItem(incoming) {
+            const timestamp = new Date().toLocaleString();
+            const payload = (incoming && typeof incoming === 'object' && 'data' in incoming) ? incoming.data : incoming;
+
+            const dataDisplay = document.getElementById('dataDisplay');
+            const emptyState = dataDisplay.querySelector('.empty-state');
+            if (emptyState) emptyState.remove();
+
+            // If competitor array/object -> render cards; otherwise show raw JSON
+            const looksLikeCompetitor = (obj) => obj && typeof obj === 'object' && ('competitor_name' in obj || ('ad_data' in obj && 'ai_analysis' in obj));
+
+            let renderedCount = 0;
+            if (Array.isArray(payload) && payload.every(looksLikeCompetitor)) {
+                // Clear previous list and show grid of cards
+                dataDisplay.innerHTML = '';
+                const grid = document.createElement('div');
+                grid.className = 'card-grid';
+                payload.forEach((item) => grid.appendChild(this.createCompetitorCard(item)));
+                dataDisplay.appendChild(grid);
+                renderedCount = payload.length;
+            } else if (looksLikeCompetitor(payload)) {
+                // Prepend single card to the top
+                const grid = dataDisplay.querySelector('.card-grid') || (() => { const g = document.createElement('div'); g.className = 'card-grid'; dataDisplay.prepend(g); return g; })();
+                grid.prepend(this.createCompetitorCard(payload));
+                renderedCount = 1;
+            } else {
+                // Fallback: log raw JSON blocks as before
+                this.dataCount++;
+                const dataItem = document.createElement('div');
+                dataItem.className = 'data-item';
+                dataItem.innerHTML = `
+                    <div class="data-timestamp">${timestamp}</div>
+                    <div class="data-content">${JSON.stringify(payload, null, 2)}</div>
+                `;
+                dataDisplay.insertBefore(dataItem, dataDisplay.firstChild);
+                const items = dataDisplay.querySelectorAll('.data-item');
+                if (items.length > this.maxItems) items[items.length - 1].remove();
+                renderedCount = 1;
+            }
+
+            // Update status
+            const current = parseInt(document.getElementById('dataCount').dataset.count || '0', 10);
+            const next = current + renderedCount;
+            document.getElementById('dataCount').dataset.count = String(next);
+            document.getElementById('dataCount').textContent = `${next} items`;
+            document.getElementById('lastUpdate').textContent = timestamp;
+            dataDisplay.scrollTop = 0;
+        }
+
+        createCompetitorCard(entry) {
+            const card = document.createElement('div');
+            card.className = 'card';
+
+            const header = document.createElement('div');
+            header.className = 'card-header';
+
+            const img = document.createElement('img');
+            img.className = 'avatar';
+            img.src = entry?.ad_data?.page_profile_picture_url || '';
+            img.alt = 'Profile';
+            header.appendChild(img);
+
+            const titleWrap = document.createElement('div');
+            const titleRow = document.createElement('div');
+            titleRow.className = 'title-row';
+
+            const link = document.createElement('a');
+            link.href = entry?.ad_data?.page_profile_uri || '#';
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+            link.textContent = entry?.competitor_name || 'Unknown competitor';
+            titleRow.appendChild(link);
+
+            const badges = document.createElement('div');
+            badges.className = 'badges';
+            (entry?.ad_data?.platforms || []).forEach(p => {
+                const b = document.createElement('span');
+                b.className = 'badge';
+                b.textContent = String(p).toLowerCase();
+                badges.appendChild(b);
+            });
+            titleRow.appendChild(badges);
+            titleWrap.appendChild(titleRow);
+
+            const meta = document.createElement('div');
+            meta.className = 'meta';
+            meta.textContent = `Started: ${entry?.ad_data?.ad_started || 'N/A'}`;
+            titleWrap.appendChild(meta);
+
+            header.appendChild(titleWrap);
+            card.appendChild(header);
+
+            if (entry?.ad_data?.ad_text) {
+                const ad = document.createElement('div');
+                ad.className = 'ad-text';
+                ad.textContent = entry.ad_data.ad_text;
+                card.appendChild(ad);
+            }
+
+            const firstVideo = Array.isArray(entry?.ad_data?.videos) ? entry.ad_data.videos[0] : null;
+            if (firstVideo?.video_preview_image_url) {
+                const imgVid = document.createElement('img');
+                imgVid.className = 'video-thumb';
+                imgVid.src = firstVideo.video_preview_image_url;
+                imgVid.alt = 'Video preview';
+                imgVid.onclick = () => {
+                    const url = firstVideo.video_sd_url || firstVideo.video_preview_image_url;
+                    window.open(url, '_blank');
+                };
+                card.appendChild(imgVid);
+            }
+
+            const full = entry?.ai_analysis?.full_analysis || '';
+            if (full) {
+                const preview = document.createElement('div');
+                preview.className = 'ai-preview';
+                const shortText = full.length > 320 ? `${full.slice(0, 320)}…` : full;
+                preview.textContent = shortText;
+                card.appendChild(preview);
+            }
+
+            return card;
+        }
+    }
+
+    // Initialize dashboard when page loads
+    document.addEventListener('DOMContentLoaded', () => {
+        new DataDashboard();
+    });
+</script>
+</body>
+</html>
