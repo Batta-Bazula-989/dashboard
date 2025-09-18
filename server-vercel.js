@@ -109,8 +109,10 @@ app.get('/api/health', (req, res) => {
 
 // Serve the main page
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
+    res.sendFile(path.join(__dirname, 'index-vercel.html'));
 });
 
 // Export for Vercel
 module.exports = app;
+
+
