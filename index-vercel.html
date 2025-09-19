@@ -253,6 +253,146 @@
             margin-top: 10px;
         }
 
+        .ai-preview-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .ai-preview-icon {
+            width: 16px;
+            height: 16px;
+            background: #3b82f6;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 10px;
+        }
+
+        .ai-preview-title {
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .ai-preview-content {
+            margin-bottom: 10px;
+        }
+
+        .ai-preview-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 8px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .view-profile-link {
+            color: #3b82f6;
+            text-decoration: none;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .view-profile-link:hover {
+            text-decoration: underline;
+        }
+
+        .full-analysis-btn {
+            background: #f1f5f9;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #374151;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.2s ease;
+        }
+
+        .full-analysis-btn:hover {
+            background: #e5e7eb;
+            border-color: #9ca3af;
+        }
+
+        /* Modal styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            max-width: 800px;
+            width: 100%;
+            max-height: 80vh;
+            overflow: hidden;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #6b7280;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: background-color 0.2s ease;
+        }
+
+        .modal-close:hover {
+            background: #f3f4f6;
+        }
+
+        .modal-body {
+            padding: 20px;
+            max-height: calc(80vh - 120px);
+            overflow-y: auto;
+        }
+
+        .modal-analysis-content {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #374151;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
         @media (max-width: 768px) {
             .header h1 {
                 font-size: 2rem;
@@ -493,12 +633,117 @@
             if (full) {
                 const preview = document.createElement('div');
                 preview.className = 'ai-preview';
+
+                // Header with icon and title
+                const header = document.createElement('div');
+                header.className = 'ai-preview-header';
+
+                const icon = document.createElement('div');
+                icon.className = 'ai-preview-icon';
+                icon.textContent = '🧠';
+                header.appendChild(icon);
+
+                const title = document.createElement('div');
+                title.className = 'ai-preview-title';
+                title.textContent = 'AI Analysis Preview';
+                header.appendChild(title);
+
+                preview.appendChild(header);
+
+                // Content
+                const content = document.createElement('div');
+                content.className = 'ai-preview-content';
                 const shortText = full.length > 320 ? `${full.slice(0, 320)}…` : full;
-                preview.textContent = shortText;
+                content.textContent = shortText;
+                preview.appendChild(content);
+
+                // Actions
+                const actions = document.createElement('div');
+                actions.className = 'ai-preview-actions';
+
+                const viewProfileLink = document.createElement('a');
+                viewProfileLink.className = 'view-profile-link';
+                viewProfileLink.href = entry?.ad_data?.page_profile_uri || '#';
+                viewProfileLink.target = '_blank';
+                viewProfileLink.rel = 'noopener noreferrer';
+                viewProfileLink.innerHTML = 'View Profile <span>↗</span>';
+                actions.appendChild(viewProfileLink);
+
+                const fullAnalysisBtn = document.createElement('button');
+                fullAnalysisBtn.className = 'full-analysis-btn';
+                fullAnalysisBtn.innerHTML = 'Full Analysis <span>></span>';
+                fullAnalysisBtn.onclick = () => this.showFullAnalysis(entry?.competitor_name || 'Unknown competitor', full);
+                actions.appendChild(fullAnalysisBtn);
+
+                preview.appendChild(actions);
                 card.appendChild(preview);
             }
 
             return card;
+        }
+
+        showFullAnalysis(competitorName, fullAnalysis) {
+            // Create modal overlay
+            const overlay = document.createElement('div');
+            overlay.className = 'modal-overlay';
+            overlay.onclick = (e) => {
+                if (e.target === overlay) {
+                    this.closeModal();
+                }
+            };
+
+            // Create modal content
+            const modal = document.createElement('div');
+            modal.className = 'modal-content';
+
+            // Header
+            const header = document.createElement('div');
+            header.className = 'modal-header';
+
+            const title = document.createElement('div');
+            title.className = 'modal-title';
+            title.innerHTML = '🧠 AI Analysis: ' + competitorName;
+            header.appendChild(title);
+
+            const closeBtn = document.createElement('button');
+            closeBtn.className = 'modal-close';
+            closeBtn.innerHTML = '×';
+            closeBtn.onclick = () => this.closeModal();
+            header.appendChild(closeBtn);
+
+            modal.appendChild(header);
+
+            // Body
+            const body = document.createElement('div');
+            body.className = 'modal-body';
+
+            const content = document.createElement('div');
+            content.className = 'modal-analysis-content';
+            content.textContent = fullAnalysis;
+            body.appendChild(content);
+
+            modal.appendChild(body);
+            overlay.appendChild(modal);
+            document.body.appendChild(overlay);
+
+            // Store reference for closing
+            this.currentModal = overlay;
+
+            // Close on Escape key
+            const escapeHandler = (e) => {
+                if (e.key === 'Escape') {
+                    this.closeModal();
+                    document.removeEventListener('keydown', escapeHandler);
+                }
+            };
+            document.addEventListener('keydown', escapeHandler);
+        }
+
+        closeModal() {
+            if (this.currentModal) {
+                document.body.removeChild(this.currentModal);
+                this.currentModal = null;
+            }
         }
     }
 
