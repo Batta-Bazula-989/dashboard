@@ -393,6 +393,53 @@
             word-break: break-word;
         }
 
+        .analysis-section {
+            margin-bottom: 20px;
+            padding: 16px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .analysis-section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .analysis-section-content {
+            color: #374151;
+            line-height: 1.6;
+        }
+
+        .analysis-section-content p {
+            margin-bottom: 8px;
+        }
+
+        .analysis-section-content p:last-child {
+            margin-bottom: 0;
+        }
+
+        .analysis-highlight {
+            background: #fef3c7;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .analysis-list {
+            margin: 8px 0;
+            padding-left: 20px;
+        }
+
+        .analysis-list li {
+            margin-bottom: 4px;
+        }
+
         @media (max-width: 768px) {
             .header h1 {
                 font-size: 2rem;
@@ -719,7 +766,11 @@
 
             const content = document.createElement('div');
             content.className = 'modal-analysis-content';
-            content.textContent = fullAnalysis;
+
+            // Parse and format the analysis text
+            const formattedContent = this.formatAnalysisText(fullAnalysis);
+            content.appendChild(formattedContent);
+
             body.appendChild(content);
 
             modal.appendChild(body);
@@ -739,6 +790,183 @@
             document.addEventListener('keydown', escapeHandler);
         }
 
+        formatAnalysisText(text) {
+            const container = document.createElement('div');
+
+            // Split text into logical sections based on common patterns
+            const sections = this.parseAnalysisSections(text);
+
+            sections.forEach(section => {
+                const sectionDiv = document.createElement('div');
+                sectionDiv.className = 'analysis-section';
+
+                // Add section title
+                const title = document.createElement('div');
+                title.className = 'analysis-section-title';
+                title.innerHTML = section.icon + ' ' + section.title;
+                sectionDiv.appendChild(title);
+
+                // Add section content
+                const content = document.createElement('div');
+                content.className = 'analysis-section-content';
+                content.innerHTML = section.content;
+                sectionDiv.appendChild(content);
+
+                container.appendChild(sectionDiv);
+            });
+
+            return container;
+        }
+
+        parseAnalysisSections(text) {
+            const sections = [];
+
+            // Common section patterns to look for
+            const sectionPatterns = [
+                {
+                    pattern: /(?:overview|summary|executive summary)/i,
+                    title: 'Overview',
+                    icon: '📋'
+                },
+                {
+                    pattern: /(?:strategy|strategic|approach)/i,
+                    title: 'Strategy',
+                    icon: '🎯'
+                },
+                {
+                    pattern: /(?:content|creative|messaging)/i,
+                    title: 'Content & Creative',
+                    icon: '🎨'
+                },
+                {
+                    pattern: /(?:target|audience|demographic)/i,
+                    title: 'Target Audience',
+                    icon: '👥'
+                },
+                {
+                    pattern: /(?:performance|results|metrics|kpi)/i,
+                    title: 'Performance',
+                    icon: '📊'
+                },
+                {
+                    pattern: /(?:recommendation|suggestion|insight)/i,
+                    title: 'Recommendations',
+                    icon: '💡'
+                },
+                {
+                    pattern: /(?:competitor|competition|competitive)/i,
+                    title: 'Competitive Analysis',
+                    icon: '⚔️'
+                },
+                {
+                    pattern: /(?:opportunity|opportunities)/i,
+                    title: 'Opportunities',
+                    icon: '🚀'
+                },
+                {
+                    pattern: /(?:risk|challenge|threat)/i,
+                    title: 'Risks & Challenges',
+                    icon: '⚠️'
+                }
+            ];
+
+            // Try to split by common delimiters first
+            let paragraphs = text.split(/\n\s*\n/).filter(p => p.trim().length > 0);
+
+            // If no clear paragraph breaks, try other delimiters
+            if (paragraphs.length <= 1) {
+                paragraphs = text.split(/[.!?]\s+(?=[A-Z])/).filter(p => p.trim().length > 0);
+            }
+
+            // Group paragraphs into sections
+            let currentSection = null;
+            let currentContent = [];
+
+            paragraphs.forEach(paragraph => {
+                const trimmedParagraph = paragraph.trim();
+                if (trimmedParagraph.length === 0) return;
+
+                // Check if this paragraph starts a new section
+                let matchedSection = null;
+                for (const sectionPattern of sectionPatterns) {
+                    if (sectionPattern.pattern.test(trimmedParagraph)) {
+                        matchedSection = sectionPattern;
+                        break;
+                    }
+                }
+
+                if (matchedSection) {
+                    // Save previous section if exists
+                    if (currentSection) {
+                        sections.push({
+                            title: currentSection.title,
+                            icon: currentSection.icon,
+                            content: this.formatSectionContent(currentContent.join('\n\n'))
+                        });
+                    }
+
+                    // Start new section
+                    currentSection = matchedSection;
+                    currentContent = [trimmedParagraph];
+                } else {
+                    // Add to current section or create default section
+                    if (!currentSection) {
+                        currentSection = { title: 'Analysis', icon: '📝' };
+                    }
+                    currentContent.push(trimmedParagraph);
+                }
+            });
+
+            // Add the last section
+            if (currentSection && currentContent.length > 0) {
+                sections.push({
+                    title: currentSection.title,
+                    icon: currentSection.icon,
+                    content: this.formatSectionContent(currentContent.join('\n\n'))
+                });
+            }
+
+            // If no sections were found, create a single section
+            if (sections.length === 0) {
+                sections.push({
+                    title: 'Analysis',
+                    icon: '📝',
+                    content: this.formatSectionContent(text)
+                });
+            }
+
+            return sections;
+        }
+
+        formatSectionContent(content) {
+            // Convert line breaks to paragraphs
+            const paragraphs = content.split('\n\n').filter(p => p.trim().length > 0);
+
+            return paragraphs.map(paragraph => {
+                const trimmed = paragraph.trim();
+
+                // Check if it's a list
+                if (trimmed.includes('•') || trimmed.includes('-') || trimmed.includes('*')) {
+                    const listItems = trimmed.split(/[•\-*]/).filter(item => item.trim().length > 0);
+                    if (listItems.length > 1) {
+                        const list = document.createElement('ul');
+                        list.className = 'analysis-list';
+                        listItems.forEach(item => {
+                            const li = document.createElement('li');
+                            li.textContent = item.trim();
+                            list.appendChild(li);
+                        });
+                        return list.outerHTML;
+                    }
+                }
+
+                // Regular paragraph
+                const p = document.createElement('p');
+                p.textContent = trimmed;
+                return p.outerHTML;
+            }).join('');
+        }
+
         closeModal() {
             if (this.currentModal) {
                 document.body.removeChild(this.currentModal);
@@ -754,3 +982,6 @@
 </script>
 </body>
 </html>
+
+
+
