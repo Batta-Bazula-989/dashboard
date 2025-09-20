@@ -858,40 +858,40 @@
         parseAnalysisSections(text) {
             const sections = [];
 
-            // Define the exact structure based on your prompt
+            // Define the exact structure based on your prompt - handle both dots and parentheses
             const sectionPatterns = [
                 {
-                    pattern: /^1\.?\s*Копирайтинг|^1\.?\s*Copywriting/i,
+                    pattern: /^1[\.\)]\s*Копирайтинг|^1[\.\)]\s*Copywriting/i,
                     title: '1. Копирайтинг',
                     icon: '✍️'
                 },
                 {
-                    pattern: /^2\.?\s*Маркетинг|^2\.?\s*Marketing/i,
+                    pattern: /^2[\.\)]\s*Маркетинг|^2[\.\)]\s*Marketing/i,
                     title: '2. Маркетинг',
                     icon: '📈'
                 },
                 {
-                    pattern: /^3\.?\s*Психология|^3\.?\s*Psychology/i,
+                    pattern: /^3[\.\)]\s*Психология|^3[\.\)]\s*Psychology/i,
                     title: '3. Психология',
                     icon: '🧠'
                 },
                 {
-                    pattern: /^4\.?\s*Продажи|^4\.?\s*Sales/i,
+                    pattern: /^4[\.\)]\s*Продажи|^4[\.\)]\s*Sales/i,
                     title: '4. Продажи',
                     icon: '💰'
                 },
                 {
-                    pattern: /^5\.?\s*Метрики и прогноз|^5\.?\s*Metrics/i,
+                    pattern: /^5[\.\)]\s*Метрики и прогноз|^5[\.\)]\s*Metrics/i,
                     title: '5. Метрики и прогноз',
                     icon: '📊'
                 },
                 {
-                    pattern: /^6\.?\s*Рекомендации|^6\.?\s*Recommendations|💡\s*Recommendations/i,
+                    pattern: /^6[\.\)]\s*Рекомендации|^6[\.\)]\s*Recommendations|💡\s*Recommendations/i,
                     title: '6. Рекомендации',
                     icon: '💡'
                 },
                 {
-                    pattern: /^7\.?\s*Итоговый вывод|^7\.?\s*Final|Итоговый вывод/i,
+                    pattern: /^7[\.\)]\s*Итоговый вывод|^7[\.\)]\s*Final|Итоговый вывод/i,
                     title: '7. Итоговый вывод',
                     icon: '🎯'
                 }
