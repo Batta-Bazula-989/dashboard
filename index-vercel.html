@@ -531,11 +531,6 @@
         </div>
     </div>
 
-    <div class="connection-info">
-        <h3>🔗 Connection Information</h3>
-        <p>SSE Endpoint: <code>/api/events</code></p>
-        <p>Update your n8n HTTP node to send data to: <code>/api/data</code></p>
-    </div>
 </div>
 
 <script>
@@ -616,17 +611,24 @@
 
             let renderedCount = 0;
             if (Array.isArray(payload) && payload.every(looksLikeCompetitor)) {
-                // Clear previous list and show grid of cards
-                dataDisplay.innerHTML = '';
-                const grid = document.createElement('div');
-                grid.className = 'card-grid';
+                // Add to existing grid or create new one
+                let grid = dataDisplay.querySelector('.card-grid');
+                if (!grid) {
+                    grid = document.createElement('div');
+                    grid.className = 'card-grid';
+                    dataDisplay.appendChild(grid);
+                }
                 payload.forEach((item) => grid.appendChild(this.createCompetitorCard(item)));
-                dataDisplay.appendChild(grid);
                 renderedCount = payload.length;
             } else if (looksLikeCompetitor(payload)) {
-                // Prepend single card to the top
-                const grid = dataDisplay.querySelector('.card-grid') || (() => { const g = document.createElement('div'); g.className = 'card-grid'; dataDisplay.prepend(g); return g; })();
-                grid.prepend(this.createCompetitorCard(payload));
+                // Add single card to the grid
+                let grid = dataDisplay.querySelector('.card-grid');
+                if (!grid) {
+                    grid = document.createElement('div');
+                    grid.className = 'card-grid';
+                    dataDisplay.appendChild(grid);
+                }
+                grid.appendChild(this.createCompetitorCard(payload));
                 renderedCount = 1;
             } else {
                 // Fallback: log raw JSON blocks as before
@@ -1054,6 +1056,3 @@
 </script>
 </body>
 </html>
-
-
-
