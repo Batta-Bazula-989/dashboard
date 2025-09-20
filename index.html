@@ -608,9 +608,6 @@
             const emptyState = dataDisplay.querySelector('.empty-state');
             if (emptyState) emptyState.remove();
 
-            // Simple check for competitor data
-            const looksLikeCompetitor = (obj) => obj && typeof obj === 'object' && ('competitor_name' in obj || ('ad_data' in obj && 'ai_analysis' in obj));
-
             let renderedCount = 0;
 
             // Always create/get grid first
@@ -624,11 +621,12 @@
             if (Array.isArray(payload)) {
                 // Process each item in array
                 payload.forEach((item) => {
-                    if (looksLikeCompetitor(item)) {
-                        grid.appendChild(this.createCompetitorCard(item));
+                    const processedItem = this.processOpenAIResponse(item);
+                    if (processedItem) {
+                        grid.appendChild(this.createCompetitorCard(processedItem));
                         renderedCount++;
                     } else {
-                        // Show raw JSON for non-competitor items
+                        // Show raw JSON for unprocessed items
                         const dataItem = document.createElement('div');
                         dataItem.className = 'data-item';
                         dataItem.innerHTML = `
@@ -639,20 +637,23 @@
                         renderedCount++;
                     }
                 });
-            } else if (looksLikeCompetitor(payload)) {
-                // Single competitor
-                grid.appendChild(this.createCompetitorCard(payload));
-                renderedCount = 1;
             } else {
-                // Single non-competitor item - show as JSON
-                const dataItem = document.createElement('div');
-                dataItem.className = 'data-item';
-                dataItem.innerHTML = `
-                    <div class="data-timestamp">${timestamp}</div>
-                    <div class="data-content">${JSON.stringify(payload, null, 2)}</div>
-                `;
-                dataDisplay.insertBefore(dataItem, grid);
-                renderedCount = 1;
+                // Single item
+                const processedItem = this.processOpenAIResponse(payload);
+                if (processedItem) {
+                    grid.appendChild(this.createCompetitorCard(processedItem));
+                    renderedCount = 1;
+                } else {
+                    // Show raw JSON
+                    const dataItem = document.createElement('div');
+                    dataItem.className = 'data-item';
+                    dataItem.innerHTML = `
+                        <div class="data-timestamp">${timestamp}</div>
+                        <div class="data-content">${JSON.stringify(payload, null, 2)}</div>
+                    `;
+                    dataDisplay.insertBefore(dataItem, grid);
+                    renderedCount = 1;
+                }
             }
 
             // Update status
@@ -662,6 +663,42 @@
             document.getElementById('dataCount').textContent = `${next} items`;
             document.getElementById('lastUpdate').textContent = timestamp;
             dataDisplay.scrollTop = 0;
+        }
+
+        processOpenAIResponse(item) {
+            // Check if this is an OpenAI response format
+            if (item && item.body && item.body.output && Array.isArray(item.body.output)) {
+                const messageOutput = item.body.output.find(output => output.type === 'message');
+                if (messageOutput && messageOutput.content && messageOutput.content[0] && messageOutput.content[0].text) {
+                    const analysisText = messageOutput.content[0].text;
+
+                    // Extract competitor name from the analysis text
+                    let competitorName = 'Unknown Competitor';
+                    const nameMatch = analysisText.match(/(?:Конкурент:|конкурент[а-я]*:?)\s*([^\n]+)/i);
+                    if (nameMatch) {
+                        competitorName = nameMatch[1].trim();
+                    }
+
+                    return {
+                        competitor_name: competitorName,
+                        ai_analysis: {
+                            full_analysis: analysisText
+                        },
+                        ad_data: {
+                            platforms: ['Analysis'],
+                            ad_started: new Date().toLocaleDateString(),
+                            page_profile_uri: '#'
+                        }
+                    };
+                }
+            }
+
+            // Check if it's already in competitor format
+            if (item && (item.competitor_name || (item.ad_data && item.ai_analysis))) {
+                return item;
+            }
+
+            return null;
         }
 
         createCompetitorCard(entry) {
