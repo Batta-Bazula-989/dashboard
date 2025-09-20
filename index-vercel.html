@@ -821,75 +821,57 @@
         parseAnalysisSections(text) {
             const sections = [];
 
-            // Common section patterns to look for
+            // Define the exact structure based on your prompt
             const sectionPatterns = [
                 {
-                    pattern: /(?:overview|summary|executive summary)/i,
-                    title: 'Overview',
-                    icon: '📋'
+                    pattern: /^1\.?\s*Копирайтинг|^1\.?\s*Copywriting/i,
+                    title: '1. Копирайтинг',
+                    icon: '✍️'
                 },
                 {
-                    pattern: /(?:strategy|strategic|approach)/i,
-                    title: 'Strategy',
-                    icon: '🎯'
+                    pattern: /^2\.?\s*Маркетинг|^2\.?\s*Marketing/i,
+                    title: '2. Маркетинг',
+                    icon: '📈'
                 },
                 {
-                    pattern: /(?:content|creative|messaging)/i,
-                    title: 'Content & Creative',
-                    icon: '🎨'
+                    pattern: /^3\.?\s*Психология|^3\.?\s*Psychology/i,
+                    title: '3. Психология',
+                    icon: '🧠'
                 },
                 {
-                    pattern: /(?:target|audience|demographic)/i,
-                    title: 'Target Audience',
-                    icon: '👥'
+                    pattern: /^4\.?\s*Продажи|^4\.?\s*Sales/i,
+                    title: '4. Продажи',
+                    icon: '💰'
                 },
                 {
-                    pattern: /(?:performance|results|metrics|kpi)/i,
-                    title: 'Performance',
+                    pattern: /^5\.?\s*Метрики и прогноз|^5\.?\s*Metrics/i,
+                    title: '5. Метрики и прогноз',
                     icon: '📊'
                 },
                 {
-                    pattern: /(?:recommendation|suggestion|insight)/i,
-                    title: 'Recommendations',
+                    pattern: /^6\.?\s*Рекомендации|^6\.?\s*Recommendations|💡\s*Recommendations/i,
+                    title: '6. Рекомендации',
                     icon: '💡'
                 },
                 {
-                    pattern: /(?:competitor|competition|competitive)/i,
-                    title: 'Competitive Analysis',
-                    icon: '⚔️'
-                },
-                {
-                    pattern: /(?:opportunity|opportunities)/i,
-                    title: 'Opportunities',
-                    icon: '🚀'
-                },
-                {
-                    pattern: /(?:risk|challenge|threat)/i,
-                    title: 'Risks & Challenges',
-                    icon: '⚠️'
+                    pattern: /^7\.?\s*Итоговый вывод|^7\.?\s*Final|Итоговый вывод/i,
+                    title: '7. Итоговый вывод',
+                    icon: '🎯'
                 }
             ];
 
-            // Try to split by common delimiters first
-            let paragraphs = text.split(/\n\s*\n/).filter(p => p.trim().length > 0);
-
-            // If no clear paragraph breaks, try other delimiters
-            if (paragraphs.length <= 1) {
-                paragraphs = text.split(/[.!?]\s+(?=[A-Z])/).filter(p => p.trim().length > 0);
-            }
-
-            // Group paragraphs into sections
+            // Split text into lines and process
+            const lines = text.split('\n').filter(line => line.trim().length > 0);
             let currentSection = null;
             let currentContent = [];
 
-            paragraphs.forEach(paragraph => {
-                const trimmedParagraph = paragraph.trim();
-                if (trimmedParagraph.length === 0) return;
+            lines.forEach(line => {
+                const trimmedLine = line.trim();
 
-                // Check if this paragraph starts a new section
+                // Check if this line starts a new section
                 let matchedSection = null;
                 for (const sectionPattern of sectionPatterns) {
-                    if (sectionPattern.pattern.test(trimmedParagraph)) {
+                    if (sectionPattern.pattern.test(trimmedLine)) {
                         matchedSection = sectionPattern;
                         break;
                     }
@@ -897,23 +879,23 @@
 
                 if (matchedSection) {
                     // Save previous section if exists
-                    if (currentSection) {
+                    if (currentSection && currentContent.length > 0) {
                         sections.push({
                             title: currentSection.title,
                             icon: currentSection.icon,
-                            content: this.formatSectionContent(currentContent.join('\n\n'))
+                            content: this.formatSectionContent(currentContent.join('\n'))
                         });
                     }
 
                     // Start new section
                     currentSection = matchedSection;
-                    currentContent = [trimmedParagraph];
+                    currentContent = [];
                 } else {
                     // Add to current section or create default section
                     if (!currentSection) {
-                        currentSection = { title: 'Analysis', icon: '📝' };
+                        currentSection = { title: 'Анализ', icon: '📝' };
                     }
-                    currentContent.push(trimmedParagraph);
+                    currentContent.push(trimmedLine);
                 }
             });
 
@@ -922,14 +904,14 @@
                 sections.push({
                     title: currentSection.title,
                     icon: currentSection.icon,
-                    content: this.formatSectionContent(currentContent.join('\n\n'))
+                    content: this.formatSectionContent(currentContent.join('\n'))
                 });
             }
 
             // If no sections were found, create a single section
             if (sections.length === 0) {
                 sections.push({
-                    title: 'Analysis',
+                    title: 'Анализ',
                     icon: '📝',
                     content: this.formatSectionContent(text)
                 });
@@ -939,32 +921,59 @@
         }
 
         formatSectionContent(content) {
-            // Convert line breaks to paragraphs
-            const paragraphs = content.split('\n\n').filter(p => p.trim().length > 0);
+            const lines = content.split('\n').filter(line => line.trim().length > 0);
+            let result = '';
+            let currentList = [];
+            let inList = false;
 
-            return paragraphs.map(paragraph => {
-                const trimmed = paragraph.trim();
+            lines.forEach(line => {
+                const trimmed = line.trim();
 
-                // Check if it's a list
-                if (trimmed.includes('•') || trimmed.includes('-') || trimmed.includes('*')) {
-                    const listItems = trimmed.split(/[•\-*]/).filter(item => item.trim().length > 0);
-                    if (listItems.length > 1) {
-                        const list = document.createElement('ul');
-                        list.className = 'analysis-list';
-                        listItems.forEach(item => {
-                            const li = document.createElement('li');
-                            li.textContent = item.trim();
-                            list.appendChild(li);
+                // Check if line starts with bullet point
+                if (trimmed.match(/^[•\-*]\s/) || trimmed.match(/^\d+\.?\s/)) {
+                    if (!inList) {
+                        // Close previous paragraph if exists
+                        if (result && !result.endsWith('</ul>')) {
+                            result += '</p>';
+                        }
+                        inList = true;
+                    }
+
+                    // Clean the bullet point
+                    const cleanText = trimmed.replace(/^[•\-*]\s/, '').replace(/^\d+\.?\s/, '');
+                    currentList.push(cleanText);
+                } else {
+                    // Close current list if exists
+                    if (inList && currentList.length > 0) {
+                        result += '<ul class="analysis-list">';
+                        currentList.forEach(item => {
+                            result += `<li>${item}</li>`;
                         });
-                        return list.outerHTML;
+                        result += '</ul>';
+                        currentList = [];
+                        inList = false;
+                    }
+
+                    // Add as paragraph
+                    if (trimmed.length > 0) {
+                        if (result && !result.endsWith('</p>') && !result.endsWith('</ul>')) {
+                            result += '</p>';
+                        }
+                        result += `<p>${trimmed}</p>`;
                     }
                 }
+            });
 
-                // Regular paragraph
-                const p = document.createElement('p');
-                p.textContent = trimmed;
-                return p.outerHTML;
-            }).join('');
+            // Close any remaining list
+            if (inList && currentList.length > 0) {
+                result += '<ul class="analysis-list">';
+                currentList.forEach(item => {
+                    result += `<li>${item}</li>`;
+                });
+                result += '</ul>';
+            }
+
+            return result;
         }
 
         closeModal() {
