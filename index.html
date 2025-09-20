@@ -613,17 +613,19 @@
 
             let renderedCount = 0;
             if (Array.isArray(payload) && payload.every(looksLikeCompetitor)) {
-                // Add to existing grid or create new one
+                // For arrays, add each item to the grid
                 let grid = dataDisplay.querySelector('.card-grid');
                 if (!grid) {
                     grid = document.createElement('div');
                     grid.className = 'card-grid';
                     dataDisplay.appendChild(grid);
                 }
-                payload.forEach((item) => grid.appendChild(this.createCompetitorCard(item)));
+                payload.forEach((item) => {
+                    grid.appendChild(this.createCompetitorCard(item));
+                });
                 renderedCount = payload.length;
             } else if (looksLikeCompetitor(payload)) {
-                // Add single card to the grid
+                // For single competitor, add to grid
                 let grid = dataDisplay.querySelector('.card-grid');
                 if (!grid) {
                     grid = document.createElement('div');
@@ -633,17 +635,25 @@
                 grid.appendChild(this.createCompetitorCard(payload));
                 renderedCount = 1;
             } else {
-                // Fallback: log raw JSON blocks as before
-                this.dataCount++;
+                // Fallback: show raw JSON
                 const dataItem = document.createElement('div');
                 dataItem.className = 'data-item';
                 dataItem.innerHTML = `
                     <div class="data-timestamp">${timestamp}</div>
                     <div class="data-content">${JSON.stringify(payload, null, 2)}</div>
                 `;
-                dataDisplay.insertBefore(dataItem, dataDisplay.firstChild);
+
+                let grid = dataDisplay.querySelector('.card-grid');
+                if (grid) {
+                    dataDisplay.insertBefore(dataItem, grid);
+                } else {
+                    dataDisplay.appendChild(dataItem);
+                }
+
                 const items = dataDisplay.querySelectorAll('.data-item');
-                if (items.length > this.maxItems) items[items.length - 1].remove();
+                if (items.length > this.maxItems) {
+                    items[items.length - 1].remove();
+                }
                 renderedCount = 1;
             }
 
