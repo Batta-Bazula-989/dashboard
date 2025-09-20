@@ -440,6 +440,23 @@
             margin-bottom: 4px;
         }
 
+        .analysis-subsection {
+            margin: 16px 0;
+            padding: 12px;
+            background: #ffffff;
+            border-radius: 6px;
+            border-left: 3px solid #e5e7eb;
+        }
+
+        .analysis-subsection-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+            margin: 0 0 8px 0;
+            padding-bottom: 4px;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
         @media (max-width: 768px) {
             .header h1 {
                 font-size: 2rem;
@@ -929,11 +946,30 @@
             lines.forEach(line => {
                 const trimmed = line.trim();
 
+                // Check if line starts with sub-section (like 1.1, 1.2, 2.1, etc.)
+                if (trimmed.match(/^\d+\.\d+\s/)) {
+                    // Close current list if exists
+                    if (inList && currentList.length > 0) {
+                        result += '<ul class="analysis-list">';
+                        currentList.forEach(item => {
+                            result += `<li>${item}</li>`;
+                        });
+                        result += '</ul>';
+                        currentList = [];
+                        inList = false;
+                    }
+
+                    // Add sub-section header
+                    const subSectionText = trimmed.replace(/^\d+\.\d+\s/, '');
+                    result += `<div class="analysis-subsection">
+                        <h4 class="analysis-subsection-title">${trimmed.match(/^\d+\.\d+/)[0]} ${subSectionText}</h4>
+                    </div>`;
+                }
                 // Check if line starts with bullet point
-                if (trimmed.match(/^[•\-*]\s/) || trimmed.match(/^\d+\.?\s/)) {
+                else if (trimmed.match(/^[•\-*]\s/) || trimmed.match(/^\d+\.?\s/)) {
                     if (!inList) {
                         // Close previous paragraph if exists
-                        if (result && !result.endsWith('</ul>')) {
+                        if (result && !result.endsWith('</ul>') && !result.endsWith('</div>')) {
                             result += '</p>';
                         }
                         inList = true;
@@ -956,7 +992,7 @@
 
                     // Add as paragraph
                     if (trimmed.length > 0) {
-                        if (result && !result.endsWith('</p>') && !result.endsWith('</ul>')) {
+                        if (result && !result.endsWith('</p>') && !result.endsWith('</ul>') && !result.endsWith('</div>')) {
                             result += '</p>';
                         }
                         result += `<p>${trimmed}</p>`;
