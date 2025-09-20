@@ -924,7 +924,7 @@
                         });
                     }
 
-                    // Start new section
+                    // Start new section (don't include the section header as content)
                     currentSection = matchedSection;
                     currentContent = [];
                 } else {
@@ -965,6 +965,9 @@
 
             lines.forEach(line => {
                 const trimmed = line.trim();
+
+                // Skip empty lines
+                if (trimmed.length === 0) return;
 
                 // Check if line starts with sub-section (like 1.1, 1.2, 2.1, etc.)
                 if (trimmed.match(/^\d+\.\d+\s/)) {
