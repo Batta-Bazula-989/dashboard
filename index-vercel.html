@@ -394,21 +394,28 @@
         }
 
         .analysis-section {
-            margin-bottom: 20px;
-            padding: 16px;
-            background: #f8fafc;
-            border-radius: 8px;
-            border-left: 4px solid #3b82f6;
+            margin-bottom: 24px;
+            padding: 20px;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+            border-left: 6px solid #3b82f6;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
         }
 
         .analysis-section-title {
-            font-size: 16px;
-            font-weight: 600;
+            font-size: 18px;
+            font-weight: 700;
             color: #1e293b;
-            margin-bottom: 12px;
+            margin-bottom: 16px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
+            padding: 12px 16px;
+            background: #ffffff;
+            border-radius: 8px;
+            border-left: 4px solid #3b82f6;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .analysis-section-content {
@@ -441,20 +448,32 @@
         }
 
         .analysis-subsection {
-            margin: 16px 0;
-            padding: 12px;
+            margin: 12px 0;
+            padding: 16px;
             background: #ffffff;
-            border-radius: 6px;
-            border-left: 3px solid #e5e7eb;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            border-left: 4px solid #3b82f6;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
 
         .analysis-subsection-title {
-            font-size: 14px;
-            font-weight: 600;
-            color: #374151;
-            margin: 0 0 8px 0;
-            padding-bottom: 4px;
-            border-bottom: 1px solid #f3f4f6;
+            font-size: 15px;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0 0 12px 0;
+            padding: 8px 12px;
+            background: #f8fafc;
+            border-radius: 6px;
+            border-left: 3px solid #3b82f6;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .analysis-subsection-title::before {
+            content: "📌";
+            font-size: 12px;
         }
 
         @media (max-width: 768px) {
@@ -959,11 +978,13 @@
                         inList = false;
                     }
 
-                    // Add sub-section header
+                    // Add sub-section header (don't include the sub-section text as content)
                     const subSectionText = trimmed.replace(/^\d+\.\d+\s/, '');
                     result += `<div class="analysis-subsection">
                         <h4 class="analysis-subsection-title">${trimmed.match(/^\d+\.\d+/)[0]} ${subSectionText}</h4>
                     </div>`;
+                    // Don't add this line as content since it's already the header
+                    return;
                 }
                 // Check if line starts with bullet point
                 else if (trimmed.match(/^[•\-*]\s/) || trimmed.match(/^\d+\.?\s/)) {
