@@ -378,26 +378,18 @@
             font-weight: 500;
         }
 
-        .analysis-list {
-            margin: 12px 0;
-            padding-left: 0;
-            list-style: none;
+        .analysis-content-block {
+            margin: 8px 0;
+            padding: 12px 16px;
+            background: #ffffff;
+            border-radius: 6px;
+            border-left: 3px solid #3b82f6;
+            line-height: 1.6;
+            color: #374151;
         }
 
-        .analysis-list li {
-            margin-bottom: 8px;
-            padding-left: 20px;
-            position: relative;
-            line-height: 1.5;
-        }
-
-        .analysis-list li::before {
-            content: "•";
-            color: #3b82f6;
-            font-weight: bold;
-            position: absolute;
-            left: 0;
-            top: 0;
+        .analysis-content-block + .analysis-content-block {
+            margin-top: 6px;
         }
 
         .analysis-subsection {
@@ -1024,8 +1016,6 @@
         formatSectionContent(content) {
             const lines = content.split('\n').filter(line => line.trim().length > 0);
             let result = '';
-            let currentList = [];
-            let inList = false;
 
             lines.forEach(line => {
                 const trimmed = line.trim();
@@ -1035,68 +1025,23 @@
 
                 // Check if line starts with sub-section (like 1.1, 1.2, 2.1, etc.)
                 if (trimmed.match(/^\d+\.\d+\s/)) {
-                    // Close current list if exists
-                    if (inList && currentList.length > 0) {
-                        result += '<ul class="analysis-list">';
-                        currentList.forEach(item => {
-                            result += `<li>${item}</li>`;
-                        });
-                        result += '</ul>';
-                        currentList = [];
-                        inList = false;
-                    }
-
-                    // Add sub-section header (don't include the sub-section text as content)
+                    // Add sub-section header
                     const subSectionText = trimmed.replace(/^\d+\.\d+\s/, '');
                     result += `<div class="analysis-subsection">
                         <h4 class="analysis-subsection-title">${trimmed.match(/^\d+\.\d+/)[0]} ${subSectionText}</h4>
                     </div>`;
-                    // Don't add this line as content since it's already the header
                     return;
                 }
-                // Check if line starts with bullet point
-                else if (trimmed.match(/^[•\-*]\s/) || trimmed.match(/^\d+\.?\s/)) {
-                    if (!inList) {
-                        // Close previous paragraph if exists
-                        if (result && !result.endsWith('</ul>') && !result.endsWith('</div>')) {
-                            result += '</p>';
-                        }
-                        inList = true;
-                    }
 
-                    // Clean the bullet point
-                    const cleanText = trimmed.replace(/^[•\-*]\s/, '').replace(/^\d+\.?\s/, '');
-                    currentList.push(cleanText);
-                } else {
-                    // Close current list if exists
-                    if (inList && currentList.length > 0) {
-                        result += '<ul class="analysis-list">';
-                        currentList.forEach(item => {
-                            result += `<li>${item}</li>`;
-                        });
-                        result += '</ul>';
-                        currentList = [];
-                        inList = false;
-                    }
+                // For any other line (bullet points or regular text), create content blocks
+                if (trimmed.length > 0) {
+                    // Clean bullet points but keep the content
+                    let cleanText = trimmed.replace(/^[•\-*]\s/, '').replace(/^\d+\.?\s/, '');
 
-                    // Add as paragraph
-                    if (trimmed.length > 0) {
-                        if (result && !result.endsWith('</p>') && !result.endsWith('</ul>') && !result.endsWith('</div>')) {
-                            result += '</p>';
-                        }
-                        result += `<p>${trimmed}</p>`;
-                    }
+                    // Create individual content blocks instead of lists
+                    result += `<div class="analysis-content-block">${cleanText}</div>`;
                 }
             });
-
-            // Close any remaining list
-            if (inList && currentList.length > 0) {
-                result += '<ul class="analysis-list">';
-                currentList.forEach(item => {
-                    result += `<li>${item}</li>`;
-                });
-                result += '</ul>';
-            }
 
             return result;
         }
