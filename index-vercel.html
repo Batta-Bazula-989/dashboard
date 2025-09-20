@@ -607,52 +607,50 @@
             const emptyState = dataDisplay.querySelector('.empty-state');
             if (emptyState) emptyState.remove();
 
-            // If competitor array/object -> render cards; otherwise show raw JSON
+            // Simple check for competitor data
             const looksLikeCompetitor = (obj) => obj && typeof obj === 'object' && ('competitor_name' in obj || ('ad_data' in obj && 'ai_analysis' in obj));
 
             let renderedCount = 0;
-            if (Array.isArray(payload) && payload.every(looksLikeCompetitor)) {
-                // For arrays, add each item to the grid
-                let grid = dataDisplay.querySelector('.card-grid');
-                if (!grid) {
-                    grid = document.createElement('div');
-                    grid.className = 'card-grid';
-                    dataDisplay.appendChild(grid);
-                }
+
+            // Always create/get grid first
+            let grid = dataDisplay.querySelector('.card-grid');
+            if (!grid) {
+                grid = document.createElement('div');
+                grid.className = 'card-grid';
+                dataDisplay.appendChild(grid);
+            }
+
+            if (Array.isArray(payload)) {
+                // Process each item in array
                 payload.forEach((item) => {
-                    grid.appendChild(this.createCompetitorCard(item));
+                    if (looksLikeCompetitor(item)) {
+                        grid.appendChild(this.createCompetitorCard(item));
+                        renderedCount++;
+                    } else {
+                        // Show raw JSON for non-competitor items
+                        const dataItem = document.createElement('div');
+                        dataItem.className = 'data-item';
+                        dataItem.innerHTML = `
+                            <div class="data-timestamp">${timestamp}</div>
+                            <div class="data-content">${JSON.stringify(item, null, 2)}</div>
+                        `;
+                        dataDisplay.insertBefore(dataItem, grid);
+                        renderedCount++;
+                    }
                 });
-                renderedCount = payload.length;
             } else if (looksLikeCompetitor(payload)) {
-                // For single competitor, add to grid
-                let grid = dataDisplay.querySelector('.card-grid');
-                if (!grid) {
-                    grid = document.createElement('div');
-                    grid.className = 'card-grid';
-                    dataDisplay.appendChild(grid);
-                }
+                // Single competitor
                 grid.appendChild(this.createCompetitorCard(payload));
                 renderedCount = 1;
             } else {
-                // Fallback: show raw JSON
+                // Single non-competitor item - show as JSON
                 const dataItem = document.createElement('div');
                 dataItem.className = 'data-item';
                 dataItem.innerHTML = `
                     <div class="data-timestamp">${timestamp}</div>
                     <div class="data-content">${JSON.stringify(payload, null, 2)}</div>
                 `;
-
-                let grid = dataDisplay.querySelector('.card-grid');
-                if (grid) {
-                    dataDisplay.insertBefore(dataItem, grid);
-                } else {
-                    dataDisplay.appendChild(dataItem);
-                }
-
-                const items = dataDisplay.querySelectorAll('.data-item');
-                if (items.length > this.maxItems) {
-                    items[items.length - 1].remove();
-                }
+                dataDisplay.insertBefore(dataItem, grid);
                 renderedCount = 1;
             }
 
