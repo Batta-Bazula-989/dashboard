@@ -333,6 +333,54 @@
             word-break: break-word;
         }
 
+        .analysis-tabs {
+            display: flex;
+            border-bottom: 2px solid #e5e7eb;
+            margin-bottom: 20px;
+            overflow-x: auto;
+        }
+
+        .analysis-tab {
+            padding: 12px 16px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 14px;
+            font-weight: 600;
+            color: #6b7280;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+            border-bottom: 3px solid transparent;
+        }
+
+        .analysis-tab:hover {
+            color: #374151;
+            background: #f9fafb;
+        }
+
+        .analysis-tab.active {
+            color: #3b82f6;
+            border-bottom-color: #3b82f6;
+            background: #f8fafc;
+        }
+
+        .analysis-tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .analysis-tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         .analysis-section {
             margin-bottom: 24px;
             padding: 20px;
@@ -886,127 +934,118 @@
         formatAnalysisText(text) {
             const container = document.createElement('div');
 
-            // Split text into logical sections based on common patterns
+            // Split text into logical sections
             const sections = this.parseAnalysisSections(text);
 
-            sections.forEach(section => {
-                const sectionDiv = document.createElement('div');
-                sectionDiv.className = 'analysis-section';
+            if (sections.length > 1) {
+                // Create tabs container
+                const tabsContainer = document.createElement('div');
+                tabsContainer.className = 'analysis-tabs';
 
-                // Add section title
-                const title = document.createElement('div');
-                title.className = 'analysis-section-title';
-                title.innerHTML = section.icon + ' ' + section.title;
-                sectionDiv.appendChild(title);
+                // Create tab content container
+                const contentContainer = document.createElement('div');
 
-                // Add section content
+                sections.forEach((section, index) => {
+                    // Create tab button
+                    const tab = document.createElement('button');
+                    tab.className = `analysis-tab ${index === 0 ? 'active' : ''}`;
+                    tab.innerHTML = `${section.icon} ${section.title}`;
+                    tab.onclick = () => this.switchAnalysisTab(index);
+                    tabsContainer.appendChild(tab);
+
+                    // Create tab content
+                    const tabContent = document.createElement('div');
+                    tabContent.className = `analysis-tab-content ${index === 0 ? 'active' : ''}`;
+                    tabContent.innerHTML = section.content;
+                    tabContent.setAttribute('data-tab-index', index);
+                    contentContainer.appendChild(tabContent);
+                });
+
+                container.appendChild(tabsContainer);
+                container.appendChild(contentContainer);
+            } else {
+                // Single section - no tabs needed
                 const content = document.createElement('div');
-                content.className = 'analysis-section-content';
-                content.innerHTML = section.content;
-                sectionDiv.appendChild(content);
-
-                container.appendChild(sectionDiv);
-            });
+                content.innerHTML = sections[0].content;
+                container.appendChild(content);
+            }
 
             return container;
         }
 
-        parseAnalysisSections(text) {
-            const sections = [];
-
-            // Define the exact structure based on your prompt - handle both dots and parentheses
-            const sectionPatterns = [
-                {
-                    pattern: /^1[\.\)]\s*Копирайтинг|^1[\.\)]\s*Copywriting/i,
-                    title: '1. Копирайтинг',
-                    icon: '✍️'
-                },
-                {
-                    pattern: /^2[\.\)]\s*Маркетинг|^2[\.\)]\s*Marketing/i,
-                    title: '2. Маркетинг',
-                    icon: '📈'
-                },
-                {
-                    pattern: /^3[\.\)]\s*Психология|^3[\.\)]\s*Psychology/i,
-                    title: '3. Психология',
-                    icon: '🧠'
-                },
-                {
-                    pattern: /^4[\.\)]\s*Продажи|^4[\.\)]\s*Sales/i,
-                    title: '4. Продажи',
-                    icon: '💰'
-                },
-                {
-                    pattern: /^5[\.\)]\s*Метрики и прогноз|^5[\.\)]\s*Metrics/i,
-                    title: '5. Метрики и прогноз',
-                    icon: '📊'
-                },
-                {
-                    pattern: /^6[\.\)]\s*Рекомендации|^6[\.\)]\s*Recommendations|💡\s*Recommendations/i,
-                    title: '6. Рекомендации',
-                    icon: '💡'
-                },
-                {
-                    pattern: /^7[\.\)]\s*Итоговый вывод|^7[\.\)]\s*Final|Итоговый вывод/i,
-                    title: '7. Итоговый вывод',
-                    icon: '🎯'
-                }
-            ];
-
-            // Split text into lines and process
-            const lines = text.split('\n').filter(line => line.trim().length > 0);
-            let currentSection = null;
-            let currentContent = [];
-
-            lines.forEach(line => {
-                const trimmedLine = line.trim();
-
-                // Check if this line starts a new section
-                let matchedSection = null;
-                for (const sectionPattern of sectionPatterns) {
-                    if (sectionPattern.pattern.test(trimmedLine)) {
-                        matchedSection = sectionPattern;
-                        break;
-                    }
-                }
-
-                if (matchedSection) {
-                    // Save previous section if exists
-                    if (currentSection && currentContent.length > 0) {
-                        sections.push({
-                            title: currentSection.title,
-                            icon: currentSection.icon,
-                            content: this.formatSectionContent(currentContent.join('\n'))
-                        });
-                    }
-
-                    // Start new section (don't include the section header as content)
-                    currentSection = matchedSection;
-                    currentContent = [];
+        switchAnalysisTab(activeIndex) {
+            // Update tab buttons
+            const tabs = document.querySelectorAll('.analysis-tab');
+            tabs.forEach((tab, index) => {
+                if (index === activeIndex) {
+                    tab.classList.add('active');
                 } else {
-                    // Add to current section or create default section
-                    if (!currentSection) {
-                        currentSection = { title: 'Анализ', icon: '📝' };
-                    }
-                    currentContent.push(trimmedLine);
+                    tab.classList.remove('active');
                 }
             });
 
-            // Add the last section
-            if (currentSection && currentContent.length > 0) {
-                sections.push({
-                    title: currentSection.title,
-                    icon: currentSection.icon,
-                    content: this.formatSectionContent(currentContent.join('\n'))
+            // Update tab content
+            const contents = document.querySelectorAll('.analysis-tab-content');
+            contents.forEach((content, index) => {
+                if (index === activeIndex) {
+                    content.classList.add('active');
+                } else {
+                    content.classList.remove('active');
+                }
+            });
+        }
+
+        parseAnalysisSections(text) {
+            // Simple approach - try to split by main sections, but if not found, show everything
+            const sections = [];
+            const mainSections = text.split(/(?=\d+[\.\)]\s*(?:Копирайтинг|Маркетинг|Психология|Продажи|Метрики|Рекомендации|Итоговый вывод))/i);
+
+            if (mainSections.length > 1) {
+                const sectionIcons = {
+                    'копирайтинг': '✍️',
+                    'маркетинг': '📈',
+                    'психология': '🧠',
+                    'продажи': '💰',
+                    'метрики': '📊',
+                    'рекомендации': '💡',
+                    'итоговый': '🎯'
+                };
+
+                mainSections.forEach(section => {
+                    const trimmed = section.trim();
+                    if (trimmed.length === 0) return;
+
+                    // Extract section title
+                    const titleMatch = trimmed.match(/^(\d+[\.\)]\s*[^\n]+)/);
+                    if (titleMatch) {
+                        const title = titleMatch[1];
+                        const icon = Object.keys(sectionIcons).find(key =>
+                            title.toLowerCase().includes(key)
+                        ) ? sectionIcons[Object.keys(sectionIcons).find(key =>
+                            title.toLowerCase().includes(key)
+                        )] : '📝';
+
+                        sections.push({
+                            title: title,
+                            icon: icon,
+                            content: trimmed
+                        });
+                    } else {
+                        sections.push({
+                            title: 'Анализ',
+                            icon: '📝',
+                            content: trimmed
+                        });
+                    }
                 });
             }
 
-            // If no sections were found, create a single section
+            // If no sections found, show everything as one section
             if (sections.length === 0) {
                 sections.push({
                     title: 'Анализ',
                     icon: '📝',
-                    content: this.formatSectionContent(text)
+                    content: text
                 });
             }
 
@@ -1014,65 +1053,8 @@
         }
 
         formatSectionContent(content) {
-            const lines = content.split('\n').filter(line => line.trim().length > 0);
-            let result = '';
-            let currentSubSection = null;
-            let currentContent = [];
-
-            lines.forEach((line, index) => {
-                const trimmed = line.trim();
-
-                // Skip empty lines
-                if (trimmed.length === 0) return;
-
-                // Check if line starts with sub-section (like 1.1, 1.2, 2.1, etc.) OR special patterns
-                const isSubSection = trimmed.match(/^\d+\.\d+\s/) ||
-                                   trimmed.match(/^Rotation insight/i) ||
-                                   trimmed.match(/^Novelty \(/i) ||
-                                   trimmed.match(/^[A-Za-zА-Яа-я\s]+:(?!\s*[а-яёА-ЯЁ])/);
-
-                if (isSubSection) {
-                    // Save previous sub-section if exists
-                    if (currentSubSection && currentContent.length > 0) {
-                        const contentText = currentContent.join('\n\n');
-                        result += `<div class="analysis-subsection">
-                            <h4 class="analysis-subsection-title">${currentSubSection}</h4>
-                            <div class="analysis-content-block">${contentText}</div>
-                        </div>`;
-                    }
-
-                    // Start new sub-section
-                    if (trimmed.match(/^\d+\.\d+\s/)) {
-                        const subSectionText = trimmed.replace(/^\d+\.\d+\s/, '');
-                        currentSubSection = `${trimmed.match(/^\d+\.\d+/)[0]} ${subSectionText}`;
-                    } else {
-                        currentSubSection = trimmed.replace(/:$/, '');
-                    }
-                    currentContent = [];
-                } else {
-                    // Add content to current sub-section
-                    if (trimmed.length > 0) {
-                        // Clean bullet points but keep the content
-                        let cleanText = trimmed.replace(/^[•\-*]\s/, '').replace(/^\d+\.?\s/, '');
-                        currentContent.push(cleanText);
-                    }
-                }
-            });
-
-            // Add the last sub-section
-            if (currentSubSection && currentContent.length > 0) {
-                const contentText = currentContent.join('\n\n');
-                result += `<div class="analysis-subsection">
-                    <h4 class="analysis-subsection-title">${currentSubSection}</h4>
-                    <div class="analysis-content-block">${contentText}</div>
-                </div>`;
-            } else if (currentContent.length > 0) {
-                // If there's content but no sub-section, just show as content block
-                const contentText = currentContent.join('\n\n');
-                result += `<div class="analysis-content-block">${contentText}</div>`;
-            }
-
-            return result;
+            // Just show content with minimal formatting - no complex parsing
+            return `<div class="analysis-content-block" style="white-space: pre-wrap;">${content}</div>`;
         }
 
         closeModal() {
