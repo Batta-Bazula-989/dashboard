@@ -1015,32 +1015,61 @@
         formatSectionContent(content) {
             const lines = content.split('\n').filter(line => line.trim().length > 0);
             let result = '';
+            let currentSubSection = null;
+            let currentContent = [];
 
-            lines.forEach(line => {
+            lines.forEach((line, index) => {
                 const trimmed = line.trim();
 
                 // Skip empty lines
                 if (trimmed.length === 0) return;
 
-                // Check if line starts with sub-section (like 1.1, 1.2, 2.1, etc.)
-                if (trimmed.match(/^\d+\.\d+\s/)) {
-                    // Add sub-section header
-                    const subSectionText = trimmed.replace(/^\d+\.\d+\s/, '');
-                    result += `<div class="analysis-subsection">
-                        <h4 class="analysis-subsection-title">${trimmed.match(/^\d+\.\d+/)[0]} ${subSectionText}</h4>
-                    </div>`;
-                    return;
-                }
+                // Check if line starts with sub-section (like 1.1, 1.2, 2.1, etc.) OR special patterns
+                const isSubSection = trimmed.match(/^\d+\.\d+\s/) ||
+                                   trimmed.match(/^Rotation insight/i) ||
+                                   trimmed.match(/^Novelty \(/i) ||
+                                   trimmed.match(/^[A-Za-zА-Яа-я\s]+:(?!\s*[а-яёА-ЯЁ])/);
 
-                // For any other line (bullet points or regular text), create content blocks
-                if (trimmed.length > 0) {
-                    // Clean bullet points but keep the content
-                    let cleanText = trimmed.replace(/^[•\-*]\s/, '').replace(/^\d+\.?\s/, '');
+                if (isSubSection) {
+                    // Save previous sub-section if exists
+                    if (currentSubSection && currentContent.length > 0) {
+                        const contentText = currentContent.join('\n\n');
+                        result += `<div class="analysis-subsection">
+                            <h4 class="analysis-subsection-title">${currentSubSection}</h4>
+                            <div class="analysis-content-block">${contentText}</div>
+                        </div>`;
+                    }
 
-                    // Create individual content blocks instead of lists
-                    result += `<div class="analysis-content-block">${cleanText}</div>`;
+                    // Start new sub-section
+                    if (trimmed.match(/^\d+\.\d+\s/)) {
+                        const subSectionText = trimmed.replace(/^\d+\.\d+\s/, '');
+                        currentSubSection = `${trimmed.match(/^\d+\.\d+/)[0]} ${subSectionText}`;
+                    } else {
+                        currentSubSection = trimmed.replace(/:$/, '');
+                    }
+                    currentContent = [];
+                } else {
+                    // Add content to current sub-section
+                    if (trimmed.length > 0) {
+                        // Clean bullet points but keep the content
+                        let cleanText = trimmed.replace(/^[•\-*]\s/, '').replace(/^\d+\.?\s/, '');
+                        currentContent.push(cleanText);
+                    }
                 }
             });
+
+            // Add the last sub-section
+            if (currentSubSection && currentContent.length > 0) {
+                const contentText = currentContent.join('\n\n');
+                result += `<div class="analysis-subsection">
+                    <h4 class="analysis-subsection-title">${currentSubSection}</h4>
+                    <div class="analysis-content-block">${contentText}</div>
+                </div>`;
+            } else if (currentContent.length > 0) {
+                // If there's content but no sub-section, just show as content block
+                const contentText = currentContent.join('\n\n');
+                result += `<div class="analysis-content-block">${contentText}</div>`;
+            }
 
             return result;
         }
