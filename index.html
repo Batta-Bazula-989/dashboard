@@ -661,6 +661,9 @@
             const emptyState = dataDisplay.querySelector('.empty-state');
             if (emptyState) emptyState.remove();
 
+            // Simple check for competitor data
+            const looksLikeCompetitor = (obj) => obj && typeof obj === 'object' && ('competitor_name' in obj || ('ad_data' in obj && 'ai_analysis' in obj));
+
             let renderedCount = 0;
 
             // Always create/get grid first
@@ -672,24 +675,38 @@
             }
 
             if (Array.isArray(payload)) {
-                // Process EVERY item in array - no filtering
+                // Process each item in array
                 payload.forEach((item) => {
                     const processedItem = this.processOpenAIResponse(item);
-                    grid.appendChild(this.createCompetitorCard(processedItem || {
-                        competitor_name: 'Analysis Result',
-                        ai_analysis: { full_analysis: JSON.stringify(item, null, 2) },
-                        ad_data: { platforms: ['Data'], ad_started: timestamp, page_profile_uri: '#' }
-                    }));
+                    if (processedItem) {
+                        grid.appendChild(this.createCompetitorCard(processedItem));
+                    } else if (looksLikeCompetitor(item)) {
+                        grid.appendChild(this.createCompetitorCard(item));
+                    } else {
+                        // Even for non-competitor data, create a competitor card
+                        grid.appendChild(this.createCompetitorCard({
+                            competitor_name: 'Data Item',
+                            ai_analysis: { full_analysis: JSON.stringify(item, null, 2) },
+                            ad_data: { platforms: ['Raw Data'], ad_started: timestamp, page_profile_uri: '#' }
+                        }));
+                    }
                     renderedCount++;
                 });
             } else {
-                // Single item - always process
+                // Single item - always create a card
                 const processedItem = this.processOpenAIResponse(payload);
-                grid.appendChild(this.createCompetitorCard(processedItem || {
-                    competitor_name: 'Analysis Result',
-                    ai_analysis: { full_analysis: JSON.stringify(payload, null, 2) },
-                    ad_data: { platforms: ['Data'], ad_started: timestamp, page_profile_uri: '#' }
-                }));
+                if (processedItem) {
+                    grid.appendChild(this.createCompetitorCard(processedItem));
+                } else if (looksLikeCompetitor(payload)) {
+                    grid.appendChild(this.createCompetitorCard(payload));
+                } else {
+                    // Create competitor card even for raw data
+                    grid.appendChild(this.createCompetitorCard({
+                        competitor_name: 'Data Item',
+                        ai_analysis: { full_analysis: JSON.stringify(payload, null, 2) },
+                        ad_data: { platforms: ['Raw Data'], ad_started: timestamp, page_profile_uri: '#' }
+                    }));
+                }
                 renderedCount = 1;
             }
 
@@ -1043,18 +1060,25 @@
         }
 
         formatSectionContent(content) {
-            // Clean up the content for better readability
-            let cleanContent = content
-                // Remove ALL types of dashes and bullet points from start of lines
-                .replace(/^[\s]*[-–—]\s*/gm, '')
-                .replace(/^[\s]*[•\-*]\s*/gm, '')
+            // Process line by line to remove dashes but keep structure
+            let lines = content.split('\n');
+            let cleanLines = lines.map(line => {
+                // Remove dashes from start of lines but preserve indentation structure
+                return line
+                    .replace(/^\s*-\s+/, '')  // Remove "- " from start
+                    .replace(/^\s*—\s+/, '')  // Remove "— " from start
+                    .replace(/^\s*–\s+/, '')  // Remove "– " from start
+                    .replace(/^\s*•\s+/, '')  // Remove "• " from start
+                    .replace(/^\s*\*\s+/, ''); // Remove "* " from start
+            });
+
+            let cleanContent = cleanLines.join('\n')
                 // Add paragraph breaks before sub-sections (lines ending with colon)
                 .replace(/\n([А-Яа-яІіЇїЄє\s]+:)/g, '\n\n$1')
                 // Add paragraph breaks before numbered sub-sections
                 .replace(/\n(\d+\.\d+\s)/g, '\n\n$1')
                 // Clean up multiple line breaks
                 .replace(/\n{3,}/g, '\n\n')
-                // Trim whitespace
                 .trim();
 
             return `<div class="analysis-content-block" style="white-space: pre-wrap; line-height: 1.7;">${cleanContent}</div>`;
