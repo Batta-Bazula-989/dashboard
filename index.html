@@ -1059,8 +1059,21 @@
         }
 
         formatSectionContent(content) {
-            // Just show content with minimal formatting - no complex parsing
-            return `<div class="analysis-content-block" style="white-space: pre-wrap;">${content}</div>`;
+            // Clean up the content for better readability
+            let cleanContent = content
+                // Remove leading dashes and clean up bullet points
+                .replace(/^-\s*/gm, '')
+                .replace(/^[•\-*]\s*/gm, '')
+                // Add paragraph breaks before sub-sections (lines ending with colon)
+                .replace(/\n([А-Яа-яІіЇїЄє\s]+:)/g, '\n\n$1')
+                // Add paragraph breaks before numbered sub-sections
+                .replace(/\n(\d+\.\d+\s)/g, '\n\n$1')
+                // Clean up multiple line breaks
+                .replace(/\n{3,}/g, '\n\n')
+                // Trim whitespace
+                .trim();
+
+            return `<div class="analysis-content-block" style="white-space: pre-wrap; line-height: 1.7;">${cleanContent}</div>`;
         }
 
         closeModal() {
