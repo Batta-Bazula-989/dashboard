@@ -660,6 +660,9 @@
             const emptyState = dataDisplay.querySelector('.empty-state');
             if (emptyState) emptyState.remove();
 
+            // Simple check for competitor data
+            const looksLikeCompetitor = (obj) => obj && typeof obj === 'object' && ('competitor_name' in obj || ('ad_data' in obj && 'ai_analysis' in obj));
+
             let renderedCount = 0;
 
             // Always create/get grid first
@@ -671,24 +674,42 @@
             }
 
             if (Array.isArray(payload)) {
-                // Process EVERY item in array - no filtering
+                // Process each item in array
                 payload.forEach((item) => {
                     const processedItem = this.processOpenAIResponse(item);
-                    grid.appendChild(this.createCompetitorCard(processedItem || {
-                        competitor_name: 'Analysis Result',
-                        ai_analysis: { full_analysis: JSON.stringify(item, null, 2) },
-                        ad_data: { platforms: ['Data'], ad_started: timestamp, page_profile_uri: '#' }
-                    }));
+                    if (processedItem) {
+                        grid.appendChild(this.createCompetitorCard(processedItem));
+                    } else if (looksLikeCompetitor(item)) {
+                        grid.appendChild(this.createCompetitorCard(item));
+                    } else {
+                        // Show raw JSON for non-competitor items
+                        const dataItem = document.createElement('div');
+                        dataItem.className = 'data-item';
+                        dataItem.innerHTML = `
+                            <div class="data-timestamp">${timestamp}</div>
+                            <div class="data-content">${JSON.stringify(item, null, 2)}</div>
+                        `;
+                        dataDisplay.insertBefore(dataItem, grid);
+                    }
                     renderedCount++;
                 });
             } else {
-                // Single item - always process
+                // Single item
                 const processedItem = this.processOpenAIResponse(payload);
-                grid.appendChild(this.createCompetitorCard(processedItem || {
-                    competitor_name: 'Analysis Result',
-                    ai_analysis: { full_analysis: JSON.stringify(payload, null, 2) },
-                    ad_data: { platforms: ['Data'], ad_started: timestamp, page_profile_uri: '#' }
-                }));
+                if (processedItem) {
+                    grid.appendChild(this.createCompetitorCard(processedItem));
+                } else if (looksLikeCompetitor(payload)) {
+                    grid.appendChild(this.createCompetitorCard(payload));
+                } else {
+                    // Show raw JSON
+                    const dataItem = document.createElement('div');
+                    dataItem.className = 'data-item';
+                    dataItem.innerHTML = `
+                        <div class="data-timestamp">${timestamp}</div>
+                        <div class="data-content">${JSON.stringify(payload, null, 2)}</div>
+                    `;
+                    dataDisplay.insertBefore(dataItem, grid);
+                }
                 renderedCount = 1;
             }
 
