@@ -1060,28 +1060,60 @@
         }
 
         formatSectionContent(content) {
-            // Process line by line to remove dashes but keep structure
-            let lines = content.split('\n');
-            let cleanLines = lines.map(line => {
-                // Remove dashes from start of lines but preserve indentation structure
-                return line
-                    .replace(/^\s*-\s+/, '')  // Remove "- " from start
-                    .replace(/^\s*—\s+/, '')  // Remove "— " from start
-                    .replace(/^\s*–\s+/, '')  // Remove "– " from start
-                    .replace(/^\s*•\s+/, '')  // Remove "• " from start
-                    .replace(/^\s*\*\s+/, ''); // Remove "* " from start
+            const lines = content.split('\n');
+            let result = '';
+            let currentSubSection = null;
+            let currentContent = [];
+
+            lines.forEach(line => {
+                // Remove dashes from start of line
+                let cleanLine = line.replace(/^\s*[-–—•*]\s*/, '').trim();
+
+                if (cleanLine.length === 0) return;
+
+                // Check if line ends with colon (sub-section header)
+                if (cleanLine.endsWith(':') && !cleanLine.includes('(') && cleanLine.length < 100) {
+                    // Save previous sub-section
+                    if (currentSubSection && currentContent.length > 0) {
+                        result += `<div class="analysis-subsection">
+                            <h4 class="analysis-subsection-title">${currentSubSection}</h4>
+                            <div class="analysis-content-block">${currentContent.join('\n\n')}</div>
+                        </div>`;
+                    }
+
+                    // Start new sub-section
+                    currentSubSection = cleanLine.replace(':', '');
+                    currentContent = [];
+                } else {
+                    // Add content to current sub-section
+                    if (cleanLine.length > 0) {
+                        currentContent.push(cleanLine);
+                    }
+                }
             });
 
-            let cleanContent = cleanLines.join('\n')
-                // Add paragraph breaks before sub-sections (lines ending with colon)
-                .replace(/\n([А-Яа-яІіЇїЄє\s]+:)/g, '\n\n$1')
-                // Add paragraph breaks before numbered sub-sections
-                .replace(/\n(\d+\.\d+\s)/g, '\n\n$1')
-                // Clean up multiple line breaks
-                .replace(/\n{3,}/g, '\n\n')
-                .trim();
+            // Add final sub-section
+            if (currentSubSection && currentContent.length > 0) {
+                result += `<div class="analysis-subsection">
+                    <h4 class="analysis-subsection-title">${currentSubSection}</h4>
+                    <div class="analysis-content-block">${currentContent.join('\n\n')}</div>
+                </div>`;
+            } else if (currentContent.length > 0) {
+                // If no sub-sections, just show content
+                result += `<div class="analysis-content-block">${currentContent.join('\n\n')}</div>`;
+            }
 
-            return `<div class="analysis-content-block" style="white-space: pre-wrap; line-height: 1.7;">${cleanContent}</div>`;
+            // If no result, show original content with dashes removed
+            if (!result) {
+                const cleanContent = content
+                    .split('\n')
+                    .map(line => line.replace(/^\s*[-–—•*]\s*/, ''))
+                    .join('\n')
+                    .trim();
+                result = `<div class="analysis-content-block" style="white-space: pre-wrap;">${cleanContent}</div>`;
+            }
+
+            return result;
         }
 
         closeModal() {
