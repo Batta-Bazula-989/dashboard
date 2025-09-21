@@ -675,38 +675,49 @@
             }
 
             if (Array.isArray(payload)) {
-                // Process each item in array
+                // Process EVERY SINGLE item - no exceptions
                 payload.forEach((item) => {
-                    const processedItem = this.processOpenAIResponse(item);
-                    if (processedItem) {
-                        grid.appendChild(this.createCompetitorCard(processedItem));
-                    } else if (looksLikeCompetitor(item)) {
-                        grid.appendChild(this.createCompetitorCard(item));
-                    } else {
-                        // Even for non-competitor data, create a competitor card
-                        grid.appendChild(this.createCompetitorCard({
-                            competitor_name: 'Data Item',
-                            ai_analysis: { full_analysis: JSON.stringify(item, null, 2) },
-                            ad_data: { platforms: ['Raw Data'], ad_started: timestamp, page_profile_uri: '#' }
-                        }));
+                    // Try to process as OpenAI response first
+                    let processedItem = this.processOpenAIResponse(item);
+
+                    // If not OpenAI format, create a basic competitor card
+                    if (!processedItem) {
+                        processedItem = {
+                            competitor_name: item.competitor_name || 'Competitor Analysis',
+                            ai_analysis: {
+                                full_analysis: item.ai_analysis?.full_analysis || JSON.stringify(item, null, 2)
+                            },
+                            ad_data: item.ad_data || {
+                                platforms: ['Analysis'],
+                                ad_started: timestamp,
+                                page_profile_uri: '#'
+                            }
+                        };
                     }
+
+                    // ALWAYS create a card - no conditions
+                    grid.appendChild(this.createCompetitorCard(processedItem));
                     renderedCount++;
                 });
             } else {
-                // Single item - always create a card
-                const processedItem = this.processOpenAIResponse(payload);
-                if (processedItem) {
-                    grid.appendChild(this.createCompetitorCard(processedItem));
-                } else if (looksLikeCompetitor(payload)) {
-                    grid.appendChild(this.createCompetitorCard(payload));
-                } else {
-                    // Create competitor card even for raw data
-                    grid.appendChild(this.createCompetitorCard({
-                        competitor_name: 'Data Item',
-                        ai_analysis: { full_analysis: JSON.stringify(payload, null, 2) },
-                        ad_data: { platforms: ['Raw Data'], ad_started: timestamp, page_profile_uri: '#' }
-                    }));
+                // Single item - ALWAYS create a card
+                let processedItem = this.processOpenAIResponse(payload);
+
+                if (!processedItem) {
+                    processedItem = {
+                        competitor_name: payload.competitor_name || 'Competitor Analysis',
+                        ai_analysis: {
+                            full_analysis: payload.ai_analysis?.full_analysis || JSON.stringify(payload, null, 2)
+                        },
+                        ad_data: payload.ad_data || {
+                            platforms: ['Analysis'],
+                            ad_started: timestamp,
+                            page_profile_uri: '#'
+                        }
+                    };
                 }
+
+                grid.appendChild(this.createCompetitorCard(processedItem));
                 renderedCount = 1;
             }
 
@@ -1066,8 +1077,11 @@
             let currentContent = [];
 
             lines.forEach(line => {
-                // Remove dashes from start of line
-                let cleanLine = line.replace(/^\s*[-–—•*]\s*/, '').trim();
+                // Remove ALL types of dashes and bullets from start of line
+                let cleanLine = line
+                    .replace(/^\s*[-–—•*]\s+/, '')  // Remove dash + space
+                    .replace(/^\s*[-–—•*]/, '')     // Remove dash without space
+                    .trim();
 
                 if (cleanLine.length === 0) return;
 
