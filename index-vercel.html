@@ -1070,63 +1070,20 @@
         }
 
         formatSectionContent(content) {
-            const lines = content.split('\n');
-            let result = '';
-            let currentSubSection = null;
-            let currentContent = [];
+            // Clean content by removing all types of dashes from line beginnings
+            const cleanContent = content
+                .split('\n')
+                .map(line => {
+                    // Remove all types of dashes (-–—•*) from the beginning of lines
+                    return line
+                        .replace(/^\s*[-–—•*]\s*/, '')
+                        .trim();
+                })
+                .filter(line => line.length > 0) // Remove empty lines
+                .join('<br>'); // Use <br> for better line spacing
 
-            lines.forEach(line => {
-                // Remove ALL types of dashes and bullets from start of line
-                let cleanLine = line
-                    .replace(/^\s*[-–—•*]\s+/, '')  // Remove dash + space
-                    .replace(/^\s*[-–—•*]/, '')     // Remove dash without space
-                    .trim();
-
-                if (cleanLine.length === 0) return;
-
-                // Check if line ends with colon (sub-section header)
-                if (cleanLine.endsWith(':') && !cleanLine.includes('(') && cleanLine.length < 100) {
-                    // Save previous sub-section
-                    if (currentSubSection && currentContent.length > 0) {
-                        result += `<div class="analysis-subsection">
-                            <h4 class="analysis-subsection-title">${currentSubSection}</h4>
-                            <div class="analysis-content-block">${currentContent.join('\n\n')}</div>
-                        </div>`;
-                    }
-
-                    // Start new sub-section
-                    currentSubSection = cleanLine.replace(':', '');
-                    currentContent = [];
-                } else {
-                    // Add content to current sub-section
-                    if (cleanLine.length > 0) {
-                        currentContent.push(cleanLine);
-                    }
-                }
-            });
-
-            // Add final sub-section
-            if (currentSubSection && currentContent.length > 0) {
-                result += `<div class="analysis-subsection">
-                    <h4 class="analysis-subsection-title">${currentSubSection}</h4>
-                    <div class="analysis-content-block">${currentContent.join('\n\n')}</div>
-                </div>`;
-            } else if (currentContent.length > 0) {
-                // If no sub-sections, just show content
-                result += `<div class="analysis-content-block">${currentContent.join('\n\n')}</div>`;
-            }
-
-            // If no result, show original content with dashes removed
-            if (!result) {
-                const cleanContent = content
-                    .split('\n')
-                    .map(line => line.replace(/^\s*[-–—•*]\s*/, ''))
-                    .join('\n')
-                    .trim();
-                result = `<div class="analysis-content-block" style="white-space: pre-wrap;">${cleanContent}</div>`;
-            }
-
-            return result;
+            // Return clean content without pre-wrap to avoid unwanted formatting
+            return `<div class="analysis-content-block">${cleanContent}</div>`;
         }
 
         closeModal() {
