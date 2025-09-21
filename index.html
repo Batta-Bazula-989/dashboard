@@ -1045,9 +1045,9 @@
         formatSectionContent(content) {
             // Clean up the content for better readability
             let cleanContent = content
-                // Remove leading dashes and clean up bullet points
-                .replace(/^-\s*/gm, '')
-                .replace(/^[•\-*]\s*/gm, '')
+                // Remove ALL types of dashes and bullet points from start of lines
+                .replace(/^[\s]*[-–—]\s*/gm, '')
+                .replace(/^[\s]*[•\-*]\s*/gm, '')
                 // Add paragraph breaks before sub-sections (lines ending with colon)
                 .replace(/\n([А-Яа-яІіЇїЄє\s]+:)/g, '\n\n$1')
                 // Add paragraph breaks before numbered sub-sections
