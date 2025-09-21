@@ -678,14 +678,13 @@
                     } else if (looksLikeCompetitor(item)) {
                         grid.appendChild(this.createCompetitorCard(item));
                     } else {
-                        // Show raw JSON for non-competitor items
-                        const dataItem = document.createElement('div');
-                        dataItem.className = 'data-item';
-                        dataItem.innerHTML = `
-                            <div class="data-timestamp">${timestamp}</div>
-                            <div class="data-content">${JSON.stringify(item, null, 2)}</div>
-                        `;
-                        dataDisplay.insertBefore(dataItem, grid);
+                        // Force create competitor card for ANY data
+                        const forceCard = {
+                            competitor_name: 'Analysis Data',
+                            ai_analysis: { full_analysis: JSON.stringify(item, null, 2) },
+                            ad_data: { platforms: ['Data'], ad_started: timestamp, page_profile_uri: '#' }
+                        };
+                        grid.appendChild(this.createCompetitorCard(forceCard));
                     }
                     renderedCount++;
                 });
@@ -697,14 +696,13 @@
                 } else if (looksLikeCompetitor(payload)) {
                     grid.appendChild(this.createCompetitorCard(payload));
                 } else {
-                    // Show raw JSON
-                    const dataItem = document.createElement('div');
-                    dataItem.className = 'data-item';
-                    dataItem.innerHTML = `
-                        <div class="data-timestamp">${timestamp}</div>
-                        <div class="data-content">${JSON.stringify(payload, null, 2)}</div>
-                    `;
-                    dataDisplay.insertBefore(dataItem, grid);
+                    // Force create competitor card for ANY data
+                    const forceCard = {
+                        competitor_name: 'Analysis Data',
+                        ai_analysis: { full_analysis: JSON.stringify(payload, null, 2) },
+                        ad_data: { platforms: ['Data'], ad_started: timestamp, page_profile_uri: '#' }
+                    };
+                    grid.appendChild(this.createCompetitorCard(forceCard));
                 }
                 renderedCount = 1;
             }
