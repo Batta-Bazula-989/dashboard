@@ -657,9 +657,6 @@
             const emptyState = dataDisplay.querySelector('.empty-state');
             if (emptyState) emptyState.remove();
 
-            // Simple check for competitor data
-            const looksLikeCompetitor = (obj) => obj && typeof obj === 'object' && ('competitor_name' in obj || ('ad_data' in obj && 'ai_analysis' in obj));
-
             let renderedCount = 0;
 
             // Always create/get grid first
@@ -670,30 +667,44 @@
                 dataDisplay.appendChild(grid);
             }
 
-            if (Array.isArray(payload)) {
-                // Process EVERY item - no conditions, no filtering
-                payload.forEach((item) => {
-                    // Try OpenAI processing first, then create card no matter what
-                    const processedItem = this.processOpenAIResponse(item) || {
-                        competitor_name: item.competitor_name || 'Competitor',
-                        ai_analysis: { full_analysis: item.ai_analysis?.full_analysis || JSON.stringify(item, null, 2) },
-                        ad_data: item.ad_data || { platforms: ['Analysis'], ad_started: timestamp, page_profile_uri: '#' }
-                    };
+            // Simple approach - everything becomes a card
+            const itemsToProcess = Array.isArray(payload) ? payload : [payload];
 
-                    grid.appendChild(this.createCompetitorCard(processedItem));
-                    renderedCount++;
-                });
-            } else {
-                // Single item - always create card
-                const processedItem = this.processOpenAIResponse(payload) || {
-                    competitor_name: payload.competitor_name || 'Competitor',
-                    ai_analysis: { full_analysis: payload.ai_analysis?.full_analysis || JSON.stringify(payload, null, 2) },
-                    ad_data: payload.ad_data || { platforms: ['Analysis'], ad_started: timestamp, page_profile_uri: '#' }
+            itemsToProcess.forEach((item) => {
+                // Extract OpenAI analysis if available
+                let analysisText = '';
+                let competitorName = 'Competitor Analysis';
+
+                if (item?.body?.output) {
+                    const messageOutput = item.body.output.find(output => output.type === 'message');
+                    if (messageOutput?.content?.[0]?.text) {
+                        analysisText = messageOutput.content[0].text;
+                        const nameMatch = analysisText.match(/(?:Конкурент:|конкурент[а-я]*:?)\s*([^\n]+)/i);
+                        if (nameMatch) {
+                            competitorName = nameMatch[1].trim();
+                        }
+                    }
+                } else if (item?.ai_analysis?.full_analysis) {
+                    analysisText = item.ai_analysis.full_analysis;
+                    competitorName = item.competitor_name || 'Competitor';
+                } else {
+                    analysisText = JSON.stringify(item, null, 2);
+                    competitorName = item.competitor_name || 'Data Item';
+                }
+
+                const card = {
+                    competitor_name: competitorName,
+                    ai_analysis: { full_analysis: analysisText },
+                    ad_data: {
+                        platforms: ['Analysis'],
+                        ad_started: new Date().toLocaleDateString(),
+                        page_profile_uri: '#'
+                    }
                 };
 
-                grid.appendChild(this.createCompetitorCard(processedItem));
-                renderedCount = 1;
-            }
+                grid.appendChild(this.createCompetitorCard(card));
+                renderedCount++;
+            });
 
             // Update status
             const current = parseInt(document.getElementById('dataCount').dataset.count || '0', 10);
