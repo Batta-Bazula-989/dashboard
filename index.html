@@ -671,40 +671,27 @@
             }
 
             if (Array.isArray(payload)) {
-                // Process each item in array
+                // Process EVERY item - no conditions, no filtering
                 payload.forEach((item) => {
-                    const processedItem = this.processOpenAIResponse(item);
-                    if (processedItem) {
-                        grid.appendChild(this.createCompetitorCard(processedItem));
-                    } else if (looksLikeCompetitor(item)) {
-                        grid.appendChild(this.createCompetitorCard(item));
-                    } else {
-                        // Force create competitor card for ANY data
-                        const forceCard = {
-                            competitor_name: 'Analysis Data',
-                            ai_analysis: { full_analysis: JSON.stringify(item, null, 2) },
-                            ad_data: { platforms: ['Data'], ad_started: timestamp, page_profile_uri: '#' }
-                        };
-                        grid.appendChild(this.createCompetitorCard(forceCard));
-                    }
+                    // Try OpenAI processing first, then create card no matter what
+                    const processedItem = this.processOpenAIResponse(item) || {
+                        competitor_name: item.competitor_name || 'Competitor',
+                        ai_analysis: { full_analysis: item.ai_analysis?.full_analysis || JSON.stringify(item, null, 2) },
+                        ad_data: item.ad_data || { platforms: ['Analysis'], ad_started: timestamp, page_profile_uri: '#' }
+                    };
+
+                    grid.appendChild(this.createCompetitorCard(processedItem));
                     renderedCount++;
                 });
             } else {
-                // Single item
-                const processedItem = this.processOpenAIResponse(payload);
-                if (processedItem) {
-                    grid.appendChild(this.createCompetitorCard(processedItem));
-                } else if (looksLikeCompetitor(payload)) {
-                    grid.appendChild(this.createCompetitorCard(payload));
-                } else {
-                    // Force create competitor card for ANY data
-                    const forceCard = {
-                        competitor_name: 'Analysis Data',
-                        ai_analysis: { full_analysis: JSON.stringify(payload, null, 2) },
-                        ad_data: { platforms: ['Data'], ad_started: timestamp, page_profile_uri: '#' }
-                    };
-                    grid.appendChild(this.createCompetitorCard(forceCard));
-                }
+                // Single item - always create card
+                const processedItem = this.processOpenAIResponse(payload) || {
+                    competitor_name: payload.competitor_name || 'Competitor',
+                    ai_analysis: { full_analysis: payload.ai_analysis?.full_analysis || JSON.stringify(payload, null, 2) },
+                    ad_data: payload.ad_data || { platforms: ['Analysis'], ad_started: timestamp, page_profile_uri: '#' }
+                };
+
+                grid.appendChild(this.createCompetitorCard(processedItem));
                 renderedCount = 1;
             }
 
