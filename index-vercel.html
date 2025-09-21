@@ -563,9 +563,6 @@
         <div class="status-item">
             <span>📡 SSE: <span id="wsStatus">Disconnected</span></span>
         </div>
-        <div class="status-item">
-            <span>🕒 Last Update: <span id="lastUpdate">Never</span></span>
-        </div>
     </div>
 
     <div class="data-container">
@@ -717,7 +714,6 @@
             const next = current + renderedCount;
             document.getElementById('dataCount').dataset.count = String(next);
             document.getElementById('dataCount').textContent = `${next} items`;
-            document.getElementById('lastUpdate').textContent = timestamp;
             dataDisplay.scrollTop = 0;
         }
 
