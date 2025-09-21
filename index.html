@@ -822,35 +822,14 @@
 
             const full = entry?.ai_analysis?.full_analysis || '';
             if (full) {
-                const preview = document.createElement('div');
-                preview.className = 'ai-preview';
-
-                // Header with icon and title
-                const header = document.createElement('div');
-                header.className = 'ai-preview-header';
-
-                const icon = document.createElement('div');
-                icon.className = 'ai-preview-icon';
-                icon.textContent = '🧠';
-                header.appendChild(icon);
-
-                const title = document.createElement('div');
-                title.className = 'ai-preview-title';
-                title.textContent = 'AI Analysis Preview';
-                header.appendChild(title);
-
-                preview.appendChild(header);
-
-                // Content
-                const content = document.createElement('div');
-                content.className = 'ai-preview-content';
-                const shortText = full.length > 320 ? `${full.slice(0, 320)}…` : full;
-                content.textContent = shortText;
-                preview.appendChild(content);
-
-                // Actions
+                // Just add the Full Analysis button without the preview
                 const actions = document.createElement('div');
                 actions.className = 'ai-preview-actions';
+                actions.style.marginTop = '15px';
+                actions.style.padding = '15px';
+                actions.style.background = '#f8fafc';
+                actions.style.borderRadius = '8px';
+                actions.style.border = '1px dashed #cbd5e1';
 
                 const viewProfileLink = document.createElement('a');
                 viewProfileLink.className = 'view-profile-link';
@@ -866,8 +845,7 @@
                 fullAnalysisBtn.onclick = () => this.showFullAnalysis(entry?.competitor_name || 'Unknown competitor', full);
                 actions.appendChild(fullAnalysisBtn);
 
-                preview.appendChild(actions);
-                card.appendChild(preview);
+                card.appendChild(actions);
             }
 
             return card;
@@ -891,10 +869,6 @@
             const header = document.createElement('div');
             header.className = 'modal-header';
 
-            const title = document.createElement('div');
-            title.className = 'modal-title';
-            title.innerHTML = '🧠 AI Analysis: ' + competitorName;
-            header.appendChild(title);
 
             const closeBtn = document.createElement('button');
             closeBtn.className = 'modal-close';
