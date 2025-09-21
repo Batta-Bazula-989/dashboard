@@ -239,7 +239,7 @@
         .ad-text { color: #111827; font-size: 14px; white-space: pre-wrap; }
         .video-thumb {
             width: 100%;
-            max-width: 300px;
+            max-width: 200px;
             height: auto;
             border-radius: 10px;
             margin: 10px auto 0 auto;
@@ -821,14 +821,19 @@
 
             const full = entry?.ai_analysis?.full_analysis || '';
             if (full) {
-                // Just add the Full Analysis button without the preview
+                const preview = document.createElement('div');
+                preview.className = 'ai-preview';
+
+                // Content - show small preview
+                const content = document.createElement('div');
+                content.className = 'ai-preview-content';
+                const shortText = full.length > 150 ? `${full.slice(0, 150)}…` : full;
+                content.textContent = shortText;
+                preview.appendChild(content);
+
+                // Actions
                 const actions = document.createElement('div');
                 actions.className = 'ai-preview-actions';
-                actions.style.marginTop = '15px';
-                actions.style.padding = '15px';
-                actions.style.background = '#f8fafc';
-                actions.style.borderRadius = '8px';
-                actions.style.border = '1px dashed #cbd5e1';
 
                 const viewProfileLink = document.createElement('a');
                 viewProfileLink.className = 'view-profile-link';
@@ -844,7 +849,8 @@
                 fullAnalysisBtn.onclick = () => this.showFullAnalysis(entry?.competitor_name || 'Unknown competitor', full);
                 actions.appendChild(fullAnalysisBtn);
 
-                card.appendChild(actions);
+                preview.appendChild(actions);
+                card.appendChild(preview);
             }
 
             return card;
