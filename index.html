@@ -553,10 +553,6 @@
 </head>
 <body>
 <div class="container">
-    <div class="header">
-        <h1>📊 Data Dashboard</h1>
-        <p>Real-time data display from n8n workflow</p>
-    </div>
 
     <div class="status-bar">
         <div class="status-item">
@@ -803,7 +799,7 @@
 
             const meta = document.createElement('div');
             meta.className = 'meta';
-            meta.textContent = `Started: ${entry?.ad_data?.ad_started || 'N/A'}`;
+            meta.textContent = `${entry?.ad_data?.ad_started || 'N/A'}`;
             titleWrap.appendChild(meta);
 
             header.appendChild(titleWrap);

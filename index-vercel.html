@@ -553,10 +553,6 @@
 </head>
 <body>
 <div class="container">
-    <div class="header">
-        <h1>📊 Data Dashboard</h1>
-        <p>Real-time data display from n8n workflow</p>
-    </div>
 
     <div class="status-bar">
         <div class="status-item">
@@ -674,49 +670,42 @@
             }
 
             if (Array.isArray(payload)) {
-                // Process EVERY SINGLE item - no exceptions
+                // Process each item in array
                 payload.forEach((item) => {
-                    // Try to process as OpenAI response first
-                    let processedItem = this.processOpenAIResponse(item);
-
-                    // If not OpenAI format, create a basic competitor card
-                    if (!processedItem) {
-                        processedItem = {
-                            competitor_name: item.competitor_name || 'Competitor Analysis',
-                            ai_analysis: {
-                                full_analysis: item.ai_analysis?.full_analysis || JSON.stringify(item, null, 2)
-                            },
-                            ad_data: item.ad_data || {
-                                platforms: ['Analysis'],
-                                ad_started: timestamp,
-                                page_profile_uri: '#'
-                            }
-                        };
+                    const processedItem = this.processOpenAIResponse(item);
+                    if (processedItem) {
+                        grid.appendChild(this.createCompetitorCard(processedItem));
+                    } else if (looksLikeCompetitor(item)) {
+                        grid.appendChild(this.createCompetitorCard(item));
+                    } else {
+                        // Show raw JSON for non-competitor items
+                        const dataItem = document.createElement('div');
+                        dataItem.className = 'data-item';
+                        dataItem.innerHTML = `
+                            <div class="data-timestamp">${timestamp}</div>
+                            <div class="data-content">${JSON.stringify(item, null, 2)}</div>
+                        `;
+                        dataDisplay.insertBefore(dataItem, grid);
                     }
-
-                    // ALWAYS create a card - no conditions
-                    grid.appendChild(this.createCompetitorCard(processedItem));
                     renderedCount++;
                 });
             } else {
-                // Single item - ALWAYS create a card
-                let processedItem = this.processOpenAIResponse(payload);
-
-                if (!processedItem) {
-                    processedItem = {
-                        competitor_name: payload.competitor_name || 'Competitor Analysis',
-                        ai_analysis: {
-                            full_analysis: payload.ai_analysis?.full_analysis || JSON.stringify(payload, null, 2)
-                        },
-                        ad_data: payload.ad_data || {
-                            platforms: ['Analysis'],
-                            ad_started: timestamp,
-                            page_profile_uri: '#'
-                        }
-                    };
+                // Single item
+                const processedItem = this.processOpenAIResponse(payload);
+                if (processedItem) {
+                    grid.appendChild(this.createCompetitorCard(processedItem));
+                } else if (looksLikeCompetitor(payload)) {
+                    grid.appendChild(this.createCompetitorCard(payload));
+                } else {
+                    // Show raw JSON
+                    const dataItem = document.createElement('div');
+                    dataItem.className = 'data-item';
+                    dataItem.innerHTML = `
+                        <div class="data-timestamp">${timestamp}</div>
+                        <div class="data-content">${JSON.stringify(payload, null, 2)}</div>
+                    `;
+                    dataDisplay.insertBefore(dataItem, grid);
                 }
-
-                grid.appendChild(this.createCompetitorCard(processedItem));
                 renderedCount = 1;
             }
 
@@ -802,7 +791,7 @@
 
             const meta = document.createElement('div');
             meta.className = 'meta';
-            meta.textContent = `Started: ${entry?.ad_data?.ad_started || 'N/A'}`;
+            meta.textContent = `${entry?.ad_data?.ad_started || 'N/A'}`;
             titleWrap.appendChild(meta);
 
             header.appendChild(titleWrap);
