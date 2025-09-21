@@ -672,41 +672,25 @@
             }
 
             if (Array.isArray(payload)) {
-                // Process each item in array
+                // Process EVERY item in array - no filtering
                 payload.forEach((item) => {
                     const processedItem = this.processOpenAIResponse(item);
-                    if (processedItem) {
-                        grid.appendChild(this.createCompetitorCard(processedItem));
-                        renderedCount++;
-                    } else {
-                        // Show raw JSON for unprocessed items
-                        const dataItem = document.createElement('div');
-                        dataItem.className = 'data-item';
-                        dataItem.innerHTML = `
-                            <div class="data-timestamp">${timestamp}</div>
-                            <div class="data-content">${JSON.stringify(item, null, 2)}</div>
-                        `;
-                        dataDisplay.insertBefore(dataItem, grid);
-                        renderedCount++;
-                    }
+                    grid.appendChild(this.createCompetitorCard(processedItem || {
+                        competitor_name: 'Analysis Result',
+                        ai_analysis: { full_analysis: JSON.stringify(item, null, 2) },
+                        ad_data: { platforms: ['Data'], ad_started: timestamp, page_profile_uri: '#' }
+                    }));
+                    renderedCount++;
                 });
             } else {
-                // Single item
+                // Single item - always process
                 const processedItem = this.processOpenAIResponse(payload);
-                if (processedItem) {
-                    grid.appendChild(this.createCompetitorCard(processedItem));
-                    renderedCount = 1;
-                } else {
-                    // Show raw JSON
-                    const dataItem = document.createElement('div');
-                    dataItem.className = 'data-item';
-                    dataItem.innerHTML = `
-                        <div class="data-timestamp">${timestamp}</div>
-                        <div class="data-content">${JSON.stringify(payload, null, 2)}</div>
-                    `;
-                    dataDisplay.insertBefore(dataItem, grid);
-                    renderedCount = 1;
-                }
+                grid.appendChild(this.createCompetitorCard(processedItem || {
+                    competitor_name: 'Analysis Result',
+                    ai_analysis: { full_analysis: JSON.stringify(payload, null, 2) },
+                    ad_data: { platforms: ['Data'], ad_started: timestamp, page_profile_uri: '#' }
+                }));
+                renderedCount = 1;
             }
 
             // Update status
