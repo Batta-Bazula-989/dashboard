@@ -48,6 +48,8 @@ wss.on('connection', (ws) => {
 // Store for tracking batch data
 const pendingBatches = new Map();
 const batchTimeout = 30000; // 30 seconds timeout for incomplete batches
+const processedRequests = new Set(); // Track processed requests to prevent duplicates
+const duplicateWindow = 60000; // 60 seconds window for duplicate detection
 
 // HTTP endpoint to receive data from n8n
 app.post('/api/data', (req, res) => {
@@ -80,6 +82,9 @@ app.post('/api/data', (req, res) => {
             throw new Error('No data received');
         }
 
+        // Log detailed timing information
+        console.log(`[${requestId}] Processing ${batchTotal === 1 ? 'single item' : `batch item ${batchIndex + 1}/${batchTotal}`}`);
+
         // Handle single item (no batching)
         if (batchTotal === 1) {
             broadcastData(data, requestId, 'single');
@@ -103,6 +108,7 @@ app.post('/api/data', (req, res) => {
                 data: new Map(),
                 requestId: requestId,
                 createdAt: Date.now(),
+                lastUpdate: Date.now(),
                 timeout: setTimeout(() => {
                     console.warn(`[${batchId}] Batch timeout - processing incomplete batch`);
                     processIncompleteBatch(batchId);
@@ -115,8 +121,10 @@ app.post('/api/data', (req, res) => {
         // Store the data
         batch.data.set(batchIndex, data);
         batch.received.add(batchIndex);
+        batch.lastUpdate = Date.now();
         
         console.log(`[${requestId}] Batch ${batchId} progress: ${batch.received.size}/${batchTotal} items received`);
+        console.log(`[${requestId}] Missing items: [${Array.from({length: batchTotal}, (_, i) => i).filter(i => !batch.received.has(i)).join(', ')}]`);
 
         // Check if batch is complete
         if (batch.received.size === batchTotal) {
@@ -135,7 +143,8 @@ app.post('/api/data', (req, res) => {
                 }
             }
             
-            console.log(`[${requestId}] Batch ${batchId} complete: ${sortedData.length} total items`);
+            console.log(`[${requestId}] ✅ Batch ${batchId} COMPLETE: ${sortedData.length} total items`);
+            console.log(`[${requestId}] Items in order: [${sortedData.map((item, idx) => idx).join(', ')}]`);
             
             // Broadcast complete batch
             broadcastData(sortedData, requestId, `batch_${batchId}`);
@@ -153,12 +162,15 @@ app.post('/api/data', (req, res) => {
             });
         } else {
             // Partial batch - respond immediately but don't broadcast yet
+            console.log(`[${requestId}] ⏳ Batch ${batchId} still waiting for ${batchTotal - batch.received.size} more items`);
+            
             res.json({
                 success: true,
                 message: `Partial batch received (${batch.received.size}/${batchTotal})`,
                 requestId: requestId,
                 batchId: batchId,
-                progress: `${batch.received.size}/${batchTotal}`
+                progress: `${batch.received.size}/${batchTotal}`,
+                missing: Array.from({length: batchTotal}, (_, i) => i).filter(i => !batch.received.has(i))
             });
         }
 
