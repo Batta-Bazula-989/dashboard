@@ -706,6 +706,13 @@
             const timestamp = new Date().toLocaleString();
             const payload = (incoming && typeof incoming === 'object' && 'data' in incoming) ? incoming.data : incoming;
 
+            console.log('=== NEW DATA RECEIVED ===');
+            console.log('Timestamp:', timestamp);
+            console.log('Raw incoming:', incoming);
+            console.log('Payload:', payload);
+            console.log('Payload type:', Array.isArray(payload) ? 'array' : typeof payload);
+            console.log('Payload length:', Array.isArray(payload) ? payload.length : 1);
+
             const dataDisplay = document.getElementById('dataDisplay');
             const emptyState = dataDisplay.querySelector('.empty-state');
             if (emptyState) emptyState.remove();
@@ -715,6 +722,7 @@
 
             let renderedCount = 0;
             if (Array.isArray(payload) && payload.every(looksLikeCompetitor)) {
+                console.log('Processing as competitor array');
                 // Add to existing grid or create new one
                 let grid = dataDisplay.querySelector('.card-grid');
                 if (!grid) {
@@ -722,9 +730,13 @@
                     grid.className = 'card-grid';
                     dataDisplay.appendChild(grid);
                 }
-                payload.forEach((item) => grid.appendChild(this.createCompetitorCard(item)));
+                payload.forEach((item, index) => {
+                    console.log(`Processing item ${index + 1}:`, item.competitor_name);
+                    grid.appendChild(this.createCompetitorCard(item));
+                });
                 renderedCount = payload.length;
             } else if (looksLikeCompetitor(payload)) {
+                console.log('Processing as single competitor');
                 // Add single card to the grid
                 let grid = dataDisplay.querySelector('.card-grid');
                 if (!grid) {
@@ -735,6 +747,7 @@
                 grid.appendChild(this.createCompetitorCard(payload));
                 renderedCount = 1;
             } else {
+                console.log('Processing as OpenAI response format');
                 // Handle OpenAI response format
                 if (Array.isArray(payload)) {
                     let grid = dataDisplay.querySelector('.card-grid');
@@ -743,16 +756,22 @@
                         grid.className = 'card-grid';
                         dataDisplay.appendChild(grid);
                     }
-                    payload.forEach((item) => {
+                    payload.forEach((item, index) => {
+                        console.log(`Processing OpenAI item ${index + 1}`);
                         const processed = this.processOpenAIResponse(item);
                         if (processed) {
+                            console.log(`Successfully processed item ${index + 1}:`, processed.competitor_name);
                             grid.appendChild(this.createCompetitorCard(processed));
                             renderedCount++;
+                        } else {
+                            console.log(`Failed to process item ${index + 1}`);
                         }
                     });
                 } else {
+                    console.log('Processing single OpenAI item');
                     const processed = this.processOpenAIResponse(payload);
                     if (processed) {
+                        console.log('Successfully processed single item:', processed.competitor_name);
                         let grid = dataDisplay.querySelector('.card-grid');
                         if (!grid) {
                             grid = document.createElement('div');
@@ -761,6 +780,8 @@
                         }
                         grid.appendChild(this.createCompetitorCard(processed));
                         renderedCount = 1;
+                    } else {
+                        console.log('Failed to process single item');
                     }
                 }
             }
@@ -768,6 +789,15 @@
             // Update status - count competitors and ads
             const competitorCards = dataDisplay.querySelectorAll('.card').length;
             const adsCount = competitorCards; // For now, assume each competitor = 1 ad
+
+            console.log(`=== PROCESSING COMPLETE ===`);
+            console.log(`Rendered: ${renderedCount} items`);
+            console.log(`Total cards in DOM: ${competitorCards}`);
+            console.log('All competitor names:', Array.from(dataDisplay.querySelectorAll('.card')).map(card => {
+                const link = card.querySelector('.title-row a');
+                return link ? link.textContent : 'Unknown';
+            }));
+            console.log('================================');
 
             document.getElementById('competitorCount').textContent = competitorCards;
             document.getElementById('adsCount').textContent = adsCount;

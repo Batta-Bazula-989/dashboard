@@ -49,25 +49,46 @@ wss.on('connection', (ws) => {
 app.post('/api/data', (req, res) => {
     try {
         const data = req.body;
-        console.log('Received data from n8n:', JSON.stringify(data, null, 2));
+        const requestId = req.headers['x-request-id'] || 'unknown';
+        
+        console.log(`[${requestId}] Received data from n8n:`, {
+            dataType: Array.isArray(data) ? 'array' : typeof data,
+            dataLength: Array.isArray(data) ? data.length : 1,
+            timestamp: new Date().toISOString()
+        });
+
+        // Validate data structure
+        if (!data) {
+            throw new Error('No data received');
+        }
 
         // Broadcast to all connected WebSocket clients
         const message = JSON.stringify({
             type: 'data',
             data: data,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
+            requestId: requestId
         });
 
+        let sentCount = 0;
         clients.forEach((client) => {
             if (client.readyState === WebSocket.OPEN) {
-                client.send(message);
+                try {
+                    client.send(message);
+                    sentCount++;
+                } catch (error) {
+                    console.error('Error sending to client:', error);
+                }
             }
         });
+
+        console.log(`[${requestId}] Broadcasted to ${sentCount} clients`);
 
         res.json({
             success: true,
             message: 'Data received and broadcasted',
-            clients: clients.size
+            clients: sentCount,
+            requestId: requestId
         });
     } catch (error) {
         console.error('Error processing data:', error);

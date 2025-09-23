@@ -62,13 +62,25 @@ app.get('/api/events', (req, res) => {
 app.post('/api/data', (req, res) => {
     try {
         const data = req.body;
-        console.log('Received data from n8n:', JSON.stringify(data, null, 2));
+        const requestId = req.headers['x-request-id'] || 'unknown';
+        
+        console.log(`[${requestId}] Received data from n8n:`, {
+            dataType: Array.isArray(data) ? 'array' : typeof data,
+            dataLength: Array.isArray(data) ? data.length : 1,
+            timestamp: new Date().toISOString()
+        });
+
+        // Validate data structure
+        if (!data) {
+            throw new Error('No data received');
+        }
 
         // Broadcast to all connected SSE clients
         const message = JSON.stringify({
             type: 'data',
             data: data,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
+            requestId: requestId
         });
 
         let sentCount = 0;
@@ -84,10 +96,13 @@ app.post('/api/data', (req, res) => {
             }
         });
 
+        console.log(`[${requestId}] Broadcasted to ${sentCount} clients`);
+
         res.json({
             success: true,
             message: 'Data received and broadcasted',
-            clients: sentCount
+            clients: sentCount,
+            requestId: requestId
         });
     } catch (error) {
         console.error('Error processing data:', error);
