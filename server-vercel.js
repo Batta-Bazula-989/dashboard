@@ -13,8 +13,9 @@ app.use(express.static(path.join(__dirname)));
 // Parse JSON bodies
 app.use(express.json({ limit: '50mb' }));
 
-// Store connected SSE clients
-const clients = new Set();
+// Store connected SSE clients with metadata
+const clients = new Map(); // clientId -> { res, lastSeen, id }
+let clientIdCounter = 0;
 
 // Server-Sent Events endpoint for real-time updates
 app.get('/api/events', (req, res) => {
@@ -34,34 +35,67 @@ app.get('/api/events', (req, res) => {
         timestamp: new Date().toISOString()
     })}\n\n`);
 
-    // Store client connection
-    const clientId = Date.now() + Math.random();
-    clients.add({ id: clientId, res });
+    // Store client connection with metadata
+    const clientId = ++clientIdCounter;
+    const clientData = { 
+        id: clientId, 
+        res, 
+        lastSeen: Date.now(),
+        connected: true
+    };
+    clients.set(clientId, clientData);
+
+    console.log(`Client ${clientId} connected (total: ${clients.size})`);
 
     // Handle client disconnect
     req.on('close', () => {
-        clients.delete({ id: clientId, res });
-        console.log(`Client ${clientId} disconnected`);
+        if (clients.has(clientId)) {
+            clients.delete(clientId);
+            console.log(`Client ${clientId} disconnected (total: ${clients.size})`);
+        }
+    });
+
+    // Handle client errors
+    req.on('error', (error) => {
+        console.error(`Client ${clientId} error:`, error);
+        if (clients.has(clientId)) {
+            clients.delete(clientId);
+            console.log(`Client ${clientId} removed due to error (total: ${clients.size})`);
+        }
     });
 
     // Send keep-alive every 30 seconds
     const keepAlive = setInterval(() => {
-        if (res.destroyed) {
+        if (res.destroyed || !clients.has(clientId)) {
             clearInterval(keepAlive);
             return;
         }
-        res.write(`data: ${JSON.stringify({ type: 'ping' })}\n\n`);
+        
+        try {
+            res.write(`data: ${JSON.stringify({ type: 'ping' })}\n\n`);
+            // Update last seen time
+            if (clients.has(clientId)) {
+                clients.get(clientId).lastSeen = Date.now();
+            }
+        } catch (error) {
+            console.error(`Keep-alive failed for client ${clientId}:`, error);
+            clearInterval(keepAlive);
+            clients.delete(clientId);
+        }
     }, 30000);
 
     req.on('close', () => {
         clearInterval(keepAlive);
+        if (clients.has(clientId)) {
+            clients.delete(clientId);
+        }
     });
 });
 
 // Store for tracking batch data
 const pendingBatches = new Map();
 const batchTimeout = 30000; // 30 seconds timeout for incomplete batches
-const processedRequests = new Set(); // Track processed requests to prevent duplicates
+const processedRequests = new Map(); // Track processed requests with timestamps
 const duplicateWindow = 60000; // 60 seconds window for duplicate detection
 
 // HTTP endpoint to receive data from n8n
@@ -98,6 +132,25 @@ app.post('/api/data', (req, res) => {
         // Log detailed timing information
         console.log(`[${requestId}] Processing ${batchTotal === 1 ? 'single item' : `batch item ${batchIndex + 1}/${batchTotal}`}`);
 
+        // Check for duplicate requests with better tracking (include requestId to allow same data from different sources)
+        const requestKey = `${batchId}_${batchIndex}_${requestId}`;
+        const now = Date.now();
+        
+        // Check if this exact request was already processed
+        if (processedRequests.has(requestKey)) {
+            console.warn(`[${requestId}] EXACT DUPLICATE REQUEST DETECTED: ${requestKey} - ignoring`);
+            res.json({
+                success: true,
+                message: 'Exact duplicate request ignored',
+                requestId: requestId,
+                duplicate: true
+            });
+            return;
+        }
+
+        // Mark this exact request as processed
+        processedRequests.set(requestKey, now);
+
         // Handle single item (no batching)
         if (batchTotal === 1) {
             broadcastData(data, requestId, 'single');
@@ -112,7 +165,7 @@ app.post('/api/data', (req, res) => {
             return;
         }
 
-        // Handle batched data
+        // Handle batched data (no locking needed - duplicate detection handles race conditions)
         if (!pendingBatches.has(batchId)) {
             pendingBatches.set(batchId, {
                 id: batchId,
@@ -129,6 +182,7 @@ app.post('/api/data', (req, res) => {
             });
         }
 
+        // Get the batch (no locking needed - duplicate detection handles race conditions)
         const batch = pendingBatches.get(batchId);
         
         // Store the data
@@ -208,19 +262,30 @@ function broadcastData(data, requestId, source) {
     });
 
     let sentCount = 0;
-    clients.forEach((client) => {
+    let deadClients = [];
+    
+    clients.forEach((clientData, clientId) => {
         try {
-            if (!client.res.destroyed) {
-                client.res.write(`data: ${message}\n\n`);
+            if (!clientData.res.destroyed && clientData.connected) {
+                clientData.res.write(`data: ${message}\n\n`);
+                clientData.lastSeen = Date.now();
                 sentCount++;
+            } else {
+                deadClients.push(clientId);
             }
         } catch (error) {
-            console.error('Error sending to client:', error);
-            clients.delete(client);
+            console.error(`Error sending to client ${clientId}:`, error);
+            deadClients.push(clientId);
         }
     });
 
-    console.log(`[${requestId}] Broadcasted ${Array.isArray(data) ? data.length : 1} items from ${source} to ${sentCount} clients`);
+    // Clean up dead clients
+    deadClients.forEach(clientId => {
+        clients.delete(clientId);
+        console.log(`Removed dead client ${clientId} during broadcast`);
+    });
+
+    console.log(`[${requestId}] Broadcasted ${Array.isArray(data) ? data.length : 1} items from ${source} to ${sentCount} active clients (removed ${deadClients.length} dead clients)`);
 }
 
 // Helper function to process incomplete batches
@@ -247,7 +312,7 @@ function processIncompleteBatch(batchId) {
         broadcastData(sortedData, batch.requestId, `incomplete_batch_${batchId}`);
     }
 
-    // Clean up
+    // Clean up batch
     pendingBatches.delete(batchId);
 }
 
@@ -274,6 +339,47 @@ app.get('/api/health', (req, res) => {
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index-vercel.html'));
 });
+
+// Periodic cleanup of stale data
+setInterval(() => {
+    const now = Date.now();
+    const staleThreshold = 300000; // 5 minutes
+    
+    // Clean up stale processed requests
+    for (const [key, timestamp] of processedRequests.entries()) {
+        if (now - timestamp > duplicateWindow) {
+            processedRequests.delete(key);
+        }
+    }
+    
+    // Clean up stale batches
+    for (const [batchId, batch] of pendingBatches.entries()) {
+        if (now - batch.lastUpdate > staleThreshold) {
+            console.warn(`Cleaning up stale batch ${batchId}`);
+            clearTimeout(batch.timeout);
+            pendingBatches.delete(batchId);
+        }
+    }
+    
+    // Clean up stale clients (clients that haven't been seen in a while)
+    for (const [clientId, clientData] of clients.entries()) {
+        if (now - clientData.lastSeen > staleThreshold) {
+            console.warn(`Cleaning up stale client ${clientId}`);
+            try {
+                if (!clientData.res.destroyed) {
+                    clientData.res.end();
+                }
+            } catch (error) {
+                // Ignore errors when ending stale connections
+            }
+            clients.delete(clientId);
+        }
+    }
+    
+    if (processedRequests.size > 0 || pendingBatches.size > 0) {
+        console.log(`Cleanup: ${processedRequests.size} processed requests, ${pendingBatches.size} pending batches, ${clients.size} active clients`);
+    }
+}, 60000); // Run cleanup every minute
 
 // Export for Vercel
 module.exports = app;

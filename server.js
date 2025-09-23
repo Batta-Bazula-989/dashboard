@@ -48,7 +48,7 @@ wss.on('connection', (ws) => {
 // Store for tracking batch data
 const pendingBatches = new Map();
 const batchTimeout = 30000; // 30 seconds timeout for incomplete batches
-const processedRequests = new Set(); // Track processed requests to prevent duplicates
+const processedRequests = new Map(); // Track processed requests with timestamps
 const duplicateWindow = 60000; // 60 seconds window for duplicate detection
 
 // HTTP endpoint to receive data from n8n
@@ -85,6 +85,25 @@ app.post('/api/data', (req, res) => {
         // Log detailed timing information
         console.log(`[${requestId}] Processing ${batchTotal === 1 ? 'single item' : `batch item ${batchIndex + 1}/${batchTotal}`}`);
 
+        // Check for duplicate requests with better tracking (include requestId to allow same data from different sources)
+        const requestKey = `${batchId}_${batchIndex}_${requestId}`;
+        const now = Date.now();
+        
+        // Check if this exact request was already processed
+        if (processedRequests.has(requestKey)) {
+            console.warn(`[${requestId}] EXACT DUPLICATE REQUEST DETECTED: ${requestKey} - ignoring`);
+            res.json({
+                success: true,
+                message: 'Exact duplicate request ignored',
+                requestId: requestId,
+                duplicate: true
+            });
+            return;
+        }
+
+        // Mark this exact request as processed
+        processedRequests.set(requestKey, now);
+
         // Handle single item (no batching)
         if (batchTotal === 1) {
             broadcastData(data, requestId, 'single');
@@ -99,7 +118,7 @@ app.post('/api/data', (req, res) => {
             return;
         }
 
-        // Handle batched data
+        // Handle batched data (no locking needed - duplicate detection handles race conditions)
         if (!pendingBatches.has(batchId)) {
             pendingBatches.set(batchId, {
                 id: batchId,
@@ -116,6 +135,7 @@ app.post('/api/data', (req, res) => {
             });
         }
 
+        // Get the batch (no locking needed - duplicate detection handles race conditions)
         const batch = pendingBatches.get(batchId);
         
         // Store the data
@@ -195,6 +215,8 @@ function broadcastData(data, requestId, source) {
     });
 
     let sentCount = 0;
+    let deadClients = [];
+    
     clients.forEach((client) => {
         if (client.readyState === WebSocket.OPEN) {
             try {
@@ -202,11 +224,19 @@ function broadcastData(data, requestId, source) {
                 sentCount++;
             } catch (error) {
                 console.error('Error sending to client:', error);
+                deadClients.push(client);
             }
+        } else {
+            deadClients.push(client);
         }
     });
 
-    console.log(`[${requestId}] Broadcasted ${Array.isArray(data) ? data.length : 1} items from ${source} to ${sentCount} clients`);
+    // Clean up dead clients
+    deadClients.forEach(client => {
+        clients.delete(client);
+    });
+
+    console.log(`[${requestId}] Broadcasted ${Array.isArray(data) ? data.length : 1} items from ${source} to ${sentCount} active clients (removed ${deadClients.length} dead clients)`);
 }
 
 // Helper function to process incomplete batches
@@ -233,7 +263,7 @@ function processIncompleteBatch(batchId) {
         broadcastData(sortedData, batch.requestId, `incomplete_batch_${batchId}`);
     }
 
-    // Clean up
+    // Clean up batch
     pendingBatches.delete(batchId);
 }
 
@@ -271,6 +301,44 @@ server.listen(PORT, () => {
     console.log(`📊 Dashboard available at http://localhost:${PORT}`);
     console.log(`🔗 n8n endpoint: http://localhost:${PORT}/api/data`);
 });
+
+// Periodic cleanup of stale data
+setInterval(() => {
+    const now = Date.now();
+    const staleThreshold = 300000; // 5 minutes
+    
+    // Clean up stale processed requests
+    for (const [key, timestamp] of processedRequests.entries()) {
+        if (now - timestamp > duplicateWindow) {
+            processedRequests.delete(key);
+        }
+    }
+    
+    // Clean up stale batches
+    for (const [batchId, batch] of pendingBatches.entries()) {
+        if (now - batch.lastUpdate > staleThreshold) {
+            console.warn(`Cleaning up stale batch ${batchId}`);
+            clearTimeout(batch.timeout);
+            pendingBatches.delete(batchId);
+        }
+    }
+    
+    // Clean up stale WebSocket clients
+    const deadClients = [];
+    clients.forEach((client) => {
+        if (client.readyState !== WebSocket.OPEN) {
+            deadClients.push(client);
+        }
+    });
+    
+    deadClients.forEach(client => {
+        clients.delete(client);
+    });
+    
+    if (processedRequests.size > 0 || pendingBatches.size > 0 || deadClients.length > 0) {
+        console.log(`Cleanup: ${processedRequests.size} processed requests, ${pendingBatches.size} pending batches, ${clients.size} active clients, ${deadClients.length} dead clients removed`);
+    }
+}, 60000); // Run cleanup every minute
 
 // Graceful shutdown
 process.on('SIGINT', () => {
