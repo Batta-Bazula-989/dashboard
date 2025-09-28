@@ -17,6 +17,10 @@ app.use(express.json({ limit: '50mb' }));
 const clients = new Map(); // clientId -> { res, lastSeen, id }
 let clientIdCounter = 0;
 
+// Store data when no clients are connected
+const dataBuffer = [];
+const maxBufferSize = 100; // Keep last 100 items
+
 // Server-Sent Events endpoint for real-time updates
 app.get('/api/events', (req, res) => {
     // Set SSE headers
@@ -28,6 +32,9 @@ app.get('/api/events', (req, res) => {
         'Access-Control-Allow-Headers': 'Cache-Control'
     });
 
+    // Store client connection with metadata
+    const clientId = ++clientIdCounter;
+
     // Send initial connection message
     res.write(`data: ${JSON.stringify({
         type: 'welcome',
@@ -35,8 +42,17 @@ app.get('/api/events', (req, res) => {
         timestamp: new Date().toISOString()
     })}\n\n`);
 
-    // Store client connection with metadata
-    const clientId = ++clientIdCounter;
+    // Send any buffered data to the new client
+    if (dataBuffer.length > 0) {
+        console.log(`Sending ${dataBuffer.length} buffered items to new client ${clientId}`);
+        dataBuffer.forEach((bufferedData, index) => {
+            try {
+                res.write(`data: ${JSON.stringify(bufferedData)}\n\n`);
+            } catch (error) {
+                console.error(`Error sending buffered data ${index} to client ${clientId}:`, error);
+            }
+        });
+    }
     const clientData = { 
         id: clientId, 
         res, 
@@ -236,13 +252,13 @@ app.post('/api/data', (req, res) => {
 
 // Helper function to broadcast data to all SSE clients
 function broadcastData(data, requestId, source) {
-    const message = JSON.stringify({
+    const message = {
         type: 'data',
         data: data,
         timestamp: new Date().toISOString(),
         requestId: requestId,
         source: source
-    });
+    };
 
     let sentCount = 0;
     let deadClients = [];
@@ -250,7 +266,7 @@ function broadcastData(data, requestId, source) {
     clients.forEach((clientData, clientId) => {
         try {
             if (!clientData.res.destroyed && clientData.connected) {
-                clientData.res.write(`data: ${message}\n\n`);
+                clientData.res.write(`data: ${JSON.stringify(message)}\n\n`);
                 clientData.lastSeen = Date.now();
                 sentCount++;
             } else {
@@ -262,13 +278,24 @@ function broadcastData(data, requestId, source) {
         }
     });
 
+    // If no clients are connected, buffer the data
+    if (sentCount === 0) {
+        console.log(`[${requestId}] No clients connected - buffering data from ${source}`);
+        dataBuffer.push(message);
+        
+        // Keep buffer size manageable
+        if (dataBuffer.length > maxBufferSize) {
+            dataBuffer.shift(); // Remove oldest item
+        }
+    }
+
     // Clean up dead clients
     deadClients.forEach(clientId => {
         clients.delete(clientId);
         console.log(`Removed dead SSE client ${clientId} during broadcast`);
     });
 
-    console.log(`[${requestId}] Broadcasted ${Array.isArray(data) ? data.length : 1} items from ${source} to ${sentCount} active SSE clients (removed ${deadClients.length} dead clients)`);
+    console.log(`[${requestId}] Broadcasted ${Array.isArray(data) ? data.length : 1} items from ${source} to ${sentCount} active SSE clients (removed ${deadClients.length} dead clients, buffer size: ${dataBuffer.length})`);
 }
 
 // Helper function to process incomplete batches
