@@ -19,13 +19,17 @@ app.use(express.json({ limit: '50mb' }));
 // Create WebSocket server
 const wss = new WebSocket.Server({ server });
 
-// Store connected clients
-const clients = new Set();
+// Store connected WebSocket clients
+const wsClients = new Set();
+
+// Store connected SSE clients with metadata
+const sseClients = new Map(); // clientId -> { res, lastSeen, id }
+let sseClientIdCounter = 0;
 
 // WebSocket connection handling
 wss.on('connection', (ws) => {
-    console.log('New client connected');
-    clients.add(ws);
+    console.log('New WebSocket client connected');
+    wsClients.add(ws);
 
     // Send welcome message
     ws.send(JSON.stringify({
@@ -35,13 +39,88 @@ wss.on('connection', (ws) => {
     }));
 
     ws.on('close', () => {
-        console.log('Client disconnected');
-        clients.delete(ws);
+        console.log('WebSocket client disconnected');
+        wsClients.delete(ws);
     });
 
     ws.on('error', (error) => {
         console.error('WebSocket error:', error);
-        clients.delete(ws);
+        wsClients.delete(ws);
+    });
+});
+
+// Server-Sent Events endpoint for real-time updates
+app.get('/api/events', (req, res) => {
+    // Set SSE headers
+    res.writeHead(200, {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Cache-Control'
+    });
+
+    // Send initial connection message
+    res.write(`data: ${JSON.stringify({
+        type: 'welcome',
+        message: 'Connected to data dashboard',
+        timestamp: new Date().toISOString()
+    })}\n\n`);
+
+    // Store client connection with metadata
+    const clientId = ++sseClientIdCounter;
+    const clientData = { 
+        id: clientId, 
+        res, 
+        lastSeen: Date.now(),
+        connected: true
+    };
+    sseClients.set(clientId, clientData);
+
+    console.log(`SSE Client ${clientId} connected (total: ${sseClients.size})`);
+
+    // Handle client disconnect
+    req.on('close', () => {
+        if (sseClients.has(clientId)) {
+            sseClients.delete(clientId);
+            console.log(`SSE Client ${clientId} disconnected (total: ${sseClients.size})`);
+        }
+    });
+
+    // Handle client errors
+    req.on('error', (error) => {
+        console.error(`SSE Client ${clientId} error:`, error);
+        if (sseClients.has(clientId)) {
+            sseClients.delete(clientId);
+            console.log(`SSE Client ${clientId} removed due to error (total: ${sseClients.size})`);
+        }
+    });
+
+    // Send keep-alive every 30 seconds
+    const keepAlive = setInterval(() => {
+        if (res.destroyed || !sseClients.has(clientId)) {
+            clearInterval(keepAlive);
+            return;
+        }
+        
+        try {
+            res.write(`data: ${JSON.stringify({ type: 'ping' })}\n\n`);
+            // Update last seen time
+            if (sseClients.has(clientId)) {
+                sseClients.get(clientId).lastSeen = Date.now();
+            }
+        } catch (error) {
+            console.error(`Keep-alive failed for SSE client ${clientId}:`, error);
+            clearInterval(keepAlive);
+            sseClients.delete(clientId);
+        }
+    }, 30000);
+
+    req.on('close', () => {
+        clearInterval(keepAlive);
+        if (sseClients.has(clientId)) {
+            sseClients.delete(clientId);
+        }
     });
 });
 
@@ -204,7 +283,7 @@ app.post('/api/data', (req, res) => {
     }
 });
 
-// Helper function to broadcast data to all clients
+// Helper function to broadcast data to all clients (both WebSocket and SSE)
 function broadcastData(data, requestId, source) {
     const message = JSON.stringify({
         type: 'data',
@@ -214,29 +293,57 @@ function broadcastData(data, requestId, source) {
         source: source
     });
 
-    let sentCount = 0;
-    let deadClients = [];
+    let wsSentCount = 0;
+    let sseSentCount = 0;
+    let deadWsClients = [];
+    let deadSseClients = [];
     
-    clients.forEach((client) => {
+    // Broadcast to WebSocket clients
+    wsClients.forEach((client) => {
         if (client.readyState === WebSocket.OPEN) {
             try {
                 client.send(message);
-                sentCount++;
+                wsSentCount++;
             } catch (error) {
-                console.error('Error sending to client:', error);
-                deadClients.push(client);
+                console.error('Error sending to WebSocket client:', error);
+                deadWsClients.push(client);
             }
         } else {
-            deadClients.push(client);
+            deadWsClients.push(client);
         }
     });
 
-    // Clean up dead clients
-    deadClients.forEach(client => {
-        clients.delete(client);
+    // Broadcast to SSE clients
+    sseClients.forEach((clientData, clientId) => {
+        try {
+            if (!clientData.res.destroyed && clientData.connected) {
+                clientData.res.write(`data: ${message}\n\n`);
+                clientData.lastSeen = Date.now();
+                sseSentCount++;
+            } else {
+                deadSseClients.push(clientId);
+            }
+        } catch (error) {
+            console.error(`Error sending to SSE client ${clientId}:`, error);
+            deadSseClients.push(clientId);
+        }
     });
 
-    console.log(`[${requestId}] Broadcasted ${Array.isArray(data) ? data.length : 1} items from ${source} to ${sentCount} active clients (removed ${deadClients.length} dead clients)`);
+    // Clean up dead WebSocket clients
+    deadWsClients.forEach(client => {
+        wsClients.delete(client);
+    });
+
+    // Clean up dead SSE clients
+    deadSseClients.forEach(clientId => {
+        sseClients.delete(clientId);
+        console.log(`Removed dead SSE client ${clientId} during broadcast`);
+    });
+
+    const totalSent = wsSentCount + sseSentCount;
+    const totalDead = deadWsClients.length + deadSseClients.length;
+    
+    console.log(`[${requestId}] Broadcasted ${Array.isArray(data) ? data.length : 1} items from ${source} to ${totalSent} active clients (${wsSentCount} WebSocket, ${sseSentCount} SSE) (removed ${totalDead} dead clients)`);
 }
 
 // Helper function to process incomplete batches
@@ -279,7 +386,11 @@ app.get('/api/health', (req, res) => {
 
     res.json({
         status: 'healthy',
-        clients: clients.size,
+        clients: {
+            websocket: wsClients.size,
+            sse: sseClients.size,
+            total: wsClients.size + sseClients.size
+        },
         uptime: process.uptime(),
         activeBatches: activeBatches.length,
         batchDetails: activeBatches
@@ -324,19 +435,34 @@ setInterval(() => {
     }
     
     // Clean up stale WebSocket clients
-    const deadClients = [];
-    clients.forEach((client) => {
+    const deadWsClients = [];
+    wsClients.forEach((client) => {
         if (client.readyState !== WebSocket.OPEN) {
-            deadClients.push(client);
+            deadWsClients.push(client);
         }
     });
     
-    deadClients.forEach(client => {
-        clients.delete(client);
+    deadWsClients.forEach(client => {
+        wsClients.delete(client);
     });
+
+    // Clean up stale SSE clients (clients that haven't been seen in a while)
+    for (const [clientId, clientData] of sseClients.entries()) {
+        if (now - clientData.lastSeen > staleThreshold) {
+            console.warn(`Cleaning up stale SSE client ${clientId}`);
+            try {
+                if (!clientData.res.destroyed) {
+                    clientData.res.end();
+                }
+            } catch (error) {
+                // Ignore errors when ending stale connections
+            }
+            sseClients.delete(clientId);
+        }
+    }
     
-    if (processedRequests.size > 0 || pendingBatches.size > 0 || deadClients.length > 0) {
-        console.log(`Cleanup: ${processedRequests.size} processed requests, ${pendingBatches.size} pending batches, ${clients.size} active clients, ${deadClients.length} dead clients removed`);
+    if (processedRequests.size > 0 || pendingBatches.size > 0 || deadWsClients.length > 0) {
+        console.log(`Cleanup: ${processedRequests.size} processed requests, ${pendingBatches.size} pending batches, ${wsClients.size} WebSocket clients, ${sseClients.size} SSE clients, ${deadWsClients.length} dead WebSocket clients removed`);
     }
 }, 60000); // Run cleanup every minute
 
@@ -348,3 +474,4 @@ process.on('SIGINT', () => {
         process.exit(0);
     });
 });
+
