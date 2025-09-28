@@ -16,32 +16,82 @@ app.use(express.static(path.join(__dirname)));
 // Parse JSON bodies
 app.use(express.json({ limit: '50mb' }));
 
-// Create WebSocket server
-const wss = new WebSocket.Server({ server });
+// Store connected SSE clients with metadata
+const clients = new Map(); // clientId -> { res, lastSeen, id }
+let clientIdCounter = 0;
 
-// Store connected WebSocket clients
-const clients = new Set();
+// Server-Sent Events endpoint for real-time updates
+app.get('/api/events', (req, res) => {
+    // Set SSE headers
+    res.writeHead(200, {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Cache-Control'
+    });
 
-// WebSocket connection handling
-wss.on('connection', (ws) => {
-    console.log('New WebSocket client connected');
-    clients.add(ws);
-
-    // Send welcome message
-    ws.send(JSON.stringify({
+    // Send initial connection message
+    res.write(`data: ${JSON.stringify({
         type: 'welcome',
         message: 'Connected to data dashboard',
         timestamp: new Date().toISOString()
-    }));
+    })}\n\n`);
 
-    ws.on('close', () => {
-        console.log('WebSocket client disconnected');
-        clients.delete(ws);
+    // Store client connection with metadata
+    const clientId = ++clientIdCounter;
+    const clientData = { 
+        id: clientId, 
+        res, 
+        lastSeen: Date.now(),
+        connected: true
+    };
+    clients.set(clientId, clientData);
+
+    console.log(`SSE Client ${clientId} connected (total: ${clients.size})`);
+
+    // Handle client disconnect
+    req.on('close', () => {
+        if (clients.has(clientId)) {
+            clients.delete(clientId);
+            console.log(`SSE Client ${clientId} disconnected (total: ${clients.size})`);
+        }
     });
 
-    ws.on('error', (error) => {
-        console.error('WebSocket error:', error);
-        clients.delete(ws);
+    // Handle client errors
+    req.on('error', (error) => {
+        console.error(`SSE Client ${clientId} error:`, error);
+        if (clients.has(clientId)) {
+            clients.delete(clientId);
+            console.log(`SSE Client ${clientId} removed due to error (total: ${clients.size})`);
+        }
+    });
+
+    // Send keep-alive every 30 seconds
+    const keepAlive = setInterval(() => {
+        if (res.destroyed || !clients.has(clientId)) {
+            clearInterval(keepAlive);
+            return;
+        }
+        
+        try {
+            res.write(`data: ${JSON.stringify({ type: 'ping' })}\n\n`);
+            // Update last seen time
+            if (clients.has(clientId)) {
+                clients.get(clientId).lastSeen = Date.now();
+            }
+        } catch (error) {
+            console.error(`Keep-alive failed for SSE client ${clientId}:`, error);
+            clearInterval(keepAlive);
+            clients.delete(clientId);
+        }
+    }, 30000);
+
+    req.on('close', () => {
+        clearInterval(keepAlive);
+        if (clients.has(clientId)) {
+            clients.delete(clientId);
+        }
     });
 });
 
@@ -205,7 +255,7 @@ app.post('/api/data', (req, res) => {
     }
 });
 
-// Helper function to broadcast data to all WebSocket clients
+// Helper function to broadcast data to all SSE clients
 function broadcastData(data, requestId, source) {
     const message = JSON.stringify({
         type: 'data',
@@ -218,26 +268,28 @@ function broadcastData(data, requestId, source) {
     let sentCount = 0;
     let deadClients = [];
     
-    clients.forEach((client) => {
-        if (client.readyState === WebSocket.OPEN) {
-            try {
-                client.send(message);
+    clients.forEach((clientData, clientId) => {
+        try {
+            if (!clientData.res.destroyed && clientData.connected) {
+                clientData.res.write(`data: ${message}\n\n`);
+                clientData.lastSeen = Date.now();
                 sentCount++;
-            } catch (error) {
-                console.error('Error sending to client:', error);
-                deadClients.push(client);
+            } else {
+                deadClients.push(clientId);
             }
-        } else {
-            deadClients.push(client);
+        } catch (error) {
+            console.error(`Error sending to SSE client ${clientId}:`, error);
+            deadClients.push(clientId);
         }
     });
 
     // Clean up dead clients
-    deadClients.forEach(client => {
-        clients.delete(client);
+    deadClients.forEach(clientId => {
+        clients.delete(clientId);
+        console.log(`Removed dead SSE client ${clientId} during broadcast`);
     });
 
-    console.log(`[${requestId}] Broadcasted ${Array.isArray(data) ? data.length : 1} items from ${source} to ${sentCount} active WebSocket clients (removed ${deadClients.length} dead clients)`);
+    console.log(`[${requestId}] Broadcasted ${Array.isArray(data) ? data.length : 1} items from ${source} to ${sentCount} active SSE clients (removed ${deadClients.length} dead clients)`);
 }
 
 // Helper function to process incomplete batches
@@ -313,20 +365,23 @@ setInterval(() => {
         }
     }
     
-    // Clean up stale WebSocket clients
-    const deadClients = [];
-    clients.forEach((client) => {
-        if (client.readyState !== WebSocket.OPEN) {
-            deadClients.push(client);
+    // Clean up stale SSE clients (clients that haven't been seen in a while)
+    for (const [clientId, clientData] of clients.entries()) {
+        if (now - clientData.lastSeen > staleThreshold) {
+            console.warn(`Cleaning up stale SSE client ${clientId}`);
+            try {
+                if (!clientData.res.destroyed) {
+                    clientData.res.end();
+                }
+            } catch (error) {
+                // Ignore errors when ending stale connections
+            }
+            clients.delete(clientId);
         }
-    });
+    }
     
-    deadClients.forEach(client => {
-        clients.delete(client);
-    });
-    
-    if (processedRequests.size > 0 || pendingBatches.size > 0 || deadClients.length > 0) {
-        console.log(`Cleanup: ${processedRequests.size} processed requests, ${pendingBatches.size} pending batches, ${clients.size} active clients, ${deadClients.length} dead clients removed`);
+    if (processedRequests.size > 0 || pendingBatches.size > 0) {
+        console.log(`Cleanup: ${processedRequests.size} processed requests, ${pendingBatches.size} pending batches, ${clients.size} active SSE clients`);
     }
 }, 60000); // Run cleanup every minute
 

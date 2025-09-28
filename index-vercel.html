@@ -600,7 +600,7 @@
             <span id="connectionText">Connecting...</span>
         </div>
         <div class="status-item">
-            <span>📡 WebSocket: <span id="wsStatus">Disconnected</span></span>
+            <span>📡 SSE: <span id="wsStatus">Disconnected</span></span>
         </div>
     </div>
 
@@ -639,54 +639,53 @@
 <script>
     class DataDashboard {
         constructor() {
-            this.ws = null;
+            this.eventSource = null;
             this.dataCount = 0;
             this.maxItems = 50; // Keep only last 50 items
             this.init();
         }
 
         init() {
-            this.connectWebSocket();
+            this.connectSSE();
             this.updateConnectionStatus('connecting', 'Connecting...');
         }
 
-        connectWebSocket() {
-            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-            const wsUrl = `${protocol}//${window.location.host}`;
+        connectSSE() {
+            const sseUrl = '/api/events';
 
-            this.ws = new WebSocket(wsUrl);
+            this.eventSource = new EventSource(sseUrl);
 
-            this.ws.onopen = () => {
-                console.log('WebSocket connected');
+            this.eventSource.onopen = () => {
+                console.log('SSE connected');
                 this.updateConnectionStatus('connected', 'Connected');
                 this.updateWsStatus('Connected');
             };
 
-            this.ws.onmessage = (event) => {
+            this.eventSource.onmessage = (event) => {
                 try {
                     const data = JSON.parse(event.data);
-                    this.addDataItem(data);
+                    if (data.type === 'data') {
+                        this.addDataItem(data);
+                    } else if (data.type === 'welcome') {
+                        console.log('Welcome message:', data.message);
+                    } else if (data.type === 'ping') {
+                        // Keep-alive ping, no action needed
+                    }
                 } catch (error) {
                     console.error('Error parsing data:', error);
                     this.addDataItem({ error: 'Invalid JSON received', raw: event.data });
                 }
             };
 
-            this.ws.onclose = () => {
-                console.log('WebSocket disconnected');
-                this.updateConnectionStatus('disconnected', 'Disconnected');
-                this.updateWsStatus('Disconnected');
+            this.eventSource.onerror = (error) => {
+                console.error('SSE error:', error);
+                this.updateConnectionStatus('disconnected', 'Connection Error');
+                this.updateWsStatus('Error');
 
                 // Attempt to reconnect after 3 seconds
                 setTimeout(() => {
-                    this.connectWebSocket();
+                    this.connectSSE();
                 }, 3000);
-            };
-
-            this.ws.onerror = (error) => {
-                console.error('WebSocket error:', error);
-                this.updateConnectionStatus('disconnected', 'Connection Error');
-                this.updateWsStatus('Error');
             };
         }
 
