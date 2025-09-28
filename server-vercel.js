@@ -1,11 +1,8 @@
 const express = require('express');
-const http = require('http');
-const WebSocket = require('ws');
 const path = require('path');
 const cors = require('cors');
 
 const app = express();
-const server = http.createServer(app);
 
 // Enable CORS for all routes
 app.use(cors());
@@ -99,8 +96,6 @@ app.get('/api/events', (req, res) => {
 // Store for tracking batch data
 const pendingBatches = new Map();
 const batchTimeout = 30000; // 30 seconds timeout for incomplete batches
-const processedRequests = new Map(); // Track processed requests with timestamps
-const duplicateWindow = 60000; // 60 seconds window for duplicate detection
 
 // HTTP endpoint to receive data from n8n
 app.post('/api/data', (req, res) => {
@@ -136,24 +131,8 @@ app.post('/api/data', (req, res) => {
         // Log detailed timing information
         console.log(`[${requestId}] Processing ${batchTotal === 1 ? 'single item' : `batch item ${batchIndex + 1}/${batchTotal}`}`);
 
-        // Check for duplicate requests with better tracking (include requestId to allow same data from different sources)
-        const requestKey = `${batchId}_${batchIndex}_${requestId}`;
+        // Process all data - no duplicate filtering
         const now = Date.now();
-        
-        // Check if this exact request was already processed
-        if (processedRequests.has(requestKey)) {
-            console.warn(`[${requestId}] EXACT DUPLICATE REQUEST DETECTED: ${requestKey} - ignoring`);
-            res.json({
-                success: true,
-                message: 'Exact duplicate request ignored',
-                requestId: requestId,
-                duplicate: true
-            });
-            return;
-        }
-
-        // Mark this exact request as processed
-        processedRequests.set(requestKey, now);
 
         // Handle single item (no batching)
         if (batchTotal === 1) {
@@ -349,12 +328,6 @@ setInterval(() => {
     const now = Date.now();
     const staleThreshold = 300000; // 5 minutes
     
-    // Clean up stale processed requests
-    for (const [key, timestamp] of processedRequests.entries()) {
-        if (now - timestamp > duplicateWindow) {
-            processedRequests.delete(key);
-        }
-    }
     
     // Clean up stale batches
     for (const [batchId, batch] of pendingBatches.entries()) {
@@ -380,8 +353,8 @@ setInterval(() => {
         }
     }
     
-    if (processedRequests.size > 0 || pendingBatches.size > 0) {
-        console.log(`Cleanup: ${processedRequests.size} processed requests, ${pendingBatches.size} pending batches, ${clients.size} active SSE clients`);
+    if (pendingBatches.size > 0) {
+        console.log(`Cleanup: ${pendingBatches.size} pending batches, ${clients.size} active SSE clients`);
     }
 }, 60000); // Run cleanup every minute
 
