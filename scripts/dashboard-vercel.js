@@ -7,7 +7,6 @@ class DataDashboard {
         this.dataCount = 0;
         this.maxItems = 50; // Keep only last 50 items
         this.pollingInterval = null;
-        this.lastDataTimestamp = null;
         
         // Component instances
         this.statusBar = null;
@@ -104,19 +103,10 @@ class DataDashboard {
             const result = await response.json();
             
             if (result.success && result.data && result.data.length > 0) {
-                // Process all new data items since last check
-                let hasNewData = false;
+                // Simple approach: process all data items
                 result.data.forEach(dataItem => {
-                    if (!this.lastDataTimestamp || dataItem.timestamp > this.lastDataTimestamp) {
-                        this.addDataItem(dataItem);
-                        hasNewData = true;
-                    }
+                    this.addDataItem(dataItem);
                 });
-                
-                // Update timestamp to latest
-                if (hasNewData) {
-                    this.lastDataTimestamp = result.data[result.data.length - 1].timestamp;
-                }
                 
                 this.updateConnectionStatus('connected', 'Connected');
                 this.updateWsStatus('Connected');
