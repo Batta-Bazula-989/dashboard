@@ -190,7 +190,7 @@ app.post('/api/data', (req, res) => {
             res.json({
                 success: true,
                 message: 'Single item received and broadcasted',
-                clients: clients.size,
+                clients: wsClients.size + sseClients.size,
                 requestId: requestId,
                 itemId: itemId
             });
@@ -254,7 +254,7 @@ app.post('/api/data', (req, res) => {
             res.json({
                 success: true,
                 message: 'Complete batch received and broadcasted',
-                clients: clients.size,
+                clients: wsClients.size + sseClients.size,
                 requestId: requestId,
                 batchId: batchId,
                 totalItems: sortedData.length
