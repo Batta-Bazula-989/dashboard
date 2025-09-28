@@ -7,7 +7,6 @@ class DataDashboard {
         this.dataCount = 0;
         this.maxItems = 50; // Keep only last 50 items
         this.pollingInterval = null;
-        this.processedData = new Set(); // Track processed data to avoid duplicates
         
         // Component instances
         this.statusBar = null;
@@ -104,16 +103,9 @@ class DataDashboard {
             const result = await response.json();
             
             if (result.success && result.data && result.data.length > 0) {
-                // Process only new data items to avoid duplicates
-                let hasNewData = false;
-                result.data.forEach(dataItem => {
-                    const dataKey = `${dataItem.timestamp}_${dataItem.requestId}`;
-                    if (!this.processedData.has(dataKey)) {
-                        this.processedData.add(dataKey);
-                        this.addDataItem(dataItem);
-                        hasNewData = true;
-                    }
-                });
+                // Process only the latest data item (original working approach)
+                const latestData = result.data[result.data.length - 1];
+                this.addDataItem(latestData);
                 
                 this.updateConnectionStatus('connected', 'Connected');
                 this.updateWsStatus('Connected');
