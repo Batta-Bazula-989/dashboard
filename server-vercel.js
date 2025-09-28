@@ -27,6 +27,21 @@ app.get('/api/data', (req, res) => {
     });
 });
 
+// Clear all data endpoint
+app.post('/api/clear', (req, res) => {
+    const previousCount = recentData.length;
+    recentData.length = 0; // Clear the array
+    
+    console.log(`🗑️ Cleared ${previousCount} items from storage`);
+    
+    res.json({
+        success: true,
+        message: `Cleared ${previousCount} items`,
+        previousCount: previousCount,
+        timestamp: new Date().toISOString()
+    });
+});
+
 
 // Store for tracking batch data
 const pendingBatches = new Map();

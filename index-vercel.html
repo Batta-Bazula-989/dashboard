@@ -74,6 +74,30 @@
             background: #ef4444;
         }
 
+        .clear-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .clear-btn:hover {
+            background: #dc2626;
+            transform: translateY(-1px);
+        }
+
+        .clear-btn:active {
+            transform: translateY(0);
+        }
+
         @keyframes pulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.5; }
@@ -602,6 +626,9 @@
         <div class="status-item">
             <span>📡 API: <span id="wsStatus">Polling</span></span>
         </div>
+        <div class="status-item">
+            <button id="clearButton" class="clear-btn" onclick="clearData()">🗑️ Clear Data</button>
+        </div>
     </div>
 
     <div class="stats-container">
@@ -700,6 +727,35 @@
 
         updateWsStatus(status) {
             document.getElementById('wsStatus').textContent = status;
+        }
+
+        async clearData() {
+            try {
+                console.log('🗑️ Clearing all data...');
+                const response = await fetch('/api/clear', { method: 'POST' });
+                const result = await response.json();
+                
+                if (result.success) {
+                    console.log('✅ Data cleared successfully');
+                    // Clear the UI
+                    const dataDisplay = document.getElementById('dataDisplay');
+                    dataDisplay.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📭</div><h3>No data received yet</h3></div>';
+                    
+                    // Reset counters
+                    document.getElementById('competitorCount').textContent = '0';
+                    document.getElementById('adsCount').textContent = '0';
+                    
+                    // Reset internal counter
+                    this.lastDataCount = 0;
+                    
+                    // Show success message
+                    this.updateConnectionStatus('connected', 'Data cleared successfully');
+                } else {
+                    console.error('❌ Failed to clear data:', result.error);
+                }
+            } catch (error) {
+                console.error('❌ Error clearing data:', error);
+            }
         }
 
         addDataItem(incoming) {
