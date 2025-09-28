@@ -104,12 +104,22 @@ class DataDashboard {
             const result = await response.json();
             
             if (result.success && result.data && result.data.length > 0) {
-                // Check if we have new data
-                const latestData = result.data[result.data.length - 1];
-                if (!this.lastDataTimestamp || latestData.timestamp > this.lastDataTimestamp) {
-                    this.lastDataTimestamp = latestData.timestamp;
-                    this.addDataItem(latestData);
+                // Process all new data items since last check
+                let hasNewData = false;
+                result.data.forEach(dataItem => {
+                    if (!this.lastDataTimestamp || dataItem.timestamp > this.lastDataTimestamp) {
+                        this.addDataItem(dataItem);
+                        hasNewData = true;
+                    }
+                });
+                
+                // Update timestamp to latest
+                if (hasNewData) {
+                    this.lastDataTimestamp = result.data[result.data.length - 1].timestamp;
                 }
+                
+                this.updateConnectionStatus('connected', 'Connected');
+                this.updateWsStatus('Connected');
             } else {
                 // No data yet - show connected but waiting status
                 this.updateConnectionStatus('connected', 'Connected');
