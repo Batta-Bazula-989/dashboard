@@ -359,7 +359,7 @@ setInterval(() => {
 }, 60000); // Run cleanup every minute
 
 // Export for Vercel
-module.exports = server;
+module.exports = app;
 
 
 
