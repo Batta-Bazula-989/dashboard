@@ -624,9 +624,6 @@
             <span id="connectionText">Connecting...</span>
         </div>
         <div class="status-item">
-            <span>📡 API: <span id="wsStatus">Polling</span></span>
-        </div>
-        <div class="status-item">
             <button id="clearButton" class="clear-btn">🗑️ Clear Data</button>
         </div>
     </div>
@@ -716,7 +713,7 @@
                     }
                     this.lastDataCount = result.data.length;
                     
-                    this.updateConnectionStatus('connected', `Connected (${result.data.length} items)`);
+                    this.updateConnectionStatus('connected', `${result.data.length} items`);
                 }
             } catch (error) {
                 console.error('❌ API polling error:', error);
