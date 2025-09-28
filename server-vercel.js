@@ -44,14 +44,18 @@ app.get('/api/events', (req, res) => {
 
     // Send any buffered data to the new client
     if (dataBuffer.length > 0) {
-        console.log(`Sending ${dataBuffer.length} buffered items to new client ${clientId}`);
+        console.log(`🔄 Sending ${dataBuffer.length} buffered items to new client ${clientId}`);
         dataBuffer.forEach((bufferedData, index) => {
             try {
                 res.write(`data: ${JSON.stringify(bufferedData)}\n\n`);
+                console.log(`✅ Sent buffered item ${index + 1}/${dataBuffer.length} to client ${clientId}`);
             } catch (error) {
-                console.error(`Error sending buffered data ${index} to client ${clientId}:`, error);
+                console.error(`❌ Error sending buffered data ${index} to client ${clientId}:`, error);
             }
         });
+        console.log(`🎯 Finished sending all ${dataBuffer.length} buffered items to client ${clientId}`);
+    } else {
+        console.log(`📭 No buffered data to send to new client ${clientId}`);
     }
     const clientData = { 
         id: clientId, 
@@ -80,7 +84,7 @@ app.get('/api/events', (req, res) => {
         }
     });
 
-    // Send keep-alive every 30 seconds
+    // Send keep-alive every 10 seconds (more frequent for Vercel)
     const keepAlive = setInterval(() => {
         if (res.destroyed || !clients.has(clientId)) {
             clearInterval(keepAlive);
@@ -88,7 +92,7 @@ app.get('/api/events', (req, res) => {
         }
         
         try {
-            res.write(`data: ${JSON.stringify({ type: 'ping' })}\n\n`);
+            res.write(`data: ${JSON.stringify({ type: 'ping', timestamp: Date.now() })}\n\n`);
             // Update last seen time
             if (clients.has(clientId)) {
                 clients.get(clientId).lastSeen = Date.now();
@@ -98,7 +102,7 @@ app.get('/api/events', (req, res) => {
             clearInterval(keepAlive);
             clients.delete(clientId);
         }
-    }, 30000);
+    }, 10000);
 
     req.on('close', () => {
         clearInterval(keepAlive);
@@ -280,13 +284,17 @@ function broadcastData(data, requestId, source) {
 
     // If no clients are connected, buffer the data
     if (sentCount === 0) {
-        console.log(`[${requestId}] No clients connected - buffering data from ${source}`);
+        console.log(`📦 [${requestId}] No clients connected - buffering data from ${source}`);
         dataBuffer.push(message);
+        console.log(`📦 Buffer now contains ${dataBuffer.length} items`);
         
         // Keep buffer size manageable
         if (dataBuffer.length > maxBufferSize) {
-            dataBuffer.shift(); // Remove oldest item
+            const removed = dataBuffer.shift(); // Remove oldest item
+            console.log(`📦 Removed oldest item from buffer, buffer size: ${dataBuffer.length}`);
         }
+    } else {
+        console.log(`📤 [${requestId}] Data sent to ${sentCount} clients, not buffering`);
     }
 
     // Clean up dead clients
