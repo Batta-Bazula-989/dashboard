@@ -7,6 +7,7 @@ class DataDashboard {
         this.dataCount = 0;
         this.maxItems = 50; // Keep only last 50 items
         this.pollingInterval = null;
+        this.processedData = new Set(); // Track processed data to avoid duplicates
         
         // Component instances
         this.statusBar = null;
@@ -81,10 +82,10 @@ class DataDashboard {
         // Initial data fetch
         this.fetchData();
         
-        // Set up polling interval (every 2 seconds)
+        // Set up polling interval (every 6 seconds)
         this.pollingInterval = setInterval(() => {
             this.fetchData();
-        }, 2000);
+        }, 6000);
         
         this.updateConnectionStatus('connected', 'Connected (Polling)');
         this.updateWsStatus('Polling');
@@ -103,9 +104,15 @@ class DataDashboard {
             const result = await response.json();
             
             if (result.success && result.data && result.data.length > 0) {
-                // Simple approach: process all data items
+                // Process only new data items to avoid duplicates
+                let hasNewData = false;
                 result.data.forEach(dataItem => {
-                    this.addDataItem(dataItem);
+                    const dataKey = `${dataItem.timestamp}_${dataItem.requestId}`;
+                    if (!this.processedData.has(dataKey)) {
+                        this.processedData.add(dataKey);
+                        this.addDataItem(dataItem);
+                        hasNewData = true;
+                    }
                 });
                 
                 this.updateConnectionStatus('connected', 'Connected');
