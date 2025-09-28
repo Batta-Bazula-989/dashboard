@@ -16,6 +16,7 @@ app.use(express.json({ limit: '50mb' }));
 // Simple data storage - no SSE needed
 const recentData = [];
 const maxDataSize = 100; // Keep last 100 items
+const clients = new Set(); // For health check compatibility
 
 // Simple API endpoint to get recent data
 app.get('/api/data', (req, res) => {
@@ -254,6 +255,7 @@ app.get('/api/health', (req, res) => {
 
     res.json({
         status: 'healthy',
+        clients: clients.size,
         uptime: process.uptime(),
         activeBatches: activeBatches.length,
         batchDetails: activeBatches,

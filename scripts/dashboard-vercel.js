@@ -25,18 +25,23 @@ class DataDashboard {
      */
     async init() {
         try {
+            console.log('🚀 Initializing dashboard...');
+            
             // Load all components
             await this.loadComponents();
+            console.log('✅ Components loaded');
             
             // Initialize components
             this.initializeComponents();
+            console.log('✅ Components initialized');
             
             // Start API polling
             this.startPolling();
             this.updateConnectionStatus('connecting', 'Connecting...');
+            console.log('✅ Dashboard initialized successfully');
             
         } catch (error) {
-            console.error('Failed to initialize dashboard:', error);
+            console.error('❌ Failed to initialize dashboard:', error);
         }
     }
 
