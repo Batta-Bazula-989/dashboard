@@ -627,7 +627,7 @@
             <span>📡 API: <span id="wsStatus">Polling</span></span>
         </div>
         <div class="status-item">
-            <button id="clearButton" class="clear-btn" onclick="clearData()">🗑️ Clear Data</button>
+            <button id="clearButton" class="clear-btn">🗑️ Clear Data</button>
         </div>
     </div>
 
@@ -731,12 +731,15 @@
 
         async clearData() {
             try {
-                console.log('🗑️ Clearing all data...');
+                console.log('🗑️ Clear button clicked - clearing all data...');
                 const response = await fetch('/api/clear', { method: 'POST' });
+                console.log('📡 Clear request sent, response status:', response.status);
+                
                 const result = await response.json();
+                console.log('📊 Clear response:', result);
                 
                 if (result.success) {
-                    console.log('✅ Data cleared successfully');
+                    console.log('✅ Data cleared successfully, clearing UI...');
                     // Clear the UI
                     const dataDisplay = document.getElementById('dataDisplay');
                     dataDisplay.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📭</div><h3>No data received yet</h3></div>';
@@ -749,7 +752,8 @@
                     this.lastDataCount = 0;
                     
                     // Show success message
-                    this.updateConnectionStatus('connected', 'Data cleared successfully');
+                    this.updateConnectionStatus('connected', `Data cleared (${result.previousCount} items removed)`);
+                    console.log('🎯 UI cleared successfully');
                 } else {
                     console.error('❌ Failed to clear data:', result.error);
                 }
@@ -1195,7 +1199,19 @@
 
     // Initialize dashboard when page loads
     document.addEventListener('DOMContentLoaded', () => {
-        new DataDashboard();
+        const dashboard = new DataDashboard();
+        
+        // Add event listener for clear button
+        const clearButton = document.getElementById('clearButton');
+        if (clearButton) {
+            clearButton.addEventListener('click', () => {
+                console.log('🔘 Clear button clicked via event listener');
+                dashboard.clearData();
+            });
+            console.log('✅ Clear button event listener attached');
+        } else {
+            console.error('❌ Clear button not found');
+        }
     });
 </script>
 </body>
