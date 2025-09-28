@@ -652,7 +652,7 @@
 
         connectWebSocket() {
             const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-            const wsUrl = `${protocol}//${window.location.hostname}:${window.location.port || 3000}`;
+            const wsUrl = `${protocol}//${window.location.host}`;
 
             this.ws = new WebSocket(wsUrl);
 
