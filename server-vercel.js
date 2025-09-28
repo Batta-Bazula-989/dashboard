@@ -1,21 +1,62 @@
 const express = require('express');
 const path = require('path');
 const cors = require('cors');
+const { WebSocketServer } = require('ws');
+const http = require('http');
 
 const app = express();
 
 // Enable CORS for all routes
 app.use(cors());
 
-// Serve static files
+// Serve static files with proper MIME types
+app.use('/styles', express.static(path.join(__dirname, 'styles'), {
+    setHeaders: (res, path) => {
+        res.setHeader('Content-Type', 'text/css');
+    }
+}));
+
+app.use('/scripts', express.static(path.join(__dirname, 'scripts'), {
+    setHeaders: (res, path) => {
+        res.setHeader('Content-Type', 'application/javascript');
+    }
+}));
+
+app.use('/components', express.static(path.join(__dirname, 'components'), {
+    setHeaders: (res, path) => {
+        res.setHeader('Content-Type', 'application/javascript');
+    }
+}));
+
 app.use(express.static(path.join(__dirname)));
 
 // Parse JSON bodies
 app.use(express.json({ limit: '50mb' }));
 
-// Simple data storage - no SSE needed
+// WebSocket clients
+const clients = new Set();
+
+// Simple data storage
 const recentData = [];
 const maxDataSize = 100; // Keep last 100 items
+
+// Broadcast data to all WebSocket clients
+function broadcastData(data, requestId, source) {
+    const message = JSON.stringify({
+        data: data,
+        timestamp: new Date().toISOString(),
+        requestId: requestId,
+        source: source
+    });
+
+    clients.forEach(client => {
+        if (client.readyState === 1) { // WebSocket.OPEN
+            client.send(message);
+        }
+    });
+
+    console.log(`[${requestId}] Broadcasted to ${clients.size} clients from ${source}`);
+}
 
 // Simple API endpoint to get recent data
 app.get('/api/data', (req, res) => {
@@ -86,18 +127,8 @@ app.post('/api/data', (req, res) => {
 
         // Handle single item (no batching)
         if (batchTotal === 1) {
-            // Store the data
-            recentData.push({
-                data: data,
-                timestamp: new Date().toISOString(),
-                requestId: requestId,
-                source: 'single'
-            });
-            
-            // Keep only recent data
-            if (recentData.length > maxDataSize) {
-                recentData.shift();
-            }
+            // Store and broadcast the data
+            storeData(data, requestId, 'single');
             
             res.json({
                 success: true,
@@ -157,7 +188,7 @@ app.post('/api/data', (req, res) => {
             console.log(`[${requestId}] ✅ Batch ${batchId} COMPLETE: ${sortedData.length} total items`);
             console.log(`[${requestId}] Items in order: [${sortedData.map((item, idx) => idx).join(', ')}]`);
             
-            // Store complete batch
+            // Store and broadcast complete batch
             storeData(sortedData, requestId, `batch_${batchId}`);
             
             // Clean up
@@ -195,7 +226,7 @@ app.post('/api/data', (req, res) => {
     }
 });
 
-// Simple function to store data
+// Function to store data and broadcast to WebSocket clients
 function storeData(data, requestId, source) {
     const message = {
         data: data,
@@ -210,6 +241,9 @@ function storeData(data, requestId, source) {
     if (recentData.length > maxDataSize) {
         recentData.shift();
     }
+
+    // Broadcast to WebSocket clients
+    broadcastData(data, requestId, source);
 
     console.log(`[${requestId}] Stored ${Array.isArray(data) ? data.length : 1} items from ${source}, total items: ${recentData.length}`);
 }
@@ -285,6 +319,33 @@ setInterval(() => {
         console.log(`Cleanup: ${pendingBatches.size} pending batches, ${recentData.length} stored items`);
     }
 }, 60000); // Run cleanup every minute
+
+// Create HTTP server
+const server = http.createServer(app);
+
+// Create WebSocket server
+const wss = new WebSocketServer({ server });
+
+wss.on('connection', (ws) => {
+    console.log('New WebSocket client connected');
+    clients.add(ws);
+
+    // Send recent data to new client
+    if (recentData.length > 0) {
+        const lastData = recentData[recentData.length - 1];
+        ws.send(JSON.stringify(lastData));
+    }
+
+    ws.on('close', () => {
+        console.log('WebSocket client disconnected');
+        clients.delete(ws);
+    });
+
+    ws.on('error', (error) => {
+        console.error('WebSocket error:', error);
+        clients.delete(ws);
+    });
+});
 
 // Export for Vercel
 module.exports = app;
