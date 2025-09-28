@@ -699,7 +699,7 @@
                 if (result.success && result.data) {
                     console.log(`📊 Fetched ${result.data.length} items from API`);
                     
-                    // Only process new data
+                    // Only process new data to avoid duplicates
                     if (result.data.length > this.lastDataCount) {
                         const newItems = result.data.slice(this.lastDataCount);
                         newItems.forEach(item => {
@@ -748,7 +748,7 @@
                     document.getElementById('competitorCount').textContent = '0';
                     document.getElementById('adsCount').textContent = '0';
                     
-                    // Reset internal counter
+                    // Reset internal counter so we can fetch all data again
                     this.lastDataCount = 0;
                     
                     // Show success message
