@@ -600,7 +600,7 @@
             <span id="connectionText">Connecting...</span>
         </div>
         <div class="status-item">
-            <span>📡 SSE: <span id="wsStatus">Disconnected</span></span>
+            <span>📡 API: <span id="wsStatus">Polling</span></span>
         </div>
     </div>
 
@@ -639,54 +639,55 @@
 <script>
     class DataDashboard {
         constructor() {
-            this.eventSource = null;
+            this.pollingInterval = null;
             this.dataCount = 0;
             this.maxItems = 50; // Keep only last 50 items
+            this.lastDataCount = 0;
             this.init();
         }
 
         init() {
-            this.connectSSE();
-            this.updateConnectionStatus('connecting', 'Connecting...');
+            this.startPolling();
+            this.updateConnectionStatus('connected', 'Polling for data...');
         }
 
-        connectSSE() {
-            const sseUrl = '/api/events';
+        startPolling() {
+            console.log('🔄 Starting API polling...');
+            this.updateWsStatus('Polling');
+            
+            // Poll immediately
+            this.fetchData();
+            
+            // Then poll every 2 seconds
+            this.pollingInterval = setInterval(() => {
+                this.fetchData();
+            }, 2000);
+        }
 
-            this.eventSource = new EventSource(sseUrl);
-
-            this.eventSource.onopen = () => {
-                console.log('SSE connected');
-                this.updateConnectionStatus('connected', 'Connected');
-                this.updateWsStatus('Connected');
-            };
-
-            this.eventSource.onmessage = (event) => {
-                try {
-                    const data = JSON.parse(event.data);
-                    if (data.type === 'data') {
-                        this.addDataItem(data);
-                    } else if (data.type === 'welcome') {
-                        console.log('Welcome message:', data.message);
-                    } else if (data.type === 'ping') {
-                        // Keep-alive ping, no action needed
+        async fetchData() {
+            try {
+                const response = await fetch('/api/data');
+                const result = await response.json();
+                
+                if (result.success && result.data) {
+                    console.log(`📊 Fetched ${result.data.length} items from API`);
+                    
+                    // Only process new data
+                    if (result.data.length > this.lastDataCount) {
+                        const newItems = result.data.slice(this.lastDataCount);
+                        newItems.forEach(item => {
+                            this.addDataItem(item);
+                        });
+                        this.lastDataCount = result.data.length;
                     }
-                } catch (error) {
-                    console.error('Error parsing data:', error);
-                    this.addDataItem({ error: 'Invalid JSON received', raw: event.data });
+                    
+                    this.updateConnectionStatus('connected', `Connected (${result.data.length} items)`);
                 }
-            };
-
-            this.eventSource.onerror = (error) => {
-                console.error('SSE error:', error);
-                this.updateConnectionStatus('disconnected', 'Connection Error');
+            } catch (error) {
+                console.error('❌ API polling error:', error);
+                this.updateConnectionStatus('disconnected', 'API Error');
                 this.updateWsStatus('Error');
-
-                // Attempt to reconnect after 3 seconds
-                setTimeout(() => {
-                    this.connectSSE();
-                }, 3000);
-            };
+            }
         }
 
         updateConnectionStatus(status, text) {
