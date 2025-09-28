@@ -686,10 +686,10 @@
             // Poll immediately
             this.fetchData();
             
-            // Then poll every 2 seconds
+            // Then poll every 5 seconds
             this.pollingInterval = setInterval(() => {
                 this.fetchData();
-            }, 2000);
+            }, 5000);
         }
 
         async fetchData() {
@@ -775,6 +775,7 @@
             const timestamp = new Date().toLocaleString();
             const payload = (incoming && typeof incoming === 'object' && 'data' in incoming) ? incoming.data : incoming;
 
+            // Process data silently
             console.log('=== NEW DATA RECEIVED ===');
             console.log('Timestamp:', timestamp);
             console.log('Raw incoming:', incoming);
@@ -791,7 +792,6 @@
 
             let renderedCount = 0;
             if (Array.isArray(payload) && payload.every(looksLikeCompetitor)) {
-                console.log('Processing as competitor array');
                 // Add to existing grid or create new one
                 let grid = dataDisplay.querySelector('.card-grid');
                 if (!grid) {
@@ -800,12 +800,10 @@
                     dataDisplay.appendChild(grid);
                 }
                 payload.forEach((item, index) => {
-                    console.log(`Processing item ${index + 1}:`, item.competitor_name);
                     grid.appendChild(this.createCompetitorCard(item));
                 });
                 renderedCount = payload.length;
             } else if (looksLikeCompetitor(payload)) {
-                console.log('Processing as single competitor');
                 // Add single card to the grid
                 let grid = dataDisplay.querySelector('.card-grid');
                 if (!grid) {
