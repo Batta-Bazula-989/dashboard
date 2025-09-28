@@ -44,12 +44,7 @@ class DataDashboard {
      * Load all required components
      */
     async loadComponents() {
-        const componentNames = ['StatusBar', 'StatsCards', 'DataDisplay', 'Modal'];
-        
-        // Load component scripts
-        await this.componentLoader.loadComponents(componentNames);
-        
-        // Register components
+        // Register components (they're already loaded via script tags)
         this.componentLoader.register('StatusBar', window.StatusBar);
         this.componentLoader.register('StatsCards', window.StatsCards);
         this.componentLoader.register('DataDisplay', window.DataDisplay);
@@ -208,24 +203,10 @@ class DataDashboard {
     }
 }
 
-// Load ComponentLoader first
-const loadComponentLoader = () => {
-    return new Promise((resolve, reject) => {
-        const script = document.createElement('script');
-        script.src = 'components/ComponentLoader.js';
-        script.onload = () => resolve();
-        script.onerror = () => reject(new Error('Failed to load ComponentLoader'));
-        document.head.appendChild(script);
-    });
-};
-
 // Initialize dashboard when page loads
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', () => {
     try {
-        // Load ComponentLoader first
-        await loadComponentLoader();
-        
-        // Initialize dashboard
+        // Initialize dashboard (components are already loaded via script tags)
         new DataDashboard();
     } catch (error) {
         console.error('Failed to initialize dashboard:', error);
