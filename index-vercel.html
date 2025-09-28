@@ -670,6 +670,7 @@
             this.dataCount = 0;
             this.maxItems = 50; // Keep only last 50 items
             this.lastDataCount = 0;
+            this.isFirstLoad = true; // Track if this is the first data load
             this.init();
         }
 
@@ -699,14 +700,21 @@
                 if (result.success && result.data) {
                     console.log(`📊 Fetched ${result.data.length} items from API`);
                     
-                    // Only process new data to avoid duplicates
-                    if (result.data.length > this.lastDataCount) {
+                    // On first load, show ALL data. After that, only show new data
+                    if (this.isFirstLoad) {
+                        console.log('🔄 First load - showing all data');
+                        result.data.forEach(item => {
+                            this.addDataItem(item);
+                        });
+                        this.isFirstLoad = false;
+                    } else if (result.data.length > this.lastDataCount) {
+                        console.log(`📈 New data detected: ${result.data.length - this.lastDataCount} new items`);
                         const newItems = result.data.slice(this.lastDataCount);
                         newItems.forEach(item => {
                             this.addDataItem(item);
                         });
-                        this.lastDataCount = result.data.length;
                     }
+                    this.lastDataCount = result.data.length;
                     
                     this.updateConnectionStatus('connected', `Connected (${result.data.length} items)`);
                 }
@@ -748,8 +756,9 @@
                     document.getElementById('competitorCount').textContent = '0';
                     document.getElementById('adsCount').textContent = '0';
                     
-                    // Reset internal counter so we can fetch all data again
+                    // Reset internal counters so we can fetch all data again
                     this.lastDataCount = 0;
+                    this.isFirstLoad = true;
                     
                     // Show success message
                     this.updateConnectionStatus('connected', `Data cleared (${result.previousCount} items removed)`);
