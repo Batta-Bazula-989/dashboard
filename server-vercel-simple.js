@@ -71,6 +71,7 @@ app.post('/api/clear', (req, res) => {
     });
 });
 
+
 // HTTP endpoint to receive data from n8n
 app.post('/api/data', (req, res) => {
     try {

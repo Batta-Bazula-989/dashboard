@@ -110,6 +110,10 @@ class DataDashboard {
                     this.lastDataTimestamp = latestData.timestamp;
                     this.addDataItem(latestData);
                 }
+            } else {
+                // No data yet - show connected but waiting status
+                this.updateConnectionStatus('connected', 'Connected');
+                this.updateWsStatus('Waiting for Data');
             }
             
         } catch (error) {
