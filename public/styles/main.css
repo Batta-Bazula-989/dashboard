@@ -569,34 +569,34 @@ body {
 /* Clear Data Button Styles */
 .clear-data-section {
     text-align: center;
-    margin: 20px 0;
-    padding: 15px;
+    margin: 0;
+    padding: 10px;
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
     border-radius: 15px;
     position: fixed;
-    bottom: 20px;
+    top: 20px;
     right: 20px;
-    z-index: 9999;
+    z-index: 99999;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     border: 2px solid #ff6b6b;
 }
 
 .clear-data-btn {
-    background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+    background: linear-gradient(135deg, #ff0000, #cc0000);
     color: white;
-    border: none;
-    padding: 15px 30px;
+    border: 3px solid #ffffff;
+    padding: 12px 20px;
     border-radius: 25px;
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 700;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+    box-shadow: 0 4px 15px rgba(255, 0, 0, 0.5);
     display: inline-flex;
     align-items: center;
-    gap: 10px;
-    min-width: 150px;
+    gap: 8px;
+    min-width: 120px;
     justify-content: center;
 }
 

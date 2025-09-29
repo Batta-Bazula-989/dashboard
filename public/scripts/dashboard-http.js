@@ -227,9 +227,12 @@ class DataDashboard {
             clearBtn.addEventListener('click', () => {
                 this.clearAllData();
             });
-            console.log('Clear data button initialized');
+            console.log('✅ Clear data button initialized and found!');
+            console.log('Button element:', clearBtn);
+            console.log('Button position:', clearBtn.getBoundingClientRect());
         } else {
-            console.warn('Clear data button not found');
+            console.error('❌ Clear data button not found!');
+            console.log('Available elements with IDs:', Array.from(document.querySelectorAll('[id]')).map(el => el.id));
         }
     }
 
