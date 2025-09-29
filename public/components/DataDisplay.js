@@ -65,6 +65,7 @@ class DataDisplay {
 
         // If competitor array/object -> render cards; otherwise show raw JSON
         const looksLikeCompetitor = (obj) => obj && typeof obj === 'object' && ('competitor_name' in obj || ('ad_data' in obj && 'ai_analysis' in obj));
+        const isProcessableObject = (obj) => obj && typeof obj === 'object' && !Array.isArray(obj);
 
         let renderedCount = 0;
         if (Array.isArray(payload) && payload.every(looksLikeCompetitor)) {
@@ -73,8 +74,14 @@ class DataDisplay {
         } else if (looksLikeCompetitor(payload)) {
             console.log('Processing as single competitor');
             renderedCount = this.renderSingleCompetitor(payload);
+        } else if (Array.isArray(payload) && payload.every(isProcessableObject)) {
+            console.log('Processing as array of processable objects');
+            renderedCount = this.renderOpenAIResponse(payload);
+        } else if (isProcessableObject(payload)) {
+            console.log('Processing as single processable object');
+            renderedCount = this.renderOpenAIResponse(payload);
         } else {
-            console.log('Processing as OpenAI response format');
+            console.log('Processing as OpenAI response format (fallback)');
             renderedCount = this.renderOpenAIResponse(payload);
         }
 
@@ -216,6 +223,23 @@ class DataDisplay {
         // Check if it's already in competitor format
         if (item && (item.competitor_name || (item.ad_data && item.ai_analysis))) {
             return item;
+        }
+
+        // If it's any other object, try to create a basic competitor entry
+        if (item && typeof item === 'object') {
+            console.log('Creating fallback competitor entry for:', item);
+            return {
+                competitor_name: item.competitor_name || item.name || 'Unknown Competitor',
+                ai_analysis: {
+                    full_analysis: item.ai_analysis?.full_analysis || item.analysis || JSON.stringify(item, null, 2)
+                },
+                ad_data: {
+                    platforms: item.ad_data?.platforms || ['Data'],
+                    ad_started: item.ad_data?.ad_started || new Date().toLocaleDateString(),
+                    page_profile_uri: item.ad_data?.page_profile_uri || '#',
+                    ad_text: item.ad_data?.ad_text || item.text || ''
+                }
+            };
         }
 
         return null;
