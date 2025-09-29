@@ -11,6 +11,18 @@
     <!-- Components will be rendered here dynamically -->
 </div>
 
+<!-- Clear Data Button - Outside container to avoid being cleared -->
+<div class="clear-data-section">
+    <button id="clearDataBtn" class="clear-data-btn">
+        🗑️ Clear Data
+    </button>
+</div>
+
+<!-- TEST BUTTON - Should be visible -->
+<button id="testBtn" style="position: fixed; top: 10px; right: 10px; background: red; color: white; padding: 20px; font-size: 20px; z-index: 999999; border: none; border-radius: 10px;">
+    TEST BUTTON
+</button>
+
 <!-- Load components first, then main dashboard -->
 <script src="components/ComponentLoader.js"></script>
 <script src="components/StatusBar.js"></script>
