@@ -64,25 +64,14 @@ class DataDisplay {
         const emptyState = this.dataDisplay.querySelector('.empty-state');
         if (emptyState) emptyState.remove();
 
-        // If competitor array/object -> render cards; otherwise show raw JSON
-        const looksLikeCompetitor = (obj) => obj && typeof obj === 'object' && ('competitor_name' in obj || ('ad_data' in obj && 'ai_analysis' in obj));
-        const isProcessableObject = (obj) => obj && typeof obj === 'object' && !Array.isArray(obj);
-
+        // Simplified processing - always use the most robust method
         let renderedCount = 0;
-        if (Array.isArray(payload) && payload.every(looksLikeCompetitor)) {
-            console.log('Processing as competitor array');
-            renderedCount = this.renderCompetitorArray(payload);
-        } else if (looksLikeCompetitor(payload)) {
-            console.log('Processing as single competitor');
-            renderedCount = this.renderSingleCompetitor(payload);
-        } else if (Array.isArray(payload) && payload.every(isProcessableObject)) {
-            console.log('Processing as array of processable objects');
-            renderedCount = this.renderOpenAIResponse(payload);
-        } else if (isProcessableObject(payload)) {
-            console.log('Processing as single processable object');
+        
+        if (Array.isArray(payload)) {
+            console.log(`Processing array with ${payload.length} items`);
             renderedCount = this.renderOpenAIResponse(payload);
         } else {
-            console.log('Processing as OpenAI response format (fallback)');
+            console.log('Processing single item');
             renderedCount = this.renderOpenAIResponse(payload);
         }
 
@@ -97,6 +86,8 @@ class DataDisplay {
             const link = card.querySelector('.title-row a');
             return link ? link.textContent : 'Unknown';
         }));
+        console.log('All cards in DOM:', this.dataDisplay.querySelectorAll('.card').length);
+        console.log('Card grid exists:', !!this.dataDisplay.querySelector('.card-grid'));
         console.log('================================');
 
         // Return stats for parent component to update
@@ -157,7 +148,9 @@ class DataDisplay {
             }
             
             payload.forEach((item, index) => {
-                console.log(`Processing OpenAI item ${index + 1}`);
+                console.log(`=== PROCESSING ITEM ${index + 1}/${payload.length} ===`);
+                console.log(`Raw item:`, item);
+                
                 const processed = this.processOpenAIResponse(item);
                 if (processed) {
                     console.log(`Successfully processed item ${index + 1}:`, processed.competitor_name);
@@ -177,9 +170,11 @@ class DataDisplay {
                             page_profile_uri: '#'
                         }
                     };
+                    console.log(`Created fallback entry for item ${index + 1}:`, fallbackEntry);
                     grid.appendChild(this.createCompetitorCard(fallbackEntry));
                     renderedCount++;
                 }
+                console.log(`Item ${index + 1} processed, renderedCount: ${renderedCount}`);
             });
         } else {
             console.log('Processing single OpenAI item');

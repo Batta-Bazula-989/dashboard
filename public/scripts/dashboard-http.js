@@ -108,7 +108,10 @@ class DataDashboard {
             const result = await response.json();
 
             if (result.success && result.data) {
+                console.log(`=== API RESPONSE ===`);
                 console.log(`API returned ${result.data.length} items`);
+                console.log(`Last data count: ${this.lastDataCount}`);
+                console.log(`Full API response:`, result);
                 
                 // Always clear and reprocess all data to handle serverless function resets
                 if (result.data.length !== this.lastDataCount) {
@@ -121,16 +124,22 @@ class DataDashboard {
                     
                     // Process all items
                     result.data.forEach((item, index) => {
-                        console.log(`Processing item ${index + 1}/${result.data.length}`);
+                        console.log(`=== PROCESSING ITEM ${index + 1}/${result.data.length} ===`);
+                        console.log(`Item data:`, item);
                         this.addDataItem(item);
                     });
                     
                     this.lastDataCount = result.data.length;
+                    console.log(`=== PROCESSING COMPLETE ===`);
                     console.log(`Processed all ${result.data.length} items`);
+                } else {
+                    console.log(`Data count unchanged (${result.data.length}), no reprocessing needed`);
                 }
 
                 this.updateConnectionStatus('connected', 'Connected (HTTP Polling)');
                 this.updateWsStatus('Active');
+            } else {
+                console.log(`API response not successful or no data:`, result);
             }
         } catch (error) {
             console.error('Error fetching data:', error);
