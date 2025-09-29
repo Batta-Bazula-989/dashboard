@@ -140,14 +140,12 @@ class DataDashboard {
                 }
 
                 this.updateConnectionStatus('connected', 'Connected (HTTP Polling)');
-                this.updateWsStatus('Active');
             } else {
                 console.log(`API response not successful or no data:`, result);
             }
         } catch (error) {
             console.error('Error fetching data:', error);
             this.updateConnectionStatus('disconnected', 'Connection Error');
-            this.updateWsStatus('Error');
         }
     }
 
@@ -162,15 +160,6 @@ class DataDashboard {
         }
     }
 
-    /**
-     * Update WebSocket status (now polling status)
-     * @param {string} status - Status
-     */
-    updateWsStatus(status) {
-        if (this.statusBar) {
-            this.statusBar.updateWsStatus(status);
-        }
-    }
 
     /**
      * Add data item to display

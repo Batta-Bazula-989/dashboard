@@ -29,9 +29,6 @@ class StatusBar {
                     <div class="status-indicator" id="connectionStatus"></div>
                     <span id="connectionText">Connecting...</span>
                 </div>
-                <div class="status-item">
-                    <span>📡 WebSocket: <span id="wsStatus">Disconnected</span></span>
-                </div>
             </div>
         `;
         
