@@ -37,6 +37,9 @@ class DataDashboard {
             this.startPolling();
             this.updateConnectionStatus('connected', 'Connected (HTTP Polling)');
 
+            // Initialize clear data button
+            this.initializeClearButton();
+
         } catch (error) {
             console.error('Failed to initialize dashboard:', error);
         }
@@ -223,6 +226,70 @@ class DataDashboard {
                 return this.modal;
             default:
                 return null;
+        }
+    }
+
+    /**
+     * Initialize clear data button
+     */
+    initializeClearButton() {
+        const clearBtn = document.getElementById('clearDataBtn');
+        if (clearBtn) {
+            clearBtn.addEventListener('click', () => {
+                this.clearAllData();
+            });
+            console.log('Clear data button initialized');
+        } else {
+            console.warn('Clear data button not found');
+        }
+    }
+
+    /**
+     * Clear all data from server and UI
+     */
+    async clearAllData() {
+        try {
+            const clearBtn = document.getElementById('clearDataBtn');
+            if (clearBtn) {
+                clearBtn.disabled = true;
+                clearBtn.textContent = '🗑️ Clearing...';
+            }
+
+            // Clear data on server
+            const response = await fetch('/api/data', {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                console.log('Data cleared from server');
+                
+                // Clear UI
+                if (this.dataDisplay) {
+                    this.dataDisplay.clear();
+                }
+                
+                // Reset counters
+                this.dataCount = 0;
+                this.lastDataCount = 0;
+                
+                // Update stats
+                if (this.statsCards) {
+                    this.statsCards.updateStats(0, 0);
+                }
+                
+                console.log('All data cleared successfully');
+            } else {
+                console.error('Failed to clear data from server');
+            }
+
+        } catch (error) {
+            console.error('Error clearing data:', error);
+        } finally {
+            const clearBtn = document.getElementById('clearDataBtn');
+            if (clearBtn) {
+                clearBtn.disabled = false;
+                clearBtn.textContent = '🗑️ Clear Data';
+            }
         }
     }
 

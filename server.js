@@ -58,6 +58,28 @@ app.post('/api/data', (req, res) => {
   }
 });
 
+app.delete('/api/data', (req, res) => {
+  try {
+    const previousCount = recentData.length;
+    recentData = [];
+    
+    console.log(`DELETE /api/data - cleared ${previousCount} items`);
+
+    res.json({
+      success: true,
+      message: 'All data cleared successfully',
+      previousCount,
+      currentCount: 0
+    });
+  } catch (error) {
+    console.error('DELETE /api/data error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
 // Main route
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index-vercel.html'));

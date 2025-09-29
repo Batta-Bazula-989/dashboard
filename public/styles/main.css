@@ -566,6 +566,47 @@ body {
     font-family: monospace;
 }
 
+/* Clear Data Button Styles */
+.clear-data-section {
+    text-align: center;
+    margin: 20px 0;
+    padding: 20px;
+}
+
+.clear-data-btn {
+    background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 25px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.clear-data-btn:hover {
+    background: linear-gradient(135deg, #ff5252, #e53935);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+}
+
+.clear-data-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 10px rgba(255, 107, 107, 0.3);
+}
+
+.clear-data-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
 @media (max-width: 768px) {
     .header h1 {
         font-size: 2rem;
@@ -580,5 +621,10 @@ body {
         flex-direction: column;
         gap: 10px;
         text-align: center;
+    }
+    
+    .clear-data-btn {
+        padding: 10px 20px;
+        font-size: 14px;
     }
 }
