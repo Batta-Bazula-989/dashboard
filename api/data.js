@@ -2,7 +2,7 @@
 let recentData = [];
 const maxDataSize = 100;
 
-module.exports = (req, res) => {
+export default function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader(
@@ -54,4 +54,4 @@ module.exports = (req, res) => {
   }
 
   return res.status(405).json({ error: 'Method not allowed' });
-};
+}
