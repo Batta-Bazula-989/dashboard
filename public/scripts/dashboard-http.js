@@ -1,22 +1,24 @@
 /**
- * Main Dashboard Application for Vercel (Polling-based)
- * Uses component-based architecture with API polling instead of WebSocket
+ * Main Dashboard Application - HTTP Polling Version
+ * Uses HTTP polling instead of WebSocket for Vercel compatibility
  */
 class DataDashboard {
     constructor() {
-        this.dataCount = 0;
-        this.maxItems = 50; // Keep only last 50 items
         this.pollingInterval = null;
-        
+        this.pollingRate = 2000; // Poll every 2 seconds
+        this.dataCount = 0;
+        this.maxItems = 50;
+        this.lastDataCount = 0;
+
         // Component instances
         this.statusBar = null;
         this.statsCards = null;
         this.dataDisplay = null;
         this.modal = null;
-        
+
         // Component loader
         this.componentLoader = new ComponentLoader();
-        
+
         this.init();
     }
 
@@ -25,23 +27,18 @@ class DataDashboard {
      */
     async init() {
         try {
-            console.log('🚀 Initializing dashboard...');
-            
             // Load all components
             await this.loadComponents();
-            console.log('✅ Components loaded');
-            
+
             // Initialize components
             this.initializeComponents();
-            console.log('✅ Components initialized');
-            
-            // Start API polling
+
+            // Start polling
             this.startPolling();
-            this.updateConnectionStatus('connecting', 'Connecting...');
-            console.log('✅ Dashboard initialized successfully');
-            
+            this.updateConnectionStatus('connected', 'Connected (HTTP Polling)');
+
         } catch (error) {
-            console.error('❌ Failed to initialize dashboard:', error);
+            console.error('Failed to initialize dashboard:', error);
         }
     }
 
@@ -61,38 +58,35 @@ class DataDashboard {
      */
     initializeComponents() {
         const container = document.querySelector('.container');
-        
+
         // Initialize StatusBar
         this.statusBar = this.componentLoader.initComponent('StatusBar', container);
-        
+
         // Initialize StatsCards
         this.statsCards = this.componentLoader.initComponent('StatsCards', container);
-        
+
         // Initialize DataDisplay with modal callback
-        this.dataDisplay = this.componentLoader.initComponent('DataDisplay', container, 
+        this.dataDisplay = this.componentLoader.initComponent('DataDisplay', container,
             (competitorName, fullAnalysis) => this.showFullAnalysis(competitorName, fullAnalysis)
         );
-        
+
         // Initialize Modal
         this.modal = this.componentLoader.createComponent('Modal');
     }
 
     /**
-     * Start API polling for new data
+     * Start HTTP polling
      */
     startPolling() {
-        console.log('🔄 Starting API polling...');
-        
-        // Initial data fetch
+        // Initial fetch
         this.fetchData();
-        
-        // Set up polling interval (every 6 seconds)
+
+        // Set up polling interval
         this.pollingInterval = setInterval(() => {
             this.fetchData();
-        }, 6000);
-        
-        this.updateConnectionStatus('connected', 'Connected (Polling)');
-        this.updateWsStatus('Polling');
+        }, this.pollingRate);
+
+        console.log(`Started polling at ${this.pollingRate}ms interval`);
     }
 
     /**
@@ -100,26 +94,38 @@ class DataDashboard {
      */
     async fetchData() {
         try {
-            const response = await fetch('/api/data');
+            const response = await fetch('/api/data', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            
+
             const result = await response.json();
-            
+
             if (result.success && result.data && result.data.length > 0) {
-                // Process only the latest data item (original working approach)
-                const latestData = result.data[result.data.length - 1];
-                this.addDataItem(latestData);
-                
-                this.updateConnectionStatus('connected', 'Connected');
-                this.updateWsStatus('Connected');
-            } else {
-                // No data yet - show connected but waiting status
-                this.updateConnectionStatus('connected', 'Connected');
-                this.updateWsStatus('Waiting for Data');
+                // Check if we have new data
+                if (result.data.length > this.lastDataCount) {
+                    // Get only new items
+                    const newItems = result.data.slice(this.lastDataCount);
+
+                    // Add each new item
+                    newItems.forEach(item => {
+                        this.addDataItem(item);
+                    });
+
+                    this.lastDataCount = result.data.length;
+
+                    console.log(`Fetched ${newItems.length} new items, total: ${result.data.length}`);
+                }
+
+                this.updateConnectionStatus('connected', 'Connected (HTTP Polling)');
+                this.updateWsStatus('Active');
             }
-            
         } catch (error) {
             console.error('Error fetching data:', error);
             this.updateConnectionStatus('disconnected', 'Connection Error');
@@ -139,8 +145,8 @@ class DataDashboard {
     }
 
     /**
-     * Update WebSocket status (shows polling status)
-     * @param {string} status - Status text
+     * Update WebSocket status (now polling status)
+     * @param {string} status - Status
      */
     updateWsStatus(status) {
         if (this.statusBar) {
@@ -155,7 +161,7 @@ class DataDashboard {
     addDataItem(incoming) {
         if (this.dataDisplay) {
             const stats = this.dataDisplay.addDataItem(incoming);
-            
+
             // Update stats cards
             if (this.statsCards && stats) {
                 this.statsCards.updateStats(stats.competitorCards, stats.adsCount);
@@ -202,11 +208,11 @@ class DataDashboard {
             clearInterval(this.pollingInterval);
             this.pollingInterval = null;
         }
-        
+
         if (this.modal && this.modal.isOpen()) {
             this.modal.closeModal();
         }
-        
+
         // Clear component references
         this.statusBar = null;
         this.statsCards = null;
