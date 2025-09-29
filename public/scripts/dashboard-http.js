@@ -107,20 +107,26 @@ class DataDashboard {
 
             const result = await response.json();
 
-            if (result.success && result.data && result.data.length > 0) {
-                // Check if we have new data
-                if (result.data.length > this.lastDataCount) {
-                    // Get only new items
-                    const newItems = result.data.slice(this.lastDataCount);
-
-                    // Add each new item
-                    newItems.forEach(item => {
+            if (result.success && result.data) {
+                console.log(`API returned ${result.data.length} items`);
+                
+                // Always clear and reprocess all data to handle serverless function resets
+                if (result.data.length !== this.lastDataCount) {
+                    console.log(`Data count changed from ${this.lastDataCount} to ${result.data.length}, reprocessing all data`);
+                    
+                    // Clear the display
+                    if (this.dataDisplay) {
+                        this.dataDisplay.clear();
+                    }
+                    
+                    // Process all items
+                    result.data.forEach((item, index) => {
+                        console.log(`Processing item ${index + 1}/${result.data.length}`);
                         this.addDataItem(item);
                     });
-
+                    
                     this.lastDataCount = result.data.length;
-
-                    console.log(`Fetched ${newItems.length} new items, total: ${result.data.length}`);
+                    console.log(`Processed all ${result.data.length} items`);
                 }
 
                 this.updateConnectionStatus('connected', 'Connected (HTTP Polling)');
