@@ -170,6 +170,17 @@ class DataDashboard {
     }
 
     /**
+     * Clear all data and reprocess from API
+     */
+    async clearAndReprocess() {
+        if (this.dataDisplay) {
+            this.dataDisplay.clear();
+        }
+        this.lastDataCount = 0;
+        await this.fetchData();
+    }
+
+    /**
      * Show full analysis modal
      * @param {string} competitorName - Competitor name
      * @param {string} fullAnalysis - Full analysis text

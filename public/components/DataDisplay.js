@@ -59,6 +59,7 @@ class DataDisplay {
         console.log('Payload:', payload);
         console.log('Payload type:', Array.isArray(payload) ? 'array' : typeof payload);
         console.log('Payload length:', Array.isArray(payload) ? payload.length : 1);
+        console.log('Request ID:', incoming?.requestId || 'No ID');
 
         const emptyState = this.dataDisplay.querySelector('.empty-state');
         if (emptyState) emptyState.remove();
@@ -163,7 +164,21 @@ class DataDisplay {
                     grid.appendChild(this.createCompetitorCard(processed));
                     renderedCount++;
                 } else {
-                    console.log(`Failed to process item ${index + 1}`);
+                    console.log(`Failed to process item ${index + 1}, creating fallback entry`);
+                    // Create a fallback entry for any item that fails to process
+                    const fallbackEntry = {
+                        competitor_name: `Item ${index + 1}`,
+                        ai_analysis: {
+                            full_analysis: JSON.stringify(item, null, 2)
+                        },
+                        ad_data: {
+                            platforms: ['Raw Data'],
+                            ad_started: new Date().toLocaleDateString(),
+                            page_profile_uri: '#'
+                        }
+                    };
+                    grid.appendChild(this.createCompetitorCard(fallbackEntry));
+                    renderedCount++;
                 }
             });
         } else {
@@ -180,7 +195,27 @@ class DataDisplay {
                 grid.appendChild(this.createCompetitorCard(processed));
                 renderedCount = 1;
             } else {
-                console.log('Failed to process single item');
+                console.log('Failed to process single item, creating fallback entry');
+                // Create a fallback entry for single item that fails to process
+                const fallbackEntry = {
+                    competitor_name: 'Single Item',
+                    ai_analysis: {
+                        full_analysis: JSON.stringify(payload, null, 2)
+                    },
+                    ad_data: {
+                        platforms: ['Raw Data'],
+                        ad_started: new Date().toLocaleDateString(),
+                        page_profile_uri: '#'
+                    }
+                };
+                let grid = this.dataDisplay.querySelector('.card-grid');
+                if (!grid) {
+                    grid = document.createElement('div');
+                    grid.className = 'card-grid';
+                    this.dataDisplay.appendChild(grid);
+                }
+                grid.appendChild(this.createCompetitorCard(fallbackEntry));
+                renderedCount = 1;
             }
         }
         
