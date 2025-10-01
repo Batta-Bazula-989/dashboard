@@ -155,7 +155,7 @@ body {
 .card-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
+    gap: 4px;
     align-items: start;
 }
 @media (max-width: 900px) {
@@ -166,9 +166,10 @@ body {
     flex-direction: column;
     background: #ffffff;
     border: 1px solid #e5e7eb;
-    border-radius: 12px;
-    padding: 16px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    border-radius: 8px;
+    padding: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    margin-bottom: 4px;
 }
 .card-header {
     display: flex;
@@ -505,10 +506,10 @@ body {
 .data-item {
     background: white;
     border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 10px;
+    padding: 12px;
+    margin-bottom: 4px;
     border-left: 4px solid #3b82f6;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     transition: transform 0.2s ease;
 }
 
@@ -631,7 +632,7 @@ body {
     }
     
     .clear-data-btn {
-        padding: 10px 20px;
-        font-size: 14px;
+        padding: 6px 10px;
+        font-size: 12px;
     }
 }
