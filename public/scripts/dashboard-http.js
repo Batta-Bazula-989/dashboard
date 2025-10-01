@@ -35,7 +35,7 @@ class DataDashboard {
 
             // Start polling
             this.startPolling();
-            this.updateConnectionStatus('connected', 'Connected (HTTP Polling)');
+            this.updateConnectionStatus('connected', 'Connected');
 
             // Initialize clear data button
             this.initializeClearButton();
@@ -153,7 +153,7 @@ class DataDashboard {
                     console.log(`Data count unchanged (${result.data.length}), no reprocessing needed`);
                 }
 
-                this.updateConnectionStatus('connected', 'Connected (HTTP Polling)');
+                this.updateConnectionStatus('connected', 'Connected');
             } else {
                 console.log(`API response not successful or no data:`, result);
             }
