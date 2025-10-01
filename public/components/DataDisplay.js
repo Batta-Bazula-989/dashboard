@@ -25,12 +25,10 @@ class DataDisplay {
      */
     render(container) {
         const dataDisplayHTML = `
-            <div class="data-container">
-                <div class="data-display" id="dataDisplay">
-                    <div class="empty-state">
-                        <div class="empty-state-icon">📭</div>
-                        <h3>No data received yet</h3>
-                    </div>
+            <div class="data-display" id="dataDisplay">
+                <div class="empty-state">
+                    <div class="empty-state-icon">📭</div>
+                    <h3>No data received yet</h3>
                 </div>
             </div>
         `;
@@ -77,11 +75,15 @@ class DataDisplay {
 
         // Update status - count competitors and ads
         const competitorCards = this.dataDisplay.querySelectorAll('.card').length;
-        const adsCount = competitorCards; // For now, assume each competitor = 1 ad
+        
+        // Count total ads by counting all platform badges across all cards
+        const allBadges = this.dataDisplay.querySelectorAll('.badge');
+        const adsCount = allBadges.length;
 
         console.log(`=== PROCESSING COMPLETE ===`);
         console.log(`Rendered: ${renderedCount} items`);
         console.log(`Total cards in DOM: ${competitorCards}`);
+        console.log(`Total ads (platform badges): ${adsCount}`);
         console.log('All competitor names:', Array.from(this.dataDisplay.querySelectorAll('.card')).map(card => {
             const link = card.querySelector('.title-row a');
             return link ? link.textContent : 'Unknown';
