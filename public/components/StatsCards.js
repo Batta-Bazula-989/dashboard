@@ -28,7 +28,7 @@ class StatsCards {
                     <div class="stats-header">
                         <div class="stats-icon">👥</div>
                         <div class="stats-content">
-                            <h3>COMPETITORS TRACKED</h3>
+                            <h3>COMPETITORS</h3>
                             <div class="stats-number" id="competitorCount">0</div>
                         </div>
                     </div>
