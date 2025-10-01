@@ -241,6 +241,22 @@ class DataDashboard {
             clearBtn.addEventListener('click', () => {
                 this.clearAllData();
             });
+
+            // Add scroll behavior to hide/show button
+            let lastScrollY = window.scrollY;
+            window.addEventListener('scroll', () => {
+                const currentScrollY = window.scrollY;
+                
+                // Hide button when scrolling down, show when scrolling up
+                if (currentScrollY > 100 && currentScrollY > lastScrollY) {
+                    clearBtn.classList.add('hidden');
+                } else if (currentScrollY < lastScrollY || currentScrollY <= 100) {
+                    clearBtn.classList.remove('hidden');
+                }
+                
+                lastScrollY = currentScrollY;
+            });
+
             console.log('✅ Clear data button initialized and found!');
             console.log('Button element:', clearBtn);
             console.log('Button position:', clearBtn.getBoundingClientRect());
