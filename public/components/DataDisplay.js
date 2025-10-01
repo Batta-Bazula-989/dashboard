@@ -74,26 +74,30 @@ class DataDisplay {
         }
 
         // Update status - count competitors and ads
-        const competitorCards = this.dataDisplay.querySelectorAll('.card').length;
+        const allCards = this.dataDisplay.querySelectorAll('.card');
+        const totalCards = allCards.length;
         
-        // Count total ads by counting all platform badges across all cards
-        const allBadges = this.dataDisplay.querySelectorAll('.badge');
-        const adsCount = allBadges.length;
+        // Count unique competitor names (business names)
+        const competitorNames = new Set();
+        allCards.forEach(card => {
+            const link = card.querySelector('.title-row a');
+            if (link && link.textContent) {
+                competitorNames.add(link.textContent.trim());
+            }
+        });
+        const uniqueCompetitors = competitorNames.size;
 
         console.log(`=== PROCESSING COMPLETE ===`);
         console.log(`Rendered: ${renderedCount} items`);
-        console.log(`Total cards in DOM: ${competitorCards}`);
-        console.log(`Total ads (platform badges): ${adsCount}`);
-        console.log('All competitor names:', Array.from(this.dataDisplay.querySelectorAll('.card')).map(card => {
-            const link = card.querySelector('.title-row a');
-            return link ? link.textContent : 'Unknown';
-        }));
+        console.log(`Total cards (ads): ${totalCards}`);
+        console.log(`Unique competitors: ${uniqueCompetitors}`);
+        console.log('All competitor names:', Array.from(competitorNames));
         console.log('All cards in DOM:', this.dataDisplay.querySelectorAll('.card').length);
         console.log('Card grid exists:', !!this.dataDisplay.querySelector('.card-grid'));
         console.log('================================');
 
         // Return stats for parent component to update
-        return { competitorCards, adsCount };
+        return { competitorCards: uniqueCompetitors, adsCount: totalCards };
     }
 
     /**

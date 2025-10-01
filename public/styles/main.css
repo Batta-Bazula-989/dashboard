@@ -142,6 +142,7 @@ body {
     min-height: calc(100vh - 200px);
     max-height: 500px;
     overflow-y: auto;
+    position: relative;
 }
 
 /* Cards for structured competitor data */
@@ -530,9 +531,19 @@ body {
 }
 
 .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     text-align: center;
     padding: 40px;
     color: #64748b;
+    min-height: calc(100vh - 300px);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
 }
 
 .empty-state-icon {
