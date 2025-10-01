@@ -62,6 +62,9 @@ class DataDashboard {
     initializeComponents() {
         const container = document.querySelector('.container');
 
+        // Initialize StatusBar first (full width at top)
+        this.statusBar = this.componentLoader.initComponent('StatusBar', container);
+
         // Create dashboard layout structure
         const dashboardContent = document.createElement('div');
         dashboardContent.className = 'dashboard-content';
@@ -76,10 +79,7 @@ class DataDashboard {
         dashboardContent.appendChild(dashboardRight);
         container.appendChild(dashboardContent);
 
-        // Initialize StatusBar
-        this.statusBar = this.componentLoader.initComponent('StatusBar', container);
-
-        // Initialize StatsCards in left panel
+        // Initialize StatsCards in left panel (above main data)
         this.statsCards = this.componentLoader.initComponent('StatsCards', dashboardLeft);
 
         // Initialize DataDisplay in right panel with modal callback

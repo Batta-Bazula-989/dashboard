@@ -16,10 +16,6 @@ body {
     margin: 0;
     width: 100%;
     padding: 20px;
-    display: flex;
-    flex-direction: row;
-    gap: 20px;
-    align-items: flex-start;
 }
 
 .dashboard-content {
