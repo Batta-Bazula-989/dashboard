@@ -62,14 +62,28 @@ class DataDashboard {
     initializeComponents() {
         const container = document.querySelector('.container');
 
+        // Create dashboard layout structure
+        const dashboardContent = document.createElement('div');
+        dashboardContent.className = 'dashboard-content';
+        
+        const dashboardLeft = document.createElement('div');
+        dashboardLeft.className = 'dashboard-left';
+        
+        const dashboardRight = document.createElement('div');
+        dashboardRight.className = 'dashboard-right';
+        
+        dashboardContent.appendChild(dashboardLeft);
+        dashboardContent.appendChild(dashboardRight);
+        container.appendChild(dashboardContent);
+
         // Initialize StatusBar
         this.statusBar = this.componentLoader.initComponent('StatusBar', container);
 
-        // Initialize StatsCards
-        this.statsCards = this.componentLoader.initComponent('StatsCards', container);
+        // Initialize StatsCards in left panel
+        this.statsCards = this.componentLoader.initComponent('StatsCards', dashboardLeft);
 
-        // Initialize DataDisplay with modal callback
-        this.dataDisplay = this.componentLoader.initComponent('DataDisplay', container,
+        // Initialize DataDisplay in right panel with modal callback
+        this.dataDisplay = this.componentLoader.initComponent('DataDisplay', dashboardRight,
             (competitorName, fullAnalysis) => this.showFullAnalysis(competitorName, fullAnalysis)
         );
 
