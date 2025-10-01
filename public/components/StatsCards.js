@@ -37,7 +37,7 @@ class StatsCards {
                     <div class="stats-header">
                         <div class="stats-icon">🎯</div>
                         <div class="stats-content">
-                            <h3>ACTIVE CAMPAIGNS</h3>
+                                <h3>CAMPAIGNS</h3>
                             <div class="stats-number" id="adsCount">0</div>
                         </div>
                     </div>
