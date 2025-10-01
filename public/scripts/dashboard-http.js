@@ -35,7 +35,6 @@ class DataDashboard {
 
             // Start polling
             this.startPolling();
-            this.updateConnectionStatus('connected', 'Connected');
 
             // Initialize clear data button
             this.initializeClearButton();
@@ -50,7 +49,6 @@ class DataDashboard {
      */
     async loadComponents() {
         // Register components (they're already loaded via script tags)
-        this.componentLoader.register('StatusBar', window.StatusBar);
         this.componentLoader.register('StatsCards', window.StatsCards);
         this.componentLoader.register('DataDisplay', window.DataDisplay);
         this.componentLoader.register('Modal', window.Modal);
@@ -61,9 +59,6 @@ class DataDashboard {
      */
     initializeComponents() {
         const container = document.querySelector('.container');
-
-        // Initialize StatusBar first (full width at top)
-        this.statusBar = this.componentLoader.initComponent('StatusBar', container);
 
         // Create dashboard layout structure
         const dashboardContent = document.createElement('div');
@@ -79,7 +74,7 @@ class DataDashboard {
         dashboardContent.appendChild(dataSection);
         container.appendChild(dashboardContent);
 
-        // Initialize StatsCards in stats section (above main data, positioned left)
+        // Initialize StatsCards in stats section (now at the top)
         this.statsCards = this.componentLoader.initComponent('StatsCards', statsSection);
 
         // Initialize DataDisplay in data section with modal callback
@@ -153,26 +148,17 @@ class DataDashboard {
                     console.log(`Data count unchanged (${result.data.length}), no reprocessing needed`);
                 }
 
-                this.updateConnectionStatus('connected', 'Connected');
+                // Connection status removed
             } else {
                 console.log(`API response not successful or no data:`, result);
             }
         } catch (error) {
             console.error('Error fetching data:', error);
-            this.updateConnectionStatus('disconnected', 'Connection Error');
+            // Connection status removed
         }
     }
 
-    /**
-     * Update connection status
-     * @param {string} status - Connection status
-     * @param {string} text - Status text
-     */
-    updateConnectionStatus(status, text) {
-        if (this.statusBar) {
-            this.statusBar.updateConnectionStatus(status, text);
-        }
-    }
+    // Connection status methods removed
 
 
     /**
