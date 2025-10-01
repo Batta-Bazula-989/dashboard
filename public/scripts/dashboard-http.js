@@ -169,6 +169,9 @@ class DataDashboard {
         if (this.dataDisplay) {
             const stats = this.dataDisplay.addDataItem(incoming);
 
+            // Update data count
+            this.dataCount++;
+
             // Update stats cards
             if (this.statsCards && stats) {
                 this.statsCards.updateStats(stats.competitorCards, stats.adsCount);
@@ -256,8 +259,8 @@ class DataDashboard {
      * Clear all data from server and UI
      */
     async clearAllData() {
-        // Check if there's any data to clear
-        const hasData = this.dataCount > 0;
+        // Check if there's any data to clear by looking at actual DOM cards
+        const hasData = this.dataDisplay && this.dataDisplay.dataDisplay.querySelectorAll('.card').length > 0;
         
         // If no data, don't do anything
         if (!hasData) {
