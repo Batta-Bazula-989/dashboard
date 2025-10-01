@@ -20,20 +20,19 @@ body {
 
 .dashboard-content {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     gap: 20px;
     width: 100%;
-    align-items: flex-start;
 }
 
-.dashboard-left {
-    flex-shrink: 0;
-    width: 420px;
+.stats-section {
+    display: flex;
+    justify-content: flex-start;
+    width: 100%;
 }
 
-.dashboard-right {
-    flex: 1;
-    min-width: 0;
+.data-section {
+    width: 100%;
 }
 
 .header {
@@ -100,7 +99,8 @@ body {
     border: 1px solid #e5e7eb;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     backdrop-filter: none;
-    width: 100%;
+    width: fit-content;
+    max-width: 400px;
 }
 
 .stats-card {
