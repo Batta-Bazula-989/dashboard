@@ -256,7 +256,15 @@ class DataDashboard {
      * Clear all data from server and UI
      */
     async clearAllData() {
-        // Show confirmation dialog
+        // Check if there's any data to clear
+        const hasData = this.dataCount > 0;
+        
+        // If no data, don't do anything
+        if (!hasData) {
+            return;
+        }
+        
+        // Show confirmation dialog only if there's data
         const confirmed = await this.showClearConfirmation();
         if (!confirmed) {
             return;
