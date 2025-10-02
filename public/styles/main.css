@@ -259,6 +259,42 @@ body {
     padding: 2px 8px;
     border-radius: 999px;
 }
+
+/* Platform badge with icons */
+.platform-badge {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    padding: 4px 6px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    height: 24px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.platform-badge:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.platform-badge svg {
+    width: 16px;
+    height: 16px;
+    display: block;
+}
+
+/* Fallback for text badges */
+.platform-badge:not(:has(svg)) {
+    font-size: 11px;
+    color: #64748b;
+    background: #f1f5f9;
+    border-color: #e2e8f0;
+}
 .meta { color: #6b7280; font-size: 12px; margin-bottom: 8px; }
 .ad-text { color: #111827; font-size: 14px; white-space: pre-wrap; }
 .video-thumb {
