@@ -21,7 +21,7 @@ body {
 .dashboard-content {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 8px;
     width: 100%;
 }
 
@@ -29,10 +29,12 @@ body {
     display: flex;
     justify-content: flex-start;
     width: 100%;
+    margin-bottom: 0;
 }
 
 .data-section {
     width: 100%;
+    margin-top: 0;
 }
 
 .header {
@@ -92,7 +94,7 @@ body {
 .stats-container {
     display: flex;
     gap: 12px;
-    margin-bottom: 20px;
+    margin-bottom: 8px;
     backdrop-filter: none;
     width: fit-content;
     max-width: 400px;
@@ -633,9 +635,9 @@ body {
     align-items: center;
     justify-content: center;
     text-align: center;
-    padding: 40px;
+    padding: 20px;
     color: #64748b;
-    min-height: calc(100vh - 300px);
+    min-height: 200px;
     position: absolute;
     top: 50%;
     left: 50%;
