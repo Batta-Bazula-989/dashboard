@@ -209,7 +209,7 @@ body {
 .card-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 4px;
+    gap: 2px;
     align-items: start;
 }
 @media (max-width: 900px) {
@@ -223,7 +223,7 @@ body {
     border-radius: 8px;
     padding: 14px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-    margin-bottom: 4px;
+    margin-bottom: 2px;
     min-height: 120px;
 }
 .card-header {
