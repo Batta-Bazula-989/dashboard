@@ -389,7 +389,12 @@ class DataDisplay {
             const content = document.createElement('div');
             content.className = 'ai-preview-content';
             const shortText = full.length > 150 ? `${full.slice(0, 150)}…` : full;
-            content.textContent = shortText;
+            // Clean the preview text by removing dashes and formatting it properly
+            const cleanPreview = shortText
+                .replace(/^\s*[-–—•*]\s*/gm, '') // Remove dashes from start of lines
+                .replace(/\s+/g, ' ') // Clean up multiple spaces
+                .trim();
+            content.textContent = cleanPreview;
             preview.appendChild(content);
 
             // Actions

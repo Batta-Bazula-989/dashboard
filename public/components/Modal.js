@@ -122,8 +122,8 @@ class Modal {
     parseAnalysisSections(text) {
         const sections = [];
 
-        // Split by numbered sections - improved regex to catch more patterns
-        const mainSections = text.split(/(?=\d+[\.\)]\s*[А-ЯЁA-ZІЇЄҐіЄЇ])/);
+        // Split by numbered sections - improved regex to catch the specific analysis structure
+        const mainSections = text.split(/(?=\d+[\.\)]\s*(?:Копирайтинг|Маркетинг|Психология|Продажи|Метрики|Рекомендации|Итоговый|Копірайтинг|Психологія|Продажі|Рекомендації|Висновки))/i);
 
         if (mainSections.length > 1) {
             const sectionIcons = {
@@ -138,6 +138,7 @@ class Modal {
                 'рекомендации': { icon: '💡', name: 'Рекомендації' },
                 'рекомендації': { icon: '💡', name: 'Рекомендації' },
                 'итоговый': { icon: '🎯', name: 'Висновки' },
+                'итоговый вывод': { icon: '🎯', name: 'Висновки' },
                 'висновки': { icon: '🎯', name: 'Висновки' },
                 'висновок': { icon: '🎯', name: 'Висновки' },
                 'аналіз': { icon: '📋', name: 'Аналіз' },
@@ -155,7 +156,7 @@ class Modal {
                 const trimmed = section.trim();
                 if (trimmed.length === 0) return;
 
-                const titleMatch = trimmed.match(/^(\d+[\.\)]\s*)([^\n:]+)/);
+                const titleMatch = trimmed.match(/^(\d+[\.\)]\s*)([^\n]+)/);
                 if (titleMatch) {
                     const sectionTitle = titleMatch[2].trim();
                     const key = Object.keys(sectionIcons).find(key =>

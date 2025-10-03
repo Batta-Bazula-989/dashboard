@@ -1,6 +1,6 @@
 /**
  * Main Dashboard Application - HTTP Polling Version
- * Uses HTTP polling instead of WebSocket for Vercel compatibility
+ * Uses HTTP polling for reliable data fetching
  */
 class DataDashboard {
     constructor() {

@@ -82,7 +82,7 @@ app.delete('/api/data', (req, res) => {
 
 // Main route
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index-vercel.html'));
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // Health check endpoint
