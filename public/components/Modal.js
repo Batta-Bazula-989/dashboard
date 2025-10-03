@@ -122,8 +122,8 @@ class Modal {
     parseAnalysisSections(text) {
         const sections = [];
 
-        // Split by numbered sections
-        const mainSections = text.split(/(?=\d+[\.\)]\s*[А-ЯЁA-ZІЇЄҐі])/);
+        // Split by numbered sections - improved regex to catch more patterns
+        const mainSections = text.split(/(?=\d+[\.\)]\s*[А-ЯЁA-ZІЇЄҐіЄЇ])/);
 
         if (mainSections.length > 1) {
             const sectionIcons = {
@@ -141,7 +141,14 @@ class Modal {
                 'висновки': { icon: '🎯', name: 'Висновки' },
                 'висновок': { icon: '🎯', name: 'Висновки' },
                 'аналіз': { icon: '📋', name: 'Аналіз' },
-                'анализ': { icon: '📋', name: 'Аналіз' }
+                'анализ': { icon: '📋', name: 'Аналіз' },
+                'swot': { icon: '🔍', name: 'SWOT Аналіз' },
+                'конкуренти': { icon: '🏢', name: 'Конкуренти' },
+                'цільова': { icon: '🎯', name: 'Цільова аудиторія' },
+                'цільової': { icon: '🎯', name: 'Цільова аудиторія' },
+                'аудиторія': { icon: '👥', name: 'Цільова аудиторія' },
+                'позиціонування': { icon: '📍', name: 'Позиціонування' },
+                'брендинг': { icon: '🏷️', name: 'Брендинг' }
             };
 
             mainSections.forEach(section => {
@@ -192,25 +199,98 @@ class Modal {
     }
 
     /**
-     * Format section content
+     * Format section content with professional structure for all tabs
      * @param {string} content - Content to format
      * @returns {string} Formatted HTML content
      */
     formatSectionContent(content) {
-        // Clean content by removing all types of dashes from line beginnings
-        const cleanContent = content
-            .split('\n')
-            .map(line => {
-                // Remove all types of dashes (-–—•*) from the beginning of lines
-                return line
-                    .replace(/^\s*[-–—•*]\s*/, '')
-                    .trim();
-            })
-            .filter(line => line.length > 0) // Remove empty lines
-            .join('<br>'); // Use <br> for better line spacing
+        // Remove numbered prefix like "1) Копирайтинг"
+        content = content.replace(/^\d+[\.\)]\s*[^\n]+\n?/, '');
 
-        // Return clean content without pre-wrap to avoid unwanted formatting
-        return `<div class="analysis-content-block">${cleanContent}</div>`;
+        // Split into lines and clean them
+        const lines = content.split('\n')
+            .map(line => line.trim())
+            .filter(line => line.length > 0);
+
+        let formatted = '';
+        let currentCategory = '';
+        let currentContent = '';
+
+        lines.forEach((line, index) => {
+            // Remove leading dashes/bullets
+            let cleanLine = line.replace(/^[-–—•*]+\s*/, '').trim();
+            
+            if (!cleanLine) return;
+
+            // Check if this is a category header (ends with colon)
+            const isCategoryHeader = cleanLine.match(/^([^:]+):\s*(.*)$/);
+
+            if (isCategoryHeader) {
+                // Flush previous category
+                if (currentCategory && currentContent) {
+                    formatted += this.formatCategoryBlock(currentCategory, currentContent);
+                }
+
+                // Start new category
+                currentCategory = isCategoryHeader[1].trim();
+                currentContent = isCategoryHeader[2].trim();
+            } else {
+                // Check if this is a SWOT-style single letter header (S:, W:, O:, T:)
+                const isSWOTHeader = cleanLine.match(/^([A-Z]):\s*(.*)$/);
+                
+                if (isSWOTHeader) {
+                    // Flush previous category
+                    if (currentCategory && currentContent) {
+                        formatted += this.formatCategoryBlock(currentCategory, currentContent);
+                    }
+
+                    // Start new SWOT category
+                    currentCategory = isSWOTHeader[1].trim();
+                    currentContent = isSWOTHeader[2].trim();
+                } else {
+                    // Regular content line - add to current content
+                    if (currentContent) {
+                        currentContent += ' ' + cleanLine;
+                    } else {
+                        currentContent = cleanLine;
+                    }
+                }
+            }
+        });
+
+        // Flush remaining category
+        if (currentCategory && currentContent) {
+            formatted += this.formatCategoryBlock(currentCategory, currentContent);
+        }
+
+        // If no categories were found, format as simple content
+        if (!formatted) {
+            const simpleContent = lines
+                .map(line => line.replace(/^[-–—•*]+\s*/, '').trim())
+                .filter(line => line.length > 0)
+                .join(' ');
+            
+            if (simpleContent) {
+                formatted = `<div class="analysis-simple-content">${simpleContent}</div>`;
+            }
+        }
+
+        return formatted || '<div class="analysis-content-block">Немає даних</div>';
+    }
+
+    /**
+     * Format a category block with header and content
+     * @param {string} category - Category name
+     * @param {string} content - Category content
+     * @returns {string} Formatted HTML
+     */
+    formatCategoryBlock(category, content) {
+        return `
+            <div class="analysis-category">
+                <div class="category-header">${category}:</div>
+                <div class="category-content">${content}</div>
+            </div>
+        `;
     }
 
 
