@@ -199,25 +199,60 @@ class Modal {
     }
 
     /**
-     * Format section content - simple and clean
+     * Format section content with proper paragraphs and spacing
      * @param {string} content - Content to format
      * @returns {string} Formatted HTML content
      */
     formatSectionContent(content) {
-        // Clean content by removing all types of dashes from line beginnings
-        const cleanContent = content
-            .split('\n')
+        // Remove numbered prefix like "1) Копирайтинг"
+        content = content.replace(/^\d+[\.\)]\s*[^\n]+\n?/, '');
+
+        // Split into lines and clean them
+        const lines = content.split('\n')
             .map(line => {
                 // Remove all types of dashes (-–—•*) from the beginning of lines
                 return line
                     .replace(/^\s*[-–—•*]\s*/, '')
                     .trim();
             })
-            .filter(line => line.length > 0) // Remove empty lines
-            .join('<br>'); // Use <br> for better line spacing
+            .filter(line => line.length > 0);
 
-        // Return clean content with improved formatting
-        return `<div class="analysis-content-block">${cleanContent}</div>`;
+        // Group lines into paragraphs for better structure
+        let formatted = '';
+        let currentParagraph = '';
+
+        lines.forEach((line, index) => {
+            // Check if this line ends with a colon (likely a category header)
+            const isCategoryHeader = line.match(/^([^:]+):\s*(.*)$/);
+            
+            if (isCategoryHeader) {
+                // Flush previous paragraph
+                if (currentParagraph) {
+                    formatted += `<p class="analysis-paragraph">${currentParagraph}</p>`;
+                    currentParagraph = '';
+                }
+                
+                // Add category header as a separate paragraph
+                const headerText = isCategoryHeader[1].trim();
+                const contentAfterColon = isCategoryHeader[2].trim();
+                const fullText = contentAfterColon ? `${headerText}: ${contentAfterColon}` : `${headerText}:`;
+                formatted += `<p class="analysis-category">${fullText}</p>`;
+            } else {
+                // Regular content line
+                if (currentParagraph) {
+                    currentParagraph += ' ' + line;
+                } else {
+                    currentParagraph = line;
+                }
+            }
+        });
+
+        // Flush remaining paragraph
+        if (currentParagraph) {
+            formatted += `<p class="analysis-paragraph">${currentParagraph}</p>`;
+        }
+
+        return formatted || '<p class="analysis-paragraph">Немає даних</p>';
     }
 
 

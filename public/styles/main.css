@@ -454,7 +454,6 @@ body {
     font-size: 14px;
     line-height: 1.7;
     color: #374151;
-    white-space: pre-wrap;
     word-break: break-word;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
@@ -562,6 +561,31 @@ body {
     color: #374151;
     font-size: 15px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Professional paragraph styling */
+.analysis-paragraph {
+    margin: 0 0 16px 0;
+    padding: 0;
+    line-height: 1.7;
+    color: #374151;
+    font-size: 15px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.analysis-paragraph:last-child {
+    margin-bottom: 0;
+}
+
+/* Category header styling */
+.analysis-category {
+    margin: 0 0 8px 0;
+    padding: 0;
+    line-height: 1.6;
+    color: #1f2937;
+    font-size: 15px;
+    font-weight: 600;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
