@@ -64,8 +64,11 @@ class Modal {
     formatAnalysisText(text) {
         const container = document.createElement('div');
 
+        // Remove all dashes from the text first
+        const cleanText = this.removeAllDashes(text);
+
         // Split text into logical sections
-        const sections = this.parseAnalysisSections(text);
+        const sections = this.parseAnalysisSections(cleanText);
 
         if (sections.length > 1) {
             // Create tabs container
@@ -198,25 +201,33 @@ class Modal {
     }
 
     /**
+     * Remove all types of dashes from text
+     * @param {string} text - Text to clean
+     * @returns {string} Text without dashes
+     */
+    removeAllDashes(text) {
+        return text
+            .replace(/^\s*[-–—•*]\s*/gm, '') // Remove dashes at start of lines
+            .replace(/\s*[-–—•*]\s*/g, ' ') // Remove dashes in middle of lines
+            .replace(/\s+/g, ' ') // Clean up multiple spaces
+            .trim();
+    }
+
+    /**
      * Format section content
      * @param {string} content - Content to format
      * @returns {string} Formatted HTML content
      */
     formatSectionContent(content) {
-        // Clean content by removing all types of dashes from line beginnings
-        const cleanContent = content
+        // Content is already cleaned of dashes, just format it properly
+        const formattedContent = content
             .split('\n')
-            .map(line => {
-                // Remove all types of dashes (-–—•*) from the beginning of lines
-                return line
-                    .replace(/^\s*[-–—•*]\s*/, '')
-                    .trim();
-            })
+            .map(line => line.trim())
             .filter(line => line.length > 0) // Remove empty lines
-            .join('<br>'); // Use <br> for better line spacing
+            .join('<br>'); // Use <br> for proper line spacing
 
-        // Return clean content without pre-wrap to avoid unwanted formatting
-        return `<div class="analysis-content-block">${cleanContent}</div>`;
+        // Return clean content without dashes
+        return `<div class="analysis-content-block">${formattedContent}</div>`;
     }
 
     /**
