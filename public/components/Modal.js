@@ -57,7 +57,6 @@ class Modal {
     formatAnalysisText(text) {
         const container = document.createElement('div');
 
-        // Parse text into clean sections
         const sections = this.parseAnalysisSections(text);
 
         if (sections.length > 1) {
@@ -124,7 +123,7 @@ class Modal {
         const sections = [];
 
         // Split by numbered sections
-        const mainSections = text.split(/(?=\d+[\.\)]\s*[А-ЯЁA-Z])/);
+        const mainSections = text.split(/(?=\d+[\.\)]\s*[А-ЯЁA-ZІЇЄҐі])/);
 
         if (mainSections.length > 1) {
             const sectionIcons = {
@@ -140,6 +139,7 @@ class Modal {
                 'рекомендації': { icon: '💡', name: 'Рекомендації' },
                 'итоговый': { icon: '🎯', name: 'Висновки' },
                 'висновки': { icon: '🎯', name: 'Висновки' },
+                'висновок': { icon: '🎯', name: 'Висновки' },
                 'аналіз': { icon: '📋', name: 'Аналіз' },
                 'анализ': { icon: '📋', name: 'Аналіз' }
             };
@@ -172,7 +172,7 @@ class Modal {
                     }
                 } else {
                     sections.push({
-                        title: 'Анализ',
+                        title: 'Аналіз',
                         icon: '📝',
                         content: this.formatSectionContent(trimmed)
                     });
@@ -182,7 +182,7 @@ class Modal {
 
         if (sections.length === 0) {
             sections.push({
-                title: 'Анализ',
+                title: 'Аналіз',
                 icon: '📝',
                 content: this.formatSectionContent(text)
             });
@@ -192,7 +192,7 @@ class Modal {
     }
 
     /**
-     * Format section content - removes list dashes and creates clean paragraphs
+     * Format section content - removes list dashes and creates clean structured blocks
      * @param {string} content - Content to format
      * @returns {string} Formatted HTML content
      */
@@ -201,54 +201,78 @@ class Modal {
         content = content.replace(/^\d+[\.\)]\s*[^\n]+\n?/, '');
 
         // Split into lines and process
-        const lines = content.split('\n');
+        const lines = content.split('\n').map(l => l.trim()).filter(l => l.length > 0);
         let formatted = '';
-        let currentBlock = '';
-        let lastIndentLevel = 0;
+        let currentSubsection = null;
+        let currentParagraph = '';
 
-        lines.forEach(line => {
-            const trimmedLine = line.trim();
-            if (!trimmedLine) return;
+        lines.forEach((line, index) => {
+            // Remove leading dashes/bullets
+            let cleanLine = line.replace(/^[-–—•*]+\s*/, '').trim();
 
-            // Calculate indent level by counting leading spaces/dashes
-            const leadingDashes = line.match(/^[\s-–—]*/)[0];
-            const indentLevel = leadingDashes.replace(/[^\s]/g, '').length;
+            // Check if this is a subsection header (ends with colon and is relatively short)
+            const isSubsectionHeader = cleanLine.match(/^([^:]+):\s*(.*)$/);
 
-            // Remove leading dashes and clean up
-            let cleanLine = trimmedLine
-                .replace(/^[-–—•*]+\s*/, '') // Remove leading list markers
-                .replace(/:\s*$/, ':') // Clean up trailing colons
-                .trim();
-
-            // Check if this is a subsection header (ends with colon)
-            const isHeader = cleanLine.endsWith(':') && cleanLine.length < 100;
-
-            if (isHeader) {
-                // Flush current block
-                if (currentBlock) {
-                    formatted += `<p>${currentBlock}</p>`;
-                    currentBlock = '';
+            if (isSubsectionHeader) {
+                // Flush previous paragraph
+                if (currentParagraph) {
+                    if (currentSubsection) {
+                        currentSubsection.content += currentParagraph;
+                    }
+                    currentParagraph = '';
                 }
-                // Add header
-                formatted += `<h4>${cleanLine}</h4>`;
+
+                // Flush previous subsection
+                if (currentSubsection) {
+                    formatted += this.formatSubsection(currentSubsection);
+                }
+
+                // Start new subsection
+                const headerText = isSubsectionHeader[1].trim();
+                const contentAfterColon = isSubsectionHeader[2].trim();
+
+                currentSubsection = {
+                    header: headerText,
+                    content: contentAfterColon ? contentAfterColon + ' ' : ''
+                };
             } else {
-                // Regular content - append to current block
-                if (currentBlock) {
-                    currentBlock += ' ' + cleanLine;
+                // Regular content line
+                if (currentParagraph) {
+                    currentParagraph += ' ' + cleanLine;
                 } else {
-                    currentBlock = cleanLine;
+                    currentParagraph = cleanLine;
                 }
             }
-
-            lastIndentLevel = indentLevel;
         });
 
         // Flush remaining content
-        if (currentBlock) {
-            formatted += `<p>${currentBlock}</p>`;
+        if (currentParagraph) {
+            if (currentSubsection) {
+                currentSubsection.content += currentParagraph;
+            } else {
+                formatted += `<p class="analysis-text">${currentParagraph}</p>`;
+            }
+        }
+
+        if (currentSubsection) {
+            formatted += this.formatSubsection(currentSubsection);
         }
 
         return formatted || '<p>Немає даних</p>';
+    }
+
+    /**
+     * Format a subsection with header and content
+     * @param {Object} subsection - Subsection object with header and content
+     * @returns {string} Formatted HTML
+     */
+    formatSubsection(subsection) {
+        return `
+            <div class="analysis-subsection">
+                <h4 class="subsection-header">${subsection.header}</h4>
+                <p class="subsection-content">${subsection.content}</p>
+            </div>
+        `;
     }
 
     /**

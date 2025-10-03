@@ -104,7 +104,7 @@ body {
     border-radius: 12px;
     padding: 14px;
     border: 1px solid rgba(226, 232, 240, 0.8);
-    box-shadow: 
+    box-shadow:
         0 2px 8px rgba(0, 0, 0, 0.06),
         0 1px 3px rgba(59, 130, 246, 0.04);
     display: flex;
@@ -138,7 +138,7 @@ body {
     font-size: 14px;
     background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
     color: white;
-    box-shadow: 
+    box-shadow:
         0 2px 6px rgba(59, 130, 246, 0.2),
         0 1px 3px rgba(139, 92, 246, 0.1);
     position: relative;
@@ -568,14 +568,42 @@ body {
     margin-top: 6px;
 }
 
+/* NEW: Clean analysis subsection styling - overrides previous styles */
 .analysis-subsection {
-    margin: 12px 0;
+    margin-bottom: 20px;
     padding: 16px;
     background: #ffffff;
     border-radius: 8px;
-    border: 1px solid #e5e7eb;
     border-left: 4px solid #3b82f6;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e5e7eb;
+}
+
+.analysis-subsection:last-child {
+    margin-bottom: 0;
+}
+
+.subsection-header {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0 0 10px 0;
+    line-height: 1.5;
+}
+
+.subsection-content {
+    font-size: 15px;
+    color: #4b5563;
+    line-height: 1.8;
+    margin: 0;
+}
+
+.analysis-text {
+    font-size: 15px;
+    color: #4b5563;
+    line-height: 1.8;
+    margin-bottom: 16px;
+    padding: 12px 0;
 }
 
 .analysis-subsection-title {
@@ -755,7 +783,7 @@ body {
     .stats-content .stats-number {
         font-size: 28px;
     }
-    
+
     .clear-data-btn {
         padding: 6px 10px;
         font-size: 12px;
