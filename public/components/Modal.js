@@ -13,7 +13,6 @@ class Modal {
      * @param {string} fullAnalysis - Full analysis text
      */
     showFullAnalysis(competitorName, fullAnalysis) {
-        // Create modal overlay
         const overlay = document.createElement('div');
         overlay.className = 'modal-overlay';
         overlay.onclick = (e) => {
@@ -22,31 +21,25 @@ class Modal {
             }
         };
 
-        // Create modal content
         const modal = document.createElement('div');
         modal.className = 'modal-content';
 
-        // Body
         const body = document.createElement('div');
         body.className = 'modal-body';
 
         const content = document.createElement('div');
         content.className = 'modal-analysis-content';
 
-        // Parse and format the analysis text
         const formattedContent = this.formatAnalysisText(fullAnalysis);
         content.appendChild(formattedContent);
 
         body.appendChild(content);
-
         modal.appendChild(body);
         overlay.appendChild(modal);
         document.body.appendChild(overlay);
 
-        // Store reference for closing
         this.currentModal = overlay;
 
-        // Close on Escape key
         const escapeHandler = (e) => {
             if (e.key === 'Escape') {
                 this.closeModal();
@@ -64,29 +57,22 @@ class Modal {
     formatAnalysisText(text) {
         const container = document.createElement('div');
 
-        // Remove all dashes from the text first
-        const cleanText = this.removeAllDashes(text);
-
-        // Split text into logical sections
-        const sections = this.parseAnalysisSections(cleanText);
+        // Parse text into clean sections
+        const sections = this.parseAnalysisSections(text);
 
         if (sections.length > 1) {
-            // Create tabs container
             const tabsContainer = document.createElement('div');
             tabsContainer.className = 'analysis-tabs';
 
-            // Create tab content container
             const contentContainer = document.createElement('div');
 
             sections.forEach((section, index) => {
-                // Create tab button
                 const tab = document.createElement('button');
                 tab.className = `analysis-tab ${index === 0 ? 'active' : ''}`;
                 tab.innerHTML = `${section.icon} ${section.title}`;
                 tab.onclick = () => this.switchAnalysisTab(index);
                 tabsContainer.appendChild(tab);
 
-                // Create tab content
                 const tabContent = document.createElement('div');
                 tabContent.className = `analysis-tab-content ${index === 0 ? 'active' : ''}`;
                 tabContent.innerHTML = section.content;
@@ -97,7 +83,6 @@ class Modal {
             container.appendChild(tabsContainer);
             container.appendChild(contentContainer);
         } else {
-            // Single section - no tabs needed
             const content = document.createElement('div');
             content.innerHTML = sections[0].content;
             container.appendChild(content);
@@ -111,7 +96,6 @@ class Modal {
      * @param {number} activeIndex - Index of the tab to activate
      */
     switchAnalysisTab(activeIndex) {
-        // Update tab buttons
         const tabs = document.querySelectorAll('.analysis-tab');
         tabs.forEach((tab, index) => {
             if (index === activeIndex) {
@@ -121,7 +105,6 @@ class Modal {
             }
         });
 
-        // Update tab content
         const contents = document.querySelectorAll('.analysis-tab-content');
         contents.forEach((content, index) => {
             if (index === activeIndex) {
@@ -138,62 +121,70 @@ class Modal {
      * @returns {Array} Array of section objects
      */
     parseAnalysisSections(text) {
-        // Simple approach - try to split by main sections, but if not found, show everything
         const sections = [];
-        const mainSections = text.split(/(?=\d+[\.\)]\s*(?:Копирайтинг|Маркетинг|Психология|Продажи|Метрики|Рекомендации|Итоговый вывод))/i);
+
+        // Split by numbered sections
+        const mainSections = text.split(/(?=\d+[\.\)]\s*[А-ЯЁA-Z])/);
 
         if (mainSections.length > 1) {
             const sectionIcons = {
-                'копирайтинг': { icon: '✍️', name: 'Копирайтинг' },
+                'копирайтинг': { icon: '✍️', name: 'Копірайтинг' },
+                'копірайтинг': { icon: '✍️', name: 'Копірайтинг' },
                 'маркетинг': { icon: '📈', name: 'Маркетинг' },
-                'психология': { icon: '🧠', name: 'Психология' },
-                'продажи': { icon: '💰', name: 'Продажи' },
+                'психология': { icon: '🧠', name: 'Психологія' },
+                'психологія': { icon: '🧠', name: 'Психологія' },
+                'продажи': { icon: '💰', name: 'Продажі' },
+                'продажі': { icon: '💰', name: 'Продажі' },
                 'метрики': { icon: '📊', name: 'Метрики' },
                 'рекомендации': { icon: '💡', name: 'Рекомендації' },
-                'итоговый': { icon: '🎯', name: 'Висновки' }
+                'рекомендації': { icon: '💡', name: 'Рекомендації' },
+                'итоговый': { icon: '🎯', name: 'Висновки' },
+                'висновки': { icon: '🎯', name: 'Висновки' },
+                'аналіз': { icon: '📋', name: 'Аналіз' },
+                'анализ': { icon: '📋', name: 'Аналіз' }
             };
 
             mainSections.forEach(section => {
                 const trimmed = section.trim();
                 if (trimmed.length === 0) return;
 
-                // Extract section title
-                const titleMatch = trimmed.match(/^(\d+[\.\)]\s*[^\n]+)/);
+                const titleMatch = trimmed.match(/^(\d+[\.\)]\s*)([^\n:]+)/);
                 if (titleMatch) {
-                    const fullTitle = titleMatch[1];
+                    const sectionTitle = titleMatch[2].trim();
                     const key = Object.keys(sectionIcons).find(key =>
-                        fullTitle.toLowerCase().includes(key)
+                        sectionTitle.toLowerCase().includes(key)
                     );
+
+                    const formattedContent = this.formatSectionContent(trimmed);
 
                     if (key) {
                         sections.push({
                             title: sectionIcons[key].name,
                             icon: sectionIcons[key].icon,
-                            content: trimmed
+                            content: formattedContent
                         });
                     } else {
                         sections.push({
-                            title: 'Анализ',
+                            title: sectionTitle,
                             icon: '📝',
-                            content: trimmed
+                            content: formattedContent
                         });
                     }
                 } else {
                     sections.push({
                         title: 'Анализ',
                         icon: '📝',
-                        content: trimmed
+                        content: this.formatSectionContent(trimmed)
                     });
                 }
             });
         }
 
-        // If no sections found, show everything as one section
         if (sections.length === 0) {
             sections.push({
                 title: 'Анализ',
                 icon: '📝',
-                content: text
+                content: this.formatSectionContent(text)
             });
         }
 
@@ -201,33 +192,63 @@ class Modal {
     }
 
     /**
-     * Remove all types of dashes from text
-     * @param {string} text - Text to clean
-     * @returns {string} Text without dashes
-     */
-    removeAllDashes(text) {
-        return text
-            .replace(/^\s*[-–—•*]\s*/gm, '') // Remove dashes at start of lines
-            .replace(/\s*[-–—•*]\s*/g, ' ') // Remove dashes in middle of lines
-            .replace(/\s+/g, ' ') // Clean up multiple spaces
-            .trim();
-    }
-
-    /**
-     * Format section content
+     * Format section content - removes list dashes and creates clean paragraphs
      * @param {string} content - Content to format
      * @returns {string} Formatted HTML content
      */
     formatSectionContent(content) {
-        // Content is already cleaned of dashes, just format it properly
-        const formattedContent = content
-            .split('\n')
-            .map(line => line.trim())
-            .filter(line => line.length > 0) // Remove empty lines
-            .join('<br>'); // Use <br> for proper line spacing
+        // Remove numbered prefix like "1) Копирайтинг"
+        content = content.replace(/^\d+[\.\)]\s*[^\n]+\n?/, '');
 
-        // Return clean content without dashes
-        return `<div class="analysis-content-block">${formattedContent}</div>`;
+        // Split into lines and process
+        const lines = content.split('\n');
+        let formatted = '';
+        let currentBlock = '';
+        let lastIndentLevel = 0;
+
+        lines.forEach(line => {
+            const trimmedLine = line.trim();
+            if (!trimmedLine) return;
+
+            // Calculate indent level by counting leading spaces/dashes
+            const leadingDashes = line.match(/^[\s-–—]*/)[0];
+            const indentLevel = leadingDashes.replace(/[^\s]/g, '').length;
+
+            // Remove leading dashes and clean up
+            let cleanLine = trimmedLine
+                .replace(/^[-–—•*]+\s*/, '') // Remove leading list markers
+                .replace(/:\s*$/, ':') // Clean up trailing colons
+                .trim();
+
+            // Check if this is a subsection header (ends with colon)
+            const isHeader = cleanLine.endsWith(':') && cleanLine.length < 100;
+
+            if (isHeader) {
+                // Flush current block
+                if (currentBlock) {
+                    formatted += `<p>${currentBlock}</p>`;
+                    currentBlock = '';
+                }
+                // Add header
+                formatted += `<h4>${cleanLine}</h4>`;
+            } else {
+                // Regular content - append to current block
+                if (currentBlock) {
+                    currentBlock += ' ' + cleanLine;
+                } else {
+                    currentBlock = cleanLine;
+                }
+            }
+
+            lastIndentLevel = indentLevel;
+        });
+
+        // Flush remaining content
+        if (currentBlock) {
+            formatted += `<p>${currentBlock}</p>`;
+        }
+
+        return formatted || '<p>Немає даних</p>';
     }
 
     /**
