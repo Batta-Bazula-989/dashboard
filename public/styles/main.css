@@ -568,39 +568,6 @@ body {
     margin-top: 6px;
 }
 
-/* NEW: Clean analysis subsection styling - overrides previous styles */
-.analysis-subsection {
-    margin-bottom: 20px;
-    padding: 16px;
-    background: #ffffff;
-    border-radius: 8px;
-    border-left: 4px solid #3b82f6;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-    border: 1px solid #e5e7eb;
-}
-
-.analysis-subsection:last-child {
-    margin-bottom: 0;
-}
-
-.subsection-header {
-    font-size: 16px;
-    font-weight: 700;
-    color: #1f2937;
-    margin-bottom: 8px;
-    padding-bottom: 4px;
-    border-bottom: 1px solid #e5e7eb;
-    margin: 0 0 10px 0;
-    line-height: 1.5;
-}
-
-.subsection-content {
-    font-size: 14px;
-    color: #374151;
-    line-height: 1.6;
-    margin: 0;
-    padding: 8px 0;
-}
 
 .analysis-text {
     font-size: 15px;

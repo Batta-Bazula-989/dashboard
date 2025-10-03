@@ -192,64 +192,25 @@ class Modal {
     }
 
     /**
-     * Format section content - creates clean structured blocks
+     * Format section content
      * @param {string} content - Content to format
      * @returns {string} Formatted HTML content
      */
     formatSectionContent(content) {
-        // Remove numbered prefix like "1) Копирайтинг"
-        content = content.replace(/^\d+[\.\)]\s*[^\n]+\n?/, '');
+        // Clean content by removing all types of dashes from line beginnings
+        const cleanContent = content
+            .split('\n')
+            .map(line => {
+                // Remove all types of dashes (-–—•*) from the beginning of lines
+                return line
+                    .replace(/^\s*[-–—•*]\s*/, '')
+                    .trim();
+            })
+            .filter(line => line.length > 0) // Remove empty lines
+            .join('<br>'); // Use <br> for better line spacing
 
-        // Split into lines and clean them
-        const lines = content.split('\n')
-            .map(line => line.trim())
-            .filter(line => line.length > 0);
-
-        let formatted = '';
-        let currentBlock = '';
-
-        lines.forEach((line, index) => {
-            // Remove leading dashes/bullets
-            let cleanLine = line.replace(/^[-–—•*]+\s*/, '').trim();
-            
-            if (!cleanLine) return;
-
-            // Check if this is a subsection header (ends with colon)
-            const isSubsectionHeader = cleanLine.match(/^([^:]+):\s*(.*)$/);
-
-            if (isSubsectionHeader) {
-                // Flush previous block
-                if (currentBlock) {
-                    formatted += `<div class="analysis-content-block">${currentBlock}</div>`;
-                    currentBlock = '';
-                }
-
-                // Create new subsection
-                const headerText = isSubsectionHeader[1].trim();
-                const contentAfterColon = isSubsectionHeader[2].trim();
-                
-                formatted += `
-                    <div class="analysis-subsection">
-                        <h4 class="subsection-header">${headerText}</h4>
-                        ${contentAfterColon ? `<p class="subsection-content">${contentAfterColon}</p>` : ''}
-                    </div>
-                `;
-            } else {
-                // Regular content line - add to current block
-                if (currentBlock) {
-                    currentBlock += ' ' + cleanLine;
-                } else {
-                    currentBlock = cleanLine;
-                }
-            }
-        });
-
-        // Flush remaining content
-        if (currentBlock) {
-            formatted += `<div class="analysis-content-block">${currentBlock}</div>`;
-        }
-
-        return formatted || '<div class="analysis-content-block">Немає даних</div>';
+        // Return clean content without pre-wrap to avoid unwanted formatting
+        return `<div class="analysis-content-block">${cleanContent}</div>`;
     }
 
 
