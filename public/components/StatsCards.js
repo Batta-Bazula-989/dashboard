@@ -26,7 +26,14 @@ class StatsCards {
             <div class="stats-container">
                 <div class="stats-card">
                     <div class="stats-header">
-                        <div class="stats-icon">👥</div>
+                        <div class="stats-icon">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                            </svg>
+                        </div>
                         <div class="stats-content">
                             <h3>COMPETITORS</h3>
                             <div class="stats-number" id="competitorCount">0</div>
@@ -35,9 +42,19 @@ class StatsCards {
                 </div>
                 <div class="stats-card">
                     <div class="stats-header">
-                        <div class="stats-icon">🎯</div>
+                        <div class="stats-icon">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <circle cx="12" cy="12" r="6"></circle>
+                                <circle cx="12" cy="12" r="2"></circle>
+                                <path d="M12 2v4"></path>
+                                <path d="M12 18v4"></path>
+                                <path d="M2 12h4"></path>
+                                <path d="M18 12h4"></path>
+                            </svg>
+                        </div>
                         <div class="stats-content">
-                                <h3>CAMPAIGNS</h3>
+                                <h3>ADS</h3>
                             <div class="stats-number" id="adsCount">0</div>
                         </div>
                     </div>

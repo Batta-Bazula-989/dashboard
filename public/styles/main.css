@@ -164,11 +164,11 @@ body {
 
 .stats-content h3 {
     font-size: 11px;
-    color: #64748b;
+    color: #374151;
     margin: 0 0 6px 0;
-    font-weight: 700;
+    font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
     line-height: 1.2;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     position: relative;
@@ -176,14 +176,11 @@ body {
 
 .stats-content .stats-number {
     font-size: 22px;
-    font-weight: 700;
+    font-weight: 600;
     margin: 0;
     line-height: 1;
+    color: #374151;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: linear-gradient(135deg, #1e293b 0%, #3b82f6 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
     position: relative;
 }
 
