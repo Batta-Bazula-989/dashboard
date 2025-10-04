@@ -28,26 +28,26 @@ class DataDisplay {
             <div class="data-display" id="dataDisplay">
                 <div class="empty-state">
                     <div class="billboard-illustration">
-                        <svg width="200" height="150" viewBox="0 0 200 150" fill="none">
+                        <svg width="180" height="120" viewBox="0 0 180 120" fill="none">
                             <!-- Billboard -->
-                            <rect x="40" y="30" width="120" height="80" rx="4" fill="url(#billboardGradient)" stroke="#d1b3ff" stroke-width="1"/>
+                            <rect x="20" y="20" width="100" height="60" rx="3" fill="url(#billboardGradient)" stroke="#d1b3ff" stroke-width="1"/>
                             <!-- Billboard post -->
-                            <rect x="95" y="110" width="10" height="30" rx="5" fill="#d1b3ff"/>
+                            <rect x="68" y="80" width="4" height="25" rx="2" fill="#d1b3ff"/>
                             <!-- Post base -->
-                            <rect x="90" y="140" width="20" height="8" rx="4" fill="#d1b3ff"/>
+                            <rect x="65" y="105" width="10" height="6" rx="3" fill="#d1b3ff"/>
                             <!-- Billboard top attachment -->
-                            <rect x="95" y="25" width="10" height="8" rx="2" fill="#d1b3ff"/>
+                            <rect x="68" y="17" width="4" height="5" rx="1" fill="#d1b3ff"/>
                             <!-- Person -->
-                            <g transform="translate(140, 85)">
+                            <g transform="translate(130, 45)">
                                 <!-- Body -->
-                                <rect x="0" y="10" width="12" height="25" rx="6" fill="#d1b3ff"/>
+                                <rect x="0" y="8" width="8" height="20" rx="4" fill="#d1b3ff"/>
                                 <!-- Head -->
-                                <circle cx="6" cy="6" r="5" fill="#d1b3ff"/>
+                                <circle cx="4" cy="4" r="3" fill="#d1b3ff"/>
                                 <!-- Magnifying glass -->
-                                <circle cx="20" cy="15" r="8" fill="none" stroke="#8b5cf6" stroke-width="2"/>
-                                <line x1="26" y1="21" x2="32" y2="27" stroke="#8b5cf6" stroke-width="2"/>
+                                <circle cx="12" cy="12" r="6" fill="none" stroke="#8b5cf6" stroke-width="1.5"/>
+                                <line x1="16" y1="16" x2="20" y2="20" stroke="#8b5cf6" stroke-width="1.5"/>
                                 <!-- Lens -->
-                                <circle cx="20" cy="15" r="6" fill="rgba(255,255,255,0.3)"/>
+                                <circle cx="12" cy="12" r="4" fill="rgba(255,255,255,0.4)"/>
                             </g>
                             <!-- Gradient definition -->
                             <defs>
@@ -464,26 +464,26 @@ class DataDisplay {
             this.dataDisplay.innerHTML = `
                 <div class="empty-state">
                     <div class="billboard-illustration">
-                        <svg width="200" height="150" viewBox="0 0 200 150" fill="none">
+                        <svg width="180" height="120" viewBox="0 0 180 120" fill="none">
                             <!-- Billboard -->
-                            <rect x="40" y="30" width="120" height="80" rx="4" fill="url(#billboardGradient)" stroke="#d1b3ff" stroke-width="1"/>
+                            <rect x="20" y="20" width="100" height="60" rx="3" fill="url(#billboardGradient)" stroke="#d1b3ff" stroke-width="1"/>
                             <!-- Billboard post -->
-                            <rect x="95" y="110" width="10" height="30" rx="5" fill="#d1b3ff"/>
+                            <rect x="68" y="80" width="4" height="25" rx="2" fill="#d1b3ff"/>
                             <!-- Post base -->
-                            <rect x="90" y="140" width="20" height="8" rx="4" fill="#d1b3ff"/>
+                            <rect x="65" y="105" width="10" height="6" rx="3" fill="#d1b3ff"/>
                             <!-- Billboard top attachment -->
-                            <rect x="95" y="25" width="10" height="8" rx="2" fill="#d1b3ff"/>
+                            <rect x="68" y="17" width="4" height="5" rx="1" fill="#d1b3ff"/>
                             <!-- Person -->
-                            <g transform="translate(140, 85)">
+                            <g transform="translate(130, 45)">
                                 <!-- Body -->
-                                <rect x="0" y="10" width="12" height="25" rx="6" fill="#d1b3ff"/>
+                                <rect x="0" y="8" width="8" height="20" rx="4" fill="#d1b3ff"/>
                                 <!-- Head -->
-                                <circle cx="6" cy="6" r="5" fill="#d1b3ff"/>
+                                <circle cx="4" cy="4" r="3" fill="#d1b3ff"/>
                                 <!-- Magnifying glass -->
-                                <circle cx="20" cy="15" r="8" fill="none" stroke="#8b5cf6" stroke-width="2"/>
-                                <line x1="26" y1="21" x2="32" y2="27" stroke="#8b5cf6" stroke-width="2"/>
+                                <circle cx="12" cy="12" r="6" fill="none" stroke="#8b5cf6" stroke-width="1.5"/>
+                                <line x1="16" y1="16" x2="20" y2="20" stroke="#8b5cf6" stroke-width="1.5"/>
                                 <!-- Lens -->
-                                <circle cx="20" cy="15" r="6" fill="rgba(255,255,255,0.3)"/>
+                                <circle cx="12" cy="12" r="4" fill="rgba(255,255,255,0.4)"/>
                             </g>
                             <!-- Gradient definition -->
                             <defs>
