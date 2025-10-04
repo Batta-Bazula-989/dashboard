@@ -28,7 +28,7 @@ class DataDisplay {
             <div class="data-display" id="dataDisplay">
                 <div class="empty-state">
                     <div class="billboard-illustration">
-                        <div style="width: 200px; height: 150px; background-color: #f0ebff; border: 2px solid #d1b3ff; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #8b5cf6;">No ads illustration</div>
+                        <div style="width: 200px; height: 150px; background-image: url('/no-ads-illustration.png'); background-size: contain; background-repeat: no-repeat; background-position: center; border: 1px solid #d1b3ff;"></div>
                     </div>
                     <h3>No ads yet</h3>
                 </div>
@@ -436,7 +436,7 @@ class DataDisplay {
             this.dataDisplay.innerHTML = `
                 <div class="empty-state">
                     <div class="billboard-illustration">
-                        <div style="width: 200px; height: 150px; background-color: #f0ebff; border: 2px solid #d1b3ff; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #8b5cf6;">No ads illustration</div>
+                        <div style="width: 200px; height: 150px; background-image: url('/no-ads-illustration.png'); background-size: contain; background-repeat: no-repeat; background-position: center; border: 1px solid #d1b3ff;"></div>
                     </div>
                     <h3>No ads yet</h3>
                 </div>
