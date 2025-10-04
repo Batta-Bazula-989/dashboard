@@ -116,11 +116,11 @@ body {
 }
 
 .stats-card-lavender {
-    background: linear-gradient(135deg, #fdfcff 0%, #f7f5ff 100%);
+    background: linear-gradient(135deg, #fbf9ff 0%, #f0ebff 100%);
 }
 
 .stats-card-pink {
-    background: linear-gradient(135deg, #fffdfd 0%, #fef7f7 100%);
+    background: linear-gradient(135deg, #fffafa 0%, #fef0f0 100%);
 }
 
 
@@ -140,7 +140,7 @@ body {
     font-size: 12px;
     color: #9ca3af;
     margin: 0 0 8px 0;
-    font-weight: 400;
+    font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 1px;
     line-height: 1.2;
@@ -150,7 +150,7 @@ body {
 
 .stats-content .stats-number {
     font-size: 28px;
-    font-weight: 500;
+    font-weight: 600;
     margin: 0;
     line-height: 1;
     color: #4b5563;
