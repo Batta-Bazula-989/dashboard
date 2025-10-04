@@ -24,13 +24,13 @@ class StatsCards {
     render(container) {
         const statsCardsHTML = `
             <div class="stats-container">
-                <div class="stats-card">
+                <div class="stats-card stats-card-lavender">
                     <div class="stats-content">
                         <h3>ADVERTISER</h3>
                         <div class="stats-number" id="competitorCount">0</div>
                     </div>
                 </div>
-                <div class="stats-card">
+                <div class="stats-card stats-card-pink">
                     <div class="stats-content">
                         <h3>ADS</h3>
                         <div class="stats-number" id="adsCount">0</div>
