@@ -28,7 +28,7 @@ class DataDisplay {
             <div class="data-display" id="dataDisplay">
                 <div class="empty-state">
                     <div class="billboard-illustration">
-                        <img src="no-ads-illustration.png" alt="No ads illustration" style="max-width: 200px; height: auto;" />
+                        <img src="/no-ads-illustration.png" alt="No ads illustration" style="max-width: 200px; height: auto;" />
                     </div>
                     <h3>No ads yet</h3>
                 </div>
@@ -436,7 +436,7 @@ class DataDisplay {
             this.dataDisplay.innerHTML = `
                 <div class="empty-state">
                     <div class="billboard-illustration">
-                        <img src="no-ads-illustration.png" alt="No ads illustration" style="max-width: 200px; height: auto;" />
+                        <img src="/no-ads-illustration.png" alt="No ads illustration" style="max-width: 200px; height: auto;" />
                     </div>
                     <h3>No ads yet</h3>
                 </div>
