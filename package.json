@@ -15,7 +15,6 @@
   },
   "dependencies": {
     "express": "^4.18.2",
-    "ws": "^8.14.2",
     "cors": "^2.8.5"
   },
   "devDependencies": {
@@ -24,7 +23,6 @@
   "keywords": [
     "n8n",
     "dashboard",
-    "websocket",
     "real-time",
     "data-display",
     "railway"

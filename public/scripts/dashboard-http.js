@@ -11,7 +11,6 @@ class DataDashboard {
         this.lastDataCount = 0;
 
         // Component instances
-        this.statusBar = null;
         this.statsCards = null;
         this.dataDisplay = null;
         this.modal = null;
@@ -208,8 +207,6 @@ class DataDashboard {
      */
     getComponent(componentName) {
         switch (componentName) {
-            case 'statusBar':
-                return this.statusBar;
             case 'statsCards':
                 return this.statsCards;
             case 'dataDisplay':
@@ -508,7 +505,6 @@ class DataDashboard {
         }
 
         // Clear component references
-        this.statusBar = null;
         this.statsCards = null;
         this.dataDisplay = null;
         this.modal = null;
