@@ -28,7 +28,7 @@ class DataDisplay {
             <div class="data-display" id="dataDisplay">
                 <div class="empty-state">
                     <div class="billboard-illustration">
-                        <img src="/Screenshot_2025-10-04_155150_whitebg_v2.svg" alt="No ads illustration" style="max-width: 350px; height: auto;" />
+                        <img src="/Screenshot_2025-10-04_155150_whitebg_v2.svg" alt="No ads illustration" style="max-width: 400px; height: auto;" />
                     </div>
                     <h3>No ads yet</h3>
                 </div>
@@ -436,7 +436,7 @@ class DataDisplay {
             this.dataDisplay.innerHTML = `
                 <div class="empty-state">
                     <div class="billboard-illustration">
-                        <img src="/Screenshot_2025-10-04_155150_whitebg_v2.svg" alt="No ads illustration" style="max-width: 350px; height: auto;" />
+                        <img src="/Screenshot_2025-10-04_155150_whitebg_v2.svg" alt="No ads illustration" style="max-width: 400px; height: auto;" />
                     </div>
                     <h3>No ads yet</h3>
                 </div>
