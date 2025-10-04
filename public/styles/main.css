@@ -167,16 +167,16 @@ body {
 .data-display {
     background: white;
     border-radius: 8px;
-    padding: 16px;
+    padding: 40px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     margin: 20px auto 0 auto;
-    min-height: 300px;
+    min-height: 400px;
     max-height: calc(100vh - 200px);
     overflow-y: auto;
     position: relative;
     transition: min-height 0.3s ease;
-    max-width: 800px;
-    width: 90%;
+    max-width: 1000px;
+    width: 95%;
 }
 
 .data-display:has(.table-responsive) {
