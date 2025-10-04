@@ -25,12 +25,28 @@ class StatsCards {
         const statsCardsHTML = `
             <div class="stats-container">
                 <div class="stats-card stats-card-lavender">
+                    <div class="stats-icon-top-right">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 11a9 9 0 0 1 9-9 9 9 0 0 1 9 9"></path>
+                            <path d="M12 2a9 9 0 0 1 9 9"></path>
+                            <path d="M21 2l-1 1"></path>
+                            <path d="M3 2l1 1"></path>
+                        </svg>
+                    </div>
                     <div class="stats-content">
                         <h3>ADVERTISER</h3>
                         <div class="stats-number" id="competitorCount">0</div>
                     </div>
                 </div>
                 <div class="stats-card stats-card-pink">
+                    <div class="stats-icon-top-right">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="14" width="7" height="7"></rect>
+                            <rect x="3" y="14" width="7" height="7"></rect>
+                        </svg>
+                    </div>
                     <div class="stats-content">
                         <h3>ADS</h3>
                         <div class="stats-number" id="adsCount">0</div>
