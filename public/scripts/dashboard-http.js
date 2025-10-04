@@ -355,19 +355,6 @@ class DataDashboard {
             modal.style.width = '90%';
             
             modal.innerHTML = `
-                <div class="modal-header">
-                    <div class="modal-title">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #ef4444;">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <line x1="15" y1="9" x2="9" y2="15"></line>
-                            <line x1="9" y1="9" x2="15" y2="15"></line>
-                        </svg>
-                        Confirm Clear Data
-                    </div>
-                    <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">
-                        ×
-                    </button>
-                </div>
                 <div class="modal-body">
                     <p style="margin-bottom: 20px; color: #374151; line-height: 1.5;">
                         Are you sure you want to clear all data? This action cannot be undone.
