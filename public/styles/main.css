@@ -184,8 +184,7 @@ body {
     overflow-y: auto;
     position: relative;
     transition: min-height 0.3s ease;
-    max-width: 600px;
-    width: fit-content;
+    width: 95%;
 }
 
 .data-display:has(.table-responsive) {
