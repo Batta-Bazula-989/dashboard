@@ -28,14 +28,12 @@ class StatsCards {
                     <div class="stats-header">
                         <div class="stats-icon">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
-                                <circle cx="9" cy="7" r="4"></circle>
-                                <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
-                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+                                <path d="M9 9h6v6H9z"></path>
                             </svg>
                         </div>
                         <div class="stats-content">
-                            <h3>COMPETITORS</h3>
+                            <h3>ADVERTISER</h3>
                             <div class="stats-number" id="competitorCount">0</div>
                         </div>
                     </div>
