@@ -91,7 +91,7 @@ body {
 
 .stats-container {
     display: flex;
-    gap: 12px;
+    gap: 20px;
     margin-bottom: 0;
     backdrop-filter: none;
     width: fit-content;
@@ -169,12 +169,14 @@ body {
     border-radius: 8px;
     padding: 16px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    margin: 0;
+    margin: 0 auto;
     min-height: 300px;
     max-height: calc(100vh - 200px);
     overflow-y: auto;
     position: relative;
     transition: min-height 0.3s ease;
+    max-width: 800px;
+    width: 90%;
 }
 
 .data-display:has(.table-responsive) {
