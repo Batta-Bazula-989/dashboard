@@ -27,8 +27,38 @@ class DataDisplay {
         const dataDisplayHTML = `
             <div class="data-display" id="dataDisplay">
                 <div class="empty-state">
-                    <div class="empty-state-icon">📭</div>
-                    <h3>No data received yet</h3>
+                    <div class="billboard-illustration">
+                        <svg width="200" height="150" viewBox="0 0 200 150" fill="none">
+                            <!-- Billboard -->
+                            <rect x="40" y="30" width="120" height="80" rx="4" fill="url(#billboardGradient)" stroke="#d1b3ff" stroke-width="1"/>
+                            <!-- Billboard post -->
+                            <rect x="95" y="110" width="10" height="30" rx="5" fill="#d1b3ff"/>
+                            <!-- Post base -->
+                            <rect x="90" y="140" width="20" height="8" rx="4" fill="#d1b3ff"/>
+                            <!-- Billboard top attachment -->
+                            <rect x="95" y="25" width="10" height="8" rx="2" fill="#d1b3ff"/>
+                            <!-- Person -->
+                            <g transform="translate(140, 85)">
+                                <!-- Body -->
+                                <rect x="0" y="10" width="12" height="25" rx="6" fill="#d1b3ff"/>
+                                <!-- Head -->
+                                <circle cx="6" cy="6" r="5" fill="#d1b3ff"/>
+                                <!-- Magnifying glass -->
+                                <circle cx="20" cy="15" r="8" fill="none" stroke="#8b5cf6" stroke-width="2"/>
+                                <line x1="26" y1="21" x2="32" y2="27" stroke="#8b5cf6" stroke-width="2"/>
+                                <!-- Lens -->
+                                <circle cx="20" cy="15" r="6" fill="rgba(255,255,255,0.3)"/>
+                            </g>
+                            <!-- Gradient definition -->
+                            <defs>
+                                <linearGradient id="billboardGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" style="stop-color:#f0ebff;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#ffffff;stop-opacity:1" />
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                    </div>
+                    <h3>No ads yet</h3>
                 </div>
             </div>
         `;
@@ -433,8 +463,38 @@ class DataDisplay {
         if (this.dataDisplay) {
             this.dataDisplay.innerHTML = `
                 <div class="empty-state">
-                    <div class="empty-state-icon">📭</div>
-                    <h3>No data received yet</h3>
+                    <div class="billboard-illustration">
+                        <svg width="200" height="150" viewBox="0 0 200 150" fill="none">
+                            <!-- Billboard -->
+                            <rect x="40" y="30" width="120" height="80" rx="4" fill="url(#billboardGradient)" stroke="#d1b3ff" stroke-width="1"/>
+                            <!-- Billboard post -->
+                            <rect x="95" y="110" width="10" height="30" rx="5" fill="#d1b3ff"/>
+                            <!-- Post base -->
+                            <rect x="90" y="140" width="20" height="8" rx="4" fill="#d1b3ff"/>
+                            <!-- Billboard top attachment -->
+                            <rect x="95" y="25" width="10" height="8" rx="2" fill="#d1b3ff"/>
+                            <!-- Person -->
+                            <g transform="translate(140, 85)">
+                                <!-- Body -->
+                                <rect x="0" y="10" width="12" height="25" rx="6" fill="#d1b3ff"/>
+                                <!-- Head -->
+                                <circle cx="6" cy="6" r="5" fill="#d1b3ff"/>
+                                <!-- Magnifying glass -->
+                                <circle cx="20" cy="15" r="8" fill="none" stroke="#8b5cf6" stroke-width="2"/>
+                                <line x1="26" y1="21" x2="32" y2="27" stroke="#8b5cf6" stroke-width="2"/>
+                                <!-- Lens -->
+                                <circle cx="20" cy="15" r="6" fill="rgba(255,255,255,0.3)"/>
+                            </g>
+                            <!-- Gradient definition -->
+                            <defs>
+                                <linearGradient id="billboardGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" style="stop-color:#f0ebff;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#ffffff;stop-opacity:1" />
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                    </div>
+                    <h3>No ads yet</h3>
                 </div>
             `;
         }

@@ -639,6 +639,13 @@ body {
     width: 100%;
 }
 
+.billboard-illustration {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 .empty-state-icon {
     font-size: 3rem;
     margin-bottom: 15px;
