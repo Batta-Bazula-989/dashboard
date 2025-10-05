@@ -779,7 +779,8 @@ body {
 }
 
 .section-копирайтинг,
-.section-копирайт {
+.section-копирайт,
+.section-копірайтинг {
     background: linear-gradient(135deg, #e8eaf6 0%, #c5cae9 100%);
 }
 
@@ -790,6 +791,11 @@ body {
 .section-итоговый,
 .section-висновки {
     background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+}
+
+.section-аналіз,
+.section-анализ {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
 }
 
 .analysis-main-content {
