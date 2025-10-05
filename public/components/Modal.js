@@ -218,7 +218,116 @@ class Modal {
             })
             .filter(line => line.length > 0);
 
-        // Group lines into paragraphs for better structure
+        // Try to detect if this is a structured analysis that should be formatted as a table
+        const hasStructuredFormat = this.detectStructuredFormat(lines);
+        
+        if (hasStructuredFormat) {
+            return this.formatAsStructuredTable(lines);
+        } else {
+            return this.formatAsRegularContent(lines);
+        }
+    }
+
+    /**
+     * Detect if content has structured format suitable for table display
+     * @param {Array} lines - Array of content lines
+     * @returns {boolean} True if structured format detected
+     */
+    detectStructuredFormat(lines) {
+        // Look for patterns like "Category: Description" or bullet points with categories
+        const structuredPatterns = [
+            /^[^:]+:\s*.+$/, // Category: Description pattern
+            /^[А-Яа-я\w\s]+:\s*$/, // Category: (with colon at end)
+            /^[А-Яа-я\w\s]+\s*-\s*.+$/, // Category - Description pattern
+        ];
+
+        // Also look for common analysis keywords that suggest structured content
+        const analysisKeywords = [
+            'тип оффера', 'стадія воронки', 'согласованность', 'оригінальність', 'сезонність',
+            'value proposition', 'ризик-реверс', 'сила ста', 'цінова психологія',
+            'swot', 's:', 'w:', 'о:', 'т:', 'mini-swot'
+        ];
+
+        let structuredCount = 0;
+        let keywordCount = 0;
+        
+        lines.forEach(line => {
+            const lowerLine = line.toLowerCase();
+            
+            // Check for structured patterns
+            if (structuredPatterns.some(pattern => pattern.test(line))) {
+                structuredCount++;
+            }
+            
+            // Check for analysis keywords
+            if (analysisKeywords.some(keyword => lowerLine.includes(keyword))) {
+                keywordCount++;
+            }
+        });
+
+        // Use structured format if:
+        // 1. More than 30% of lines match structured patterns, OR
+        // 2. Contains analysis keywords and has some structured patterns
+        return (structuredCount > 0 && (structuredCount / lines.length) > 0.3) ||
+               (keywordCount > 0 && structuredCount > 0);
+    }
+
+    /**
+     * Format content as a structured table-like layout
+     * @param {Array} lines - Array of content lines
+     * @returns {string} Formatted HTML content
+     */
+    formatAsStructuredTable(lines) {
+        let formatted = '<div class="analysis-structured-content">';
+        
+        lines.forEach((line, index) => {
+            // Check for category: description pattern
+            const categoryMatch = line.match(/^([^:]+):\s*(.*)$/);
+            
+            if (categoryMatch) {
+                const category = categoryMatch[1].trim();
+                const description = categoryMatch[2].trim();
+                
+                formatted += `
+                    <div class="analysis-item">
+                        <div class="analysis-label">${category}</div>
+                        <div class="analysis-value">${description || '—'}</div>
+                    </div>
+                `;
+            } else {
+                // Check for category - description pattern
+                const dashMatch = line.match(/^([^-]+)\s*-\s*(.+)$/);
+                if (dashMatch) {
+                    const category = dashMatch[1].trim();
+                    const description = dashMatch[2].trim();
+                    
+                    formatted += `
+                        <div class="analysis-item">
+                            <div class="analysis-label">${category}</div>
+                            <div class="analysis-value">${description}</div>
+                        </div>
+                    `;
+                } else if (line.trim()) {
+                    // Regular content line - treat as description only
+                    formatted += `
+                        <div class="analysis-item analysis-item-full">
+                            <div class="analysis-value">${line}</div>
+                        </div>
+                    `;
+                }
+            }
+        });
+        
+        formatted += '</div>';
+        return formatted;
+    }
+
+    /**
+     * Format content as regular paragraphs
+     * @param {Array} lines - Array of content lines
+     * @returns {string} Formatted HTML content
+     */
+    formatAsRegularContent(lines) {
         let formatted = '';
         let currentParagraph = '';
 
