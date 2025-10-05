@@ -434,6 +434,25 @@ body {
     padding: 20px;
     max-height: calc(90vh - 120px);
     overflow-y: auto;
+    color: #374151;
+}
+
+.modal-body * {
+    color: inherit;
+}
+
+/* Ensure all headers in modal are dark */
+.modal-body h1,
+.modal-body h2,
+.modal-body h3,
+.modal-body h4,
+.modal-body h5,
+.modal-body h6,
+.modal-body .title,
+.modal-body .header,
+.modal-body [class*="title"],
+.modal-body [class*="header"] {
+    color: #374151 !important;
 }
 
 .modal-analysis-content {
@@ -684,6 +703,25 @@ body {
     background: #f8fafc;
     padding: 16px;
     border-radius: 8px;
+    color: #374151;
+}
+
+.analysis-content * {
+    color: inherit;
+}
+
+/* Ensure all headers in analysis are dark */
+.analysis-content h1,
+.analysis-content h2,
+.analysis-content h3,
+.analysis-content h4,
+.analysis-content h5,
+.analysis-content h6,
+.analysis-content .title,
+.analysis-content .header,
+.analysis-content [class*="title"],
+.analysis-content [class*="header"] {
+    color: #374151 !important;
 }
 
 .analysis-main-section {
@@ -752,6 +790,11 @@ body {
 
 .analysis-main-content {
     padding: 20px;
+    color: #374151;
+}
+
+.analysis-main-content * {
+    color: inherit;
 }
 
 .clean-section {
@@ -940,6 +983,7 @@ body {
     margin: 0;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    color: #374151;
 }
 
 .recommendation-items {
