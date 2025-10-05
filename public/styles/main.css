@@ -681,16 +681,21 @@ body {
 .analysis-content {
     max-height: calc(90vh - 120px);
     overflow-y: auto;
+    background: #f8fafc;
+    padding: 16px;
+    border-radius: 8px;
 }
 
 .analysis-main-section {
-    margin-bottom: 32px;
-    border-bottom: 2px solid #e5e7eb;
-    padding-bottom: 24px;
+    margin-bottom: 24px;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .analysis-main-section:last-child {
-    border-bottom: none;
     margin-bottom: 0;
 }
 
