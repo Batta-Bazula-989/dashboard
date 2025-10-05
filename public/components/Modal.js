@@ -423,7 +423,8 @@ class Modal {
         
         lines.forEach((line, index) => {
             // Check for section headers (Quick Wins, Tactical improvements, etc.)
-            const sectionMatch = line.match(/^(\d+)\s+(.+?)\s*\((.+?)\)$/);
+            // More flexible regex to catch different formats
+            const sectionMatch = line.match(/^(\d+)\s+(.+?)(?:\s*\((.+?)\))?\s*$/);
             
             if (sectionMatch) {
                 // Process previous section if exists
@@ -434,7 +435,7 @@ class Modal {
                 // Start new section
                 const count = sectionMatch[1];
                 const title = sectionMatch[2].trim();
-                const timeframe = sectionMatch[3].trim();
+                const timeframe = sectionMatch[3] ? sectionMatch[3].trim() : '';
                 
                 currentSection = {
                     count: count,
@@ -452,12 +453,40 @@ class Modal {
             } else if (line.trim() && currentSection) {
                 // This might be a continuation of the previous item or a new item
                 currentItems.push(line.trim());
+            } else if (line.trim() && !currentSection) {
+                // If we don't have a section yet, try to detect if this line is a section header
+                const lowerLine = line.toLowerCase();
+                if (lowerLine.includes('quick wins') || lowerLine.includes('tactical') || 
+                    lowerLine.includes('strategic') || lowerLine.includes('рекомендації') ||
+                    lowerLine.includes('швидкі') || lowerLine.includes('тактичні') ||
+                    lowerLine.includes('стратегічна')) {
+                    
+                    // Create a section without count/timeframe
+                    currentSection = {
+                        count: '',
+                        title: line.trim(),
+                        timeframe: '',
+                        type: this.getRecommendationType(line.trim())
+                    };
+                    currentItems = [];
+                }
             }
         });
         
         // Process the last section
         if (currentSection) {
             formatted += this.formatRecommendationSection(currentSection, currentItems);
+        }
+        
+        // If no sections were found, fall back to regular formatting
+        if (!currentSection) {
+            formatted = '';
+            lines.forEach((line, index) => {
+                if (line.trim()) {
+                    formatted += `<p class="analysis-paragraph">${line.trim()}</p>`;
+                }
+            });
+            return formatted || '<p class="analysis-paragraph">Немає даних</p>';
         }
         
         formatted += '</div>';
@@ -490,11 +519,20 @@ class Modal {
     formatRecommendationSection(section, items) {
         const icon = this.getRecommendationIcon(section.type);
         
+        // Build title with optional count and timeframe
+        let title = section.title;
+        if (section.count) {
+            title = `${section.count} ${title}`;
+        }
+        if (section.timeframe) {
+            title = `${title} (${section.timeframe})`;
+        }
+        
         let formatted = `
             <div class="recommendation-section recommendation-${section.type}">
                 <div class="recommendation-header">
                     <span class="recommendation-icon">${icon}</span>
-                    <h3 class="recommendation-title">${section.count} ${section.title} (${section.timeframe})</h3>
+                    <h3 class="recommendation-title">${title}</h3>
                 </div>
                 <div class="recommendation-items">
         `;
