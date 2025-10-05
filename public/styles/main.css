@@ -390,13 +390,12 @@ body {
 
 .modal-content {
     background: white;
-    border-radius: 16px;
+    border-radius: 12px;
     max-width: 1200px;
     width: 95%;
     max-height: 90vh;
     overflow: hidden;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15), 0 8px 16px rgba(0, 0, 0, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
 }
 
 .modal-header {
@@ -432,10 +431,9 @@ body {
 }
 
 .modal-body {
-    padding: 24px;
+    padding: 20px;
     max-height: calc(90vh - 120px);
     overflow-y: auto;
-    background: #fafbfc;
 }
 
 .modal-analysis-content {
@@ -681,24 +679,16 @@ body {
 
 /* Clean sections formatting (like screenshots) */
 .analysis-content {
-    max-height: calc(90vh - 200px);
+    max-height: calc(90vh - 120px);
     overflow-y: auto;
-    background: white;
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .analysis-main-content {
-    margin-bottom: 24px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid #f3f4f6;
+    margin-bottom: 20px;
 }
 
 .analysis-main-content:last-child {
     margin-bottom: 0;
-    padding-bottom: 0;
-    border-bottom: none;
 }
 
 .clean-section {
