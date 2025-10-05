@@ -777,7 +777,13 @@ class Modal {
             } else if (currentSection) {
                 // This is description text
                 if (currentDescription) {
-                    currentDescription += ' ' + trimmedLine;
+                    // Check if this line starts with a number (2., 3., etc.)
+                    if (trimmedLine.match(/^\d+\./)) {
+                        // Add line break before numbered items
+                        currentDescription += '<br><br>' + trimmedLine;
+                    } else {
+                        currentDescription += ' ' + trimmedLine;
+                    }
                 } else {
                     currentDescription = trimmedLine;
                 }
