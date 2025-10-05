@@ -59,18 +59,28 @@ class Modal {
 
         const sections = this.parseAnalysisSections(text);
 
-        // Single scrollable view - no tabs, no section headers
+        // Single scrollable view - no tabs
         const content = document.createElement('div');
         content.className = 'analysis-content';
-
-            sections.forEach((section, index) => {
+        
+        sections.forEach((section, index) => {
+            const sectionElement = document.createElement('div');
+            sectionElement.className = 'analysis-main-section';
+            
+            const sectionHeader = document.createElement('div');
+            sectionHeader.className = 'analysis-main-header';
+            sectionHeader.innerHTML = `${section.icon} ${section.title}`;
+            
             const sectionContent = document.createElement('div');
             sectionContent.className = 'analysis-main-content';
             sectionContent.innerHTML = section.content;
-            content.appendChild(sectionContent);
+            
+            sectionElement.appendChild(sectionHeader);
+            sectionElement.appendChild(sectionContent);
+            content.appendChild(sectionElement);
         });
         
-            container.appendChild(content);
+        container.appendChild(content);
 
         return container;
     }
