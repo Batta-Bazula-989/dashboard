@@ -59,33 +59,28 @@ class Modal {
 
         const sections = this.parseAnalysisSections(text);
 
-        if (sections.length > 1) {
-            const tabsContainer = document.createElement('div');
-            tabsContainer.className = 'analysis-tabs';
-
-            const contentContainer = document.createElement('div');
-
-            sections.forEach((section, index) => {
-                const tab = document.createElement('button');
-                tab.className = `analysis-tab ${index === 0 ? 'active' : ''}`;
-                tab.innerHTML = `${section.icon} ${section.title}`;
-                tab.onclick = () => this.switchAnalysisTab(index);
-                tabsContainer.appendChild(tab);
-
-                const tabContent = document.createElement('div');
-                tabContent.className = `analysis-tab-content ${index === 0 ? 'active' : ''}`;
-                tabContent.innerHTML = section.content;
-                tabContent.setAttribute('data-tab-index', index);
-                contentContainer.appendChild(tabContent);
-            });
-
-            container.appendChild(tabsContainer);
-            container.appendChild(contentContainer);
-        } else {
-            const content = document.createElement('div');
-            content.innerHTML = sections[0].content;
-            container.appendChild(content);
-        }
+        // Single scrollable view - no tabs
+        const content = document.createElement('div');
+        content.className = 'analysis-content';
+        
+        sections.forEach((section, index) => {
+            const sectionElement = document.createElement('div');
+            sectionElement.className = 'analysis-main-section';
+            
+            const sectionHeader = document.createElement('div');
+            sectionHeader.className = 'analysis-main-header';
+            sectionHeader.innerHTML = `${section.icon} ${section.title}`;
+            
+            const sectionContent = document.createElement('div');
+            sectionContent.className = 'analysis-main-content';
+            sectionContent.innerHTML = section.content;
+            
+            sectionElement.appendChild(sectionHeader);
+            sectionElement.appendChild(sectionContent);
+            content.appendChild(sectionElement);
+        });
+        
+        container.appendChild(content);
 
         return container;
     }
@@ -204,7 +199,7 @@ class Modal {
     }
 
     /**
-     * Format section content with proper paragraphs and spacing
+     * Format section content with clean sections and inline notes
      * @param {string} content - Content to format
      * @returns {string} Formatted HTML content
      */
@@ -222,18 +217,8 @@ class Modal {
             })
             .filter(line => line.length > 0);
 
-        // Try to detect if this is a structured analysis that should be formatted as a table
-        const formatType = this.detectStructuredFormat(lines);
-        
-        if (formatType === 'recommendations') {
-            return this.formatAsRecommendations(lines);
-        } else if (formatType === 'metrics') {
-            return this.formatAsMetrics(lines);
-        } else if (formatType === true) {
-            return this.formatAsStructuredTable(lines);
-        } else {
-            return this.formatAsRegularContent(lines);
-        }
+        // Use the new clean formatting approach
+        return this.formatAsCleanSections(lines);
     }
 
     /**
@@ -701,6 +686,113 @@ class Modal {
         return formatted;
     }
 
+    /**
+     * Format content as clean sections with inline notes (like screenshots)
+     * @param {Array} lines - Array of content lines
+     * @returns {string} Formatted HTML content
+     */
+    formatAsCleanSections(lines) {
+        let formatted = '';
+        let currentSection = null;
+        let currentDescription = '';
+        let currentInlineNote = '';
+        
+        lines.forEach((line, index) => {
+            const trimmedLine = line.trim();
+            if (!trimmedLine) return;
+            
+            // Check if this is a section header (short line, no punctuation at end, or contains keywords)
+            const isSectionHeader = this.isSectionHeader(trimmedLine);
+            
+            if (isSectionHeader) {
+                // Process previous section if exists
+                if (currentSection) {
+                    formatted += this.formatCleanSection(currentSection, currentDescription, currentInlineNote);
+                }
+                
+                // Start new section
+                currentSection = trimmedLine;
+                currentDescription = '';
+                currentInlineNote = '';
+            } else if (trimmedLine.toLowerCase().startsWith('inline:')) {
+                // This is an inline note
+                currentInlineNote = trimmedLine.replace(/^inline:\s*/i, '').trim();
+            } else if (currentSection) {
+                // This is description text
+                if (currentDescription) {
+                    currentDescription += ' ' + trimmedLine;
+                } else {
+                    currentDescription = trimmedLine;
+                }
+            } else {
+                // No current section, treat as regular paragraph
+                formatted += `<p class="analysis-paragraph">${trimmedLine}</p>`;
+            }
+        });
+        
+        // Process the last section
+        if (currentSection) {
+            formatted += this.formatCleanSection(currentSection, currentDescription, currentInlineNote);
+        }
+        
+        return formatted;
+    }
+
+    /**
+     * Check if a line is a section header
+     * @param {string} line - Line to check
+     * @returns {boolean} True if it's a section header
+     */
+    isSectionHeader(line) {
+        // Short lines (less than 50 chars) that don't end with punctuation
+        if (line.length < 50 && !line.match(/[.!?]$/)) {
+            return true;
+        }
+        
+        // Lines containing common section keywords
+        const sectionKeywords = [
+            'тип оффера', 'стадия воронки', 'согласованность', 'оригинальность', 'сезонность',
+            'mini-swot', 'swot', 'психология', 'психологія', 'метрики', 'рекомендации',
+            'rotation insight', 'novelty', 'quick wins', 'tactical', 'strategic',
+            'основні драйвери', 'структура подачі', 'hook phrase', 'value proposition',
+            'ризик-реверс', 'сила ста', 'цінова психологія'
+        ];
+        
+        const lowerLine = line.toLowerCase();
+        return sectionKeywords.some(keyword => lowerLine.includes(keyword));
+    }
+
+    /**
+     * Format a clean section with inline note
+     * @param {string} title - Section title
+     * @param {string} description - Section description
+     * @param {string} inlineNote - Inline note
+     * @returns {string} Formatted HTML
+     */
+    formatCleanSection(title, description, inlineNote) {
+        let formatted = `
+            <div class="clean-section">
+                <div class="clean-section-header">
+                    <span class="clean-section-bullet">•</span>
+                    <h3 class="clean-section-title">${title}</h3>
+                </div>
+        `;
+        
+        if (description) {
+            formatted += `<div class="clean-section-description">${description}</div>`;
+        }
+        
+        if (inlineNote) {
+            formatted += `
+                <div class="clean-inline-note">
+                    <span class="inline-label">Inline:</span> ${inlineNote}
+                </div>
+            `;
+        }
+        
+        formatted += `</div>`;
+        return formatted;
+    }
 
     /**
      * Close the current modal
