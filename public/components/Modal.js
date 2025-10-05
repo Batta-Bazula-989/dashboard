@@ -207,8 +207,41 @@ class Modal {
             })
             .filter(line => line.length > 0);
 
+        // Filter out introductory text
+        const filteredLines = this.filterIntroText(lines);
+
         // Use the new clean formatting approach
-        return this.formatAsCleanSections(lines);
+        return this.formatAsCleanSections(filteredLines);
+    }
+
+    /**
+     * Filter out standard introductory text
+     * @param {Array} lines - Array of content lines
+     * @returns {Array} Filtered lines without intro text
+     */
+    filterIntroText(lines) {
+        const introPatterns = [
+            /ниже.*структурований аналіз/i,
+            /нижче.*структурований аналіз/i,
+            /ниже.*разбор по представленому/i,
+            /нижче.*разбор по представленому/i,
+            /ниже.*анализ по каждому разделу/i,
+            /нижче.*анализ по каждому разделу/i,
+            /ниже.*анализ на основе/i,
+            /нижче.*анализ на основе/i,
+            /выводы базуються лише/i,
+            /выводы базируются только/i,
+            /conclusions are based solely/i,
+            /based solely on the presented/i,
+            /без реальных цифр/i,
+            /без реальних цифр/i,
+            /without real figures/i
+        ];
+
+        return lines.filter(line => {
+            const lowerLine = line.toLowerCase();
+            return !introPatterns.some(pattern => pattern.test(lowerLine));
+        });
     }
 
     /**
