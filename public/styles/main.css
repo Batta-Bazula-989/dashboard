@@ -677,60 +677,60 @@ body {
 }
 
 .recommendation-section {
-    border-radius: 12px;
-    border: 2px solid;
+    border-radius: 8px;
+    border: 1px solid;
     overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .recommendation-section:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
-/* Quick Wins - Green */
+/* Quick Wins - Soft Green */
 .recommendation-quick-wins {
-    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
-    border-color: #22c55e;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border-color: #86efac;
 }
 
 .recommendation-quick-wins .recommendation-header {
-    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
-    color: white;
+    background: linear-gradient(135deg, #86efac 0%, #6ee7b7 100%);
+    color: #064e3b;
 }
 
-/* Tactical - Blue */
+/* Tactical - Soft Blue */
 .recommendation-tactical {
-    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-    border-color: #3b82f6;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border-color: #93c5fd;
 }
 
 .recommendation-tactical .recommendation-header {
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-    color: white;
+    background: linear-gradient(135deg, #93c5fd 0%, #7dd3fc 100%);
+    color: #1e3a8a;
 }
 
-/* Strategic - Orange */
+/* Strategic - Soft Orange */
 .recommendation-strategic {
-    background: linear-gradient(135deg, #fff7ed 0%, #fed7aa 100%);
-    border-color: #f97316;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border-color: #fdba74;
 }
 
 .recommendation-strategic .recommendation-header {
-    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
-    color: white;
+    background: linear-gradient(135deg, #fdba74 0%, #fb923c 100%);
+    color: #9a3412;
 }
 
-/* Default - Purple */
+/* Default - Soft Purple */
 .recommendation-default {
-    background: linear-gradient(135deg, #faf5ff 0%, #e9d5ff 100%);
-    border-color: #8b5cf6;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border-color: #c4b5fd;
 }
 
 .recommendation-default .recommendation-header {
-    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
-    color: white;
+    background: linear-gradient(135deg, #c4b5fd 0%, #a78bfa 100%);
+    color: #6b21a8;
 }
 
 .recommendation-header {
@@ -806,19 +806,19 @@ body {
 
 /* Color-coded left borders for recommendation items */
 .recommendation-quick-wins .recommendation-item {
-    border-left-color: #22c55e;
+    border-left-color: #86efac;
 }
 
 .recommendation-tactical .recommendation-item {
-    border-left-color: #3b82f6;
+    border-left-color: #93c5fd;
 }
 
 .recommendation-strategic .recommendation-item {
-    border-left-color: #f97316;
+    border-left-color: #fdba74;
 }
 
 .recommendation-default .recommendation-item {
-    border-left-color: #8b5cf6;
+    border-left-color: #c4b5fd;
 }
 
 /* Responsive design for recommendations */
