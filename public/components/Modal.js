@@ -570,37 +570,93 @@ class Modal {
     }
 
     /**
-     * Format content as metrics with simple text layout
+     * Format content as metrics with clean sections and progress bars
      * @param {Array} lines - Array of content lines
      * @returns {string} Formatted HTML content
      */
     formatAsMetrics(lines) {
         let formatted = '';
+        let currentMetric = null;
+        let currentDescription = '';
         
         lines.forEach((line, index) => {
             // Check for metric title (e.g., "Rotation insight", "Novelty (0-100)")
             const titleMatch = line.match(/^([^(]+)(?:\s*\(([^)]+)\))?\s*$/);
             
             if (titleMatch) {
+                // Process previous metric if exists
+                if (currentMetric) {
+                    formatted += this.formatMetricSection(currentMetric, currentDescription);
+                }
+                
+                // Start new metric
                 const title = titleMatch[1].trim();
                 const range = titleMatch[2] ? titleMatch[2].trim() : null;
                 
-                formatted += `<p class="analysis-category">${title}${range ? ` (${range})` : ''}</p>`;
-            } else if (line.trim()) {
+                currentMetric = {
+                    title: title,
+                    range: range,
+                    hasProgressBar: range && range.includes('0-100')
+                };
+                currentDescription = '';
+            } else if (line.trim() && currentMetric) {
                 // Check if this line contains a score value (e.g., "45/100")
                 const scoreMatch = line.match(/(\d+)\/(\d+)/);
-                if (scoreMatch) {
+                if (scoreMatch && currentMetric.hasProgressBar) {
                     const value = parseInt(scoreMatch[1]);
                     const maxValue = parseInt(scoreMatch[2]);
-                    const percentage = Math.round((value / maxValue) * 100);
-                    
-                    formatted += `<p class="analysis-paragraph">${line} <span class="score-badge">${percentage}%</span></p>`;
+                    currentMetric.value = value;
+                    currentMetric.maxValue = maxValue;
                 } else {
-                    formatted += `<p class="analysis-paragraph">${line}</p>`;
+                    // This is description text
+                    if (currentDescription) {
+                        currentDescription += ' ' + line.trim();
+                    } else {
+                        currentDescription = line.trim();
+                    }
                 }
             }
         });
         
+        // Process the last metric
+        if (currentMetric) {
+            formatted += this.formatMetricSection(currentMetric, currentDescription);
+        }
+        
+        return formatted;
+    }
+
+    /**
+     * Format a single metric section
+     * @param {Object} metric - Metric data
+     * @param {string} description - Metric description
+     * @returns {string} Formatted HTML
+     */
+    formatMetricSection(metric, description) {
+        let formatted = `
+            <div class="metric-section">
+                <h3 class="metric-title">${metric.title}${metric.range ? ` (${metric.range})` : ''}</h3>
+        `;
+        
+        // Add progress bar if this metric has one
+        if (metric.hasProgressBar && metric.value !== undefined && metric.maxValue !== undefined) {
+            const percentage = Math.round((metric.value / metric.maxValue) * 100);
+            formatted += `
+                <div class="metric-progress-container">
+                    <div class="metric-progress-bar">
+                        <div class="metric-progress-fill" style="width: ${percentage}%"></div>
+                    </div>
+                    <div class="metric-progress-value">${metric.value}/${metric.maxValue}</div>
+                </div>
+            `;
+        }
+        
+        // Add description
+        if (description) {
+            formatted += `<div class="metric-description">${description}</div>`;
+        }
+        
+        formatted += `</div>`;
         return formatted;
     }
 
