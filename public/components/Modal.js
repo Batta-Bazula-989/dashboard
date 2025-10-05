@@ -219,9 +219,13 @@ class Modal {
             .filter(line => line.length > 0);
 
         // Try to detect if this is a structured analysis that should be formatted as a table
-        const hasStructuredFormat = this.detectStructuredFormat(lines);
+        const formatType = this.detectStructuredFormat(lines);
         
-        if (hasStructuredFormat) {
+        if (formatType === 'recommendations') {
+            return this.formatAsRecommendations(lines);
+        } else if (formatType === 'metrics') {
+            return this.formatAsMetrics(lines);
+        } else if (formatType === true) {
             return this.formatAsStructuredTable(lines);
         } else {
             return this.formatAsRegularContent(lines);
@@ -234,6 +238,16 @@ class Modal {
      * @returns {boolean} True if structured format detected
      */
     detectStructuredFormat(lines) {
+        // First check if this is recommendations content
+        if (this.isRecommendationsContent(lines)) {
+            return 'recommendations';
+        }
+
+        // Check if this is metrics content
+        if (this.isMetricsContent(lines)) {
+            return 'metrics';
+        }
+
         // Look for patterns like "Category: Description" or bullet points with categories
         const structuredPatterns = [
             /^[^:]+:\s*.+$/, // Category: Description pattern
@@ -270,6 +284,38 @@ class Modal {
         // 2. Contains analysis keywords and has some structured patterns
         return (structuredCount > 0 && (structuredCount / lines.length) > 0.3) ||
                (keywordCount > 0 && structuredCount > 0);
+    }
+
+    /**
+     * Check if content is recommendations format
+     * @param {Array} lines - Array of content lines
+     * @returns {boolean} True if recommendations content detected
+     */
+    isRecommendationsContent(lines) {
+        const recommendationsKeywords = [
+            'quick wins', 'tactical improvements', 'strategic idea',
+            'рекомендації', 'рекомендации', 'швидкі перемоги', 'тактичні покращення',
+            'стратегічна ідея', 'за 1 день', 'за тиждень', 'на квартал'
+        ];
+
+        const text = lines.join(' ').toLowerCase();
+        return recommendationsKeywords.some(keyword => text.includes(keyword));
+    }
+
+    /**
+     * Check if content is metrics format
+     * @param {Array} lines - Array of content lines
+     * @returns {boolean} True if metrics content detected
+     */
+    isMetricsContent(lines) {
+        const metricsKeywords = [
+            'rotation insight', 'novelty', 'метрики', 'metrics',
+            '0-100', 'score', 'оцінка', 'індекс', 'index',
+            'progress', 'прогрес', 'рейтинг', 'rating'
+        ];
+
+        const text = lines.join(' ').toLowerCase();
+        return metricsKeywords.some(keyword => text.includes(keyword));
     }
 
     /**
@@ -365,7 +411,251 @@ class Modal {
         return formatted || '<p class="analysis-paragraph">Немає даних</p>';
     }
 
+    /**
+     * Format content as recommendations with priority sections
+     * @param {Array} lines - Array of content lines
+     * @returns {string} Formatted HTML content
+     */
+    formatAsRecommendations(lines) {
+        let formatted = '<div class="recommendations-container">';
+        
+        let currentSection = null;
+        let currentItems = [];
+        
+        lines.forEach((line, index) => {
+            // Check for section headers (Quick Wins, Tactical improvements, etc.)
+            const sectionMatch = line.match(/^(\d+)\s+(.+?)\s*\((.+?)\)$/);
+            
+            if (sectionMatch) {
+                // Process previous section if exists
+                if (currentSection) {
+                    formatted += this.formatRecommendationSection(currentSection, currentItems);
+                }
+                
+                // Start new section
+                const count = sectionMatch[1];
+                const title = sectionMatch[2].trim();
+                const timeframe = sectionMatch[3].trim();
+                
+                currentSection = {
+                    count: count,
+                    title: title,
+                    timeframe: timeframe,
+                    type: this.getRecommendationType(title)
+                };
+                currentItems = [];
+            } else if (line.match(/^\d+[\.\)]\s+/)) {
+                // This is a numbered recommendation item
+                const itemText = line.replace(/^\d+[\.\)]\s+/, '').trim();
+                if (itemText) {
+                    currentItems.push(itemText);
+                }
+            } else if (line.trim() && currentSection) {
+                // This might be a continuation of the previous item or a new item
+                currentItems.push(line.trim());
+            }
+        });
+        
+        // Process the last section
+        if (currentSection) {
+            formatted += this.formatRecommendationSection(currentSection, currentItems);
+        }
+        
+        formatted += '</div>';
+        return formatted;
+    }
 
+    /**
+     * Get recommendation type for styling
+     * @param {string} title - Section title
+     * @returns {string} Type (quick-wins, tactical, strategic)
+     */
+    getRecommendationType(title) {
+        const lowerTitle = title.toLowerCase();
+        if (lowerTitle.includes('quick wins') || lowerTitle.includes('швидкі перемоги')) {
+            return 'quick-wins';
+        } else if (lowerTitle.includes('tactical') || lowerTitle.includes('тактичні')) {
+            return 'tactical';
+        } else if (lowerTitle.includes('strategic') || lowerTitle.includes('стратегічна')) {
+            return 'strategic';
+        }
+        return 'default';
+    }
+
+    /**
+     * Format a recommendation section
+     * @param {Object} section - Section data
+     * @param {Array} items - Array of recommendation items
+     * @returns {string} Formatted HTML
+     */
+    formatRecommendationSection(section, items) {
+        const icon = this.getRecommendationIcon(section.type);
+        
+        let formatted = `
+            <div class="recommendation-section recommendation-${section.type}">
+                <div class="recommendation-header">
+                    <span class="recommendation-icon">${icon}</span>
+                    <h3 class="recommendation-title">${section.count} ${section.title} (${section.timeframe})</h3>
+                </div>
+                <div class="recommendation-items">
+        `;
+        
+        items.forEach((item, index) => {
+            formatted += `
+                <div class="recommendation-item">
+                    <span class="recommendation-number">${index + 1}.</span>
+                    <span class="recommendation-text">${item}</span>
+                </div>
+            `;
+        });
+        
+        formatted += `
+                </div>
+            </div>
+        `;
+        
+        return formatted;
+    }
+
+    /**
+     * Get icon for recommendation type
+     * @param {string} type - Recommendation type
+     * @returns {string} Icon
+     */
+    getRecommendationIcon(type) {
+        const icons = {
+            'quick-wins': '⚡',
+            'tactical': '🎯',
+            'strategic': '🚀',
+            'default': '💡'
+        };
+        return icons[type] || icons.default;
+    }
+
+    /**
+     * Format content as metrics with two-column layout and progress bars
+     * @param {Array} lines - Array of content lines
+     * @returns {string} Formatted HTML content
+     */
+    formatAsMetrics(lines) {
+        let formatted = '<div class="metrics-container">';
+        
+        // Group lines into metric sections
+        const metrics = this.parseMetricsSections(lines);
+        
+        // Create two-column layout
+        formatted += '<div class="metrics-grid">';
+        
+        metrics.forEach((metric, index) => {
+            formatted += `
+                <div class="metric-card">
+                    <h3 class="metric-title">${metric.title}</h3>
+                    ${metric.progressBar ? this.createProgressBar(metric.value, metric.maxValue) : ''}
+                    <div class="metric-description">${metric.description}</div>
+                </div>
+            `;
+        });
+        
+        formatted += '</div></div>';
+        return formatted;
+    }
+
+    /**
+     * Parse metrics sections from lines
+     * @param {Array} lines - Array of content lines
+     * @returns {Array} Array of metric objects
+     */
+    parseMetricsSections(lines) {
+        const metrics = [];
+        let currentMetric = null;
+        
+        lines.forEach(line => {
+            // Check for metric title (e.g., "Rotation insight", "Novelty (0-100)")
+            const titleMatch = line.match(/^([^(]+)(?:\s*\(([^)]+)\))?\s*$/);
+            
+            if (titleMatch) {
+                // Save previous metric if exists
+                if (currentMetric) {
+                    metrics.push(currentMetric);
+                }
+                
+                // Start new metric
+                const title = titleMatch[1].trim();
+                const range = titleMatch[2] ? titleMatch[2].trim() : null;
+                
+                currentMetric = {
+                    title: title,
+                    range: range,
+                    description: '',
+                    value: null,
+                    maxValue: null,
+                    progressBar: false
+                };
+                
+                // Check if this metric has a progress bar (contains 0-100 or similar)
+                if (range && range.includes('0-100')) {
+                    currentMetric.progressBar = true;
+                    currentMetric.maxValue = 100;
+                }
+            } else if (currentMetric && line.trim()) {
+                // Check if this line contains a score value (e.g., "45/100")
+                const scoreMatch = line.match(/(\d+)\/(\d+)/);
+                if (scoreMatch && currentMetric.progressBar) {
+                    currentMetric.value = parseInt(scoreMatch[1]);
+                    currentMetric.maxValue = parseInt(scoreMatch[2]);
+                } else {
+                    // This is description text
+                    if (currentMetric.description) {
+                        currentMetric.description += ' ' + line.trim();
+                    } else {
+                        currentMetric.description = line.trim();
+                    }
+                }
+            }
+        });
+        
+        // Add the last metric
+        if (currentMetric) {
+            metrics.push(currentMetric);
+        }
+        
+        return metrics;
+    }
+
+    /**
+     * Create a progress bar HTML element
+     * @param {number} value - Current value
+     * @param {number} maxValue - Maximum value
+     * @returns {string} Progress bar HTML
+     */
+    createProgressBar(value, maxValue) {
+        if (!value || !maxValue) return '';
+        
+        const percentage = Math.min((value / maxValue) * 100, 100);
+        const colorClass = this.getProgressBarColor(percentage);
+        
+        return `
+            <div class="metric-progress-container">
+                <div class="metric-progress-bar">
+                    <div class="metric-progress-fill ${colorClass}" style="width: ${percentage}%"></div>
+                </div>
+                <div class="metric-progress-value">${value}/${maxValue}</div>
+            </div>
+        `;
+    }
+
+    /**
+     * Get color class for progress bar based on percentage
+     * @param {number} percentage - Progress percentage
+     * @returns {string} Color class
+     */
+    getProgressBarColor(percentage) {
+        if (percentage >= 80) return 'progress-excellent';
+        if (percentage >= 60) return 'progress-good';
+        if (percentage >= 40) return 'progress-average';
+        if (percentage >= 20) return 'progress-poor';
+        return 'progress-very-poor';
+    }
 
     /**
      * Close the current modal
