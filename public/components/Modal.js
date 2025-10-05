@@ -315,7 +315,8 @@ class Modal {
         const metricsKeywords = [
             'rotation insight', 'novelty', 'метрики', 'metrics',
             '0-100', 'score', 'оцінка', 'індекс', 'index',
-            'progress', 'прогрес', 'рейтинг', 'rating'
+            'progress', 'прогрес', 'рейтинг', 'rating',
+            'рекомендация по метрикам', 'рекомендации по метрикам'
         ];
 
         const text = lines.join(' ').toLowerCase();
@@ -580,41 +581,81 @@ class Modal {
         let currentDescription = '';
         
         lines.forEach((line, index) => {
-            // Check for metric title (e.g., "Rotation insight", "Novelty (0-100)")
-            const titleMatch = line.match(/^([^(]+)(?:\s*\(([^)]+)\))?\s*$/);
+            const trimmedLine = line.trim();
+            if (!trimmedLine) return;
             
-            if (titleMatch) {
+            // Check for metric title - more flexible patterns
+            const titlePatterns = [
+                /^([^(]+)(?:\s*\(([^)]+)\))?\s*$/,  // "Title (range)"
+                /^(.+?)\s*\(([^)]+)\)\s*$/,         // "Title (range)" 
+                /^(.+?)\s*–\s*(.+)$/,               // "Title – description"
+                /^(.+?):\s*(.+)$/                   // "Title: description"
+            ];
+            
+            let isTitle = false;
+            let title = '';
+            let range = '';
+            
+            for (const pattern of titlePatterns) {
+                const match = trimmedLine.match(pattern);
+                if (match) {
+                    title = match[1].trim();
+                    range = match[2] ? match[2].trim() : '';
+                    isTitle = true;
+                    break;
+                }
+            }
+            
+            // Also check if line looks like a title (short, no punctuation at end, or has numbers)
+            if (!isTitle && trimmedLine.length < 50 && 
+                (trimmedLine.includes('insight') || trimmedLine.includes('novelty') || 
+                 trimmedLine.includes('метрики') || trimmedLine.includes('0-100') ||
+                 trimmedLine.includes('рекомендация'))) {
+                title = trimmedLine;
+                isTitle = true;
+            }
+            
+            if (isTitle) {
                 // Process previous metric if exists
                 if (currentMetric) {
                     formatted += this.formatMetricSection(currentMetric, currentDescription);
                 }
                 
                 // Start new metric
-                const title = titleMatch[1].trim();
-                const range = titleMatch[2] ? titleMatch[2].trim() : null;
-                
                 currentMetric = {
                     title: title,
                     range: range,
-                    hasProgressBar: range && range.includes('0-100')
+                    hasProgressBar: range.includes('0-100') || range.includes('0–100')
                 };
                 currentDescription = '';
-            } else if (line.trim() && currentMetric) {
-                // Check if this line contains a score value (e.g., "45/100")
-                const scoreMatch = line.match(/(\d+)\/(\d+)/);
+            } else if (currentMetric) {
+                // Check if this line contains a score value (e.g., "45/100", "40-60")
+                const scoreMatch = trimmedLine.match(/(\d+)\/(\d+)/);
+                const rangeMatch = trimmedLine.match(/(\d+)\s*[–-]\s*(\d+)/);
+                
                 if (scoreMatch && currentMetric.hasProgressBar) {
                     const value = parseInt(scoreMatch[1]);
                     const maxValue = parseInt(scoreMatch[2]);
                     currentMetric.value = value;
                     currentMetric.maxValue = maxValue;
+                } else if (rangeMatch && currentMetric.hasProgressBar) {
+                    // Handle ranges like "40-60" - take the middle value
+                    const min = parseInt(rangeMatch[1]);
+                    const max = parseInt(rangeMatch[2]);
+                    const avg = Math.round((min + max) / 2);
+                    currentMetric.value = avg;
+                    currentMetric.maxValue = 100;
                 } else {
                     // This is description text
                     if (currentDescription) {
-                        currentDescription += ' ' + line.trim();
+                        currentDescription += ' ' + trimmedLine;
                     } else {
-                        currentDescription = line.trim();
+                        currentDescription = trimmedLine;
                     }
                 }
+            } else {
+                // No current metric, treat as regular paragraph
+                formatted += `<p class="analysis-paragraph">${trimmedLine}</p>`;
             }
         });
         
