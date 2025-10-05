@@ -69,6 +69,7 @@ class Modal {
             
             const sectionHeader = document.createElement('div');
             sectionHeader.className = 'analysis-main-header';
+            sectionHeader.classList.add(`section-${section.title.toLowerCase().replace(/\s+/g, '-')}`);
             sectionHeader.innerHTML = `${section.icon} ${section.title}`;
             
             const sectionContent = document.createElement('div');
