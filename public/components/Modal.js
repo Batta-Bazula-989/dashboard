@@ -123,7 +123,7 @@ class Modal {
         const sections = [];
 
         // Split by numbered sections - improved regex to catch the specific analysis structure
-        const mainSections = text.split(/(?=\d+[\.\)]\s*(?:Копирайтинг|Маркетинг|Психология|Продажи|Метрики|Рекомендации|Итоговый|Копірайтинг|Психологія|Продажі|Рекомендації|Висновки))/i);
+        const mainSections = text.split(/(?=\d+[\.\)]\s*(?:Копирайтинг|Маркетинг|Психология|Продажи|Метрики|Рекомендации|Итоговый|Копірайтинг|Психологія|Продажі|Рекомендації|Висновки|Аналіз|Анализ|SWOT|Конкуренти|Цільова|Позиціонування|Брендинг))/i);
 
         if (mainSections.length > 1) {
             const sectionIcons = {
@@ -148,6 +148,10 @@ class Modal {
                 'цільова': { icon: '🎯', name: 'Цільова аудиторія' },
                 'цільової': { icon: '🎯', name: 'Цільова аудиторія' },
                 'аудиторія': { icon: '👥', name: 'Цільова аудиторія' },
+                'позиціонування': { icon: '📍', name: 'Позиціонування' },
+                'брендинг': { icon: '🏷️', name: 'Брендинг' },
+                'конкуренти': { icon: '🏢', name: 'Конкуренти' },
+                'цільова': { icon: '🎯', name: 'Цільова аудиторія' },
                 'позиціонування': { icon: '📍', name: 'Позиціонування' },
                 'брендинг': { icon: '🏷️', name: 'Брендинг' }
             };
@@ -324,7 +328,7 @@ class Modal {
      * @returns {string} Formatted HTML content
      */
     formatAsStructuredTable(lines) {
-        let formatted = '<div class="analysis-structured-content">';
+        let formatted = '';
         
         lines.forEach((line, index) => {
             // Check for category: description pattern
@@ -335,9 +339,9 @@ class Modal {
                 const description = categoryMatch[2].trim();
                 
                 formatted += `
-                    <div class="analysis-item">
-                        <div class="analysis-label">${category}</div>
-                        <div class="analysis-value">${description || '—'}</div>
+                    <div class="analysis-table-row">
+                        <span class="analysis-category">${category}</span>
+                        <span class="analysis-description">${description || '—'}</span>
                     </div>
                 `;
             } else {
@@ -348,23 +352,18 @@ class Modal {
                     const description = dashMatch[2].trim();
                     
                     formatted += `
-                        <div class="analysis-item">
-                            <div class="analysis-label">${category}</div>
-                            <div class="analysis-value">${description}</div>
+                        <div class="analysis-table-row">
+                            <span class="analysis-category">${category}</span>
+                            <span class="analysis-description">${description}</span>
                         </div>
                     `;
                 } else if (line.trim()) {
                     // Regular content line - treat as description only
-                    formatted += `
-                        <div class="analysis-item analysis-item-full">
-                            <div class="analysis-value">${line}</div>
-                        </div>
-                    `;
+                    formatted += `<p class="analysis-paragraph">${line}</p>`;
                 }
             }
         });
         
-        formatted += '</div>';
         return formatted;
     }
 
@@ -533,129 +532,40 @@ class Modal {
     }
 
     /**
-     * Format content as metrics with two-column layout and progress bars
+     * Format content as metrics with simple text layout
      * @param {Array} lines - Array of content lines
      * @returns {string} Formatted HTML content
      */
     formatAsMetrics(lines) {
-        let formatted = '<div class="metrics-container">';
+        let formatted = '';
         
-        // Group lines into metric sections
-        const metrics = this.parseMetricsSections(lines);
-        
-        // Create two-column layout
-        formatted += '<div class="metrics-grid">';
-        
-        metrics.forEach((metric, index) => {
-            formatted += `
-                <div class="metric-card">
-                    <h3 class="metric-title">${metric.title}</h3>
-                    ${metric.progressBar ? this.createProgressBar(metric.value, metric.maxValue) : ''}
-                    <div class="metric-description">${metric.description}</div>
-                </div>
-            `;
-        });
-        
-        formatted += '</div></div>';
-        return formatted;
-    }
-
-    /**
-     * Parse metrics sections from lines
-     * @param {Array} lines - Array of content lines
-     * @returns {Array} Array of metric objects
-     */
-    parseMetricsSections(lines) {
-        const metrics = [];
-        let currentMetric = null;
-        
-        lines.forEach(line => {
+        lines.forEach((line, index) => {
             // Check for metric title (e.g., "Rotation insight", "Novelty (0-100)")
             const titleMatch = line.match(/^([^(]+)(?:\s*\(([^)]+)\))?\s*$/);
             
             if (titleMatch) {
-                // Save previous metric if exists
-                if (currentMetric) {
-                    metrics.push(currentMetric);
-                }
-                
-                // Start new metric
                 const title = titleMatch[1].trim();
                 const range = titleMatch[2] ? titleMatch[2].trim() : null;
                 
-                currentMetric = {
-                    title: title,
-                    range: range,
-                    description: '',
-                    value: null,
-                    maxValue: null,
-                    progressBar: false
-                };
-                
-                // Check if this metric has a progress bar (contains 0-100 or similar)
-                if (range && range.includes('0-100')) {
-                    currentMetric.progressBar = true;
-                    currentMetric.maxValue = 100;
-                }
-            } else if (currentMetric && line.trim()) {
+                formatted += `<p class="analysis-category">${title}${range ? ` (${range})` : ''}</p>`;
+            } else if (line.trim()) {
                 // Check if this line contains a score value (e.g., "45/100")
                 const scoreMatch = line.match(/(\d+)\/(\d+)/);
-                if (scoreMatch && currentMetric.progressBar) {
-                    currentMetric.value = parseInt(scoreMatch[1]);
-                    currentMetric.maxValue = parseInt(scoreMatch[2]);
+                if (scoreMatch) {
+                    const value = parseInt(scoreMatch[1]);
+                    const maxValue = parseInt(scoreMatch[2]);
+                    const percentage = Math.round((value / maxValue) * 100);
+                    
+                    formatted += `<p class="analysis-paragraph">${line} <span class="score-badge">${percentage}%</span></p>`;
                 } else {
-                    // This is description text
-                    if (currentMetric.description) {
-                        currentMetric.description += ' ' + line.trim();
-                    } else {
-                        currentMetric.description = line.trim();
-                    }
+                    formatted += `<p class="analysis-paragraph">${line}</p>`;
                 }
             }
         });
         
-        // Add the last metric
-        if (currentMetric) {
-            metrics.push(currentMetric);
-        }
-        
-        return metrics;
+        return formatted;
     }
 
-    /**
-     * Create a progress bar HTML element
-     * @param {number} value - Current value
-     * @param {number} maxValue - Maximum value
-     * @returns {string} Progress bar HTML
-     */
-    createProgressBar(value, maxValue) {
-        if (!value || !maxValue) return '';
-        
-        const percentage = Math.min((value / maxValue) * 100, 100);
-        const colorClass = this.getProgressBarColor(percentage);
-        
-        return `
-            <div class="metric-progress-container">
-                <div class="metric-progress-bar">
-                    <div class="metric-progress-fill ${colorClass}" style="width: ${percentage}%"></div>
-                </div>
-                <div class="metric-progress-value">${value}/${maxValue}</div>
-            </div>
-        `;
-    }
-
-    /**
-     * Get color class for progress bar based on percentage
-     * @param {number} percentage - Progress percentage
-     * @returns {string} Color class
-     */
-    getProgressBarColor(percentage) {
-        if (percentage >= 80) return 'progress-excellent';
-        if (percentage >= 60) return 'progress-good';
-        if (percentage >= 40) return 'progress-average';
-        if (percentage >= 20) return 'progress-poor';
-        return 'progress-very-poor';
-    }
 
     /**
      * Close the current modal
