@@ -691,8 +691,9 @@ body {
     background: white;
     border: 1px solid #e5e7eb;
     border-radius: 8px;
-    padding: 20px;
+    padding: 0;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
 }
 
 .analysis-main-section:last-child {
@@ -702,20 +703,22 @@ body {
 .analysis-main-header {
     font-size: 18px;
     font-weight: 700;
-    color: #334155;
-    margin-bottom: 16px;
+    color: #ffffff;
+    margin: 0;
     display: flex;
     align-items: center;
     gap: 8px;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    padding: 12px 16px;
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border: none;
+    border-radius: 0;
+    padding: 16px 20px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .analysis-main-content {
-    padding-left: 0;
+    padding: 20px;
 }
 
 .clean-section {
