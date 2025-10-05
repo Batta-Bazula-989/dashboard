@@ -62,8 +62,8 @@ class Modal {
         // Single scrollable view - no tabs
         const content = document.createElement('div');
         content.className = 'analysis-content';
-        
-        sections.forEach((section, index) => {
+
+            sections.forEach((section, index) => {
             const sectionElement = document.createElement('div');
             sectionElement.className = 'analysis-main-section';
             
@@ -80,7 +80,7 @@ class Modal {
             content.appendChild(sectionElement);
         });
         
-        container.appendChild(content);
+            container.appendChild(content);
 
         return container;
     }
@@ -828,7 +828,6 @@ class Modal {
         let formatted = `
             <div class="clean-section">
                 <div class="clean-section-header">
-                    <span class="clean-section-bullet">•</span>
                     <h3 class="clean-section-title">${title}</h3>
                 </div>
         `;
