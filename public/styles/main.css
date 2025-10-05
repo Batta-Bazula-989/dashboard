@@ -702,12 +702,16 @@ body {
 .analysis-main-header {
     font-size: 18px;
     font-weight: 700;
-    color: #1f2937;
+    color: #334155;
     margin-bottom: 16px;
     display: flex;
     align-items: center;
     gap: 8px;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px 16px;
 }
 
 .analysis-main-content {
@@ -723,17 +727,13 @@ body {
 }
 
 .clean-section-header {
-    margin-bottom: 12px;
-    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    padding: 12px 16px;
+    margin-bottom: 8px;
 }
 
 .clean-section-title {
     font-size: 16px;
     font-weight: 700;
-    color: #334155;
+    color: #1f2937;
     margin: 0;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
