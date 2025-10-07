@@ -13,6 +13,7 @@ class DataDashboard {
         // Component instances
         this.statsCards = null;
         this.dataDisplay = null;
+        this.videoAnalysisDisplay = null;
         this.modal = null;
 
         // Component loader
@@ -50,6 +51,7 @@ class DataDashboard {
         // Register components (they're already loaded via script tags)
         this.componentLoader.register('StatsCards', window.StatsCards);
         this.componentLoader.register('DataDisplay', window.DataDisplay);
+        this.componentLoader.register('VideoAnalysisDisplay', window.VideoAnalysisDisplay);
         this.componentLoader.register('Modal', window.Modal);
     }
 
@@ -69,8 +71,12 @@ class DataDashboard {
         const dataSection = document.createElement('div');
         dataSection.className = 'data-section';
         
+        const videoSection = document.createElement('div');
+        videoSection.className = 'video-section';
+        
         dashboardContent.appendChild(statsSection);
         dashboardContent.appendChild(dataSection);
+        dashboardContent.appendChild(videoSection);
         container.appendChild(dashboardContent);
 
         // Initialize StatsCards in stats section (now at the top)
@@ -78,6 +84,11 @@ class DataDashboard {
 
         // Initialize DataDisplay in data section with modal callback
         this.dataDisplay = this.componentLoader.initComponent('DataDisplay', dataSection,
+            (competitorName, fullAnalysis) => this.showFullAnalysis(competitorName, fullAnalysis)
+        );
+
+        // Initialize VideoAnalysisDisplay in video section with modal callback
+        this.videoAnalysisDisplay = this.componentLoader.initComponent('VideoAnalysisDisplay', videoSection,
             (competitorName, fullAnalysis) => this.showFullAnalysis(competitorName, fullAnalysis)
         );
 
@@ -128,15 +139,19 @@ class DataDashboard {
                 if (result.data.length !== this.lastDataCount) {
                     console.log(`Data count changed from ${this.lastDataCount} to ${result.data.length}, reprocessing all data`);
                     
-                    // Clear the display
+                    // Clear the displays
                     if (this.dataDisplay) {
                         this.dataDisplay.clear();
+                    }
+                    if (this.videoAnalysisDisplay) {
+                        this.videoAnalysisDisplay.clear();
                     }
                     
                     // Process all items
                     result.data.forEach((item, index) => {
                         console.log(`=== PROCESSING ITEM ${index + 1}/${result.data.length} ===`);
                         console.log(`Item data:`, item);
+                        console.log(`Item dataType:`, item.dataType);
                         this.addDataItem(item);
                     });
                     
@@ -165,8 +180,15 @@ class DataDashboard {
      * @param {Object} incoming - Incoming data
      */
     addDataItem(incoming) {
-        if (this.dataDisplay) {
+        const dataType = incoming.dataType || 'unknown';
+        console.log(`Adding ${dataType} data item:`, incoming);
+
+        if (dataType === 'video_analysis' && this.videoAnalysisDisplay) {
+            const stats = this.videoAnalysisDisplay.addVideoAnalysis(incoming);
+            console.log(`Video analysis stats:`, stats);
+        } else if (dataType === 'ad_text_analysis' && this.dataDisplay) {
             const stats = this.dataDisplay.addDataItem(incoming);
+            console.log(`Ad text analysis stats:`, stats);
 
             // Update data count
             this.dataCount++;
@@ -174,6 +196,18 @@ class DataDashboard {
             // Update stats cards
             if (this.statsCards && stats) {
                 this.statsCards.updateStats(stats.competitorCards, stats.adsCount);
+            }
+        } else {
+            // Fallback: try to determine type from content and route accordingly
+            console.log(`Unknown data type, attempting to route based on content`);
+            if (this.dataDisplay) {
+                const stats = this.dataDisplay.addDataItem(incoming);
+                if (stats) {
+                    this.dataCount++;
+                    if (this.statsCards) {
+                        this.statsCards.updateStats(stats.competitorCards, stats.adsCount);
+                    }
+                }
             }
         }
     }
@@ -184,6 +218,9 @@ class DataDashboard {
     async clearAndReprocess() {
         if (this.dataDisplay) {
             this.dataDisplay.clear();
+        }
+        if (this.videoAnalysisDisplay) {
+            this.videoAnalysisDisplay.clear();
         }
         this.lastDataCount = 0;
         await this.fetchData();
@@ -211,6 +248,8 @@ class DataDashboard {
                 return this.statsCards;
             case 'dataDisplay':
                 return this.dataDisplay;
+            case 'videoAnalysisDisplay':
+                return this.videoAnalysisDisplay;
             case 'modal':
                 return this.modal;
             default:
@@ -257,7 +296,9 @@ class DataDashboard {
      */
     async clearAllData() {
         // Check if there's any data to clear by looking at actual DOM cards
-        const hasData = this.dataDisplay && this.dataDisplay.dataDisplay.querySelectorAll('.card').length > 0;
+        const hasAdData = this.dataDisplay && this.dataDisplay.dataDisplay.querySelectorAll('.card').length > 0;
+        const hasVideoData = this.videoAnalysisDisplay && this.videoAnalysisDisplay.videoDisplay.querySelectorAll('.video-analysis-card').length > 0;
+        const hasData = hasAdData || hasVideoData;
         
         // If no data, don't do anything
         if (!hasData) {
@@ -294,6 +335,9 @@ class DataDashboard {
                 // Clear UI
                 if (this.dataDisplay) {
                     this.dataDisplay.clear();
+                }
+                if (this.videoAnalysisDisplay) {
+                    this.videoAnalysisDisplay.clear();
                 }
                 
                 // Reset counters
@@ -507,6 +551,7 @@ class DataDashboard {
         // Clear component references
         this.statsCards = null;
         this.dataDisplay = null;
+        this.videoAnalysisDisplay = null;
         this.modal = null;
     }
 }
