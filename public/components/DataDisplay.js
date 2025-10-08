@@ -382,10 +382,20 @@ class DataDisplay {
             card.appendChild(imgVid);
         }
 
+        // Text Analysis Section
         const full = entry?.ai_analysis?.full_analysis || '';
         if (full) {
             const preview = document.createElement('div');
             preview.className = 'ai-preview';
+
+            // Analysis header
+            const analysisHeader = document.createElement('div');
+            analysisHeader.className = 'analysis-header';
+            analysisHeader.innerHTML = `
+                <h4>AI Text Analysis</h4>
+                <div class="analysis-badge">Text Creative</div>
+            `;
+            preview.appendChild(analysisHeader);
 
             // Content - show small preview
             const content = document.createElement('div');
@@ -423,6 +433,72 @@ class DataDisplay {
 
             preview.appendChild(actions);
             card.appendChild(preview);
+        }
+
+        // Video Analysis Section (if this is video analysis data)
+        if (entry?.content_type === 'video' && entry?.video_analysis?.full_analysis) {
+            const videoAnalysisSection = document.createElement('div');
+            videoAnalysisSection.className = 'video-analysis-section';
+
+            // Video analysis header
+            const videoHeader = document.createElement('div');
+            videoHeader.className = 'analysis-header';
+            videoHeader.innerHTML = `
+                <h4>AI Video Analysis</h4>
+                <div class="analysis-badge">Video Creative</div>
+            `;
+            videoAnalysisSection.appendChild(videoHeader);
+
+            // Video info
+            const videoInfo = document.createElement('div');
+            videoInfo.className = 'video-info';
+            videoInfo.innerHTML = `
+                <div class="video-meta">Video ID: ${entry?.video_data?.video_id || 'Unknown'} • ${entry?.video_data?.ad_started || 'N/A'}</div>
+            `;
+            videoAnalysisSection.appendChild(videoInfo);
+
+            // Video analysis content preview
+            const videoContent = document.createElement('div');
+            videoContent.className = 'analysis-content';
+            const videoAnalysisText = entry.video_analysis.full_analysis;
+            const shortVideoText = videoAnalysisText.length > 200 ? `${videoAnalysisText.slice(0, 200)}…` : videoAnalysisText;
+            const cleanVideoPreview = shortVideoText
+                .replace(/^\s*[-–—•*]\s*/gm, '') // Remove dashes from start of lines
+                .replace(/\s+/g, ' ') // Clean up multiple spaces
+                .trim();
+            videoContent.textContent = cleanVideoPreview;
+            videoAnalysisSection.appendChild(videoContent);
+
+            // Video analysis actions
+            const videoActions = document.createElement('div');
+            videoActions.className = 'analysis-actions';
+
+            // Add View Profile link if available
+            if (entry?.video_data?.page_profile_uri) {
+                const viewProfileLink = document.createElement('a');
+                viewProfileLink.className = 'view-profile-link';
+                viewProfileLink.href = entry.video_data.page_profile_uri;
+                viewProfileLink.target = '_blank';
+                viewProfileLink.rel = 'noopener noreferrer';
+                viewProfileLink.innerHTML = 'View Profile <span>↗</span>';
+                videoActions.appendChild(viewProfileLink);
+            }
+
+            const viewFullVideoBtn = document.createElement('button');
+            viewFullVideoBtn.className = 'view-full-analysis-btn';
+            viewFullVideoBtn.innerHTML = 'View Full Video Analysis <span>↗</span>';
+            viewFullVideoBtn.onclick = () => {
+                if (this.onShowFullAnalysis) {
+                    this.onShowFullAnalysis(
+                        `${entry?.competitor_name || 'Unknown Competitor'} - Video Analysis`, 
+                        videoAnalysisText
+                    );
+                }
+            };
+            videoActions.appendChild(viewFullVideoBtn);
+
+            videoAnalysisSection.appendChild(videoActions);
+            card.appendChild(videoAnalysisSection);
         }
 
         return card;
