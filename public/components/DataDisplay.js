@@ -162,8 +162,23 @@ class DataDisplay {
                 const processed = this.processOpenAIResponse(item);
                 if (processed) {
                     console.log(`Successfully processed item ${index + 1}:`, processed.competitor_name);
-                    grid.appendChild(this.createCompetitorCard(processed));
-                    renderedCount++;
+                    
+                    // Check if this is video analysis and if we already have a card for this competitor
+                    if (processed.content_type === 'video') {
+                        const existingCard = this.findExistingCard(processed.competitor_name);
+                        if (existingCard) {
+                            console.log(`Found existing card for ${processed.competitor_name}, adding video analysis`);
+                            this.addVideoAnalysisToExistingCard(existingCard, processed);
+                        } else {
+                            console.log(`No existing card found for ${processed.competitor_name}, creating new card`);
+                            grid.appendChild(this.createCompetitorCard(processed));
+                            renderedCount++;
+                        }
+                    } else {
+                        // Regular text analysis - create new card
+                        grid.appendChild(this.createCompetitorCard(processed));
+                        renderedCount++;
+                    }
                 } else {
                     console.log(`Failed to process item ${index + 1}, creating fallback entry`);
                     // Create a fallback entry for any item that fails to process
@@ -189,14 +204,35 @@ class DataDisplay {
             const processed = this.processOpenAIResponse(payload);
             if (processed) {
                 console.log('Successfully processed single item:', processed.competitor_name);
-                let grid = this.dataDisplay.querySelector('.card-grid');
-                if (!grid) {
-                    grid = document.createElement('div');
-                    grid.className = 'card-grid';
-                    this.dataDisplay.appendChild(grid);
+                
+                // Check if this is video analysis and if we already have a card for this competitor
+                if (processed.content_type === 'video') {
+                    const existingCard = this.findExistingCard(processed.competitor_name);
+                    if (existingCard) {
+                        console.log(`Found existing card for ${processed.competitor_name}, adding video analysis`);
+                        this.addVideoAnalysisToExistingCard(existingCard, processed);
+                    } else {
+                        console.log(`No existing card found for ${processed.competitor_name}, creating new card`);
+                        let grid = this.dataDisplay.querySelector('.card-grid');
+                        if (!grid) {
+                            grid = document.createElement('div');
+                            grid.className = 'card-grid';
+                            this.dataDisplay.appendChild(grid);
+                        }
+                        grid.appendChild(this.createCompetitorCard(processed));
+                        renderedCount = 1;
+                    }
+                } else {
+                    // Regular text analysis - create new card
+                    let grid = this.dataDisplay.querySelector('.card-grid');
+                    if (!grid) {
+                        grid = document.createElement('div');
+                        grid.className = 'card-grid';
+                        this.dataDisplay.appendChild(grid);
+                    }
+                    grid.appendChild(this.createCompetitorCard(processed));
+                    renderedCount = 1;
                 }
-                grid.appendChild(this.createCompetitorCard(processed));
-                renderedCount = 1;
             } else {
                 console.log('Failed to process single item, creating fallback entry');
                 // Create a fallback entry for single item that fails to process
@@ -231,6 +267,31 @@ class DataDisplay {
      * @returns {Object|null} Processed competitor data or null
      */
     processOpenAIResponse(item) {
+        // Check if this is your n8n video analysis format (content_type: 'video')
+        if (item && item.content_type === 'video' && item.video_data && item.ai_analysis) {
+            console.log('Processing n8n video analysis format:', item);
+            return {
+                competitor_name: item.competitor_name || 'Unknown Competitor',
+                content_type: 'video',
+                video_data: {
+                    video_id: item.video_data.video_id || 'Unknown Video',
+                    ad_started: item.video_data.ad_started || new Date().toLocaleDateString(),
+                    platforms: item.video_data.platforms || [],
+                    page_profile_uri: item.video_data.page_profile_uri || '',
+                    page_profile_picture_url: item.video_data.page_profile_picture_url || ''
+                },
+                video_analysis: {
+                    full_analysis: item.ai_analysis.full_analysis || 'No analysis available'
+                },
+                ad_data: {
+                    platforms: item.video_data.platforms || ['Video'],
+                    ad_started: item.video_data.ad_started || new Date().toLocaleDateString(),
+                    page_profile_uri: item.video_data.page_profile_uri || '#',
+                    page_profile_picture_url: item.video_data.page_profile_picture_url || ''
+                }
+            };
+        }
+
         // Check if this is an OpenAI response format
         if (item && item.body && item.body.output && Array.isArray(item.body.output)) {
             const messageOutput = item.body.output.find(output => output.type === 'message');
@@ -281,6 +342,102 @@ class DataDisplay {
         }
 
         return null;
+    }
+
+    /**
+     * Find existing card for a competitor
+     * @param {string} competitorName - Competitor name to search for
+     * @returns {HTMLElement|null} Existing card element or null
+     */
+    findExistingCard(competitorName) {
+        const cards = this.dataDisplay.querySelectorAll('.card');
+        for (let card of cards) {
+            const link = card.querySelector('.title-row a');
+            if (link && link.textContent && link.textContent.trim() === competitorName) {
+                return card;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Add video analysis to an existing card
+     * @param {HTMLElement} existingCard - The existing card element
+     * @param {Object} videoData - Video analysis data
+     */
+    addVideoAnalysisToExistingCard(existingCard, videoData) {
+        // Check if video analysis section already exists
+        const existingVideoSection = existingCard.querySelector('.video-analysis-section');
+        if (existingVideoSection) {
+            console.log('Video analysis section already exists, updating it');
+            existingVideoSection.remove();
+        }
+
+        // Create video analysis section
+        const videoAnalysisSection = document.createElement('div');
+        videoAnalysisSection.className = 'video-analysis-section';
+
+        // Video analysis header
+        const videoHeader = document.createElement('div');
+        videoHeader.className = 'analysis-header';
+        videoHeader.innerHTML = `
+            <h4>AI Video Analysis</h4>
+            <div class="analysis-badge">Video Creative</div>
+        `;
+        videoAnalysisSection.appendChild(videoHeader);
+
+        // Video info
+        const videoInfo = document.createElement('div');
+        videoInfo.className = 'video-info';
+        videoInfo.innerHTML = `
+            <div class="video-meta">Video ID: ${videoData?.video_data?.video_id || 'Unknown'} • ${videoData?.video_data?.ad_started || 'N/A'}</div>
+        `;
+        videoAnalysisSection.appendChild(videoInfo);
+
+        // Video analysis content preview
+        const videoContent = document.createElement('div');
+        videoContent.className = 'analysis-content';
+        const videoAnalysisText = videoData.video_analysis.full_analysis;
+        const shortVideoText = videoAnalysisText.length > 200 ? `${videoAnalysisText.slice(0, 200)}…` : videoAnalysisText;
+        const cleanVideoPreview = shortVideoText
+            .replace(/^\s*[-–—•*]\s*/gm, '') // Remove dashes from start of lines
+            .replace(/\s+/g, ' ') // Clean up multiple spaces
+            .trim();
+        videoContent.textContent = cleanVideoPreview;
+        videoAnalysisSection.appendChild(videoContent);
+
+        // Video analysis actions
+        const videoActions = document.createElement('div');
+        videoActions.className = 'analysis-actions';
+
+        // Add View Profile link if available
+        if (videoData?.video_data?.page_profile_uri) {
+            const viewProfileLink = document.createElement('a');
+            viewProfileLink.className = 'view-profile-link';
+            viewProfileLink.href = videoData.video_data.page_profile_uri;
+            viewProfileLink.target = '_blank';
+            viewProfileLink.rel = 'noopener noreferrer';
+            viewProfileLink.innerHTML = 'View Profile <span>↗</span>';
+            videoActions.appendChild(viewProfileLink);
+        }
+
+        const viewFullVideoBtn = document.createElement('button');
+        viewFullVideoBtn.className = 'view-full-analysis-btn';
+        viewFullVideoBtn.innerHTML = 'View Full Video Analysis <span>↗</span>';
+        viewFullVideoBtn.onclick = () => {
+            if (this.onShowFullAnalysis) {
+                this.onShowFullAnalysis(
+                    `${videoData?.competitor_name || 'Unknown Competitor'} - Video Analysis`, 
+                    videoAnalysisText
+                );
+            }
+        };
+        videoActions.appendChild(viewFullVideoBtn);
+
+        videoAnalysisSection.appendChild(videoActions);
+        existingCard.appendChild(videoAnalysisSection);
+
+        console.log('Video analysis section added to existing card');
     }
 
     /**
@@ -382,9 +539,9 @@ class DataDisplay {
             card.appendChild(imgVid);
         }
 
-        // Text Analysis Section
+        // Text Analysis Section (only if this is NOT video analysis data)
         const full = entry?.ai_analysis?.full_analysis || '';
-        if (full) {
+        if (full && entry?.content_type !== 'video') {
             const preview = document.createElement('div');
             preview.className = 'ai-preview';
 
