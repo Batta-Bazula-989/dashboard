@@ -172,9 +172,8 @@ class DataDisplay {
                             console.log(`Found existing card for ${processed.competitor_name}, adding video analysis`);
                             this.addVideoAnalysisToExistingCard(existingCard, processed);
                         } else {
-                            console.log(`No existing card found for ${processed.competitor_name}, creating new card with video analysis`);
-                            grid.appendChild(this.createCompetitorCard(processed));
-                            renderedCount++;
+                            console.log(`No existing card found for ${processed.competitor_name}, SKIPPING video analysis (not creating new card)`);
+                            // DO NOT create new card for video analysis - only add to existing ones
                         }
                     } else {
                         // Regular text analysis - create new card
@@ -217,16 +216,11 @@ class DataDisplay {
                     if (existingCard) {
                         console.log(`Found existing card for ${processed.competitor_name}, adding video analysis`);
                         this.addVideoAnalysisToExistingCard(existingCard, processed);
+                        renderedCount = 0; // No new card created, just added to existing
                     } else {
-                        console.log(`No existing card found for ${processed.competitor_name}, creating new card with video analysis`);
-                        let grid = this.dataDisplay.querySelector('.card-grid');
-                        if (!grid) {
-                            grid = document.createElement('div');
-                            grid.className = 'card-grid';
-                            this.dataDisplay.appendChild(grid);
-                        }
-                        grid.appendChild(this.createCompetitorCard(processed));
-                        renderedCount = 1;
+                        console.log(`No existing card found for ${processed.competitor_name}, SKIPPING video analysis (not creating new card)`);
+                        // DO NOT create new card for video analysis - only add to existing ones
+                        renderedCount = 0;
                     }
                 } else {
                     // Regular text analysis - create new card
@@ -270,285 +264,120 @@ class DataDisplay {
     }
 
     /**
-     * Process OpenAI response format - FLEXIBLE VERSION
+     * Process OpenAI response format - SIMPLIFIED VERSION
      * @param {Object} item - OpenAI response item
      * @returns {Object|null} Processed competitor data or null
      */
     processOpenAIResponse(item) {
-        console.log('=== PROCESSING ITEM (FLEXIBLE) ===');
+        console.log('=== PROCESSING ITEM ===');
         console.log('Raw item:', item);
         
-        // Extract competitor name from any possible location
-        const competitorName = this.extractCompetitorName(item);
-        console.log('Extracted competitor name:', competitorName);
-        
-        // Check if this looks like video analysis content
-        const isVideoAnalysis = this.detectVideoAnalysis(item);
-        console.log('Is video analysis:', isVideoAnalysis);
-        
-        // Extract analysis content
-        const analysisContent = this.extractAnalysisContent(item);
-        console.log('Analysis content length:', analysisContent?.length || 0);
-        
-        // Extract video metadata
-        const videoData = this.extractVideoData(item);
-        console.log('Video data:', videoData);
-        
-        // Extract ad data
-        const adData = this.extractAdData(item);
-        console.log('Ad data:', adData);
-        
-        if (!competitorName && !analysisContent) {
-            console.log('No competitor name or analysis content found, skipping item');
-            return null;
-        }
-        
-        const processed = {
-            competitor_name: competitorName || 'Unknown Competitor',
-            content_type: isVideoAnalysis ? 'video' : 'text',
-            ai_analysis: {
-                full_analysis: analysisContent || 'No analysis available'
-            },
-            ad_data: adData
-        };
-        
-        // Add video-specific data if this is video analysis
-        if (isVideoAnalysis && videoData) {
-            processed.video_data = videoData;
-            processed.video_analysis = {
-                full_analysis: analysisContent || 'No analysis available'
+        // Handle your n8n video analysis format
+        if (item && item.content_type === 'video' && item.video_data && item.ai_analysis) {
+            console.log('Processing n8n video analysis format:', item);
+            return {
+                competitor_name: item.competitor_name || 'Unknown Competitor',
+                content_type: 'video',
+                video_data: {
+                    video_id: item.video_data.video_id || 'Unknown Video',
+                    ad_started: item.video_data.ad_started || new Date().toLocaleDateString(),
+                    platforms: item.video_data.platforms || [],
+                    page_profile_uri: item.video_data.page_profile_uri || '',
+                    page_profile_picture_url: item.video_data.page_profile_picture_url || ''
+                },
+                video_analysis: {
+                    full_analysis: item.ai_analysis.full_analysis || 'No analysis available'
+                },
+                ad_data: {
+                    platforms: item.video_data.platforms || ['Video'],
+                    ad_started: item.video_data.ad_started || new Date().toLocaleDateString(),
+                    page_profile_uri: item.video_data.page_profile_uri || '#',
+                    page_profile_picture_url: item.video_data.page_profile_picture_url || ''
+                }
             };
         }
-        
-        console.log('Processed item:', processed);
-        return processed;
-    }
-    
-    /**
-     * Extract competitor name from various possible locations
-     * @param {Object} item - Raw item data
-     * @returns {string|null} Competitor name or null
-     */
-    extractCompetitorName(item) {
-        // Try different possible locations for competitor name
-        const possibleNames = [
-            item.competitor_name,
-            item.competitor,
-            item.name,
-            item.business_name,
-            item.advertiser,
-            item.brand,
-            item.company,
-            item.page_name,
-            item.profile_name
-        ];
-        
-        for (const name of possibleNames) {
-            if (name && typeof name === 'string' && name.trim()) {
-                return name.trim();
-            }
+
+        // Handle regular text analysis
+        if (item && item.competitor_name && item.ai_analysis) {
+            console.log('Processing regular text analysis format:', item);
+            return {
+                competitor_name: item.competitor_name,
+                ai_analysis: {
+                    full_analysis: item.ai_analysis.full_analysis || item.ai_analysis.analysis || 'No analysis available'
+                },
+                ad_data: {
+                    platforms: item.ad_data?.platforms || ['Analysis'],
+                    ad_started: item.ad_data?.ad_started || new Date().toLocaleDateString(),
+                    page_profile_uri: item.ad_data?.page_profile_uri || '#',
+                    page_profile_picture_url: item.ad_data?.page_profile_picture_url || ''
+                }
+            };
         }
-        
-        // Try to extract from analysis text
-        if (item.ai_analysis?.full_analysis) {
-            const nameMatch = item.ai_analysis.full_analysis.match(/(?:РЕКЛАМОДАТЕЛЬ|АДВЕРТАЙЗЕР|КОНКУРЕНТ|КОМПАНІЯ|КОМПАНИЯ|КОМПАНІЯ|КОМПАНІЯ):\s*([^\n,]+)/i);
-            if (nameMatch) {
-                return nameMatch[1].trim();
-            }
-        }
-        
-        return null;
-    }
-    
-    /**
-     * Detect if this item contains video analysis - SUPER FLEXIBLE VERSION
-     * @param {Object} item - Raw item data
-     * @returns {boolean} True if this looks like video analysis
-     */
-    detectVideoAnalysis(item) {
-        // Check explicit video indicators
-        if (item.content_type === 'video' || item.video_id || item.video_data) {
-            console.log('Explicit video indicator found');
-            return true;
-        }
-        
-        // Check for video-related field names
-        const videoFields = ['video_url', 'video_link', 'video_preview', 'video_thumbnail', 'video_duration'];
-        if (videoFields.some(field => item[field])) {
-            console.log('Video-related field found');
-            return true;
-        }
-        
-        // Check analysis content for video-related keywords
-        const analysisText = this.extractAnalysisContent(item) || '';
-        const videoKeywords = [
-            // English keywords
-            'video', 'video analysis', 'video creative', 'vertical', 'mobile', 'reels', 'tiktok', 'stories', 
-            'instagram', 'youtube', 'facebook video', 'video ad', 'video campaign', 'video content',
-            'video format', 'video quality', 'video performance', 'video metrics',
-            
-            // Ukrainian/Russian keywords
-            'відео', 'анализ видео', 'анализ відео', 'відео креатив', 'вертикальний', 'мобільний',
-            'відео реклама', 'відео кампанія', 'відео контент', 'формат відео', 'якість відео',
-            'технічний блок', 'формат', 'вертикаль', 'мобільні', 'соцмережі', 'плейсменти',
-            'reels', 'tiktok', 'stories', 'instagram stories'
-        ];
-        
-        const lowerText = analysisText.toLowerCase();
-        const foundKeywords = videoKeywords.filter(keyword => lowerText.includes(keyword.toLowerCase()));
-        
-        if (foundKeywords.length > 0) {
-            console.log('Video keywords found:', foundKeywords);
-            return true;
-        }
-        
-        // Check if analysis mentions technical video aspects
-        const technicalVideoTerms = [
-            'кадр', 'кадры', 'фокус', 'контраст', 'стабильность', 'съемка', 'звук', 'аудио',
-            'продолжительность', 'длительность', 'формат', 'разрешение', 'качество'
-        ];
-        
-        const foundTechnicalTerms = technicalVideoTerms.filter(term => lowerText.includes(term.toLowerCase()));
-        if (foundTechnicalTerms.length >= 2) {
-            console.log('Technical video terms found:', foundTechnicalTerms);
-            return true;
-        }
-        
-        console.log('No video analysis indicators found');
-        return false;
-    }
-    
-    /**
-     * Extract analysis content from various possible locations
-     * @param {Object} item - Raw item data
-     * @returns {string|null} Analysis content or null
-     */
-    extractAnalysisContent(item) {
-        // Try different possible locations for analysis content
-        const possibleAnalyses = [
-            item.ai_analysis?.full_analysis,
-            item.ai_analysis?.analysis,
-            item.analysis,
-            item.full_analysis,
-            item.text,
-            item.content,
-            item.description
-        ];
-        
-        for (const analysis of possibleAnalyses) {
-            if (analysis && typeof analysis === 'string' && analysis.trim()) {
-                return analysis.trim();
-            }
-        }
-        
-        // Try OpenAI response format
-        if (item.body?.output) {
+
+        // Handle OpenAI response format
+        if (item && item.body && item.body.output && Array.isArray(item.body.output)) {
             const messageOutput = item.body.output.find(output => output.type === 'message');
-            if (messageOutput?.content?.[0]?.text) {
-                return messageOutput.content[0].text.trim();
+            if (messageOutput && messageOutput.content && messageOutput.content[0] && messageOutput.content[0].text) {
+                const analysisText = messageOutput.content[0].text;
+                let competitorName = 'Unknown Competitor';
+                const nameMatch = analysisText.match(/(?:Конкурент:|конкурент[а-я]*:?)\s*([^\n]+)/i);
+                if (nameMatch) {
+                    competitorName = nameMatch[1].trim();
+                }
+
+                return {
+                    competitor_name: competitorName,
+                    ai_analysis: {
+                        full_analysis: analysisText
+                    },
+                    ad_data: {
+                        platforms: ['Analysis'],
+                        ad_started: new Date().toLocaleDateString(),
+                        page_profile_uri: '#'
+                    }
+                };
             }
         }
-        
+
+        // Fallback for any other format
+        if (item && typeof item === 'object') {
+            console.log('Creating fallback competitor entry for:', item);
+            return {
+                competitor_name: item.competitor_name || item.name || 'Unknown Competitor',
+                ai_analysis: {
+                    full_analysis: item.ai_analysis?.full_analysis || item.analysis || JSON.stringify(item, null, 2)
+                },
+                ad_data: {
+                    platforms: item.ad_data?.platforms || ['Data'],
+                    ad_started: item.ad_data?.ad_started || new Date().toLocaleDateString(),
+                    page_profile_uri: item.ad_data?.page_profile_uri || '#',
+                    ad_text: item.ad_data?.ad_text || item.text || ''
+                }
+            };
+        }
+
         return null;
-    }
-    
-    /**
-     * Extract video-specific data
-     * @param {Object} item - Raw item data
-     * @returns {Object|null} Video data or null
-     */
-    extractVideoData(item) {
-        const videoData = {};
-        
-        // Try to find video ID
-        videoData.video_id = item.video_id || item.video_data?.video_id || 
-                            item.video_url || item.video_link || 'Unknown Video';
-        
-        // Try to find ad start date
-        videoData.ad_started = item.ad_started || item.video_data?.ad_started || 
-                              item.start_date || item.date || new Date().toLocaleDateString();
-        
-        // Try to find platforms
-        videoData.platforms = item.platforms || item.video_data?.platforms || 
-                             item.social_platforms || ['Video'];
-        
-        // Try to find profile URI
-        videoData.page_profile_uri = item.page_profile_uri || item.video_data?.page_profile_uri || 
-                                    item.profile_url || item.page_url || '#';
-        
-        // Try to find profile picture
-        videoData.page_profile_picture_url = item.page_profile_picture_url || 
-                                           item.video_data?.page_profile_picture_url || 
-                                           item.profile_picture || item.avatar || '';
-        
-        return Object.keys(videoData).length > 0 ? videoData : null;
-    }
-    
-    /**
-     * Extract ad data for display
-     * @param {Object} item - Raw item data
-     * @returns {Object} Ad data object
-     */
-    extractAdData(item) {
-        return {
-            platforms: item.platforms || item.video_data?.platforms || 
-                      item.social_platforms || item.ad_data?.platforms || ['Analysis'],
-            ad_started: item.ad_started || item.video_data?.ad_started || 
-                       item.start_date || item.date || item.ad_data?.ad_started || 
-                       new Date().toLocaleDateString(),
-            page_profile_uri: item.page_profile_uri || item.video_data?.page_profile_uri || 
-                             item.profile_url || item.page_url || item.ad_data?.page_profile_uri || '#',
-            page_profile_picture_url: item.page_profile_picture_url || 
-                                    item.video_data?.page_profile_picture_url || 
-                                    item.profile_picture || item.avatar || 
-                                    item.ad_data?.page_profile_picture_url || '',
-            ad_text: item.ad_text || item.text || item.content || item.description || ''
-        };
     }
 
     /**
-     * Find existing card for a competitor - SUPER FLEXIBLE VERSION
+     * Find existing card for a competitor
      * @param {string} competitorName - Competitor name to search for
      * @returns {HTMLElement|null} Existing card element or null
      */
     findExistingCard(competitorName) {
-        if (!competitorName) return null;
-        
         const cards = this.dataDisplay.querySelectorAll('.card');
-        const normalizedTargetName = competitorName.toLowerCase().trim();
-        
         for (let card of cards) {
             const link = card.querySelector('.title-row a');
             if (link && link.textContent) {
                 const existingName = link.textContent.trim();
-                const normalizedExistingName = existingName.toLowerCase().trim();
-                
-                // Exact match
-                if (normalizedExistingName === normalizedTargetName) {
-                    console.log(`Exact match found: ${existingName} === ${competitorName}`);
-                    return card;
-                }
-                
-                // Partial match (one contains the other)
-                if (normalizedExistingName.includes(normalizedTargetName) ||
-                    normalizedTargetName.includes(normalizedExistingName)) {
-                    console.log(`Partial match found: ${existingName} ~ ${competitorName}`);
-                    return card;
-                }
-                
-                // Check for common variations (remove common suffixes/prefixes)
-                const cleanTarget = normalizedTargetName.replace(/\b(ltd|llc|inc|corp|company|компания|компанія|авто|auto)\b/g, '').trim();
-                const cleanExisting = normalizedExistingName.replace(/\b(ltd|llc|inc|corp|company|компания|компанія|авто|auto)\b/g, '').trim();
-                
-                if (cleanTarget && cleanExisting && 
-                    (cleanExisting.includes(cleanTarget) || cleanTarget.includes(cleanExisting))) {
-                    console.log(`Clean match found: ${existingName} ~ ${competitorName}`);
+                // Simple matching - exact or partial
+                if (existingName === competitorName || 
+                    existingName.toLowerCase().includes(competitorName.toLowerCase()) ||
+                    competitorName.toLowerCase().includes(existingName.toLowerCase())) {
                     return card;
                 }
             }
         }
-        
-        console.log(`No matching card found for: ${competitorName}`);
         return null;
     }
 
