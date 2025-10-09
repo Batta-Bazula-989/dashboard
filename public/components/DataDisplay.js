@@ -167,12 +167,14 @@ class DataDisplay {
                     // Check if this is video analysis and if we already have a card for this competitor
                     if (processed.content_type === 'video') {
                         console.log(`Processing video analysis for: ${processed.competitor_name}`);
-                        const existingCard = this.findExistingCard(processed.competitor_name);
-                        if (existingCard) {
-                            console.log(`Found existing card for ${processed.competitor_name}, adding video analysis`);
-                            this.addVideoAnalysisToExistingCard(existingCard, processed);
+                        const existingCards = this.findAllExistingCards(processed.competitor_name);
+                        if (existingCards.length > 0) {
+                            console.log(`Found ${existingCards.length} existing cards for ${processed.competitor_name}, adding video analysis to all`);
+                            existingCards.forEach(card => {
+                                this.addVideoAnalysisToExistingCard(card, processed);
+                            });
                         } else {
-                            console.log(`No existing card found for ${processed.competitor_name}, SKIPPING video analysis (not creating new card)`);
+                            console.log(`No existing cards found for ${processed.competitor_name}, SKIPPING video analysis (not creating new card)`);
                             // DO NOT create new card for video analysis - only add to existing ones
                         }
                     } else {
@@ -212,13 +214,15 @@ class DataDisplay {
                 // Check if this is video analysis and if we already have a card for this competitor
                 if (processed.content_type === 'video') {
                     console.log(`Processing single video analysis for: ${processed.competitor_name}`);
-                    const existingCard = this.findExistingCard(processed.competitor_name);
-                    if (existingCard) {
-                        console.log(`Found existing card for ${processed.competitor_name}, adding video analysis`);
-                        this.addVideoAnalysisToExistingCard(existingCard, processed);
+                    const existingCards = this.findAllExistingCards(processed.competitor_name);
+                    if (existingCards.length > 0) {
+                        console.log(`Found ${existingCards.length} existing cards for ${processed.competitor_name}, adding video analysis to all`);
+                        existingCards.forEach(card => {
+                            this.addVideoAnalysisToExistingCard(card, processed);
+                        });
                         renderedCount = 0; // No new card created, just added to existing
                     } else {
-                        console.log(`No existing card found for ${processed.competitor_name}, SKIPPING video analysis (not creating new card)`);
+                        console.log(`No existing cards found for ${processed.competitor_name}, SKIPPING video analysis (not creating new card)`);
                         // DO NOT create new card for video analysis - only add to existing ones
                         renderedCount = 0;
                     }
@@ -386,20 +390,41 @@ class DataDisplay {
      * @returns {HTMLElement|null} Existing card element or null
      */
     findExistingCard(competitorName) {
+        const cards = this.findAllExistingCards(competitorName);
+        return cards.length > 0 ? cards[0] : null;
+    }
+
+    /**
+     * Find ALL existing cards for a competitor
+     * @param {string} competitorName - Competitor name to search for
+     * @returns {HTMLElement[]} Array of existing card elements
+     */
+    findAllExistingCards(competitorName) {
         const cards = this.dataDisplay.querySelectorAll('.card');
+        const matchingCards = [];
+        
+        console.log(`Looking for existing cards for: "${competitorName}"`);
+        console.log(`Available cards:`, Array.from(cards).map(card => {
+            const link = card.querySelector('.title-row a');
+            return link ? link.textContent.trim() : 'NO LINK';
+        }));
+        
         for (let card of cards) {
             const link = card.querySelector('.title-row a');
             if (link && link.textContent) {
                 const existingName = link.textContent.trim();
+                console.log(`Comparing "${competitorName}" with "${existingName}"`);
                 // Simple matching - exact or partial
                 if (existingName === competitorName || 
                     existingName.toLowerCase().includes(competitorName.toLowerCase()) ||
                     competitorName.toLowerCase().includes(existingName.toLowerCase())) {
-                    return card;
+                    console.log(`✅ Found match!`);
+                    matchingCards.push(card);
                 }
             }
         }
-        return null;
+        console.log(`Found ${matchingCards.length} matching cards for "${competitorName}"`);
+        return matchingCards;
     }
 
     /**
