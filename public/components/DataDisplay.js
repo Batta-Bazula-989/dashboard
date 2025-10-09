@@ -272,9 +272,15 @@ class DataDisplay {
         console.log('=== PROCESSING ITEM ===');
         console.log('Raw item:', item);
         
-        // Handle your n8n video analysis format
+        // Handle your n8n video analysis format - RESTORED ORIGINAL LOGIC
         if (item && item.content_type === 'video' && item.video_data && item.ai_analysis) {
             console.log('Processing n8n video analysis format:', item);
+            console.log('Video data details:', {
+                video_id: item.video_data.video_id,
+                video_url: item.video_data.video_url,
+                video_preview_image_url: item.video_data.video_preview_image_url,
+                video_thumbnail_url: item.video_data.video_thumbnail_url
+            });
             return {
                 competitor_name: item.competitor_name || 'Unknown Competitor',
                 content_type: 'video',
@@ -292,7 +298,14 @@ class DataDisplay {
                     platforms: item.video_data.platforms || ['Video'],
                     ad_started: item.video_data.ad_started || new Date().toLocaleDateString(),
                     page_profile_uri: item.video_data.page_profile_uri || '#',
-                    page_profile_picture_url: item.video_data.page_profile_picture_url || ''
+                    page_profile_picture_url: item.video_data.page_profile_picture_url || '',
+                    ad_text: item.ad_data?.ad_text || item.ad_text || item.text || item.original_text || '',
+                    // Map n8n video_data to the videos array format the dashboard expects
+                    videos: item.video_data.video_id ? [{
+                        video_preview_image_url: item.video_data.video_preview_image_url || item.video_data.video_thumbnail_url || `https://img.youtube.com/vi/${item.video_data.video_id}/maxresdefault.jpg`,
+                        video_sd_url: item.video_data.video_url || item.video_data.video_sd_url || `https://www.youtube.com/watch?v=${item.video_data.video_id}`,
+                        video_id: item.video_data.video_id || ''
+                    }] : []
                 }
             };
         }
@@ -309,7 +322,9 @@ class DataDisplay {
                     platforms: item.ad_data?.platforms || ['Analysis'],
                     ad_started: item.ad_data?.ad_started || new Date().toLocaleDateString(),
                     page_profile_uri: item.ad_data?.page_profile_uri || '#',
-                    page_profile_picture_url: item.ad_data?.page_profile_picture_url || ''
+                    page_profile_picture_url: item.ad_data?.page_profile_picture_url || '',
+                    ad_text: item.ad_data?.ad_text || item.ad_text || item.text || item.original_text || '',
+                    videos: item.ad_data?.videos || []
                 }
             };
         }
@@ -333,7 +348,10 @@ class DataDisplay {
                     ad_data: {
                         platforms: ['Analysis'],
                         ad_started: new Date().toLocaleDateString(),
-                        page_profile_uri: '#'
+                        page_profile_uri: '#',
+                        page_profile_picture_url: '',
+                        ad_text: '',
+                        videos: []
                     }
                 };
             }
@@ -351,7 +369,9 @@ class DataDisplay {
                     platforms: item.ad_data?.platforms || ['Data'],
                     ad_started: item.ad_data?.ad_started || new Date().toLocaleDateString(),
                     page_profile_uri: item.ad_data?.page_profile_uri || '#',
-                    ad_text: item.ad_data?.ad_text || item.text || ''
+                    page_profile_picture_url: item.ad_data?.page_profile_picture_url || '',
+                    ad_text: item.ad_data?.ad_text || item.text || '',
+                    videos: item.ad_data?.videos || []
                 }
             };
         }
@@ -387,6 +407,49 @@ class DataDisplay {
      * @param {Object} videoData - Video analysis data
      */
     addVideoAnalysisToExistingCard(existingCard, videoData) {
+        console.log('Adding video analysis to existing card:', videoData);
+        
+        // Check if ad text exists before adding video analysis
+        const existingAdText = existingCard.querySelector('.ad-text');
+        console.log('Existing ad text before video analysis:', existingAdText ? existingAdText.textContent : 'NO AD TEXT FOUND');
+        
+        // Update video preview image if video data is available
+        console.log('Video data for preview update:', videoData);
+        console.log('Videos array:', videoData?.ad_data?.videos);
+        if (videoData?.ad_data?.videos && videoData.ad_data.videos.length > 0) {
+            const firstVideo = videoData.ad_data.videos[0];
+            console.log('Updating video preview with:', firstVideo);
+            console.log('Video preview URL:', firstVideo.video_preview_image_url);
+            
+            // Check if there's already a video thumbnail
+            let existingVideoThumb = existingCard.querySelector('.video-thumb');
+            if (existingVideoThumb) {
+                // Update existing video thumbnail
+                existingVideoThumb.src = firstVideo.video_preview_image_url;
+                existingVideoThumb.onclick = () => {
+                    const url = firstVideo.video_sd_url || firstVideo.video_preview_image_url;
+                    window.open(url, '_blank');
+                };
+            } else {
+                // Create new video thumbnail
+                const imgVid = document.createElement('img');
+                imgVid.className = 'video-thumb';
+                imgVid.src = firstVideo.video_preview_image_url;
+                imgVid.alt = 'Video preview';
+                imgVid.onclick = () => {
+                    const url = firstVideo.video_sd_url || firstVideo.video_preview_image_url;
+                    window.open(url, '_blank');
+                };
+                // Insert after ad text or at the end of the card
+                const adText = existingCard.querySelector('.ad-text');
+                if (adText) {
+                    existingCard.insertBefore(imgVid, adText.nextSibling);
+                } else {
+                    existingCard.appendChild(imgVid);
+                }
+            }
+        }
+        
         // Check if video analysis section already exists
         const existingVideoSection = existingCard.querySelector('.video-analysis-section');
         if (existingVideoSection) {
@@ -458,6 +521,9 @@ class DataDisplay {
         videoAnalysisSection.appendChild(videoActions);
         existingCard.appendChild(videoAnalysisSection);
 
+        // Check if ad text still exists after adding video analysis
+        const adTextAfter = existingCard.querySelector('.ad-text');
+        console.log('Ad text after adding video analysis:', adTextAfter ? adTextAfter.textContent : 'NO AD TEXT FOUND');
         console.log('Video analysis section added to existing card');
     }
 
@@ -540,14 +606,24 @@ class DataDisplay {
         header.appendChild(titleWrap);
         card.appendChild(header);
 
-        if (entry?.ad_data?.ad_text) {
+        // Show ad text if available, otherwise show a placeholder
+        const adText = entry?.ad_data?.ad_text || entry?.ad_text || entry?.text || entry?.original_text;
+        if (adText) {
             const ad = document.createElement('div');
             ad.className = 'ad-text';
-            ad.textContent = entry.ad_data.ad_text;
+            ad.textContent = adText;
+            card.appendChild(ad);
+        } else if (entry?.content_type === 'video') {
+            // For video analysis without ad text, show a placeholder
+            const ad = document.createElement('div');
+            ad.className = 'ad-text';
+            ad.textContent = `Video Ad - ${entry?.video_data?.video_id || 'Unknown ID'}`;
             card.appendChild(ad);
         }
 
         const firstVideo = Array.isArray(entry?.ad_data?.videos) ? entry.ad_data.videos[0] : null;
+        console.log('Card creation - videos array:', entry?.ad_data?.videos);
+        console.log('Card creation - firstVideo:', firstVideo);
         if (firstVideo?.video_preview_image_url) {
             const imgVid = document.createElement('img');
             imgVid.className = 'video-thumb';

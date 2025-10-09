@@ -13,7 +13,6 @@ class DataDashboard {
         // Component instances
         this.statsCards = null;
         this.dataDisplay = null;
-        this.videoAnalysisDisplay = null;
         this.modal = null;
 
         // Component loader
