@@ -5,7 +5,7 @@
 class DataDashboard {
     constructor() {
         this.pollingInterval = null;
-        this.pollingRate = 2000; // Poll every 2 seconds
+        this.pollingRate = 5000; // Poll every 5 seconds
         this.dataCount = 0;
         this.maxItems = 50;
         this.lastDataCount = 0;

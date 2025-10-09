@@ -162,25 +162,29 @@ class DataDisplay {
                 const processed = this.processOpenAIResponse(item);
                 if (processed) {
                     console.log(`Successfully processed item ${index + 1}:`, processed.competitor_name);
+                    console.log(`Item content_type:`, processed.content_type);
                     
                     // Check if this is video analysis and if we already have a card for this competitor
                     if (processed.content_type === 'video') {
+                        console.log(`Processing video analysis for: ${processed.competitor_name}`);
                         const existingCard = this.findExistingCard(processed.competitor_name);
                         if (existingCard) {
                             console.log(`Found existing card for ${processed.competitor_name}, adding video analysis`);
                             this.addVideoAnalysisToExistingCard(existingCard, processed);
                         } else {
-                            console.log(`No existing card found for ${processed.competitor_name}, creating new card`);
+                            console.log(`No existing card found for ${processed.competitor_name}, creating new card with video analysis`);
                             grid.appendChild(this.createCompetitorCard(processed));
                             renderedCount++;
                         }
                     } else {
                         // Regular text analysis - create new card
+                        console.log(`Processing text analysis for: ${processed.competitor_name}`);
                         grid.appendChild(this.createCompetitorCard(processed));
                         renderedCount++;
                     }
                 } else {
                     console.log(`Failed to process item ${index + 1}, creating fallback entry`);
+                    console.log(`Raw item data:`, item);
                     // Create a fallback entry for any item that fails to process
                     const fallbackEntry = {
                         competitor_name: `Item ${index + 1}`,
@@ -204,15 +208,17 @@ class DataDisplay {
             const processed = this.processOpenAIResponse(payload);
             if (processed) {
                 console.log('Successfully processed single item:', processed.competitor_name);
+                console.log('Item content_type:', processed.content_type);
                 
                 // Check if this is video analysis and if we already have a card for this competitor
                 if (processed.content_type === 'video') {
+                    console.log(`Processing single video analysis for: ${processed.competitor_name}`);
                     const existingCard = this.findExistingCard(processed.competitor_name);
                     if (existingCard) {
                         console.log(`Found existing card for ${processed.competitor_name}, adding video analysis`);
                         this.addVideoAnalysisToExistingCard(existingCard, processed);
                     } else {
-                        console.log(`No existing card found for ${processed.competitor_name}, creating new card`);
+                        console.log(`No existing card found for ${processed.competitor_name}, creating new card with video analysis`);
                         let grid = this.dataDisplay.querySelector('.card-grid');
                         if (!grid) {
                             grid = document.createElement('div');
@@ -224,6 +230,7 @@ class DataDisplay {
                     }
                 } else {
                     // Regular text analysis - create new card
+                    console.log(`Processing single text analysis for: ${processed.competitor_name}`);
                     let grid = this.dataDisplay.querySelector('.card-grid');
                     if (!grid) {
                         grid = document.createElement('div');
@@ -235,6 +242,7 @@ class DataDisplay {
                 }
             } else {
                 console.log('Failed to process single item, creating fallback entry');
+                console.log('Raw payload data:', payload);
                 // Create a fallback entry for single item that fails to process
                 const fallbackEntry = {
                     competitor_name: 'Single Item',
@@ -288,6 +296,31 @@ class DataDisplay {
                     ad_started: item.video_data.ad_started || new Date().toLocaleDateString(),
                     page_profile_uri: item.video_data.page_profile_uri || '#',
                     page_profile_picture_url: item.video_data.page_profile_picture_url || ''
+                }
+            };
+        }
+
+        // Check for alternative video analysis formats
+        if (item && (item.video_id || item.video_data) && (item.ai_analysis || item.analysis)) {
+            console.log('Processing alternative video analysis format:', item);
+            return {
+                competitor_name: item.competitor_name || 'Unknown Competitor',
+                content_type: 'video',
+                video_data: {
+                    video_id: item.video_id || item.video_data?.video_id || 'Unknown Video',
+                    ad_started: item.ad_started || item.video_data?.ad_started || new Date().toLocaleDateString(),
+                    platforms: item.platforms || item.video_data?.platforms || ['Video'],
+                    page_profile_uri: item.page_profile_uri || item.video_data?.page_profile_uri || '',
+                    page_profile_picture_url: item.page_profile_picture_url || item.video_data?.page_profile_picture_url || ''
+                },
+                video_analysis: {
+                    full_analysis: item.ai_analysis?.full_analysis || item.analysis || 'No analysis available'
+                },
+                ad_data: {
+                    platforms: item.platforms || item.video_data?.platforms || ['Video'],
+                    ad_started: item.ad_started || item.video_data?.ad_started || new Date().toLocaleDateString(),
+                    page_profile_uri: item.page_profile_uri || item.video_data?.page_profile_uri || '#',
+                    page_profile_picture_url: item.page_profile_picture_url || item.video_data?.page_profile_picture_url || ''
                 }
             };
         }
@@ -353,8 +386,14 @@ class DataDisplay {
         const cards = this.dataDisplay.querySelectorAll('.card');
         for (let card of cards) {
             const link = card.querySelector('.title-row a');
-            if (link && link.textContent && link.textContent.trim() === competitorName) {
-                return card;
+            if (link && link.textContent) {
+                const existingName = link.textContent.trim();
+                // More flexible matching - check if names are similar
+                if (existingName === competitorName || 
+                    existingName.toLowerCase().includes(competitorName.toLowerCase()) ||
+                    competitorName.toLowerCase().includes(existingName.toLowerCase())) {
+                    return card;
+                }
             }
         }
         return null;
