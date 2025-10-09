@@ -301,9 +301,10 @@ class DataDisplay {
                     page_profile_picture_url: item.video_data.page_profile_picture_url || '',
                     ad_text: item.ad_data?.ad_text || item.ad_text || item.text || item.original_text || '',
                     // Map n8n video_data to the videos array format the dashboard expects
+                    // Don't generate YouTube URLs since these are not YouTube video IDs
                     videos: item.video_data.video_id ? [{
-                        video_preview_image_url: item.video_data.video_preview_image_url || item.video_data.video_thumbnail_url || `https://img.youtube.com/vi/${item.video_data.video_id}/maxresdefault.jpg`,
-                        video_sd_url: item.video_data.video_url || item.video_data.video_sd_url || `https://www.youtube.com/watch?v=${item.video_data.video_id}`,
+                        video_preview_image_url: item.video_data.video_preview_image_url || item.video_data.video_thumbnail_url || '',
+                        video_sd_url: item.video_data.video_url || item.video_data.video_sd_url || '',
                         video_id: item.video_data.video_id || ''
                     }] : []
                 }
@@ -424,28 +425,40 @@ class DataDisplay {
             // Check if there's already a video thumbnail
             let existingVideoThumb = existingCard.querySelector('.video-thumb');
             if (existingVideoThumb) {
-                // Update existing video thumbnail
-                existingVideoThumb.src = firstVideo.video_preview_image_url;
-                existingVideoThumb.onclick = () => {
-                    const url = firstVideo.video_sd_url || firstVideo.video_preview_image_url;
-                    window.open(url, '_blank');
-                };
-            } else {
-                // Create new video thumbnail
-                const imgVid = document.createElement('img');
-                imgVid.className = 'video-thumb';
-                imgVid.src = firstVideo.video_preview_image_url;
-                imgVid.alt = 'Video preview';
-                imgVid.onclick = () => {
-                    const url = firstVideo.video_sd_url || firstVideo.video_preview_image_url;
-                    window.open(url, '_blank');
-                };
-                // Insert after ad text or at the end of the card
-                const adText = existingCard.querySelector('.ad-text');
-                if (adText) {
-                    existingCard.insertBefore(imgVid, adText.nextSibling);
+                // Only update if the new URL is NOT a YouTube URL (to avoid 404s)
+                if (!firstVideo.video_preview_image_url.includes('youtube.com') && 
+                    !firstVideo.video_preview_image_url.includes('img.youtube.com')) {
+                    console.log('Updating with non-YouTube URL:', firstVideo.video_preview_image_url);
+                    existingVideoThumb.src = firstVideo.video_preview_image_url;
+                    existingVideoThumb.onclick = () => {
+                        const url = firstVideo.video_sd_url || firstVideo.video_preview_image_url;
+                        window.open(url, '_blank');
+                    };
                 } else {
-                    existingCard.appendChild(imgVid);
+                    console.log('Skipping YouTube URL update to preserve existing working image');
+                }
+            } else {
+                // Only create new thumbnail if it's NOT a YouTube URL
+                if (!firstVideo.video_preview_image_url.includes('youtube.com') && 
+                    !firstVideo.video_preview_image_url.includes('img.youtube.com')) {
+                    console.log('Creating new thumbnail with non-YouTube URL:', firstVideo.video_preview_image_url);
+                    const imgVid = document.createElement('img');
+                    imgVid.className = 'video-thumb';
+                    imgVid.src = firstVideo.video_preview_image_url;
+                    imgVid.alt = 'Video preview';
+                    imgVid.onclick = () => {
+                        const url = firstVideo.video_sd_url || firstVideo.video_preview_image_url;
+                        window.open(url, '_blank');
+                    };
+                    // Insert after ad text or at the end of the card
+                    const adText = existingCard.querySelector('.ad-text');
+                    if (adText) {
+                        existingCard.insertBefore(imgVid, adText.nextSibling);
+                    } else {
+                        existingCard.appendChild(imgVid);
+                    }
+                } else {
+                    console.log('Skipping YouTube URL thumbnail creation');
                 }
             }
         }
