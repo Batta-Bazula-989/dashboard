@@ -325,6 +325,20 @@ class DataDisplay {
         // Handle regular text analysis
         if (item && item.competitor_name && item.ai_analysis) {
             console.log('Processing regular text analysis format:', item);
+            
+            // Check if there are videos in the data - NO FILTERING, include any video data found
+            let videos = item.ad_data?.videos || [];
+            
+            // If no videos in ad_data, check if there's video data elsewhere
+            if (videos.length === 0 && item.video_data) {
+                console.log('Found video_data in text analysis, adding to videos array');
+                videos = [{
+                    video_preview_image_url: item.video_data.video_preview_image_url || item.video_data.video_thumbnail_url || '',
+                    video_sd_url: item.video_data.video_url || item.video_data.video_sd_url || '',
+                    video_id: item.video_data.video_id || ''
+                }];
+            }
+            
             return {
                 competitor_name: item.competitor_name,
                 ai_analysis: {
@@ -336,7 +350,7 @@ class DataDisplay {
                     page_profile_uri: item.ad_data?.page_profile_uri || '#',
                     page_profile_picture_url: item.ad_data?.page_profile_picture_url || '',
                     ad_text: item.ad_data?.ad_text || item.ad_text || item.text || item.original_text || '',
-                    videos: item.ad_data?.videos || []
+                    videos: videos
                 }
             };
         }
@@ -352,6 +366,17 @@ class DataDisplay {
                     competitorName = nameMatch[1].trim();
                 }
 
+                // Check for video data - NO FILTERING
+                let videos = [];
+                if (item.video_data) {
+                    console.log('Found video_data in OpenAI response, adding to videos array');
+                    videos = [{
+                        video_preview_image_url: item.video_data.video_preview_image_url || item.video_data.video_thumbnail_url || '',
+                        video_sd_url: item.video_data.video_url || item.video_data.video_sd_url || '',
+                        video_id: item.video_data.video_id || ''
+                    }];
+                }
+
                 return {
                     competitor_name: competitorName,
                     ai_analysis: {
@@ -363,7 +388,7 @@ class DataDisplay {
                         page_profile_uri: '#',
                         page_profile_picture_url: '',
                         ad_text: '',
-                        videos: []
+                        videos: videos
                     }
                 };
             }
@@ -372,6 +397,18 @@ class DataDisplay {
         // Fallback for any other format
         if (item && typeof item === 'object') {
             console.log('Creating fallback competitor entry for:', item);
+            
+            // Check for video data - NO FILTERING
+            let videos = item.ad_data?.videos || [];
+            if (videos.length === 0 && item.video_data) {
+                console.log('Found video_data in fallback, adding to videos array');
+                videos = [{
+                    video_preview_image_url: item.video_data.video_preview_image_url || item.video_data.video_thumbnail_url || '',
+                    video_sd_url: item.video_data.video_url || item.video_data.video_sd_url || '',
+                    video_id: item.video_data.video_id || ''
+                }];
+            }
+            
             return {
                 competitor_name: item.competitor_name || item.name || 'Unknown Competitor',
                 ai_analysis: {
@@ -383,7 +420,7 @@ class DataDisplay {
                     page_profile_uri: item.ad_data?.page_profile_uri || '#',
                     page_profile_picture_url: item.ad_data?.page_profile_picture_url || '',
                     ad_text: item.ad_data?.ad_text || item.text || '',
-                    videos: item.ad_data?.videos || []
+                    videos: videos
                 }
             };
         }
@@ -476,30 +513,45 @@ class DataDisplay {
             // Check if there's already a video thumbnail
             let existingVideoThumb = existingCard.querySelector('.video-thumb');
             if (existingVideoThumb) {
-                // Update with whatever URL we have - NO FILTERING
-                console.log('Updating with URL - NO FILTERING:', firstVideo.video_preview_image_url);
-                existingVideoThumb.src = firstVideo.video_preview_image_url;
-                existingVideoThumb.onclick = () => {
-                    const url = firstVideo.video_sd_url || firstVideo.video_preview_image_url;
-                    window.open(url, '_blank');
-                };
-            } else {
-                // Create new thumbnail with whatever URL we have - NO FILTERING
-                console.log('Creating new thumbnail with URL - NO FILTERING:', firstVideo.video_preview_image_url);
-                const imgVid = document.createElement('img');
-                imgVid.className = 'video-thumb';
-                imgVid.src = firstVideo.video_preview_image_url;
-                imgVid.alt = 'Video preview';
-                imgVid.onclick = () => {
-                    const url = firstVideo.video_sd_url || firstVideo.video_preview_image_url;
-                    window.open(url, '_blank');
-                };
-                // Insert after ad text or at the end of the card
-                const adText = existingCard.querySelector('.ad-text');
-                if (adText) {
-                    existingCard.insertBefore(imgVid, adText.nextSibling);
+                // Only update if the new URL is not empty and different from current
+                const currentSrc = existingVideoThumb.src;
+                const newSrc = firstVideo.video_preview_image_url;
+                
+                console.log('Current video preview URL:', currentSrc);
+                console.log('New video preview URL:', newSrc);
+                
+                if (newSrc && newSrc !== currentSrc && newSrc !== '') {
+                    console.log('Updating with new URL - NO FILTERING:', newSrc);
+                    existingVideoThumb.src = newSrc;
+                    existingVideoThumb.onclick = () => {
+                        const url = firstVideo.video_sd_url || firstVideo.video_preview_image_url;
+                        window.open(url, '_blank');
+                    };
                 } else {
-                    existingCard.appendChild(imgVid);
+                    console.log('Keeping existing video preview URL - new URL is empty or same');
+                }
+            } else {
+                // Only create new thumbnail if URL is valid and not empty
+                const newSrc = firstVideo.video_preview_image_url;
+                if (newSrc && newSrc !== '') {
+                    console.log('Creating new thumbnail with URL - NO FILTERING:', newSrc);
+                    const imgVid = document.createElement('img');
+                    imgVid.className = 'video-thumb';
+                    imgVid.src = newSrc;
+                    imgVid.alt = 'Video preview';
+                    imgVid.onclick = () => {
+                        const url = firstVideo.video_sd_url || firstVideo.video_preview_image_url;
+                        window.open(url, '_blank');
+                    };
+                    // Insert after ad text or at the end of the card
+                    const adText = existingCard.querySelector('.ad-text');
+                    if (adText) {
+                        existingCard.insertBefore(imgVid, adText.nextSibling);
+                    } else {
+                        existingCard.appendChild(imgVid);
+                    }
+                } else {
+                    console.log('Skipping thumbnail creation - URL is empty');
                 }
             }
         }
@@ -524,14 +576,7 @@ class DataDisplay {
         `;
         videoAnalysisSection.appendChild(videoHeader);
 
-        // Video info - use whatever data is available, NO FILTERING
-        const videoInfo = document.createElement('div');
-        videoInfo.className = 'video-info';
-        const videoInfoData = videoData.video_data || videoData;
-        videoInfo.innerHTML = `
-            <div class="video-meta">Video ID: ${videoInfoData?.video_id || 'Unknown'} • ${videoInfoData?.ad_started || 'N/A'}</div>
-        `;
-        videoAnalysisSection.appendChild(videoInfo);
+        // Video info - REMOVED to hide Video ID and date line
 
         // Video analysis content preview - NO FILTERING, just pass through whatever data we have
         const videoContent = document.createElement('div');
@@ -688,7 +733,9 @@ class DataDisplay {
         const firstVideo = Array.isArray(entry?.ad_data?.videos) ? entry.ad_data.videos[0] : null;
         console.log('Card creation - videos array:', entry?.ad_data?.videos);
         console.log('Card creation - firstVideo:', firstVideo);
+        console.log('Card creation - video_preview_image_url:', firstVideo?.video_preview_image_url);
         if (firstVideo?.video_preview_image_url) {
+            console.log('Creating video thumbnail with URL:', firstVideo.video_preview_image_url);
             const imgVid = document.createElement('img');
             imgVid.className = 'video-thumb';
             imgVid.src = firstVideo.video_preview_image_url;
@@ -698,6 +745,8 @@ class DataDisplay {
                 window.open(url, '_blank');
             };
             card.appendChild(imgVid);
+        } else {
+            console.log('No video preview URL available, skipping video thumbnail creation');
         }
 
         // Text Analysis Section (only if this is NOT video analysis data)
@@ -767,13 +816,7 @@ class DataDisplay {
             `;
             videoAnalysisSection.appendChild(videoHeader);
 
-            // Video info
-            const videoInfo = document.createElement('div');
-            videoInfo.className = 'video-info';
-            videoInfo.innerHTML = `
-                <div class="video-meta">Video ID: ${entry?.video_data?.video_id || 'Unknown'} • ${entry?.video_data?.ad_started || 'N/A'}</div>
-            `;
-            videoAnalysisSection.appendChild(videoInfo);
+            // Video info - REMOVED to hide Video ID and date line
 
             // Video analysis content preview - NO FILTERING
             const videoContent = document.createElement('div');
