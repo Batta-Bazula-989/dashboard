@@ -167,25 +167,29 @@ class DataDisplay {
                     // ALWAYS create new cards - text analysis creates the card, video analysis adds to existing cards
                     console.log(`Processing item for: ${processed.competitor_name}, content_type: ${processed.content_type}`);
                     
-                    // NO FILTERING - check if this has video analysis data anywhere
-                    const hasVideoAnalysis = processed.video_analysis?.full_analysis || 
-                                          (processed.content_type === 'video') ||
-                                          (processed.video_data && processed.ai_analysis);
+                    // Simple: if content_type is 'video' AND has ai_analysis, it's video analysis
+                    const hasVideoAnalysis = processed.content_type === 'video' && processed.ai_analysis?.full_analysis;
+                    
+                    console.log('=== VIDEO ANALYSIS DETECTION ===');
+                    console.log('content_type:', processed.content_type);
+                    console.log('has ai_analysis.full_analysis:', processed.ai_analysis?.full_analysis ? 'YES' : 'NO');
+                    console.log('hasVideoAnalysis:', hasVideoAnalysis ? 'YES' : 'NO');
                     
                     if (hasVideoAnalysis) {
-                        // Video analysis - find existing card and add video analysis section
-                        console.log(`Video analysis for: ${processed.competitor_name}`);
+                        // Video analysis - ONLY add to existing cards, NEVER create new
+                        console.log(`Video analysis for: ${processed.competitor_name} - finding existing card`);
                         const existingCards = this.findAllExistingCards(processed.competitor_name);
                         if (existingCards.length > 0) {
-                            console.log(`Found ${existingCards.length} existing cards, adding video analysis`);
+                            console.log(`Found ${existingCards.length} existing cards, adding video analysis section`);
                             existingCards.forEach(card => {
                                 this.addVideoAnalysisToExistingCard(card, processed);
                             });
                         } else {
-                            console.log(`No existing card found for video analysis, skipping`);
+                            console.log(`⚠️ No existing card found for "${processed.competitor_name}" - video analysis SKIPPED`);
                         }
+                        // Don't increment renderedCount - no new card created
                     } else {
-                        // Text analysis - create new card with video preview, ad text, and text analysis
+                        // Text analysis - create new card
                         console.log(`Creating new card for text analysis: ${processed.competitor_name}`);
                         grid.appendChild(this.createCompetitorCard(processed));
                         renderedCount++;
@@ -221,27 +225,29 @@ class DataDisplay {
                 // ALWAYS create new cards - text analysis creates the card, video analysis adds to existing cards
                 console.log(`Processing single item for: ${processed.competitor_name}, content_type: ${processed.content_type}`);
                 
-                // NO FILTERING - check if this has video analysis data anywhere
-                const hasVideoAnalysis = processed.video_analysis?.full_analysis || 
-                                      (processed.content_type === 'video') ||
-                                      (processed.video_data && processed.ai_analysis);
+                // Simple: if content_type is 'video' AND has ai_analysis, it's video analysis
+                const hasVideoAnalysis = processed.content_type === 'video' && processed.ai_analysis?.full_analysis;
+                
+                console.log('=== SINGLE ITEM VIDEO ANALYSIS DETECTION ===');
+                console.log('content_type:', processed.content_type);
+                console.log('has ai_analysis.full_analysis:', processed.ai_analysis?.full_analysis ? 'YES' : 'NO');
+                console.log('hasVideoAnalysis:', hasVideoAnalysis ? 'YES' : 'NO');
                 
                 if (hasVideoAnalysis) {
-                    // Video analysis - find existing card and add video analysis section
-                    console.log(`Single video analysis for: ${processed.competitor_name}`);
+                    // Video analysis - ONLY add to existing cards, NEVER create new
+                    console.log(`Single video analysis for: ${processed.competitor_name} - finding existing card`);
                     const existingCards = this.findAllExistingCards(processed.competitor_name);
                     if (existingCards.length > 0) {
-                        console.log(`Found ${existingCards.length} existing cards, adding video analysis`);
+                        console.log(`Found ${existingCards.length} existing cards, adding video analysis section`);
                         existingCards.forEach(card => {
                             this.addVideoAnalysisToExistingCard(card, processed);
                         });
-                        renderedCount = 0; // No new card created, just added to existing
                     } else {
-                        console.log(`No existing card found for video analysis, skipping`);
-                        renderedCount = 0;
+                        console.log(`⚠️ No existing card found for "${processed.competitor_name}" - video analysis SKIPPED`);
                     }
+                    renderedCount = 0; // No new card created
                 } else {
-                    // Text analysis - create new card with video preview, ad text, and text analysis
+                    // Text analysis - create new card
                     console.log(`Creating new card for single text analysis: ${processed.competitor_name}`);
                     let grid = this.dataDisplay.querySelector('.card-grid');
                     if (!grid) {
@@ -473,17 +479,21 @@ class DataDisplay {
         // Video analysis content preview - NO FILTERING, just pass through whatever data we have
         const videoContent = document.createElement('div');
         videoContent.className = 'analysis-content';
-        let videoAnalysisText = videoData.video_analysis?.full_analysis || 
+        
+        // SIMPLE - just get the analysis text however it comes
+        console.log('=== VIDEO ANALYSIS - FULL DATA ===');
+        console.log('FULL videoData:', JSON.stringify(videoData, null, 2));
+        
+        let videoAnalysisText = videoData.ai_analysis?.full_analysis || 
                                videoData.ai_analysis || 
-                               videoData.analysis || 
-                               videoData.body?.output || 
                                'No analysis available';
         
         // Convert to string if it's an object
         console.log('Raw video analysis text:', videoAnalysisText);
-        console.log('Type of video analysis text:', typeof videoAnalysisText);
-        if (typeof videoAnalysisText === 'object') {
-            console.log('Converting object to string');
+        console.log('Type:', typeof videoAnalysisText);
+        if (typeof videoAnalysisText === 'object' && videoAnalysisText.full_analysis) {
+            videoAnalysisText = videoAnalysisText.full_analysis;
+        } else if (typeof videoAnalysisText === 'object') {
             videoAnalysisText = JSON.stringify(videoAnalysisText, null, 2);
         }
         

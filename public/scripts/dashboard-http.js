@@ -9,6 +9,7 @@ class DataDashboard {
         this.dataCount = 0;
         this.maxItems = 50;
         this.lastDataCount = 0;
+        this.isFirstFetch = true; // Track first fetch to avoid duplicates on refresh
 
         // Component instances
         this.statsCards = null;
@@ -122,10 +123,32 @@ class DataDashboard {
                 console.log(`=== API RESPONSE ===`);
                 console.log(`API returned ${result.data.length} items`);
                 console.log(`Last data count: ${this.lastDataCount}`);
+                console.log(`Is first fetch: ${this.isFirstFetch}`);
                 console.log(`Full API response:`, result);
                 
-                // Process only NEW items to preserve existing cards
-                if (result.data.length > this.lastDataCount) {
+                // On first fetch after page load/refresh, process ALL existing data
+                if (this.isFirstFetch) {
+                    console.log(`First fetch - processing all ${result.data.length} items`);
+                    
+                    // Clear the display first
+                    if (this.dataDisplay) {
+                        this.dataDisplay.clear();
+                    }
+                    
+                    // Process all items
+                    result.data.forEach((item, index) => {
+                        console.log(`=== PROCESSING ITEM ${index + 1}/${result.data.length} ===`);
+                        console.log(`Item data:`, item);
+                        console.log(`Item dataType:`, item.dataType);
+                        this.addDataItem(item);
+                    });
+                    
+                    this.lastDataCount = result.data.length;
+                    this.isFirstFetch = false; // Mark first fetch as complete
+                    console.log(`=== FIRST FETCH COMPLETE ===`);
+                    console.log(`Processed all ${result.data.length} items`);
+                } else if (result.data.length > this.lastDataCount) {
+                    // Process only NEW items to preserve existing cards
                     const newItems = result.data.slice(this.lastDataCount);
                     console.log(`Found ${newItems.length} new items, processing only new items`);
                     
@@ -320,6 +343,7 @@ class DataDashboard {
                 // Reset counters
                 this.dataCount = 0;
                 this.lastDataCount = 0;
+                this.isFirstFetch = true; // Reset first fetch flag
                 
                 // Update stats
                 if (this.statsCards) {

@@ -30,6 +30,9 @@ app.post('/api/data', (req, res) => {
     const data = req.body;
     const requestId = req.headers['x-request-id'] || `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
+    console.log('=== N8N DATA RECEIVED ===');
+    console.log('FULL DATA:', JSON.stringify(data, null, 2));
+
     // NO FILTERING - all data goes to ad_analysis
     let dataType = 'ad_analysis';
 
