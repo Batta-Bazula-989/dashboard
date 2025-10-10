@@ -124,9 +124,24 @@ class DataDashboard {
                 console.log(`Last data count: ${this.lastDataCount}`);
                 console.log(`Full API response:`, result);
                 
-                // Always clear and reprocess all data to handle serverless function resets
-                if (result.data.length !== this.lastDataCount) {
-                    console.log(`Data count changed from ${this.lastDataCount} to ${result.data.length}, reprocessing all data`);
+                // Process only NEW items to preserve existing cards
+                if (result.data.length > this.lastDataCount) {
+                    const newItems = result.data.slice(this.lastDataCount);
+                    console.log(`Found ${newItems.length} new items, processing only new items`);
+                    
+                    newItems.forEach((item, index) => {
+                        console.log(`=== PROCESSING NEW ITEM ${index + 1}/${newItems.length} ===`);
+                        console.log(`Item data:`, item);
+                        console.log(`Item dataType:`, item.dataType);
+                        this.addDataItem(item);
+                    });
+                    
+                    this.lastDataCount = result.data.length;
+                    console.log(`=== NEW ITEMS PROCESSING COMPLETE ===`);
+                    console.log(`Processed ${newItems.length} new items, total items: ${result.data.length}`);
+                } else if (result.data.length < this.lastDataCount) {
+                    // Data was cleared, reprocess everything
+                    console.log(`Data count decreased from ${this.lastDataCount} to ${result.data.length}, reprocessing all data`);
                     
                     // Clear the display
                     if (this.dataDisplay) {
@@ -135,17 +150,17 @@ class DataDashboard {
                     
                     // Process all items
                     result.data.forEach((item, index) => {
-                        console.log(`=== PROCESSING ITEM ${index + 1}/${result.data.length} ===`);
+                        console.log(`=== REPROCESSING ITEM ${index + 1}/${result.data.length} ===`);
                         console.log(`Item data:`, item);
                         console.log(`Item dataType:`, item.dataType);
                         this.addDataItem(item);
                     });
                     
                     this.lastDataCount = result.data.length;
-                    console.log(`=== PROCESSING COMPLETE ===`);
-                    console.log(`Processed all ${result.data.length} items`);
+                    console.log(`=== REPROCESSING COMPLETE ===`);
+                    console.log(`Reprocessed all ${result.data.length} items`);
                 } else {
-                    console.log(`Data count unchanged (${result.data.length}), no reprocessing needed`);
+                    console.log(`Data count unchanged (${result.data.length}), no processing needed`);
                 }
 
                 // Connection status removed
