@@ -164,22 +164,16 @@ class DataDisplay {
                     console.log(`Successfully processed item ${index + 1}:`, processed.competitor_name);
                     console.log(`Item content_type:`, processed.content_type);
                     
-                    // Check if this is video analysis and if we already have a card for this competitor
-                    if (processed.content_type === 'video') {
-                        console.log(`Processing video analysis for: ${processed.competitor_name}`);
-                        const existingCards = this.findAllExistingCards(processed.competitor_name);
-                        if (existingCards.length > 0) {
-                            console.log(`Found ${existingCards.length} existing cards for ${processed.competitor_name}, adding video analysis to all`);
-                            existingCards.forEach(card => {
-                                this.addVideoAnalysisToExistingCard(card, processed);
-                            });
-                        } else {
-                            console.log(`No existing cards found for ${processed.competitor_name}, SKIPPING video analysis (not creating new card)`);
-                            // DO NOT create new card for video analysis - only add to existing ones
-                        }
+                    // Always create/update cards - no restrictions
+                    console.log(`Processing item for: ${processed.competitor_name}`);
+                    const existingCards = this.findAllExistingCards(processed.competitor_name);
+                    if (existingCards.length > 0) {
+                        console.log(`Found ${existingCards.length} existing cards for ${processed.competitor_name}, updating all`);
+                        existingCards.forEach(card => {
+                            this.updateExistingCard(card, processed);
+                        });
                     } else {
-                        // Regular text analysis - create new card
-                        console.log(`Processing text analysis for: ${processed.competitor_name}`);
+                        console.log(`No existing cards found for ${processed.competitor_name}, creating new card`);
                         grid.appendChild(this.createCompetitorCard(processed));
                         renderedCount++;
                     }
@@ -211,24 +205,17 @@ class DataDisplay {
                 console.log('Successfully processed single item:', processed.competitor_name);
                 console.log('Item content_type:', processed.content_type);
                 
-                // Check if this is video analysis and if we already have a card for this competitor
-                if (processed.content_type === 'video') {
-                    console.log(`Processing single video analysis for: ${processed.competitor_name}`);
-                    const existingCards = this.findAllExistingCards(processed.competitor_name);
-                    if (existingCards.length > 0) {
-                        console.log(`Found ${existingCards.length} existing cards for ${processed.competitor_name}, adding video analysis to all`);
-                        existingCards.forEach(card => {
-                            this.addVideoAnalysisToExistingCard(card, processed);
-                        });
-                        renderedCount = 0; // No new card created, just added to existing
-                    } else {
-                        console.log(`No existing cards found for ${processed.competitor_name}, SKIPPING video analysis (not creating new card)`);
-                        // DO NOT create new card for video analysis - only add to existing ones
-                        renderedCount = 0;
-                    }
+                // Always create/update cards - no restrictions
+                console.log(`Processing single item for: ${processed.competitor_name}`);
+                const existingCards = this.findAllExistingCards(processed.competitor_name);
+                if (existingCards.length > 0) {
+                    console.log(`Found ${existingCards.length} existing cards for ${processed.competitor_name}, updating all`);
+                    existingCards.forEach(card => {
+                        this.updateExistingCard(card, processed);
+                    });
+                    renderedCount = 0; // No new card created, just updated existing
                 } else {
-                    // Regular text analysis - create new card
-                    console.log(`Processing single text analysis for: ${processed.competitor_name}`);
+                    console.log(`No existing cards found for ${processed.competitor_name}, creating new card`);
                     let grid = this.dataDisplay.querySelector('.card-grid');
                     if (!grid) {
                         grid = document.createElement('div');
@@ -428,6 +415,24 @@ class DataDisplay {
     }
 
     /**
+     * Update existing card with new data (text or video analysis)
+     * @param {HTMLElement} existingCard - The existing card element
+     * @param {Object} data - Analysis data (text or video)
+     */
+    updateExistingCard(existingCard, data) {
+        console.log('Updating existing card with data - NO FILTERING:', data);
+        
+        // Add video analysis if we have any video-related data - NO FILTERING
+        if (data.content_type === 'video' || data.video_analysis || data.video_data || data.ai_analysis || data.analysis || data.body?.output) {
+            console.log('Adding video analysis - NO FILTERING');
+            this.addVideoAnalysisToExistingCard(existingCard, data);
+        }
+        
+        // Update any other fields if needed
+        // (text analysis, profile info, etc.)
+    }
+
+    /**
      * Add video analysis to an existing card
      * @param {HTMLElement} existingCard - The existing card element
      * @param {Object} videoData - Video analysis data
@@ -439,51 +444,41 @@ class DataDisplay {
         const existingAdText = existingCard.querySelector('.ad-text');
         console.log('Existing ad text before video analysis:', existingAdText ? existingAdText.textContent : 'NO AD TEXT FOUND');
         
-        // Update video preview image if video data is available
-        console.log('Video data for preview update:', videoData);
+        // Update video preview image if video data is available - NO FILTERING
+        console.log('Video data for preview update - NO FILTERING:', videoData);
         console.log('Videos array:', videoData?.ad_data?.videos);
         if (videoData?.ad_data?.videos && videoData.ad_data.videos.length > 0) {
             const firstVideo = videoData.ad_data.videos[0];
-            console.log('Updating video preview with:', firstVideo);
+            console.log('Updating video preview with - NO FILTERING:', firstVideo);
             console.log('Video preview URL:', firstVideo.video_preview_image_url);
             
             // Check if there's already a video thumbnail
             let existingVideoThumb = existingCard.querySelector('.video-thumb');
             if (existingVideoThumb) {
-                // Only update if the new URL is NOT a YouTube URL (to avoid 404s)
-                if (!firstVideo.video_preview_image_url.includes('youtube.com') && 
-                    !firstVideo.video_preview_image_url.includes('img.youtube.com')) {
-                    console.log('Updating with non-YouTube URL:', firstVideo.video_preview_image_url);
-                    existingVideoThumb.src = firstVideo.video_preview_image_url;
-                    existingVideoThumb.onclick = () => {
-                        const url = firstVideo.video_sd_url || firstVideo.video_preview_image_url;
-                        window.open(url, '_blank');
-                    };
-                } else {
-                    console.log('Skipping YouTube URL update to preserve existing working image');
-                }
+                // Update with whatever URL we have - NO FILTERING
+                console.log('Updating with URL - NO FILTERING:', firstVideo.video_preview_image_url);
+                existingVideoThumb.src = firstVideo.video_preview_image_url;
+                existingVideoThumb.onclick = () => {
+                    const url = firstVideo.video_sd_url || firstVideo.video_preview_image_url;
+                    window.open(url, '_blank');
+                };
             } else {
-                // Only create new thumbnail if it's NOT a YouTube URL
-                if (!firstVideo.video_preview_image_url.includes('youtube.com') && 
-                    !firstVideo.video_preview_image_url.includes('img.youtube.com')) {
-                    console.log('Creating new thumbnail with non-YouTube URL:', firstVideo.video_preview_image_url);
-                    const imgVid = document.createElement('img');
-                    imgVid.className = 'video-thumb';
-                    imgVid.src = firstVideo.video_preview_image_url;
-                    imgVid.alt = 'Video preview';
-                    imgVid.onclick = () => {
-                        const url = firstVideo.video_sd_url || firstVideo.video_preview_image_url;
-                        window.open(url, '_blank');
-                    };
-                    // Insert after ad text or at the end of the card
-                    const adText = existingCard.querySelector('.ad-text');
-                    if (adText) {
-                        existingCard.insertBefore(imgVid, adText.nextSibling);
-                    } else {
-                        existingCard.appendChild(imgVid);
-                    }
+                // Create new thumbnail with whatever URL we have - NO FILTERING
+                console.log('Creating new thumbnail with URL - NO FILTERING:', firstVideo.video_preview_image_url);
+                const imgVid = document.createElement('img');
+                imgVid.className = 'video-thumb';
+                imgVid.src = firstVideo.video_preview_image_url;
+                imgVid.alt = 'Video preview';
+                imgVid.onclick = () => {
+                    const url = firstVideo.video_sd_url || firstVideo.video_preview_image_url;
+                    window.open(url, '_blank');
+                };
+                // Insert after ad text or at the end of the card
+                const adText = existingCard.querySelector('.ad-text');
+                if (adText) {
+                    existingCard.insertBefore(imgVid, adText.nextSibling);
                 } else {
-                    console.log('Skipping YouTube URL thumbnail creation');
+                    existingCard.appendChild(imgVid);
                 }
             }
         }
@@ -508,35 +503,36 @@ class DataDisplay {
         `;
         videoAnalysisSection.appendChild(videoHeader);
 
-        // Video info
+        // Video info - use whatever data is available, NO FILTERING
         const videoInfo = document.createElement('div');
         videoInfo.className = 'video-info';
+        const videoInfoData = videoData.video_data || videoData;
         videoInfo.innerHTML = `
-            <div class="video-meta">Video ID: ${videoData?.video_data?.video_id || 'Unknown'} • ${videoData?.video_data?.ad_started || 'N/A'}</div>
+            <div class="video-meta">Video ID: ${videoInfoData?.video_id || 'Unknown'} • ${videoInfoData?.ad_started || 'N/A'}</div>
         `;
         videoAnalysisSection.appendChild(videoInfo);
 
-        // Video analysis content preview
+        // Video analysis content preview - NO FILTERING, just pass through whatever data we have
         const videoContent = document.createElement('div');
         videoContent.className = 'analysis-content';
-        const videoAnalysisText = videoData.video_analysis.full_analysis;
+        const videoAnalysisText = videoData.video_analysis?.full_analysis || 
+                                videoData.ai_analysis || 
+                                videoData.analysis || 
+                                videoData.body?.output || 
+                                'No analysis available';
         const shortVideoText = videoAnalysisText.length > 200 ? `${videoAnalysisText.slice(0, 200)}…` : videoAnalysisText;
-        const cleanVideoPreview = shortVideoText
-            .replace(/^\s*[-–—•*]\s*/gm, '') // Remove dashes from start of lines
-            .replace(/\s+/g, ' ') // Clean up multiple spaces
-            .trim();
-        videoContent.textContent = cleanVideoPreview;
+        videoContent.textContent = shortVideoText;
         videoAnalysisSection.appendChild(videoContent);
 
         // Video analysis actions
         const videoActions = document.createElement('div');
         videoActions.className = 'analysis-actions';
 
-        // Add View Profile link if available
-        if (videoData?.video_data?.page_profile_uri) {
+        // Add View Profile link if available - NO FILTERING
+        if (videoInfoData?.page_profile_uri) {
             const viewProfileLink = document.createElement('a');
             viewProfileLink.className = 'view-profile-link';
-            viewProfileLink.href = videoData.video_data.page_profile_uri;
+            viewProfileLink.href = videoInfoData.page_profile_uri;
             viewProfileLink.target = '_blank';
             viewProfileLink.rel = 'noopener noreferrer';
             viewProfileLink.innerHTML = 'View Profile <span>↗</span>';
