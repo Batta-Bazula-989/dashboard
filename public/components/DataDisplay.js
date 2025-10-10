@@ -506,10 +506,10 @@ class DataDisplay {
         videoActions.className = 'analysis-actions';
 
         // Add View Profile link if available - NO FILTERING
-        if (videoInfoData?.page_profile_uri) {
+        if (videoData?.video_data?.page_profile_uri || videoData?.ad_data?.page_profile_uri) {
             const viewProfileLink = document.createElement('a');
             viewProfileLink.className = 'view-profile-link';
-            viewProfileLink.href = videoInfoData.page_profile_uri;
+            viewProfileLink.href = videoData?.video_data?.page_profile_uri || videoData?.ad_data?.page_profile_uri;
             viewProfileLink.target = '_blank';
             viewProfileLink.rel = 'noopener noreferrer';
             viewProfileLink.innerHTML = 'View Profile <span>↗</span>';
