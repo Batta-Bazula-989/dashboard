@@ -167,8 +167,12 @@ class DataDisplay {
                     // ALWAYS create new cards - text analysis creates the card, video analysis adds to existing cards
                     console.log(`Processing item for: ${processed.competitor_name}, content_type: ${processed.content_type}`);
                     
-                    // NO FILTERING - check if this has video analysis data
-                    if (processed.video_analysis && processed.video_analysis.full_analysis) {
+                    // NO FILTERING - check if this has video analysis data anywhere
+                    const hasVideoAnalysis = processed.video_analysis?.full_analysis || 
+                                          (processed.content_type === 'video') ||
+                                          (processed.video_data && processed.ai_analysis);
+                    
+                    if (hasVideoAnalysis) {
                         // Video analysis - find existing card and add video analysis section
                         console.log(`Video analysis for: ${processed.competitor_name}`);
                         const existingCards = this.findAllExistingCards(processed.competitor_name);
@@ -217,8 +221,12 @@ class DataDisplay {
                 // ALWAYS create new cards - text analysis creates the card, video analysis adds to existing cards
                 console.log(`Processing single item for: ${processed.competitor_name}, content_type: ${processed.content_type}`);
                 
-                // NO FILTERING - check if this has video analysis data
-                if (processed.video_analysis && processed.video_analysis.full_analysis) {
+                // NO FILTERING - check if this has video analysis data anywhere
+                const hasVideoAnalysis = processed.video_analysis?.full_analysis || 
+                                      (processed.content_type === 'video') ||
+                                      (processed.video_data && processed.ai_analysis);
+                
+                if (hasVideoAnalysis) {
                     // Video analysis - find existing card and add video analysis section
                     console.log(`Single video analysis for: ${processed.competitor_name}`);
                     const existingCards = this.findAllExistingCards(processed.competitor_name);
@@ -339,7 +347,7 @@ class DataDisplay {
                 ai_analysis: {
                     full_analysis: analysisText
                 },
-                video_analysis: contentType === 'video' ? {
+                video_analysis: (contentType === 'video' || item.video_data) ? {
                     full_analysis: analysisText
                 } : undefined,
                 video_data: item.video_data ? {
