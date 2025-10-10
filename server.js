@@ -30,22 +30,8 @@ app.post('/api/data', (req, res) => {
     const data = req.body;
     const requestId = req.headers['x-request-id'] || `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-    // Determine data type based on content
-    let dataType = 'ad_analysis'; // Default to ad analysis for all competitor data
-    if (data && typeof data === 'object') {
-      if (data.competitor_name && data.ai_analysis) {
-        // All competitor data goes to main display (both text and video analysis)
-        dataType = 'ad_analysis';
-      } else if (data.video_id || (data.body && data.body.output)) {
-        dataType = 'ad_analysis';
-      } else if (Array.isArray(data) && data.length > 0) {
-        // All arrays with competitor data go to main display
-        const firstItem = data[0];
-        if (firstItem.competitor_name || firstItem.content_type === 'video' || firstItem.video_data) {
-          dataType = 'ad_analysis';
-        }
-      }
-    }
+    // NO FILTERING - all data goes to ad_analysis
+    let dataType = 'ad_analysis';
 
     const newItem = {
       data,

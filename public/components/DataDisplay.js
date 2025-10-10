@@ -167,7 +167,8 @@ class DataDisplay {
                     // ALWAYS create new cards - text analysis creates the card, video analysis adds to existing cards
                     console.log(`Processing item for: ${processed.competitor_name}, content_type: ${processed.content_type}`);
                     
-                    if (processed.content_type === 'video') {
+                    // NO FILTERING - check if this has video analysis data
+                    if (processed.video_analysis && processed.video_analysis.full_analysis) {
                         // Video analysis - find existing card and add video analysis section
                         console.log(`Video analysis for: ${processed.competitor_name}`);
                         const existingCards = this.findAllExistingCards(processed.competitor_name);
@@ -216,7 +217,8 @@ class DataDisplay {
                 // ALWAYS create new cards - text analysis creates the card, video analysis adds to existing cards
                 console.log(`Processing single item for: ${processed.competitor_name}, content_type: ${processed.content_type}`);
                 
-                if (processed.content_type === 'video') {
+                // NO FILTERING - check if this has video analysis data
+                if (processed.video_analysis && processed.video_analysis.full_analysis) {
                     // Video analysis - find existing card and add video analysis section
                     console.log(`Single video analysis for: ${processed.competitor_name}`);
                     const existingCards = this.findAllExistingCards(processed.competitor_name);
@@ -277,154 +279,88 @@ class DataDisplay {
      * @returns {Object|null} Processed competitor data or null
      */
     processOpenAIResponse(item) {
-        console.log('=== PROCESSING ITEM ===');
+        console.log('=== PROCESSING ITEM - NO FILTERING ===');
         console.log('Raw item:', item);
         
-        // Handle your n8n video analysis format - RESTORED ORIGINAL LOGIC
-        if (item && item.content_type === 'video' && item.video_data && item.ai_analysis) {
-            console.log('Processing n8n video analysis format:', item);
-            console.log('Video data details:', {
-                video_id: item.video_data.video_id,
-                video_url: item.video_data.video_url,
-                video_preview_image_url: item.video_data.video_preview_image_url,
-                video_thumbnail_url: item.video_data.video_thumbnail_url
+        // NO FILTERING - process everything that comes in
+        if (item && typeof item === 'object') {
+            console.log('Processing item - NO FILTERING:', item);
+            
+            // Extract competitor name from various possible fields
+            const competitorName = item.competitor_name || 
+                                 item.name || 
+                                 item.competitor || 
+                                 'Unknown Competitor';
+            
+            // Extract analysis from various possible fields
+            let analysisText = '';
+            if (item.ai_analysis?.full_analysis) {
+                analysisText = item.ai_analysis.full_analysis;
+            } else if (item.ai_analysis?.analysis) {
+                analysisText = item.ai_analysis.analysis;
+            } else if (typeof item.ai_analysis === 'string') {
+                analysisText = item.ai_analysis;
+            } else if (item.analysis) {
+                analysisText = item.analysis;
+            } else if (item.body?.output && Array.isArray(item.body.output)) {
+                const messageOutput = item.body.output.find(output => output.type === 'message');
+                if (messageOutput?.content?.[0]?.text) {
+                    analysisText = messageOutput.content[0].text;
+                }
+            } else {
+                analysisText = JSON.stringify(item, null, 2);
+            }
+            
+            // Extract video data from various possible fields - NO FILTERING
+            let videos = [];
+            if (item.ad_data?.videos && Array.isArray(item.ad_data.videos)) {
+                videos = item.ad_data.videos;
+            } else if (item.video_data) {
+                videos = [{
+                    video_preview_image_url: item.video_data.video_preview_image_url || item.video_data.video_thumbnail_url || '',
+                    video_sd_url: item.video_data.video_url || item.video_data.video_sd_url || '',
+                    video_id: item.video_data.video_id || ''
+                }];
+            }
+            
+            // Determine content type - NO FILTERING
+            const contentType = item.content_type || (item.video_data ? 'video' : 'text');
+            
+            console.log('Processed item:', {
+                competitor_name: competitorName,
+                content_type: contentType,
+                analysis_length: analysisText.length,
+                videos_count: videos.length
             });
-            console.log('AI analysis details:', item.ai_analysis);
-            console.log('AI analysis type:', typeof item.ai_analysis);
-            console.log('AI analysis full_analysis:', item.ai_analysis.full_analysis);
+            
             return {
-                competitor_name: item.competitor_name || 'Unknown Competitor',
-                content_type: 'video',
-                video_data: {
+                competitor_name: competitorName,
+                content_type: contentType,
+                ai_analysis: {
+                    full_analysis: analysisText
+                },
+                video_analysis: contentType === 'video' ? {
+                    full_analysis: analysisText
+                } : undefined,
+                video_data: item.video_data ? {
                     video_id: item.video_data.video_id || 'Unknown Video',
                     ad_started: item.video_data.ad_started || new Date().toLocaleDateString(),
                     platforms: item.video_data.platforms || [],
                     page_profile_uri: item.video_data.page_profile_uri || '',
                     page_profile_picture_url: item.video_data.page_profile_picture_url || ''
-                },
-                video_analysis: {
-                    full_analysis: item.ai_analysis.full_analysis || item.ai_analysis || JSON.stringify(item.ai_analysis) || 'No analysis available'
-                },
+                } : undefined,
                 ad_data: {
-                    platforms: item.video_data.platforms || ['Video'],
-                    ad_started: item.video_data.ad_started || new Date().toLocaleDateString(),
-                    page_profile_uri: item.video_data.page_profile_uri || '#',
-                    page_profile_picture_url: item.video_data.page_profile_picture_url || '',
-                    ad_text: item.ad_data?.ad_text || item.ad_text || item.text || item.original_text || '',
-                    // Map n8n video_data to the videos array format the dashboard expects
-                    // Don't generate YouTube URLs since these are not YouTube video IDs
-                    videos: item.video_data.video_id ? [{
-                        video_preview_image_url: item.video_data.video_preview_image_url || item.video_data.video_thumbnail_url || '',
-                        video_sd_url: item.video_data.video_url || item.video_data.video_sd_url || '',
-                        video_id: item.video_data.video_id || ''
-                    }] : []
-                }
-            };
-        }
-
-        // Handle regular text analysis
-        if (item && item.competitor_name && item.ai_analysis) {
-            console.log('Processing regular text analysis format:', item);
-            
-            // Check if there are videos in the data - NO FILTERING, include any video data found
-            let videos = item.ad_data?.videos || [];
-            
-            // If no videos in ad_data, check if there's video data elsewhere
-            if (videos.length === 0 && item.video_data) {
-                console.log('Found video_data in text analysis, adding to videos array');
-                videos = [{
-                    video_preview_image_url: item.video_data.video_preview_image_url || item.video_data.video_thumbnail_url || '',
-                    video_sd_url: item.video_data.video_url || item.video_data.video_sd_url || '',
-                    video_id: item.video_data.video_id || ''
-                }];
-            }
-            
-            return {
-                competitor_name: item.competitor_name,
-                ai_analysis: {
-                    full_analysis: item.ai_analysis.full_analysis || item.ai_analysis.analysis || 'No analysis available'
-                },
-                ad_data: {
-                    platforms: item.ad_data?.platforms || ['Analysis'],
-                    ad_started: item.ad_data?.ad_started || new Date().toLocaleDateString(),
-                    page_profile_uri: item.ad_data?.page_profile_uri || '#',
-                    page_profile_picture_url: item.ad_data?.page_profile_picture_url || '',
+                    platforms: item.ad_data?.platforms || item.video_data?.platforms || ['Analysis'],
+                    ad_started: item.ad_data?.ad_started || item.video_data?.ad_started || new Date().toLocaleDateString(),
+                    page_profile_uri: item.ad_data?.page_profile_uri || item.video_data?.page_profile_uri || '#',
+                    page_profile_picture_url: item.ad_data?.page_profile_picture_url || item.video_data?.page_profile_picture_url || '',
                     ad_text: item.ad_data?.ad_text || item.ad_text || item.text || item.original_text || '',
                     videos: videos
                 }
             };
         }
-
-        // Handle OpenAI response format
-        if (item && item.body && item.body.output && Array.isArray(item.body.output)) {
-            const messageOutput = item.body.output.find(output => output.type === 'message');
-            if (messageOutput && messageOutput.content && messageOutput.content[0] && messageOutput.content[0].text) {
-                const analysisText = messageOutput.content[0].text;
-                let competitorName = 'Unknown Competitor';
-                const nameMatch = analysisText.match(/(?:Конкурент:|конкурент[а-я]*:?)\s*([^\n]+)/i);
-                if (nameMatch) {
-                    competitorName = nameMatch[1].trim();
-                }
-
-                // Check for video data - NO FILTERING
-                let videos = [];
-                if (item.video_data) {
-                    console.log('Found video_data in OpenAI response, adding to videos array');
-                    videos = [{
-                        video_preview_image_url: item.video_data.video_preview_image_url || item.video_data.video_thumbnail_url || '',
-                        video_sd_url: item.video_data.video_url || item.video_data.video_sd_url || '',
-                        video_id: item.video_data.video_id || ''
-                    }];
-                }
-
-                return {
-                    competitor_name: competitorName,
-                    ai_analysis: {
-                        full_analysis: analysisText
-                    },
-                    ad_data: {
-                        platforms: ['Analysis'],
-                        ad_started: new Date().toLocaleDateString(),
-                        page_profile_uri: '#',
-                        page_profile_picture_url: '',
-                        ad_text: '',
-                        videos: videos
-                    }
-                };
-            }
-        }
-
-        // Fallback for any other format
-        if (item && typeof item === 'object') {
-            console.log('Creating fallback competitor entry for:', item);
-            
-            // Check for video data - NO FILTERING
-            let videos = item.ad_data?.videos || [];
-            if (videos.length === 0 && item.video_data) {
-                console.log('Found video_data in fallback, adding to videos array');
-                videos = [{
-                    video_preview_image_url: item.video_data.video_preview_image_url || item.video_data.video_thumbnail_url || '',
-                    video_sd_url: item.video_data.video_url || item.video_data.video_sd_url || '',
-                    video_id: item.video_data.video_id || ''
-                }];
-            }
-            
-            return {
-                competitor_name: item.competitor_name || item.name || 'Unknown Competitor',
-                ai_analysis: {
-                    full_analysis: item.ai_analysis?.full_analysis || item.analysis || JSON.stringify(item, null, 2)
-                },
-                ad_data: {
-                    platforms: item.ad_data?.platforms || ['Data'],
-                    ad_started: item.ad_data?.ad_started || new Date().toLocaleDateString(),
-                    page_profile_uri: item.ad_data?.page_profile_uri || '#',
-                    page_profile_picture_url: item.ad_data?.page_profile_picture_url || '',
-                    ad_text: item.ad_data?.ad_text || item.text || '',
-                    videos: videos
-                }
-            };
-        }
-
+        
+        console.log('Item is null or not an object, returning null');
         return null;
     }
 
@@ -479,8 +415,8 @@ class DataDisplay {
     updateExistingCard(existingCard, data) {
         console.log('Updating existing card with data - NO FILTERING:', data);
         
-        // Add video analysis if we have any video-related data - NO FILTERING
-        if (data.content_type === 'video' || data.video_analysis || data.video_data || data.ai_analysis || data.analysis || data.body?.output) {
+        // Add video analysis if we have video analysis data - NO FILTERING
+        if (data.video_analysis && data.video_analysis.full_analysis) {
             console.log('Adding video analysis - NO FILTERING');
             this.addVideoAnalysisToExistingCard(existingCard, data);
         }
@@ -502,59 +438,7 @@ class DataDisplay {
         const existingAdText = existingCard.querySelector('.ad-text');
         console.log('Existing ad text before video analysis:', existingAdText ? existingAdText.textContent : 'NO AD TEXT FOUND');
         
-        // Update video preview image if video data is available - NO FILTERING
-        console.log('Video data for preview update - NO FILTERING:', videoData);
-        console.log('Videos array:', videoData?.ad_data?.videos);
-        if (videoData?.ad_data?.videos && videoData.ad_data.videos.length > 0) {
-            const firstVideo = videoData.ad_data.videos[0];
-            console.log('Updating video preview with - NO FILTERING:', firstVideo);
-            console.log('Video preview URL:', firstVideo.video_preview_image_url);
-            
-            // Check if there's already a video thumbnail
-            let existingVideoThumb = existingCard.querySelector('.video-thumb');
-            if (existingVideoThumb) {
-                // Only update if the new URL is not empty and different from current
-                const currentSrc = existingVideoThumb.src;
-                const newSrc = firstVideo.video_preview_image_url;
-                
-                console.log('Current video preview URL:', currentSrc);
-                console.log('New video preview URL:', newSrc);
-                
-                if (newSrc && newSrc !== currentSrc && newSrc !== '') {
-                    console.log('Updating with new URL - NO FILTERING:', newSrc);
-                    existingVideoThumb.src = newSrc;
-                    existingVideoThumb.onclick = () => {
-                        const url = firstVideo.video_sd_url || firstVideo.video_preview_image_url;
-                        window.open(url, '_blank');
-                    };
-                } else {
-                    console.log('Keeping existing video preview URL - new URL is empty or same');
-                }
-            } else {
-                // Only create new thumbnail if URL is valid and not empty
-                const newSrc = firstVideo.video_preview_image_url;
-                if (newSrc && newSrc !== '') {
-                    console.log('Creating new thumbnail with URL - NO FILTERING:', newSrc);
-                    const imgVid = document.createElement('img');
-                    imgVid.className = 'video-thumb';
-                    imgVid.src = newSrc;
-                    imgVid.alt = 'Video preview';
-                    imgVid.onclick = () => {
-                        const url = firstVideo.video_sd_url || firstVideo.video_preview_image_url;
-                        window.open(url, '_blank');
-                    };
-                    // Insert after ad text or at the end of the card
-                    const adText = existingCard.querySelector('.ad-text');
-                    if (adText) {
-                        existingCard.insertBefore(imgVid, adText.nextSibling);
-                    } else {
-                        existingCard.appendChild(imgVid);
-                    }
-                } else {
-                    console.log('Skipping thumbnail creation - URL is empty');
-                }
-            }
-        }
+        // DO NOT TOUCH VIDEO PREVIEW URL - just pass everything through
         
         // Check if video analysis section already exists
         const existingVideoSection = existingCard.querySelector('.video-analysis-section');
@@ -722,12 +606,6 @@ class DataDisplay {
             ad.className = 'ad-text';
             ad.textContent = adText;
             card.appendChild(ad);
-        } else if (entry?.content_type === 'video') {
-            // For video analysis without ad text, show a placeholder
-            const ad = document.createElement('div');
-            ad.className = 'ad-text';
-            ad.textContent = `Video Ad - ${entry?.video_data?.video_id || 'Unknown ID'}`;
-            card.appendChild(ad);
         }
 
         const firstVideo = Array.isArray(entry?.ad_data?.videos) ? entry.ad_data.videos[0] : null;
@@ -749,9 +627,9 @@ class DataDisplay {
             console.log('No video preview URL available, skipping video thumbnail creation');
         }
 
-        // Text Analysis Section (only if this is NOT video analysis data)
+        // Text Analysis Section - NO FILTERING
         const full = entry?.ai_analysis?.full_analysis || '';
-        if (full && entry?.content_type !== 'video') {
+        if (full) {
             const preview = document.createElement('div');
             preview.className = 'ai-preview';
 
@@ -802,8 +680,8 @@ class DataDisplay {
             card.appendChild(preview);
         }
 
-        // Video Analysis Section (if this is video analysis data)
-        if (entry?.content_type === 'video' && entry?.video_analysis?.full_analysis) {
+        // Video Analysis Section - NO FILTERING
+        if (entry?.video_analysis?.full_analysis) {
             const videoAnalysisSection = document.createElement('div');
             videoAnalysisSection.className = 'video-analysis-section';
 
