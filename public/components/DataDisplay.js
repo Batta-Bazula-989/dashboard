@@ -469,7 +469,6 @@ class DataDisplay {
         const videoHeader = document.createElement('div');
         videoHeader.className = 'analysis-header';
         videoHeader.innerHTML = `
-            <h4>AI Video Analysis</h4>
             <div class="analysis-badge">Video Creative</div>
         `;
         videoAnalysisSection.appendChild(videoHeader);
@@ -666,7 +665,6 @@ class DataDisplay {
             const analysisHeader = document.createElement('div');
             analysisHeader.className = 'analysis-header';
             analysisHeader.innerHTML = `
-                <h4>AI Text Analysis</h4>
                 <div class="analysis-badge">Text Creative</div>
             `;
             preview.appendChild(analysisHeader);
@@ -714,7 +712,6 @@ class DataDisplay {
             const videoHeader = document.createElement('div');
             videoHeader.className = 'analysis-header';
             videoHeader.innerHTML = `
-                <h4>AI Video Analysis</h4>
                 <div class="analysis-badge">Video Creative</div>
             `;
             videoAnalysisSection.appendChild(videoHeader);
