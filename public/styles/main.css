@@ -229,7 +229,7 @@ body {
 .title-row {
     display: flex;
     align-items: center;
-    gap: 8px;
+    justify-content: space-between;
     flex-wrap: wrap;
 }
 .title-row a {
@@ -238,8 +238,13 @@ body {
     font-weight: 600;
 }
 
+.title-left-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
 .title-row .view-profile-link {
-    margin-left: auto;
     color: #3b82f6;
     font-size: 12px;
     font-weight: 500;

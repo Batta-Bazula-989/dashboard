@@ -579,12 +579,16 @@ class DataDisplay {
         const titleRow = document.createElement('div');
         titleRow.className = 'title-row';
 
+        // Create left group for competitor name and badges
+        const leftGroup = document.createElement('div');
+        leftGroup.className = 'title-left-group';
+
         const link = document.createElement('a');
         link.href = entry?.ad_data?.page_profile_uri || '#';
         link.target = '_blank';
         link.rel = 'noopener noreferrer';
         link.textContent = entry?.competitor_name || 'Unknown competitor';
-        titleRow.appendChild(link);
+        leftGroup.appendChild(link);
 
         const badges = document.createElement('div');
         badges.className = 'badges';
@@ -600,9 +604,11 @@ class DataDisplay {
             }
             badges.appendChild(b);
         });
-        titleRow.appendChild(badges);
+        leftGroup.appendChild(badges);
 
-        // Add View Profile link to the right side of title row
+        titleRow.appendChild(leftGroup);
+
+        // Add View Profile link to the far right of title row
         const viewProfileLink = document.createElement('a');
         viewProfileLink.className = 'view-profile-link';
         viewProfileLink.href = entry?.ad_data?.page_profile_uri || '#';
