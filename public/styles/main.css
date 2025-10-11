@@ -230,12 +230,17 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    flex-wrap: wrap;
+    width: 100%;
 }
 .title-row a {
     color: #111827;
     text-decoration: none;
     font-weight: 600;
+}
+
+.title-wrap {
+    flex: 1;
+    width: 100%;
 }
 
 .title-left-group {
@@ -248,6 +253,11 @@ body {
     color: #3b82f6;
     font-size: 12px;
     font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: auto;
+    flex-shrink: 0;
 }
 .badges { display: flex; gap: 6px; flex-wrap: wrap; }
 .badge {

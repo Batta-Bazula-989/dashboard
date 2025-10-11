@@ -576,6 +576,7 @@ class DataDisplay {
         header.appendChild(img);
 
         const titleWrap = document.createElement('div');
+        titleWrap.className = 'title-wrap';
         const titleRow = document.createElement('div');
         titleRow.className = 'title-row';
 
@@ -615,6 +616,7 @@ class DataDisplay {
         viewProfileLink.target = '_blank';
         viewProfileLink.rel = 'noopener noreferrer';
         viewProfileLink.innerHTML = 'View Profile <span>↗</span>';
+        console.log('Creating View Profile link with href:', viewProfileLink.href);
         titleRow.appendChild(viewProfileLink);
         titleWrap.appendChild(titleRow);
 
