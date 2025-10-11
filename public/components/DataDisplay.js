@@ -505,6 +505,10 @@ class DataDisplay {
         const videoActions = document.createElement('div');
         videoActions.className = 'ai-preview-actions';
 
+        // Add empty div to push button to the right (like text analysis has View Profile on left)
+        const spacer = document.createElement('div');
+        videoActions.appendChild(spacer);
+
         // Add options button (dots) like in text analysis
         const videoOptionsBtn = document.createElement('button');
         videoOptionsBtn.className = 'full-analysis-btn';
@@ -597,6 +601,15 @@ class DataDisplay {
             badges.appendChild(b);
         });
         titleRow.appendChild(badges);
+
+        // Add View Profile link to the right side of title row
+        const viewProfileLink = document.createElement('a');
+        viewProfileLink.className = 'view-profile-link';
+        viewProfileLink.href = entry?.ad_data?.page_profile_uri || '#';
+        viewProfileLink.target = '_blank';
+        viewProfileLink.rel = 'noopener noreferrer';
+        viewProfileLink.innerHTML = 'View Profile <span>↗</span>';
+        titleRow.appendChild(viewProfileLink);
         titleWrap.appendChild(titleRow);
 
         const meta = document.createElement('div');
@@ -666,13 +679,9 @@ class DataDisplay {
             const actions = document.createElement('div');
             actions.className = 'ai-preview-actions';
 
-            const viewProfileLink = document.createElement('a');
-            viewProfileLink.className = 'view-profile-link';
-            viewProfileLink.href = entry?.ad_data?.page_profile_uri || '#';
-            viewProfileLink.target = '_blank';
-            viewProfileLink.rel = 'noopener noreferrer';
-            viewProfileLink.innerHTML = 'View Profile <span>↗</span>';
-            actions.appendChild(viewProfileLink);
+            // Add empty div to push button to the right (View Profile is now in title row)
+            const spacer = document.createElement('div');
+            actions.appendChild(spacer);
 
             const fullAnalysisBtn = document.createElement('button');
             fullAnalysisBtn.className = 'full-analysis-btn';
@@ -720,22 +729,15 @@ class DataDisplay {
 
             // Video analysis actions
             const videoActions = document.createElement('div');
-            videoActions.className = 'analysis-actions';
+            videoActions.className = 'ai-preview-actions';
 
-            // Add View Profile link if available
-            if (entry?.video_data?.page_profile_uri) {
-                const viewProfileLink = document.createElement('a');
-                viewProfileLink.className = 'view-profile-link';
-                viewProfileLink.href = entry.video_data.page_profile_uri;
-                viewProfileLink.target = '_blank';
-                viewProfileLink.rel = 'noopener noreferrer';
-                viewProfileLink.innerHTML = 'View Profile <span>↗</span>';
-                videoActions.appendChild(viewProfileLink);
-            }
+            // Add empty div to push button to the right (View Profile is now in title row)
+            const spacer = document.createElement('div');
+            videoActions.appendChild(spacer);
 
             const viewFullVideoBtn = document.createElement('button');
-            viewFullVideoBtn.className = 'view-full-analysis-btn';
-            viewFullVideoBtn.innerHTML = 'View Full Video Analysis <span>↗</span>';
+            viewFullVideoBtn.className = 'full-analysis-btn';
+            viewFullVideoBtn.innerHTML = '⋯';
             viewFullVideoBtn.onclick = () => {
                 if (this.onShowFullAnalysis) {
                     this.onShowFullAnalysis(
