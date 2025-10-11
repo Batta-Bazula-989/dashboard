@@ -505,21 +505,11 @@ class DataDisplay {
         const videoActions = document.createElement('div');
         videoActions.className = 'analysis-actions';
 
-        // Add View Profile link if available - NO FILTERING
-        if (videoData?.video_data?.page_profile_uri || videoData?.ad_data?.page_profile_uri) {
-            const viewProfileLink = document.createElement('a');
-            viewProfileLink.className = 'view-profile-link';
-            viewProfileLink.href = videoData?.video_data?.page_profile_uri || videoData?.ad_data?.page_profile_uri;
-            viewProfileLink.target = '_blank';
-            viewProfileLink.rel = 'noopener noreferrer';
-            viewProfileLink.innerHTML = 'View Profile <span>↗</span>';
-            videoActions.appendChild(viewProfileLink);
-        }
-
-        const viewFullVideoBtn = document.createElement('button');
-        viewFullVideoBtn.className = 'view-full-analysis-btn';
-        viewFullVideoBtn.innerHTML = 'View Full Video Analysis <span>↗</span>';
-        viewFullVideoBtn.onclick = () => {
+        // Add options button (dots) like in text analysis
+        const videoOptionsBtn = document.createElement('button');
+        videoOptionsBtn.className = 'analysis-options-btn';
+        videoOptionsBtn.innerHTML = '⋯';
+        videoOptionsBtn.onclick = () => {
             if (this.onShowFullAnalysis) {
                 this.onShowFullAnalysis(
                     `${videoData?.competitor_name || 'Unknown Competitor'} - Video Analysis`, 
@@ -527,7 +517,7 @@ class DataDisplay {
                 );
             }
         };
-        videoActions.appendChild(viewFullVideoBtn);
+        videoActions.appendChild(videoOptionsBtn);
 
         videoAnalysisSection.appendChild(videoActions);
         existingCard.appendChild(videoAnalysisSection);
