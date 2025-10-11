@@ -501,13 +501,13 @@ class DataDisplay {
         videoContent.textContent = shortVideoText;
         videoAnalysisSection.appendChild(videoContent);
 
-        // Video analysis actions
+        // Video analysis actions - match text analysis structure
         const videoActions = document.createElement('div');
-        videoActions.className = 'analysis-actions';
+        videoActions.className = 'ai-preview-actions';
 
         // Add options button (dots) like in text analysis
         const videoOptionsBtn = document.createElement('button');
-        videoOptionsBtn.className = 'analysis-options-btn';
+        videoOptionsBtn.className = 'full-analysis-btn';
         videoOptionsBtn.innerHTML = '⋯';
         videoOptionsBtn.onclick = () => {
             if (this.onShowFullAnalysis) {
