@@ -211,11 +211,14 @@ class Modal {
         // Split into lines and clean them
         const lines = content.split('\n')
             .map(line => {
+                // Format markdown headers - remove # symbols but keep the text
+                line = line.replace(/^#{1,6}\s+/, '');
                 // Remove all types of dashes (-–—•*) from the beginning of lines
                 // Also convert numbered lists from 1) format to 1. format
                 return line
                     .replace(/^\s*[-–—•*]\s*/, '')
                     .replace(/(\d+)\)/g, '$1.')  // Convert 1) to 1.
+                    .replace(/\*\*(.+?)\*\*/g, '$1') // Remove bold markdown
                     .trim();
             })
             .filter(line => line.length > 0);

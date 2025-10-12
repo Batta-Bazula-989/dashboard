@@ -536,9 +536,9 @@ class DataDisplay {
         }
         
         const shortVideoText = videoAnalysisText.length > 200 ? `${videoAnalysisText.slice(0, 200)}…` : videoAnalysisText;
-        // Clean the preview text by removing markdown syntax
+        // Clean the preview text by formatting markdown syntax
         const cleanVideoPreview = shortVideoText
-            .replace(/^#{1,6}\s+/gm, '') // Remove markdown headers (# ## ### etc)
+            .replace(/^#{1,6}\s+/gm, '') // Remove markdown header symbols but keep text
             .replace(/^\s*[-–—•*]\s*/gm, '') // Remove dashes from start of lines
             .replace(/\*\*(.+?)\*\*/g, '$1') // Remove bold markdown
             .replace(/\s+/g, ' ') // Clean up multiple spaces
@@ -719,9 +719,9 @@ class DataDisplay {
             const content = document.createElement('div');
             content.className = 'ai-preview-content';
             const shortText = full.length > 150 ? `${full.slice(0, 150)}…` : full;
-            // Clean the preview text by removing markdown syntax
+            // Clean the preview text by formatting markdown syntax
             const cleanPreview = shortText
-                .replace(/^#{1,6}\s+/gm, '') // Remove markdown headers (# ## ### etc)
+                .replace(/^#{1,6}\s+/gm, '') // Remove markdown header symbols but keep text
                 .replace(/^\s*[-–—•*]\s*/gm, '') // Remove dashes from start of lines
                 .replace(/\*\*(.+?)\*\*/g, '$1') // Remove bold markdown
                 .replace(/\s+/g, ' ') // Clean up multiple spaces
@@ -777,9 +777,9 @@ class DataDisplay {
             }
             
             const shortVideoText = videoAnalysisText.length > 200 ? `${videoAnalysisText.slice(0, 200)}…` : videoAnalysisText;
-            // Clean the preview text by removing markdown syntax
+            // Clean the preview text by formatting markdown syntax
             const cleanVideoPreview = shortVideoText
-                .replace(/^#{1,6}\s+/gm, '') // Remove markdown headers (# ## ### etc)
+                .replace(/^#{1,6}\s+/gm, '') // Remove markdown header symbols but keep text
                 .replace(/^\s*[-–—•*]\s*/gm, '') // Remove dashes from start of lines
                 .replace(/\*\*(.+?)\*\*/g, '$1') // Remove bold markdown
                 .replace(/\s+/g, ' ') // Clean up multiple spaces
