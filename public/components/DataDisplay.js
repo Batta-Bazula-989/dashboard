@@ -178,14 +178,16 @@ class DataDisplay {
                     if (hasVideoAnalysis) {
                         // Video analysis - ONLY add to existing cards, NEVER create new
                         console.log(`Video analysis for: ${processed.competitor_name} - finding existing card`);
-                        const existingCards = this.findAllExistingCards(processed.competitor_name);
+                        const videoAdText = processed.body || processed.ad_data?.ad_text || '';
+                        console.log(`Video analysis ad text: "${videoAdText.substring(0, 100)}..."`);
+                        const existingCards = this.findAllExistingCards(processed.competitor_name, videoAdText);
                         if (existingCards.length > 0) {
                             console.log(`Found ${existingCards.length} existing cards, adding video analysis section`);
                             existingCards.forEach(card => {
                                 this.addVideoAnalysisToExistingCard(card, processed);
                             });
                         } else {
-                            console.log(`⚠️ No existing card found for "${processed.competitor_name}" - video analysis SKIPPED`);
+                            console.log(`⚠️ No existing card found for "${processed.competitor_name}" with matching ad text - video analysis SKIPPED`);
                         }
                         // Don't increment renderedCount - no new card created
                     } else {
@@ -236,14 +238,16 @@ class DataDisplay {
                 if (hasVideoAnalysis) {
                     // Video analysis - ONLY add to existing cards, NEVER create new
                     console.log(`Single video analysis for: ${processed.competitor_name} - finding existing card`);
-                    const existingCards = this.findAllExistingCards(processed.competitor_name);
+                    const videoAdText = processed.body || processed.ad_data?.ad_text || '';
+                    console.log(`Video analysis ad text: "${videoAdText.substring(0, 100)}..."`);
+                    const existingCards = this.findAllExistingCards(processed.competitor_name, videoAdText);
                     if (existingCards.length > 0) {
                         console.log(`Found ${existingCards.length} existing cards, adding video analysis section`);
                         existingCards.forEach(card => {
                             this.addVideoAnalysisToExistingCard(card, processed);
                         });
                     } else {
-                        console.log(`⚠️ No existing card found for "${processed.competitor_name}" - video analysis SKIPPED`);
+                        console.log(`⚠️ No existing card found for "${processed.competitor_name}" with matching ad text - video analysis SKIPPED`);
                     }
                     renderedCount = 0; // No new card created
                 } else {
@@ -381,39 +385,73 @@ class DataDisplay {
     /**
      * Find existing card for a competitor
      * @param {string} competitorName - Competitor name to search for
+     * @param {string} adText - Optional ad text for precise matching
      * @returns {HTMLElement|null} Existing card element or null
      */
-    findExistingCard(competitorName) {
-        const cards = this.findAllExistingCards(competitorName);
+    findExistingCard(competitorName, adText = null) {
+        const cards = this.findAllExistingCards(competitorName, adText);
         return cards.length > 0 ? cards[0] : null;
     }
 
     /**
      * Find ALL existing cards for a competitor
      * @param {string} competitorName - Competitor name to search for
+     * @param {string} adText - Optional ad text for precise matching
      * @returns {HTMLElement[]} Array of existing card elements
      */
-    findAllExistingCards(competitorName) {
+    findAllExistingCards(competitorName, adText = null) {
         const cards = this.dataDisplay.querySelectorAll('.card');
         const matchingCards = [];
         
         console.log(`Looking for existing cards for: "${competitorName}"`);
+        if (adText) {
+            console.log(`With ad text: "${adText.substring(0, 100)}..."`);
+        }
         console.log(`Available cards:`, Array.from(cards).map(card => {
             const link = card.querySelector('.title-row a');
-            return link ? link.textContent.trim() : 'NO LINK';
+            const adTextEl = card.querySelector('.ad-text');
+            return {
+                name: link ? link.textContent.trim() : 'NO LINK',
+                adText: adTextEl ? adTextEl.textContent.trim().substring(0, 50) + '...' : 'NO AD TEXT'
+            };
         }));
         
         for (let card of cards) {
             const link = card.querySelector('.title-row a');
+            const adTextEl = card.querySelector('.ad-text');
+            
             if (link && link.textContent) {
                 const existingName = link.textContent.trim();
+                const existingAdText = adTextEl ? adTextEl.textContent.trim() : '';
+                
                 console.log(`Comparing "${competitorName}" with "${existingName}"`);
-                // Simple matching - exact or partial
-                if (existingName === competitorName || 
+                
+                // First check competitor name match
+                const nameMatches = existingName === competitorName || 
                     existingName.toLowerCase().includes(competitorName.toLowerCase()) ||
-                    competitorName.toLowerCase().includes(existingName.toLowerCase())) {
-                    console.log(`✅ Found match!`);
-                    matchingCards.push(card);
+                    competitorName.toLowerCase().includes(existingName.toLowerCase());
+                
+                if (nameMatches) {
+                    // If ad text is provided, do precise matching
+                    if (adText && existingAdText) {
+                        console.log(`Checking ad text match:`);
+                        console.log(`Video ad text: "${adText.substring(0, 100)}..."`);
+                        console.log(`Card ad text: "${existingAdText.substring(0, 100)}..."`);
+                        
+                        // Exact text match or high similarity
+                        if (existingAdText === adText || 
+                            existingAdText.includes(adText.substring(0, 50)) ||
+                            adText.includes(existingAdText.substring(0, 50))) {
+                            console.log(`✅ Found exact match by competitor name + ad text!`);
+                            matchingCards.push(card);
+                        } else {
+                            console.log(`❌ Competitor matches but ad text doesn't match`);
+                        }
+                    } else {
+                        // No ad text provided, use old behavior (match all with same competitor)
+                        console.log(`✅ Found match by competitor name (no ad text provided)`);
+                        matchingCards.push(card);
+                    }
                 }
             }
         }
