@@ -354,6 +354,7 @@ class DataDisplay {
             return {
                 competitor_name: competitorName,
                 content_type: contentType,
+                body: item.body || '', // Preserve original ad text for matching
                 ai_analysis: {
                     full_analysis: analysisText
                 },
