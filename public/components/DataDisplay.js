@@ -536,7 +536,14 @@ class DataDisplay {
         }
         
         const shortVideoText = videoAnalysisText.length > 200 ? `${videoAnalysisText.slice(0, 200)}…` : videoAnalysisText;
-        videoContent.textContent = shortVideoText;
+        // Clean the preview text by removing markdown syntax
+        const cleanVideoPreview = shortVideoText
+            .replace(/^#{1,6}\s+/gm, '') // Remove markdown headers (# ## ### etc)
+            .replace(/^\s*[-–—•*]\s*/gm, '') // Remove dashes from start of lines
+            .replace(/\*\*(.+?)\*\*/g, '$1') // Remove bold markdown
+            .replace(/\s+/g, ' ') // Clean up multiple spaces
+            .trim();
+        videoContent.textContent = cleanVideoPreview;
         videoAnalysisSection.appendChild(videoContent);
 
         // Video analysis actions - match text analysis structure
@@ -712,9 +719,11 @@ class DataDisplay {
             const content = document.createElement('div');
             content.className = 'ai-preview-content';
             const shortText = full.length > 150 ? `${full.slice(0, 150)}…` : full;
-            // Clean the preview text by removing dashes and formatting it properly
+            // Clean the preview text by removing markdown syntax
             const cleanPreview = shortText
+                .replace(/^#{1,6}\s+/gm, '') // Remove markdown headers (# ## ### etc)
                 .replace(/^\s*[-–—•*]\s*/gm, '') // Remove dashes from start of lines
+                .replace(/\*\*(.+?)\*\*/g, '$1') // Remove bold markdown
                 .replace(/\s+/g, ' ') // Clean up multiple spaces
                 .trim();
             content.textContent = cleanPreview;
@@ -768,7 +777,14 @@ class DataDisplay {
             }
             
             const shortVideoText = videoAnalysisText.length > 200 ? `${videoAnalysisText.slice(0, 200)}…` : videoAnalysisText;
-            videoContent.textContent = shortVideoText;
+            // Clean the preview text by removing markdown syntax
+            const cleanVideoPreview = shortVideoText
+                .replace(/^#{1,6}\s+/gm, '') // Remove markdown headers (# ## ### etc)
+                .replace(/^\s*[-–—•*]\s*/gm, '') // Remove dashes from start of lines
+                .replace(/\*\*(.+?)\*\*/g, '$1') // Remove bold markdown
+                .replace(/\s+/g, ' ') // Clean up multiple spaces
+                .trim();
+            videoContent.textContent = cleanVideoPreview;
             videoAnalysisSection.appendChild(videoContent);
 
             // Video analysis actions
