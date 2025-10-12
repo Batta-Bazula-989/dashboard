@@ -377,7 +377,13 @@ body {
 }
 
 .ai-preview-content {
-    margin-bottom: 4px;
+    margin-bottom: 8px;
+    background: white;
+    padding: 8px;
+    border-radius: 6px;
+    color: #334155;
+    font-size: 13px;
+    line-height: 1.4;
 }
 
 .ai-preview-actions {
