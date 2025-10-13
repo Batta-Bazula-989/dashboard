@@ -205,9 +205,6 @@ class Modal {
      * @returns {string} Formatted HTML content
      */
     formatSectionContent(content) {
-        // Remove numbered prefix like "1) Копирайтинг"
-        content = content.replace(/^\d+[\.\)]\s*[^\n]+\n?/, '');
-
         // Split into lines and clean them
         const lines = content.split('\n')
             .map(line => {
@@ -300,10 +297,11 @@ class Modal {
 
         // Look for patterns like "Category: Description" or bullet points with categories
         const structuredPatterns = [
+            /^[А-Я]{2,}\s*$/, // ALL CAPS headers (main format)
             /^[^:]+:\s*.+$/, // Category: Description pattern
             /^[А-Яа-я\w\s]+:\s*$/, // Category: (with colon at end)
             /^[А-Яа-я\w\s]+\s*-\s*.+$/, // Category - Description pattern
-            /^[А-Я]{2,}\s*$/, // ALL CAPS headers (new format)
+            /^\d+\.\s+[А-ЯЁ\s]+$/, // Numbered section headers like "1. КОПИРАЙТИНГ"
         ];
 
         // Also look for common analysis keywords that suggest structured content
@@ -311,9 +309,10 @@ class Modal {
             'тип оффера', 'стадія воронки', 'согласованность', 'оригінальність', 'сезонність',
             'value proposition', 'ризик-реверс', 'сила ста', 'цінова психологія',
             'swot', 's:', 'w:', 'о:', 'т:', 'mini-swot',
-            // New format keywords
-            'продажи', 'продажі', 'копирайтинг', 'копірайтинг', 'анализ', 'аналіз',
-            'метрики и прогноз', 'метрики та прогноз', 'рекомендации', 'рекомендації'
+            // New format keywords (ALL CAPS)
+            'ПРОДАЖИ', 'ПРОДАЖІ', 'КОПИРАЙТИНГ', 'КОПІРАЙТИНГ', 'АНАЛИЗ', 'АНАЛІЗ',
+            'МЕТРИКИ И ПРОГНОЗ', 'МЕТРИКИ ТА ПРОГНОЗ', 'РЕКОМЕНДАЦИИ', 'РЕКОМЕНДАЦІЇ',
+            'МАРКЕТИНГ', 'ПСИХОЛОГИЯ', 'ПСИХОЛОГІЯ'
         ];
 
         let structuredCount = 0;
@@ -815,8 +814,20 @@ class Modal {
      * @returns {boolean} True if it's a section header
      */
     isSectionHeader(line) {
-        // Check for ALL CAPS headers (new format from AI)
+        // Check for ALL CAPS section headers (main format from AI)
         if (line === line.toUpperCase() && line.length > 2 && line.length < 50 && !line.match(/[.!?]$/)) {
+            // Make sure it's a known section keyword
+            const sectionKeywords = [
+                'КОПИРАЙТИНГ', 'Копірайтинг', 'МАРКЕТИНГ', 'Маркетинг', 'ПСИХОЛОГИЯ', 'Психологія',
+                'ПРОДАЖИ', 'Продажі', 'МЕТРИКИ И ПРОГНОЗ', 'Метрики та прогноз', 'РЕКОМЕНДАЦИИ', 'Рекомендації',
+                'АНАЛИЗ', 'Аналіз', 'SWOT', 'MINI-SWOT'
+            ];
+            
+            return sectionKeywords.some(keyword => line.includes(keyword));
+        }
+        
+        // Check for numbered section headers like "1. КОПИРАЙТИНГ", "2. МАРКЕТИНГ" (fallback)
+        if (line.match(/^\d+\.\s+[А-ЯЁ\s]+$/)) {
             return true;
         }
         
@@ -849,10 +860,13 @@ class Modal {
      * @returns {string} Formatted HTML
      */
     formatCleanSection(title, description, inlineNote) {
+        // Clean up numbered section titles like "1. КОПИРАЙТИНГ" -> "КОПИРАЙТИНГ"
+        const cleanTitle = title.replace(/^\d+\.\s+/, '');
+        
         let formatted = `
             <div class="clean-section">
                 <div class="clean-section-header">
-                    <h3 class="clean-section-title">${title}</h3>
+                    <h3 class="clean-section-title">${cleanTitle}</h3>
                 </div>
         `;
         
