@@ -831,25 +831,17 @@ class Modal {
             return true;
         }
         
+        // Simple check: if it's ALL CAPS and short, it's likely a section header
+        if (line === line.toUpperCase() && line.length > 2 && line.length < 30) {
+            return true;
+        }
+        
         // Short lines (less than 50 chars) that don't end with punctuation
         if (line.length < 50 && !line.match(/[.!?]$/)) {
             return true;
         }
         
-        // Lines containing common section keywords
-        const sectionKeywords = [
-            'тип оффера', 'стадия воронки', 'согласованность', 'оригинальность', 'сезонность',
-            'mini-swot', 'swot', 'психология', 'психологія', 'метрики', 'рекомендации',
-            'rotation insight', 'novelty', 'quick wins', 'tactical', 'strategic',
-            'основні драйвери', 'структура подачі', 'hook phrase', 'value proposition',
-            'ризик-реверс', 'сила ста', 'цінова психологія',
-            // Add new format keywords
-            'продажи', 'продажі', 'копирайтинг', 'копірайтинг', 'анализ', 'аналіз',
-            'метрики и прогноз', 'метрики та прогноз', 'рекомендации', 'рекомендації'
-        ];
-        
-        const lowerLine = line.toLowerCase();
-        return sectionKeywords.some(keyword => lowerLine.includes(keyword));
+        return false;
     }
 
     /**
