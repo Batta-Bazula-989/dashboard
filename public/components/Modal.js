@@ -303,13 +303,17 @@ class Modal {
             /^[^:]+:\s*.+$/, // Category: Description pattern
             /^[А-Яа-я\w\s]+:\s*$/, // Category: (with colon at end)
             /^[А-Яа-я\w\s]+\s*-\s*.+$/, // Category - Description pattern
+            /^[А-Я]{2,}\s*$/, // ALL CAPS headers (new format)
         ];
 
         // Also look for common analysis keywords that suggest structured content
         const analysisKeywords = [
             'тип оффера', 'стадія воронки', 'согласованность', 'оригінальність', 'сезонність',
             'value proposition', 'ризик-реверс', 'сила ста', 'цінова психологія',
-            'swot', 's:', 'w:', 'о:', 'т:', 'mini-swot'
+            'swot', 's:', 'w:', 'о:', 'т:', 'mini-swot',
+            // New format keywords
+            'продажи', 'продажі', 'копирайтинг', 'копірайтинг', 'анализ', 'аналіз',
+            'метрики и прогноз', 'метрики та прогноз', 'рекомендации', 'рекомендації'
         ];
 
         let structuredCount = 0;
@@ -811,6 +815,11 @@ class Modal {
      * @returns {boolean} True if it's a section header
      */
     isSectionHeader(line) {
+        // Check for ALL CAPS headers (new format from AI)
+        if (line === line.toUpperCase() && line.length > 2 && line.length < 50 && !line.match(/[.!?]$/)) {
+            return true;
+        }
+        
         // Short lines (less than 50 chars) that don't end with punctuation
         if (line.length < 50 && !line.match(/[.!?]$/)) {
             return true;
@@ -822,7 +831,10 @@ class Modal {
             'mini-swot', 'swot', 'психология', 'психологія', 'метрики', 'рекомендации',
             'rotation insight', 'novelty', 'quick wins', 'tactical', 'strategic',
             'основні драйвери', 'структура подачі', 'hook phrase', 'value proposition',
-            'ризик-реверс', 'сила ста', 'цінова психологія'
+            'ризик-реверс', 'сила ста', 'цінова психологія',
+            // Add new format keywords
+            'продажи', 'продажі', 'копирайтинг', 'копірайтинг', 'анализ', 'аналіз',
+            'метрики и прогноз', 'метрики та прогноз', 'рекомендации', 'рекомендації'
         ];
         
         const lowerLine = line.toLowerCase();
