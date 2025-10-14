@@ -343,3 +343,6 @@ class Modal {
         return this.currentModal !== null;
     }
 }
+
+// Make Modal available globally
+window.Modal = Modal;
