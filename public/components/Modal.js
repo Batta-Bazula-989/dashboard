@@ -205,25 +205,24 @@ class Modal {
      * @returns {string} Formatted HTML content
      */
     formatSectionContent(content) {
-        // Split into lines and clean them
+        // Check if content is JSON structure
+        if (typeof content === 'object' && content.ai_analysis) {
+            return this.formatJsonAnalysis(content.ai_analysis);
+        }
+        
+        // Fallback to text parsing for backward compatibility
         const lines = content.split('\n')
             .map(line => {
-                // Format markdown headers - remove # symbols but keep the text
                 line = line.replace(/^#{1,6}\s+/, '');
-                // Remove all types of dashes (-–—•*) from the beginning of lines
-                // Also convert numbered lists from 1) format to 1. format
                 return line
                     .replace(/^\s*[-–—•*]\s*/, '')
-                    .replace(/(\d+)\)/g, '$1.')  // Convert 1) to 1.
-                    .replace(/\*\*(.+?)\*\*/g, '$1') // Remove bold markdown
+                    .replace(/(\d+)\)/g, '$1.')
+                    .replace(/\*\*(.+?)\*\*/g, '$1')
                     .trim();
             })
             .filter(line => line.length > 0);
 
-        // Filter out introductory text
         const filteredLines = this.filterIntroText(lines);
-
-        // Use the new clean formatting approach
         return this.formatAsCleanSections(filteredLines);
     }
 
@@ -875,6 +874,190 @@ class Modal {
         }
         
         formatted += `</div>`;
+        return formatted;
+    }
+
+    /**
+     * Format JSON analysis structure
+     * @param {Object} analysis - AI analysis object
+     * @returns {string} Formatted HTML content
+     */
+    formatJsonAnalysis(analysis) {
+        let formatted = '';
+
+        // Copywriting section
+        if (analysis.copywriting) {
+            formatted += this.formatJsonSection('КОПІРАЙТИНГ', analysis.copywriting, [
+                { key: 'offer_clarity', label: 'Ясність оффера' },
+                { key: 'specificity', label: 'Конкретика' },
+                { key: 'language_simplicity', label: 'Простота мови' },
+                { key: 'tone_of_voice', label: 'Тон голосу' },
+                { key: 'structure', label: 'Структура' },
+                { key: 'offer_usp_separation', label: 'Розділення оффера та УТП' }
+            ]);
+        }
+
+        // Marketing section
+        if (analysis.marketing) {
+            formatted += this.formatJsonSection('МАРКЕТИНГ', analysis.marketing, [
+                { key: 'offer_type', label: 'Тип оффера' },
+                { key: 'funnel_stage', label: 'Стадія воронки' },
+                { key: 'funnel_reasoning', label: 'Обґрунтування стадії' },
+                { key: 'consistency', label: 'Узгодженість' },
+                { key: 'originality', label: 'Оригінальність' },
+                { key: 'seasonality', label: 'Сезонність' },
+                { key: 'mini_swot', label: 'Mini-SWOT' }
+            ]);
+        }
+
+        // Psychology section
+        if (analysis.psychology) {
+            formatted += this.formatJsonSection('ПСИХОЛОГІЯ', analysis.psychology, [
+                { key: 'main_drivers', label: 'Основні драйвери' },
+                { key: 'structure_used', label: 'Використана структура' },
+                { key: 'hook_phrase', label: 'Хук-фраза' },
+                { key: 'storytelling', label: 'Сторітелінг' },
+                { key: 'influence_techniques', label: 'Прийоми впливу' },
+                { key: 'tonality', label: 'Тональність' }
+            ]);
+        }
+
+        // Sales section
+        if (analysis.sales) {
+            formatted += this.formatJsonSection('ПРОДАЖІ', analysis.sales, [
+                { key: 'value_proposition', label: 'Value proposition' },
+                { key: 'cta_strength', label: 'Сила CTA' },
+                { key: 'risk_reversal', label: 'Ризик-реверс' },
+                { key: 'price_psychology', label: 'Цінова психологія' }
+            ]);
+        }
+
+        // Metrics section
+        if (analysis.metrics) {
+            formatted += this.formatJsonSection('МЕТРИКИ ТА ПРОГНОЗ', analysis.metrics, [
+                { key: 'rotation_insight', label: 'Rotation insight' },
+                { key: 'novelty', label: 'Novelty' }
+            ]);
+        }
+
+        // Recommendations section
+        if (analysis.recommendations) {
+            formatted += this.formatRecommendationsSection(analysis.recommendations);
+        }
+
+        return formatted;
+    }
+
+    /**
+     * Format a JSON section with score-based items
+     * @param {string} title - Section title
+     * @param {Object} data - Section data
+     * @param {Array} fields - Fields to display
+     * @returns {string} Formatted HTML
+     */
+    formatJsonSection(title, data, fields) {
+        let formatted = `
+            <div class="clean-section">
+                <div class="clean-section-header">
+                    <h3 class="clean-section-title">${title}</h3>
+                </div>
+                <div class="clean-section-description">
+        `;
+
+        fields.forEach(field => {
+            const value = data[field.key];
+            if (value !== undefined && value !== null) {
+                if (typeof value === 'object' && value.score !== undefined) {
+                    // Score-based field
+                    formatted += `<div class="analysis-item">
+                        <strong>${field.label}: ${value.score}/10</strong><br>
+                        ${value.description || ''}
+                    </div><br>`;
+                } else if (typeof value === 'object' && field.key === 'mini_swot') {
+                    // Mini-SWOT special handling
+                    formatted += `<div class="analysis-item">
+                        <strong>${field.label}:</strong><br>
+                        <strong>S:</strong> ${value.strengths || ''}<br>
+                        <strong>W:</strong> ${value.weaknesses || ''}<br>
+                        <strong>O:</strong> ${value.opportunities || ''}<br>
+                        <strong>T:</strong> ${value.threats || ''}
+                    </div><br>`;
+                } else {
+                    // Simple text field
+                    formatted += `<div class="analysis-item">
+                        <strong>${field.label}:</strong> ${value}
+                    </div><br>`;
+                }
+            }
+        });
+
+        formatted += `
+                </div>
+            </div>
+        `;
+
+        return formatted;
+    }
+
+    /**
+     * Format recommendations section
+     * @param {Object} recommendations - Recommendations data
+     * @returns {string} Formatted HTML
+     */
+    formatRecommendationsSection(recommendations) {
+        let formatted = `
+            <div class="clean-section">
+                <div class="clean-section-header">
+                    <h3 class="clean-section-title">РЕКОМЕНДАЦІЇ</h3>
+                </div>
+                <div class="clean-section-description">
+        `;
+
+        // Inline notes
+        if (recommendations.inline_notes && recommendations.inline_notes.length > 0) {
+            formatted += `<div class="analysis-item">
+                <strong>ІНЛАЙН-ПОМЕТКИ:</strong><br>`;
+            recommendations.inline_notes.forEach(note => {
+                formatted += `"${note.quoted_text}" - ${note.comment}<br>`;
+            });
+            formatted += `</div><br>`;
+        }
+
+        // Quick wins
+        if (recommendations.quick_wins && recommendations.quick_wins.length > 0) {
+            formatted += `<div class="analysis-item">
+                <strong>QUICK WINS (1 день):</strong><br>`;
+            recommendations.quick_wins.forEach((win, index) => {
+                formatted += `${index + 1}. ${win}<br>`;
+            });
+            formatted += `</div><br>`;
+        }
+
+        // Tactical
+        if (recommendations.tactical && recommendations.tactical.length > 0) {
+            formatted += `<div class="analysis-item">
+                <strong>TACTICAL ПОКРАЩЕННЯ (тиждень):</strong><br>`;
+            recommendations.tactical.forEach((item, index) => {
+                formatted += `${index + 1}. ${item}<br>`;
+            });
+            formatted += `</div><br>`;
+        }
+
+        // Strategic
+        if (recommendations.strategic && recommendations.strategic.length > 0) {
+            formatted += `<div class="analysis-item">
+                <strong>STRATEGIC ІДЕЯ (квартал):</strong><br>`;
+            recommendations.strategic.forEach((item, index) => {
+                formatted += `${index + 1}. ${item}<br>`;
+            });
+            formatted += `</div><br>`;
+        }
+
+        formatted += `
+                </div>
+            </div>
+        `;
+
         return formatted;
     }
 

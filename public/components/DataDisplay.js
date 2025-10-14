@@ -518,31 +518,33 @@ class DataDisplay {
         const videoContent = document.createElement('div');
         videoContent.className = 'analysis-content';
         
-        // SIMPLE - just get the analysis text however it comes
-        console.log('=== VIDEO ANALYSIS - FULL DATA ===');
-        console.log('FULL videoData:', JSON.stringify(videoData, null, 2));
+        // Handle JSON structure for video analysis
+        let videoAnalysisText = 'No analysis available';
         
-        let videoAnalysisText = videoData.ai_analysis?.full_analysis || 
-                               videoData.ai_analysis || 
-                               'No analysis available';
-        
-        // Convert to string if it's an object
-        console.log('Raw video analysis text:', videoAnalysisText);
-        console.log('Type:', typeof videoAnalysisText);
-        if (typeof videoAnalysisText === 'object' && videoAnalysisText.full_analysis) {
-            videoAnalysisText = videoAnalysisText.full_analysis;
-        } else if (typeof videoAnalysisText === 'object') {
-            videoAnalysisText = JSON.stringify(videoAnalysisText, null, 2);
+        if (videoData.ai_analysis) {
+            if (typeof videoData.ai_analysis === 'object') {
+                // Create a preview from JSON structure
+                const analysis = videoData.ai_analysis;
+                let previewParts = [];
+                
+                if (analysis.copywriting?.offer_clarity) {
+                    previewParts.push(`Ясність оффера: ${analysis.copywriting.offer_clarity.score}/10`);
+                }
+                if (analysis.marketing?.offer_type) {
+                    previewParts.push(`Тип оффера: ${analysis.marketing.offer_type}`);
+                }
+                if (analysis.sales?.value_proposition) {
+                    previewParts.push(`Value proposition: ${analysis.sales.value_proposition.score}/10`);
+                }
+                
+                videoAnalysisText = previewParts.join(' • ') || 'Аналіз доступний';
+            } else {
+                videoAnalysisText = videoData.ai_analysis;
+            }
         }
         
         const shortVideoText = videoAnalysisText.length > 200 ? `${videoAnalysisText.slice(0, 200)}…` : videoAnalysisText;
-        // Clean the preview text by formatting markdown syntax
-        const cleanVideoPreview = shortVideoText
-            .replace(/^#{1,6}\s+/gm, '') // Remove markdown header symbols but keep text
-            .replace(/^\s*[-–—•*]\s*/gm, '') // Remove dashes from start of lines
-            .replace(/\*\*(.+?)\*\*/g, '$1') // Remove bold markdown
-            .replace(/\s+/g, ' ') // Clean up multiple spaces
-            .trim();
+        const cleanVideoPreview = shortVideoText.trim();
         videoContent.textContent = cleanVideoPreview;
         videoAnalysisSection.appendChild(videoContent);
 
@@ -718,14 +720,29 @@ class DataDisplay {
             // Content - show small preview
             const content = document.createElement('div');
             content.className = 'ai-preview-content';
-            const shortText = full.length > 150 ? `${full.slice(0, 150)}…` : full;
-            // Clean the preview text by formatting markdown syntax
-            const cleanPreview = shortText
-                .replace(/^#{1,6}\s+/gm, '') // Remove markdown header symbols but keep text
-                .replace(/^\s*[-–—•*]\s*/gm, '') // Remove dashes from start of lines
-                .replace(/\*\*(.+?)\*\*/g, '$1') // Remove bold markdown
-                .replace(/\s+/g, ' ') // Clean up multiple spaces
-                .trim();
+            
+            let previewText = full;
+            
+            // Handle JSON structure for text analysis
+            if (typeof full === 'object' && full.ai_analysis) {
+                const analysis = full.ai_analysis;
+                let previewParts = [];
+                
+                if (analysis.copywriting?.offer_clarity) {
+                    previewParts.push(`Ясність оффера: ${analysis.copywriting.offer_clarity.score}/10`);
+                }
+                if (analysis.marketing?.offer_type) {
+                    previewParts.push(`Тип оффера: ${analysis.marketing.offer_type}`);
+                }
+                if (analysis.sales?.value_proposition) {
+                    previewParts.push(`Value proposition: ${analysis.sales.value_proposition.score}/10`);
+                }
+                
+                previewText = previewParts.join(' • ') || 'Аналіз доступний';
+            }
+            
+            const shortText = previewText.length > 150 ? `${previewText.slice(0, 150)}…` : previewText;
+            const cleanPreview = shortText.trim();
             content.textContent = cleanPreview;
             preview.appendChild(content);
 
