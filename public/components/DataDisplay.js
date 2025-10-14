@@ -704,7 +704,7 @@ class DataDisplay {
         }
 
         // Text Analysis Section - NO FILTERING
-        const full = entry?.ai_analysis?.full_analysis || entry?.ai_analysis || '';
+        const full = entry?.ai_analysis || '';
         if (full) {
             const preview = document.createElement('div');
             preview.className = 'ai-preview';
