@@ -1541,6 +1541,37 @@ body {
     font-weight: 700;
 }
 
+/* Section-specific score colors to match headers */
+.analysis-section.copywriting .item-score {
+    background: linear-gradient(135deg, #e6f7e6, #d1f2d1);
+    color: #374151;
+}
+
+.analysis-section.marketing .item-score {
+    background: linear-gradient(135deg, #fdf2e6, #fde4b8);
+    color: #374151;
+}
+
+.analysis-section.psychology .item-score {
+    background: linear-gradient(135deg, #e6edff, #d6e8ff);
+    color: #374151;
+}
+
+.analysis-section.sales .item-score {
+    background: linear-gradient(135deg, #f9e6ed, #f8d7e3);
+    color: #374151;
+}
+
+.analysis-section.metrics .item-score {
+    background: linear-gradient(135deg, #f2e6ff, #e8d5ff);
+    color: #374151;
+}
+
+.analysis-section.recommendations .item-score {
+    background: linear-gradient(135deg, #fff9e6, #ffecb3);
+    color: #374151;
+}
+
 .item-description {
     padding: 12px;
     color: #475569;
