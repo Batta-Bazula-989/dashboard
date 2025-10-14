@@ -1435,35 +1435,35 @@ body {
 }
 
 .section-header {
-    padding: 12px 16px;
-    margin: -16px -16px 16px -16px;
-    width: calc(100% + 32px);
+    padding: 12px 20px;
+    margin: -20px -20px 16px -20px;
+    width: calc(100% + 40px);
     border: none;
 }
 
-/* Section-specific gradient colors - softer and less bright */
+/* Section-specific gradient colors - very pleasant and soft */
 .section-header.copywriting {
-    background: linear-gradient(135deg, #e8f5e8, #d1f2d1);
+    background: linear-gradient(135deg, #f0f9f0, #e6f7e6);
 }
 
 .section-header.marketing {
-    background: linear-gradient(135deg, #fef3e2, #fde4b8);
+    background: linear-gradient(135deg, #fef9f0, #fdf2e6);
 }
 
 .section-header.psychology {
-    background: linear-gradient(135deg, #e8f0fe, #d6e8ff);
+    background: linear-gradient(135deg, #f0f4ff, #e6edff);
 }
 
 .section-header.sales {
-    background: linear-gradient(135deg, #fce8f1, #f8d7e3);
+    background: linear-gradient(135deg, #fdf0f5, #f9e6ed);
 }
 
 .section-header.metrics {
-    background: linear-gradient(135deg, #f3e8ff, #e8d5ff);
+    background: linear-gradient(135deg, #f8f0ff, #f2e6ff);
 }
 
 .section-header.recommendations {
-    background: linear-gradient(135deg, #fff8e1, #ffecb3);
+    background: linear-gradient(135deg, #fffdf0, #fff9e6);
 }
 
 .section-title {
