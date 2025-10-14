@@ -704,7 +704,7 @@ class DataDisplay {
         }
 
         // Text Analysis Section - NO FILTERING
-        const full = entry?.ai_analysis?.full_analysis || '';
+        const full = entry?.ai_analysis?.full_analysis || entry?.ai_analysis || '';
         if (full) {
             const preview = document.createElement('div');
             preview.className = 'ai-preview';
@@ -769,7 +769,7 @@ class DataDisplay {
         }
 
         // Video Analysis Section - NO FILTERING
-        if (entry?.video_analysis?.full_analysis) {
+        if (entry?.video_analysis?.full_analysis || entry?.ai_analysis) {
             const videoAnalysisSection = document.createElement('div');
             videoAnalysisSection.className = 'video-analysis-section';
 
@@ -786,7 +786,7 @@ class DataDisplay {
             // Video analysis content preview - NO FILTERING
             const videoContent = document.createElement('div');
             videoContent.className = 'analysis-content';
-            let videoAnalysisText = entry.video_analysis.full_analysis;
+            let videoAnalysisText = entry.video_analysis?.full_analysis || entry.ai_analysis;
             
             // Convert to string if it's an object
             if (typeof videoAnalysisText === 'object') {
