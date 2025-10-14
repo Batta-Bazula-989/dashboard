@@ -1436,38 +1436,38 @@ body {
 
 .section-header {
     padding: 12px 16px;
-    border-bottom: 1px solid #e5e7eb;
-    margin: 0 -16px 16px -16px;
+    margin: -16px -16px 16px -16px;
     width: calc(100% + 32px);
+    border: none;
 }
 
-/* Section-specific gradient colors */
+/* Section-specific gradient colors - softer and less bright */
 .section-header.copywriting {
-    background: linear-gradient(135deg, #a8e6cf, #7fcdcd);
+    background: linear-gradient(135deg, #e8f5e8, #d1f2d1);
 }
 
 .section-header.marketing {
-    background: linear-gradient(135deg, #ffd3a5, #fd9853);
+    background: linear-gradient(135deg, #fef3e2, #fde4b8);
 }
 
 .section-header.psychology {
-    background: linear-gradient(135deg, #a8c8ec, #6b9bd2);
+    background: linear-gradient(135deg, #e8f0fe, #d6e8ff);
 }
 
 .section-header.sales {
-    background: linear-gradient(135deg, #f4a6c7, #e85a8a);
+    background: linear-gradient(135deg, #fce8f1, #f8d7e3);
 }
 
 .section-header.metrics {
-    background: linear-gradient(135deg, #d4a5f4, #b794f6);
+    background: linear-gradient(135deg, #f3e8ff, #e8d5ff);
 }
 
 .section-header.recommendations {
-    background: linear-gradient(135deg, #f7d794, #f4d03f);
+    background: linear-gradient(135deg, #fff8e1, #ffecb3);
 }
 
 .section-title {
-    color: white;
+    color: #374151;
     font-size: 16px;
     font-weight: 700;
     margin: 0;
