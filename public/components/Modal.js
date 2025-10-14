@@ -93,7 +93,7 @@ class Modal {
             </div>
             <div class="section-content">
                 <div class="analysis-item">
-                    <div class="item-description">${content}</div>
+                    <div class="item-description">${typeof content === 'object' ? JSON.stringify(content, null, 2) : content}</div>
                 </div>
             </div>
         </div>`;
