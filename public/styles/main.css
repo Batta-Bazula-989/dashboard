@@ -1429,7 +1429,7 @@ body {
 .analysis-section {
     background: white;
     border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     margin-bottom: 16px;
     overflow: hidden;
     border-left: 6px solid #e6f7e6;
@@ -1535,10 +1535,10 @@ body {
 .item-score {
     background: #3b82f6;
     color: white;
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 12px;
-    font-weight: 700;
+    padding: 3px 6px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 600;
 }
 
 /* Section-specific score colors to match headers */
