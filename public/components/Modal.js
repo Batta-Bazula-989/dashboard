@@ -105,6 +105,7 @@ class Modal {
      * @returns {string} Formatted HTML content
      */
     formatJsonAnalysis(analysis) {
+        console.log('formatJsonAnalysis called with:', analysis);
         let formatted = '';
 
         // Skip advertiser and analyzed_text fields - they're already shown in the ad card
