@@ -310,24 +310,8 @@ class DataDisplay {
                                  item.competitor || 
                                  'Unknown Competitor';
             
-            // Extract analysis from various possible fields
-            let analysisText = '';
-            if (item.ai_analysis?.full_analysis) {
-                analysisText = item.ai_analysis.full_analysis;
-            } else if (item.ai_analysis?.analysis) {
-                analysisText = item.ai_analysis.analysis;
-            } else if (typeof item.ai_analysis === 'string') {
-                analysisText = item.ai_analysis;
-            } else if (item.analysis) {
-                analysisText = item.analysis;
-            } else if (item.body?.output && Array.isArray(item.body.output)) {
-                const messageOutput = item.body.output.find(output => output.type === 'message');
-                if (messageOutput?.content?.[0]?.text) {
-                    analysisText = messageOutput.content[0].text;
-                }
-            } else {
-                analysisText = JSON.stringify(item, null, 2);
-            }
+            // Use ai_analysis directly if it exists as an object with the correct structure
+            let aiAnalysis = item.ai_analysis || {};
             
             // Extract video data from various possible fields - NO FILTERING
             let videos = [];
@@ -347,7 +331,7 @@ class DataDisplay {
             console.log('Processed item:', {
                 competitor_name: competitorName,
                 content_type: contentType,
-                analysis_length: analysisText.length,
+                has_ai_analysis: !!aiAnalysis,
                 videos_count: videos.length
             });
             
@@ -355,12 +339,8 @@ class DataDisplay {
                 competitor_name: competitorName,
                 content_type: contentType,
                 body: item.body || '', // Preserve original ad text for matching
-                ai_analysis: {
-                    full_analysis: analysisText
-                },
-                video_analysis: (contentType === 'video' || item.video_data) ? {
-                    full_analysis: analysisText
-                } : undefined,
+                ai_analysis: aiAnalysis, // Keep the original structure!
+                video_analysis: undefined, // Disabled
                 video_data: item.video_data ? {
                     video_id: item.video_data.video_id || 'Unknown Video',
                     ad_started: item.video_data.ad_started || new Date().toLocaleDateString(),
