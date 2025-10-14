@@ -885,6 +885,9 @@ class Modal {
     formatJsonAnalysis(analysis) {
         let formatted = '';
 
+        // Skip advertiser and analyzed_text fields - they're already shown in the ad card
+        // Only process the actual analysis sections
+
         // Copywriting section
         if (analysis.copywriting) {
             formatted += this.formatJsonSection('КОПІРАЙТИНГ', analysis.copywriting, [
@@ -957,36 +960,64 @@ class Modal {
      */
     formatJsonSection(title, data, fields) {
         let formatted = `
-            <div class="clean-section">
-                <div class="clean-section-header">
-                    <h3 class="clean-section-title">${title}</h3>
+            <div class="analysis-section">
+                <div class="section-header">
+                    <h3 class="section-title">${title}</h3>
                 </div>
-                <div class="clean-section-description">
+                <div class="section-content">
         `;
 
         fields.forEach(field => {
             const value = data[field.key];
             if (value !== undefined && value !== null) {
                 if (typeof value === 'object' && value.score !== undefined) {
-                    // Score-based field
-                    formatted += `<div class="analysis-item">
-                        <strong>${field.label}: ${value.score}/10</strong><br>
-                        ${value.description || ''}
-                    </div><br>`;
+                    // Score-based field with container
+                    formatted += `
+                        <div class="analysis-item">
+                            <div class="item-header">
+                                <span class="item-label">${field.label}</span>
+                                <span class="item-score">${value.score}/10</span>
+                            </div>
+                            <div class="item-description">${value.description || ''}</div>
+                        </div>
+                    `;
                 } else if (typeof value === 'object' && field.key === 'mini_swot') {
-                    // Mini-SWOT special handling
-                    formatted += `<div class="analysis-item">
-                        <strong>${field.label}:</strong><br>
-                        <strong>S:</strong> ${value.strengths || ''}<br>
-                        <strong>W:</strong> ${value.weaknesses || ''}<br>
-                        <strong>O:</strong> ${value.opportunities || ''}<br>
-                        <strong>T:</strong> ${value.threats || ''}
-                    </div><br>`;
+                    // Mini-SWOT special handling with container
+                    formatted += `
+                        <div class="analysis-item swot-item">
+                            <div class="item-header">
+                                <span class="item-label">${field.label}</span>
+                            </div>
+                            <div class="swot-content">
+                                <div class="swot-row">
+                                    <span class="swot-label">S:</span>
+                                    <span class="swot-text">${value.strengths || ''}</span>
+                                </div>
+                                <div class="swot-row">
+                                    <span class="swot-label">W:</span>
+                                    <span class="swot-text">${value.weaknesses || ''}</span>
+                                </div>
+                                <div class="swot-row">
+                                    <span class="swot-label">O:</span>
+                                    <span class="swot-text">${value.opportunities || ''}</span>
+                                </div>
+                                <div class="swot-row">
+                                    <span class="swot-label">T:</span>
+                                    <span class="swot-text">${value.threats || ''}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
                 } else {
-                    // Simple text field
-                    formatted += `<div class="analysis-item">
-                        <strong>${field.label}:</strong> ${value}
-                    </div><br>`;
+                    // Simple text field with container
+                    formatted += `
+                        <div class="analysis-item">
+                            <div class="item-header">
+                                <span class="item-label">${field.label}</span>
+                            </div>
+                            <div class="item-description">${value}</div>
+                        </div>
+                    `;
                 }
             }
         });
@@ -1006,51 +1037,88 @@ class Modal {
      */
     formatRecommendationsSection(recommendations) {
         let formatted = `
-            <div class="clean-section">
-                <div class="clean-section-header">
-                    <h3 class="clean-section-title">РЕКОМЕНДАЦІЇ</h3>
+            <div class="analysis-section">
+                <div class="section-header">
+                    <h3 class="section-title">РЕКОМЕНДАЦІЇ</h3>
                 </div>
-                <div class="clean-section-description">
+                <div class="section-content">
         `;
 
         // Inline notes
         if (recommendations.inline_notes && recommendations.inline_notes.length > 0) {
-            formatted += `<div class="analysis-item">
-                <strong>ІНЛАЙН-ПОМЕТКИ:</strong><br>`;
+            formatted += `
+                <div class="analysis-item">
+                    <div class="item-header">
+                        <span class="item-label">ІНЛАЙН-ПОМЕТКИ</span>
+                    </div>
+                    <div class="item-description">
+            `;
             recommendations.inline_notes.forEach(note => {
-                formatted += `"${note.quoted_text}" - ${note.comment}<br>`;
+                formatted += `
+                    <div class="inline-note">
+                        <span class="quoted-text">"${note.quoted_text}"</span>
+                        <span class="comment">- ${note.comment}</span>
+                    </div>
+                `;
             });
-            formatted += `</div><br>`;
+            formatted += `
+                    </div>
+                </div>
+            `;
         }
 
         // Quick wins
         if (recommendations.quick_wins && recommendations.quick_wins.length > 0) {
-            formatted += `<div class="analysis-item">
-                <strong>QUICK WINS (1 день):</strong><br>`;
+            formatted += `
+                <div class="analysis-item">
+                    <div class="item-header">
+                        <span class="item-label">QUICK WINS (1 день)</span>
+                    </div>
+                    <div class="item-description">
+            `;
             recommendations.quick_wins.forEach((win, index) => {
-                formatted += `${index + 1}. ${win}<br>`;
+                formatted += `<div class="recommendation-item">${index + 1}. ${win}</div>`;
             });
-            formatted += `</div><br>`;
+            formatted += `
+                    </div>
+                </div>
+            `;
         }
 
         // Tactical
         if (recommendations.tactical && recommendations.tactical.length > 0) {
-            formatted += `<div class="analysis-item">
-                <strong>TACTICAL ПОКРАЩЕННЯ (тиждень):</strong><br>`;
+            formatted += `
+                <div class="analysis-item">
+                    <div class="item-header">
+                        <span class="item-label">TACTICAL ПОКРАЩЕННЯ (тиждень)</span>
+                    </div>
+                    <div class="item-description">
+            `;
             recommendations.tactical.forEach((item, index) => {
-                formatted += `${index + 1}. ${item}<br>`;
+                formatted += `<div class="recommendation-item">${index + 1}. ${item}</div>`;
             });
-            formatted += `</div><br>`;
+            formatted += `
+                    </div>
+                </div>
+            `;
         }
 
         // Strategic
         if (recommendations.strategic && recommendations.strategic.length > 0) {
-            formatted += `<div class="analysis-item">
-                <strong>STRATEGIC ІДЕЯ (квартал):</strong><br>`;
+            formatted += `
+                <div class="analysis-item">
+                    <div class="item-header">
+                        <span class="item-label">STRATEGIC ІДЕЯ (квартал)</span>
+                    </div>
+                    <div class="item-description">
+            `;
             recommendations.strategic.forEach((item, index) => {
-                formatted += `${index + 1}. ${item}<br>`;
+                formatted += `<div class="recommendation-item">${index + 1}. ${item}</div>`;
             });
-            formatted += `</div><br>`;
+            formatted += `
+                    </div>
+                </div>
+            `;
         }
 
         formatted += `
