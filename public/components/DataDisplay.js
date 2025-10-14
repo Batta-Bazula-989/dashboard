@@ -182,10 +182,10 @@ class DataDisplay {
                         console.log(`Video analysis ad text: "${videoAdText.substring(0, 100)}..."`);
                         const existingCards = this.findAllExistingCards(processed.competitor_name, videoAdText);
                         if (existingCards.length > 0) {
-                            console.log(`Found ${existingCards.length} existing cards, but VIDEO ANALYSIS DISABLED`);
-                            // existingCards.forEach(card => {
-                            //     this.addVideoAnalysisToExistingCard(card, processed);
-                            // });
+                            console.log(`Found ${existingCards.length} existing cards, adding video analysis`);
+                            existingCards.forEach(card => {
+                                this.addVideoAnalysisToExistingCard(card, processed);
+                            });
                         } else {
                             console.log(`⚠️ No existing card found for "${processed.competitor_name}" with matching ad text - video analysis SKIPPED`);
                         }
@@ -242,10 +242,10 @@ class DataDisplay {
                     console.log(`Video analysis ad text: "${videoAdText.substring(0, 100)}..."`);
                     const existingCards = this.findAllExistingCards(processed.competitor_name, videoAdText);
                     if (existingCards.length > 0) {
-                        console.log(`Found ${existingCards.length} existing cards, but VIDEO ANALYSIS DISABLED`);
-                        // existingCards.forEach(card => {
-                        //     this.addVideoAnalysisToExistingCard(card, processed);
-                        // });
+                        console.log(`Found ${existingCards.length} existing cards, adding video analysis`);
+                        existingCards.forEach(card => {
+                            this.addVideoAnalysisToExistingCard(card, processed);
+                        });
                     } else {
                         console.log(`⚠️ No existing card found for "${processed.competitor_name}" with matching ad text - video analysis SKIPPED`);
                     }
@@ -450,8 +450,8 @@ class DataDisplay {
         
         // Add video analysis if we have video analysis data - NO FILTERING
         if (data.video_analysis && data.video_analysis.full_analysis) {
-            console.log('Video analysis data found but VIDEO ANALYSIS DISABLED');
-            // this.addVideoAnalysisToExistingCard(existingCard, data);
+            console.log('Video analysis data found, adding to existing card');
+            this.addVideoAnalysisToExistingCard(existingCard, data);
         }
         
         // Update any other fields if needed
