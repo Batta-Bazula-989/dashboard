@@ -55,7 +55,12 @@ class Modal {
      * @returns {string} Formatted HTML content
      */
     formatSectionContent(content) {
-        // Check if content is JSON structure
+        // If content is already the ai_analysis object (has copywriting, marketing, etc.)
+        if (typeof content === 'object' && content.copywriting) {
+            return this.formatJsonAnalysis(content);
+        }
+        
+        // If content has ai_analysis property, extract it
         if (typeof content === 'object' && content.ai_analysis) {
             return this.formatJsonAnalysis(content.ai_analysis);
         }
