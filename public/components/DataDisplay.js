@@ -721,21 +721,21 @@ class DataDisplay {
             const content = document.createElement('div');
             content.className = 'ai-preview-content';
             
-            let previewText = full;
+            let previewText = 'Аналіз доступний';
             
             // Handle JSON structure for text analysis
-            if (typeof full === 'object' && full.ai_analysis) {
-                const analysis = full.ai_analysis;
+            if (typeof full === 'object' && full.copywriting) {
+                // full is the ai_analysis object directly
                 let previewParts = [];
                 
-                if (analysis.copywriting?.offer_clarity) {
-                    previewParts.push(`Ясність оффера: ${analysis.copywriting.offer_clarity.score}/10`);
+                if (full.copywriting?.offer_clarity) {
+                    previewParts.push(`Ясність оффера: ${full.copywriting.offer_clarity.score}/10`);
                 }
-                if (analysis.marketing?.offer_type) {
-                    previewParts.push(`Тип оффера: ${analysis.marketing.offer_type}`);
+                if (full.marketing?.offer_type) {
+                    previewParts.push(`Тип оффера: ${full.marketing.offer_type}`);
                 }
-                if (analysis.sales?.value_proposition) {
-                    previewParts.push(`Value proposition: ${analysis.sales.value_proposition.score}/10`);
+                if (full.sales?.value_proposition) {
+                    previewParts.push(`Value proposition: ${full.sales.value_proposition.score}/10`);
                 }
                 
                 previewText = previewParts.join(' • ') || 'Аналіз доступний';
