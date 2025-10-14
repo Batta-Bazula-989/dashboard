@@ -1435,9 +1435,35 @@ body {
 }
 
 .section-header {
-    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
     padding: 12px 16px;
     border-bottom: 1px solid #e5e7eb;
+    margin: 0 -16px 16px -16px;
+    width: calc(100% + 32px);
+}
+
+/* Section-specific gradient colors */
+.section-header.copywriting {
+    background: linear-gradient(135deg, #a8e6cf, #7fcdcd);
+}
+
+.section-header.marketing {
+    background: linear-gradient(135deg, #ffd3a5, #fd9853);
+}
+
+.section-header.psychology {
+    background: linear-gradient(135deg, #a8c8ec, #6b9bd2);
+}
+
+.section-header.sales {
+    background: linear-gradient(135deg, #f4a6c7, #e85a8a);
+}
+
+.section-header.metrics {
+    background: linear-gradient(135deg, #d4a5f4, #b794f6);
+}
+
+.section-header.recommendations {
+    background: linear-gradient(135deg, #f7d794, #f4d03f);
 }
 
 .section-title {

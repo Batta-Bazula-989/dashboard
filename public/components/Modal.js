@@ -88,7 +88,7 @@ class Modal {
         // Fallback to simple text display for backward compatibility
         console.log('Using fallback text display');
         return `<div class="analysis-section">
-            <div class="section-header">
+            <div class="section-header copywriting">
                 <h3 class="section-title">АНАЛІЗ</h3>
             </div>
             <div class="section-content">
@@ -182,9 +182,20 @@ class Modal {
      * @returns {string} Formatted HTML
      */
     formatJsonSection(title, data, fields) {
+        // Map section titles to CSS classes
+        const sectionClassMap = {
+            'КОПІРАЙТИНГ': 'copywriting',
+            'МАРКЕТИНГ': 'marketing', 
+            'ПСИХОЛОГІЯ': 'psychology',
+            'ПРОДАЖІ': 'sales',
+            'МЕТРИКИ': 'metrics'
+        };
+        
+        const sectionClass = sectionClassMap[title] || 'copywriting';
+        
         let formatted = `
             <div class="analysis-section">
-                <div class="section-header">
+                <div class="section-header ${sectionClass}">
                     <h3 class="section-title">${title}</h3>
                 </div>
                 <div class="section-content">
@@ -261,7 +272,7 @@ class Modal {
     formatRecommendationsSection(recommendations) {
         let formatted = `
             <div class="analysis-section">
-                <div class="section-header">
+                <div class="section-header recommendations">
                     <h3 class="section-title">РЕКОМЕНДАЦІЇ</h3>
                 </div>
                 <div class="section-content">
