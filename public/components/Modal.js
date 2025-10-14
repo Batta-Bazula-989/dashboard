@@ -233,23 +233,23 @@ class Modal {
                     `;
                 } else {
                     // Simple text field with container
-                    formatted += `
+            formatted += `
                         <div class="analysis-item">
                             <div class="item-header">
                                 <span class="item-label">${field.label}</span>
                             </div>
                             <div class="item-description">${value}</div>
-                        </div>
-                    `;
+                </div>
+            `;
                 }
             }
         });
-
+        
         formatted += `
                 </div>
             </div>
         `;
-
+        
         return formatted;
     }
 
@@ -289,7 +289,7 @@ class Modal {
                 </div>
             `;
         }
-
+        
         // Quick wins
         if (recommendations.quick_wins && recommendations.quick_wins.length > 0) {
             formatted += `
@@ -323,7 +323,7 @@ class Modal {
             formatted += `
                     </div>
                 </div>
-            `;
+        `;
         }
 
         // Strategic
@@ -343,7 +343,7 @@ class Modal {
                 </div>
             `;
         }
-
+        
         formatted += `
                 </div>
             </div>
@@ -372,4 +372,4 @@ class Modal {
 }
 
 // Make Modal available globally
-window.Modal = Modal;
+    window.Modal = Modal;
