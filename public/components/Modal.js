@@ -853,17 +853,7 @@ class Modal {
      */
     formatCleanSection(title, description, inlineNote) {
         // Clean up numbered section titles like "1. КОПИРАЙТИНГ" -> "КОПИРАЙТИНГ"
-        let cleanTitle = title.replace(/^\d+\.\s+/, '');
-        
-        // Ensure title is in ALL CAPS while preserving original language
-        cleanTitle = cleanTitle.toUpperCase();
-        
-        // Remove the section title from description if it appears at the beginning
-        let cleanDescription = description;
-        if (cleanDescription && cleanDescription.toLowerCase().includes(cleanTitle.toLowerCase())) {
-            // Remove the title from the beginning of description
-            cleanDescription = cleanDescription.replace(new RegExp(`^${cleanTitle}\\s*`, 'i'), '').trim();
-        }
+        const cleanTitle = title.replace(/^\d+\.\s+/, '');
         
         let formatted = `
             <div class="clean-section">
@@ -872,8 +862,8 @@ class Modal {
                 </div>
         `;
         
-        if (cleanDescription) {
-            formatted += `<div class="clean-section-description">${cleanDescription}</div>`;
+        if (description) {
+            formatted += `<div class="clean-section-description">${description}</div>`;
         }
         
         if (inlineNote) {
