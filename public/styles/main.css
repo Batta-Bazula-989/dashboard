@@ -1432,6 +1432,32 @@ body {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     margin-bottom: 16px;
     overflow: hidden;
+    border-left: 6px solid #e6f7e6;
+}
+
+/* Section-specific border colors to match headers */
+.analysis-section.copywriting {
+    border-left-color: #e6f7e6;
+}
+
+.analysis-section.marketing {
+    border-left-color: #fdf2e6;
+}
+
+.analysis-section.psychology {
+    border-left-color: #e6edff;
+}
+
+.analysis-section.sales {
+    border-left-color: #f9e6ed;
+}
+
+.analysis-section.metrics {
+    border-left-color: #f2e6ff;
+}
+
+.analysis-section.recommendations {
+    border-left-color: #fff9e6;
 }
 
 .section-header {

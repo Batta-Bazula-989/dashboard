@@ -87,7 +87,7 @@ class Modal {
         
         // Fallback to simple text display for backward compatibility
         console.log('Using fallback text display');
-        return `<div class="analysis-section">
+        return `<div class="analysis-section copywriting">
             <div class="section-header copywriting">
                 <h3 class="section-title">АНАЛІЗ</h3>
             </div>
@@ -194,7 +194,7 @@ class Modal {
         const sectionClass = sectionClassMap[title] || 'copywriting';
         
         let formatted = `
-            <div class="analysis-section">
+            <div class="analysis-section ${sectionClass}">
                 <div class="section-header ${sectionClass}">
                     <h3 class="section-title">${title}</h3>
                 </div>
@@ -271,7 +271,7 @@ class Modal {
      */
     formatRecommendationsSection(recommendations) {
         let formatted = `
-            <div class="analysis-section">
+            <div class="analysis-section recommendations">
                 <div class="section-header recommendations">
                     <h3 class="section-title">РЕКОМЕНДАЦІЇ</h3>
                 </div>
