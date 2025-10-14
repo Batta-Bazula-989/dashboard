@@ -182,10 +182,10 @@ class DataDisplay {
                         console.log(`Video analysis ad text: "${videoAdText.substring(0, 100)}..."`);
                         const existingCards = this.findAllExistingCards(processed.competitor_name, videoAdText);
                         if (existingCards.length > 0) {
-                            console.log(`Found ${existingCards.length} existing cards, adding video analysis section`);
-                            existingCards.forEach(card => {
-                                this.addVideoAnalysisToExistingCard(card, processed);
-                            });
+                            console.log(`Found ${existingCards.length} existing cards, but VIDEO ANALYSIS DISABLED`);
+                            // existingCards.forEach(card => {
+                            //     this.addVideoAnalysisToExistingCard(card, processed);
+                            // });
                         } else {
                             console.log(`⚠️ No existing card found for "${processed.competitor_name}" with matching ad text - video analysis SKIPPED`);
                         }
@@ -242,10 +242,10 @@ class DataDisplay {
                     console.log(`Video analysis ad text: "${videoAdText.substring(0, 100)}..."`);
                     const existingCards = this.findAllExistingCards(processed.competitor_name, videoAdText);
                     if (existingCards.length > 0) {
-                        console.log(`Found ${existingCards.length} existing cards, adding video analysis section`);
-                        existingCards.forEach(card => {
-                            this.addVideoAnalysisToExistingCard(card, processed);
-                        });
+                        console.log(`Found ${existingCards.length} existing cards, but VIDEO ANALYSIS DISABLED`);
+                        // existingCards.forEach(card => {
+                        //     this.addVideoAnalysisToExistingCard(card, processed);
+                        // });
                     } else {
                         console.log(`⚠️ No existing card found for "${processed.competitor_name}" with matching ad text - video analysis SKIPPED`);
                     }
@@ -470,8 +470,8 @@ class DataDisplay {
         
         // Add video analysis if we have video analysis data - NO FILTERING
         if (data.video_analysis && data.video_analysis.full_analysis) {
-            console.log('Adding video analysis - NO FILTERING');
-            this.addVideoAnalysisToExistingCard(existingCard, data);
+            console.log('Video analysis data found but VIDEO ANALYSIS DISABLED');
+            // this.addVideoAnalysisToExistingCard(existingCard, data);
         }
         
         // Update any other fields if needed
@@ -759,7 +759,7 @@ class DataDisplay {
             fullAnalysisBtn.innerHTML = '⋯';
             fullAnalysisBtn.onclick = () => {
                 if (this.onShowFullAnalysis) {
-                    this.onShowFullAnalysis(entry?.competitor_name || 'Unknown competitor', full);
+                    this.onShowFullAnalysis(entry?.competitor_name || 'Unknown competitor', entry);
                 }
             };
             actions.appendChild(fullAnalysisBtn);
@@ -768,8 +768,8 @@ class DataDisplay {
             card.appendChild(preview);
         }
 
-        // Video Analysis Section - NO FILTERING
-        if (entry?.video_analysis?.full_analysis || entry?.ai_analysis) {
+        // Video Analysis Section - DISABLED
+        if (false && (entry?.video_analysis?.full_analysis || entry?.ai_analysis)) {
             const videoAnalysisSection = document.createElement('div');
             videoAnalysisSection.className = 'video-analysis-section';
 

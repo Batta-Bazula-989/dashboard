@@ -55,17 +55,38 @@ class Modal {
      * @returns {string} Formatted HTML content
      */
     formatSectionContent(content) {
+        console.log('Modal formatSectionContent received:', typeof content, content);
+        
         // If content is already the ai_analysis object (has copywriting, marketing, etc.)
         if (typeof content === 'object' && content.copywriting) {
+            console.log('Detected ai_analysis object directly');
             return this.formatJsonAnalysis(content);
         }
         
         // If content has ai_analysis property, extract it
         if (typeof content === 'object' && content.ai_analysis) {
+            console.log('Detected object with ai_analysis property');
             return this.formatJsonAnalysis(content.ai_analysis);
         }
         
+        // If content is a string that looks like JSON, try to parse it
+        if (typeof content === 'string' && content.trim().startsWith('{')) {
+            try {
+                const parsed = JSON.parse(content);
+                console.log('Parsed JSON string:', parsed);
+                if (parsed.copywriting) {
+                    return this.formatJsonAnalysis(parsed);
+                }
+                if (parsed.ai_analysis) {
+                    return this.formatJsonAnalysis(parsed.ai_analysis);
+                }
+            } catch (e) {
+                console.log('Failed to parse JSON:', e);
+            }
+        }
+        
         // Fallback to simple text display for backward compatibility
+        console.log('Using fallback text display');
         return `<div class="analysis-section">
             <div class="section-header">
                 <h3 class="section-title">АНАЛІЗ</h3>
