@@ -108,6 +108,12 @@ class Modal {
         console.log('formatJsonAnalysis called with:', analysis);
         let formatted = '';
 
+        // Check if this is the new video analysis format (has technical, visual_and_editing, etc.)
+        if (analysis.technical || analysis.visual_and_editing || analysis.people_and_product) {
+            console.log('Detected new video analysis format');
+            return this.formatVideoAnalysis(analysis);
+        }
+
         // Skip advertiser and analyzed_text fields - they're already shown in the ad card
         // Only process the actual analysis sections
 
@@ -171,6 +177,148 @@ class Modal {
             formatted += this.formatRecommendationsSection(analysis.recommendations);
         }
 
+        return formatted;
+    }
+
+    /**
+     * Format video analysis with new structure
+     * @param {Object} analysis - Video analysis object
+     * @returns {string} Formatted HTML content
+     */
+    formatVideoAnalysis(analysis) {
+        console.log('formatVideoAnalysis called with:', analysis);
+        let formatted = '';
+
+        // Technical section
+        if (analysis.technical) {
+            formatted += this.formatVideoSection('ТЕХНІЧНІ ХАРАКТЕРИСТИКИ', analysis.technical, [
+                { key: 'format', label: 'Формат' },
+                { key: 'quality', label: 'Якість' },
+                { key: 'subtitles', label: 'Субтитри' }
+            ]);
+        }
+
+        // Visual and editing section
+        if (analysis.visual_and_editing) {
+            formatted += this.formatVideoSection('ВІЗУАЛ ТА МОНТАЖ', analysis.visual_and_editing, [
+                { key: 'hook_first_seconds', label: 'Хук перші секунди' },
+                { key: 'tempo', label: 'Темп' },
+                { key: 'scene_variety', label: 'Різноманітність сцен' },
+                { key: 'overall_style', label: 'Загальний стиль' }
+            ]);
+        }
+
+        // People and product section
+        if (analysis.people_and_product) {
+            formatted += this.formatVideoSection('ЛЮДИ ТА ПРОДУКТ', analysis.people_and_product, [
+                { key: 'people_description', label: 'Опис людей' },
+                { key: 'influencers', label: 'Інфлюенсери' },
+                { key: 'product_presentation', label: 'Презентація продукту' },
+                { key: 'branding_visibility', label: 'Видимість брендингу' }
+            ]);
+        }
+
+        // Marketing section
+        if (analysis.marketing) {
+            formatted += this.formatVideoSection('МАРКЕТИНГ', analysis.marketing, [
+                { key: 'offer_type', label: 'Тип оффера' },
+                { key: 'funnel_stage', label: 'Стадія воронки' },
+                { key: 'placement_fit', label: 'Підходящість розміщення' }
+            ]);
+        }
+
+        // Psychology section
+        if (analysis.psychology) {
+            formatted += this.formatVideoSection('ПСИХОЛОГІЯ', analysis.psychology, [
+                { key: 'drivers', label: 'Драйвери' },
+                { key: 'techniques', label: 'Техніки' }
+            ]);
+        }
+
+        // Sales section
+        if (analysis.sales) {
+            formatted += this.formatVideoSection('ПРОДАЖІ', analysis.sales, [
+                { key: 'cta', label: 'CTA' },
+                { key: 'price_signals', label: 'Цінові сигнали' },
+                { key: 'risk_reversal', label: 'Ризик-реверс' }
+            ]);
+        }
+
+        // Metrics section
+        if (analysis.metrics) {
+            formatted += this.formatVideoSection('МЕТРИКИ', analysis.metrics, [
+                { key: 'rotation_insight', label: 'Rotation insight' },
+                { key: 'novelty', label: 'Novelty' }
+            ]);
+        }
+
+        // Recommendations section
+        if (analysis.recommendations) {
+            formatted += this.formatRecommendationsSection(analysis.recommendations);
+        }
+
+        // Summary section
+        if (analysis.summary) {
+            formatted += this.formatVideoSection('ПІДСУМОК', analysis.summary, [
+                { key: 'what_advertised', label: 'Що рекламується' },
+                { key: 'creative_quality', label: 'Якість креативу' },
+                { key: 'strengths', label: 'Сильні сторони' },
+                { key: 'weaknesses', label: 'Слабкі сторони' }
+            ]);
+        }
+
+        return formatted;
+    }
+
+    /**
+     * Format a video analysis section with text-based items
+     * @param {string} title - Section title
+     * @param {Object} data - Section data
+     * @param {Array} fields - Fields to display
+     * @returns {string} Formatted HTML
+     */
+    formatVideoSection(title, data, fields) {
+        // Map section titles to CSS classes
+        const sectionClassMap = {
+            'ТЕХНІЧНІ ХАРАКТЕРИСТИКИ': 'technical',
+            'ВІЗУАЛ ТА МОНТАЖ': 'visual',
+            'ЛЮДИ ТА ПРОДУКТ': 'people',
+            'МАРКЕТИНГ': 'marketing',
+            'ПСИХОЛОГІЯ': 'psychology',
+            'ПРОДАЖІ': 'sales',
+            'МЕТРИКИ': 'metrics',
+            'ПІДСУМОК': 'summary'
+        };
+        
+        const sectionClass = sectionClassMap[title] || 'technical';
+        
+        let formatted = `
+            <div class="analysis-section ${sectionClass}">
+                <div class="section-header ${sectionClass}">
+                    <h3 class="section-title">${title}</h3>
+                </div>
+                <div class="section-content">
+        `;
+
+        fields.forEach(field => {
+            const value = data[field.key];
+            if (value !== undefined && value !== null) {
+                formatted += `
+                    <div class="analysis-item">
+                        <div class="item-header">
+                            <span class="item-label">${field.label}</span>
+                        </div>
+                        <div class="item-description">${value}</div>
+                    </div>
+                `;
+            }
+        });
+        
+        formatted += `
+                </div>
+            </div>
+        `;
+        
         return formatted;
     }
 

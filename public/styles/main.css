@@ -1460,6 +1460,23 @@ body {
     border-left-color: #fff9e6;
 }
 
+/* New video analysis section colors */
+.analysis-section.technical {
+    border-left-color: #e0f2fe;
+}
+
+.analysis-section.visual {
+    border-left-color: #f0f9ff;
+}
+
+.analysis-section.people {
+    border-left-color: #fef3c7;
+}
+
+.analysis-section.summary {
+    border-left-color: #f3e8ff;
+}
+
 .section-header {
     padding: 12px 20px;
     margin: -20px -20px 16px -20px;
@@ -1490,6 +1507,23 @@ body {
 
 .section-header.recommendations {
     background: linear-gradient(135deg, #fffdf0, #fff9e6);
+}
+
+/* New video analysis section header colors */
+.section-header.technical {
+    background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+}
+
+.section-header.visual {
+    background: linear-gradient(135deg, #f8fafc, #f0f9ff);
+}
+
+.section-header.people {
+    background: linear-gradient(135deg, #fffbeb, #fef3c7);
+}
+
+.section-header.summary {
+    background: linear-gradient(135deg, #faf5ff, #f3e8ff);
 }
 
 .section-title {
