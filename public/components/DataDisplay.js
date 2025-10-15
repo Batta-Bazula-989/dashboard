@@ -544,7 +544,7 @@ class DataDisplay {
             if (this.onShowFullAnalysis) {
                 this.onShowFullAnalysis(
                     `${videoData?.competitor_name || 'Unknown Competitor'} - Video Analysis`, 
-                    videoAnalysisText
+                    videoData
                 );
             }
         };

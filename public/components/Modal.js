@@ -59,13 +59,14 @@ class Modal {
         
         // If content is already the ai_analysis object (has copywriting, marketing, etc.)
         if (typeof content === 'object' && content.copywriting) {
-            console.log('Detected ai_analysis object directly');
+            console.log('Detected ai_analysis object directly (old format)');
             return this.formatJsonAnalysis(content);
         }
         
         // If content has ai_analysis property, extract it
         if (typeof content === 'object' && content.ai_analysis) {
             console.log('Detected object with ai_analysis property');
+            console.log('ai_analysis content:', content.ai_analysis);
             return this.formatJsonAnalysis(content.ai_analysis);
         }
         
@@ -106,6 +107,12 @@ class Modal {
      */
     formatJsonAnalysis(analysis) {
         console.log('formatJsonAnalysis called with:', analysis);
+        console.log('Analysis keys:', Object.keys(analysis));
+        console.log('Has technical:', !!analysis.technical);
+        console.log('Has visual_and_editing:', !!analysis.visual_and_editing);
+        console.log('Has people_and_product:', !!analysis.people_and_product);
+        console.log('Has copywriting:', !!analysis.copywriting);
+        
         let formatted = '';
 
         // Check if this is the new video analysis format (has technical, visual_and_editing, etc.)
