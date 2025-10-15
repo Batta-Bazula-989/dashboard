@@ -183,7 +183,7 @@ class Modal {
         if (analysis.recommendations) {
             formatted += this.formatRecommendationsSection(analysis.recommendations);
         }
-
+        
         return formatted;
     }
 
@@ -310,14 +310,19 @@ class Modal {
         fields.forEach(field => {
             const value = data[field.key];
             if (value !== undefined && value !== null) {
-                formatted += `
+                // Get icon for this field
+                const icon = this.getFieldIcon(field.key, title);
+            formatted += `
                     <div class="analysis-item">
-                        <div class="item-header">
-                            <span class="item-label">${field.label}</span>
+                        <div class="item-icon">${icon}</div>
+                        <div class="item-content">
+                            <div class="item-header">
+                                <span class="item-label">${field.label}</span>
+                            </div>
+                            <div class="item-description">${value}</div>
                         </div>
-                        <div class="item-description">${value}</div>
-                    </div>
-                `;
+                </div>
+            `;
             }
         });
         
@@ -361,13 +366,17 @@ class Modal {
             if (value !== undefined && value !== null) {
                 if (typeof value === 'object' && value.score !== undefined) {
                     // Score-based field with container
+                    const icon = this.getFieldIcon(field.key, title);
                     formatted += `
                         <div class="analysis-item">
-                            <div class="item-header">
-                                <span class="item-label">${field.label}</span>
-                                <span class="item-score">${value.score}/10</span>
+                            <div class="item-icon">${icon}</div>
+                            <div class="item-content">
+                                <div class="item-header">
+                                    <span class="item-label">${field.label}</span>
+                                    <span class="item-score">${value.score}/10</span>
+                                </div>
+                                <div class="item-description">${value.description || ''}</div>
                             </div>
-                            <div class="item-description">${value.description || ''}</div>
                         </div>
                     `;
                 } else if (typeof value === 'object' && field.key === 'mini_swot') {
@@ -399,14 +408,18 @@ class Modal {
                     `;
                 } else {
                     // Simple text field with container
-            formatted += `
+                    const icon = this.getFieldIcon(field.key, title);
+                    formatted += `
                         <div class="analysis-item">
-                            <div class="item-header">
-                                <span class="item-label">${field.label}</span>
+                            <div class="item-icon">${icon}</div>
+                            <div class="item-content">
+                                <div class="item-header">
+                                    <span class="item-label">${field.label}</span>
+                                </div>
+                                <div class="item-description">${value}</div>
                             </div>
-                            <div class="item-description">${value}</div>
-                </div>
-            `;
+                        </div>
+                    `;
                 }
             }
         });
@@ -534,6 +547,80 @@ class Modal {
      */
     isOpen() {
         return this.currentModal !== null;
+    }
+
+    /**
+     * Get icon for a field based on field key and section title
+     * @param {string} fieldKey - The field key
+     * @param {string} sectionTitle - The section title
+     * @returns {string} Icon HTML
+     */
+    getFieldIcon(fieldKey, sectionTitle) {
+        const iconMap = {
+            // Copywriting icons
+            'offer_clarity': '💡',
+            'specificity': '🎯',
+            'language_simplicity': '📝',
+            'tone_of_voice': '🗣️',
+            'structure': '📋',
+            'offer_usp_separation': '⚖️',
+            
+            // Marketing icons
+            'offer_type': '📦',
+            'funnel_stage': '🔄',
+            'funnel_reasoning': '🧠',
+            'consistency': '🔄',
+            'originality': '✨',
+            'seasonality': '📅',
+            'mini_swot': '📊',
+            
+            // Psychology icons
+            'main_drivers': '🎭',
+            'structure_used': '🏗️',
+            'hook_phrase': '🎣',
+            'storytelling': '📖',
+            'influence_techniques': '🎪',
+            'tonality': '🎵',
+            'drivers': '🎭',
+            'techniques': '🎪',
+            
+            // Sales icons
+            'value_proposition': '💎',
+            'cta_strength': '📢',
+            'risk_reversal': '🛡️',
+            'price_psychology': '💰',
+            'cta': '📢',
+            'price_signals': '💰',
+            
+            // Metrics icons
+            'rotation_insight': '📈',
+            'novelty': '🆕',
+            
+            // Technical icons
+            'format': '📱',
+            'quality': '🎥',
+            'subtitles': '📝',
+            
+            // Visual icons
+            'hook_first_seconds': '⚡',
+            'tempo': '⏱️',
+            'scene_variety': '🎬',
+            'overall_style': '🎨',
+            
+            // People icons
+            'people_description': '👥',
+            'influencers': '⭐',
+            'product_presentation': '📦',
+            'branding_visibility': '🏷️',
+            
+            // Summary icons
+            'what_advertised': '📢',
+            'creative_quality': '⭐',
+            'strengths': '💪',
+            'weaknesses': '⚠️'
+        };
+        
+        return iconMap[fieldKey] || '📋';
     }
 }
 
