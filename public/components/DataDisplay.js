@@ -167,8 +167,8 @@ class DataDisplay {
                     // ALWAYS create new cards - text analysis creates the card, video analysis adds to existing cards
                     console.log(`Processing item for: ${processed.competitor_name}, content_type: ${processed.content_type}`);
                     
-                    // Simple: if content_type is 'video' AND has ai_analysis, it's video analysis
-                    const hasVideoAnalysis = processed.content_type === 'video' && processed.ai_analysis?.full_analysis;
+                    // Simple: if content_type is 'video', it's video analysis
+                    const hasVideoAnalysis = processed.content_type === 'video';
                     
                     console.log('=== VIDEO ANALYSIS DETECTION ===');
                     console.log('content_type:', processed.content_type);
@@ -227,8 +227,8 @@ class DataDisplay {
                 // ALWAYS create new cards - text analysis creates the card, video analysis adds to existing cards
                 console.log(`Processing single item for: ${processed.competitor_name}, content_type: ${processed.content_type}`);
                 
-                // Simple: if content_type is 'video' AND has ai_analysis, it's video analysis
-                const hasVideoAnalysis = processed.content_type === 'video' && processed.ai_analysis?.full_analysis;
+                // Simple: if content_type is 'video', it's video analysis
+                const hasVideoAnalysis = processed.content_type === 'video';
                 
                 console.log('=== SINGLE ITEM VIDEO ANALYSIS DETECTION ===');
                 console.log('content_type:', processed.content_type);
