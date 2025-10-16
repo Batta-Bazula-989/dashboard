@@ -523,8 +523,7 @@ class DataDisplay {
             }
         }
         
-        const shortVideoText = videoAnalysisText.length > 200 ? `${videoAnalysisText.slice(0, 200)}…` : videoAnalysisText;
-        const cleanVideoPreview = shortVideoText.trim();
+        const cleanVideoPreview = videoAnalysisText.trim();
         videoContent.textContent = cleanVideoPreview;
         videoAnalysisSection.appendChild(videoContent);
 
@@ -721,8 +720,7 @@ class DataDisplay {
                 previewText = previewParts.join(' • ') || 'Аналіз доступний';
             }
             
-            const shortText = previewText.length > 150 ? `${previewText.slice(0, 150)}…` : previewText;
-            const cleanPreview = shortText.trim();
+            const cleanPreview = previewText.trim();
             content.textContent = cleanPreview;
             preview.appendChild(content);
 
@@ -773,9 +771,8 @@ class DataDisplay {
                 videoAnalysisText = JSON.stringify(videoAnalysisText, null, 2);
             }
             
-            const shortVideoText = videoAnalysisText.length > 200 ? `${videoAnalysisText.slice(0, 200)}…` : videoAnalysisText;
             // Clean the preview text by formatting markdown syntax
-            const cleanVideoPreview = shortVideoText
+            const cleanVideoPreview = videoAnalysisText
                 .replace(/^#{1,6}\s+/gm, '') // Remove markdown header symbols but keep text
                 .replace(/^\s*[-–—•*]\s*/gm, '') // Remove dashes from start of lines
                 .replace(/\*\*(.+?)\*\*/g, '$1') // Remove bold markdown

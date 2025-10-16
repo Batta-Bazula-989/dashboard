@@ -210,7 +210,6 @@ body {
     padding: 14px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.04);
     margin-bottom: 6px;
-    min-height: 120px;
 }
 .card-header {
     display: flex;
@@ -324,7 +323,6 @@ body {
     color: #334155;
     font-size: 13px;
     margin-top: 4px;
-    min-height: 120px;
 }
 
 .ai-preview .analysis-header {
@@ -1352,7 +1350,6 @@ body {
     border-radius: 8px;
     padding: 12px;
     margin-top: 12px;
-    min-height: 120px;
 }
 
 .video-analysis-section .analysis-header {
