@@ -285,26 +285,10 @@ class Modal {
      * @returns {string} Formatted HTML
      */
     formatVideoSection(title, data, fields) {
-        // Map section titles to CSS classes
-        const sectionClassMap = {
-            'ТЕХНІЧНІ ХАРАКТЕРИСТИКИ': 'technical',
-            'ВІЗУАЛ ТА МОНТАЖ': 'visual',
-            'ЛЮДИ ТА ПРОДУКТ': 'people',
-            'МАРКЕТИНГ': 'marketing',
-            'ПСИХОЛОГІЯ': 'psychology',
-            'ПРОДАЖІ': 'sales',
-            'МЕТРИКИ': 'metrics',
-            'ПІДСУМОК': 'summary'
-        };
-        
-        const sectionClass = sectionClassMap[title] || 'technical';
-        
         let formatted = `
-            <div class="analysis-section ${sectionClass}">
-                <div class="section-header ${sectionClass}">
-                    <h3 class="section-title">${title}</h3>
-                </div>
-                <div class="section-content">
+            <div class="clean-section">
+                <div class="section-pill">${title}</div>
+                <div class="clean-cards">
         `;
 
         fields.forEach(field => {
@@ -312,17 +296,15 @@ class Modal {
             if (value !== undefined && value !== null) {
                 // Get icon for this field
                 const icon = this.getFieldIcon(field.key, title);
-            formatted += `
-                    <div class="analysis-item">
-                        <div class="item-icon">${icon}</div>
-                        <div class="item-content">
-                            <div class="item-header">
-                                <span class="item-label">${field.label}</span>
-                            </div>
-                            <div class="item-description">${value}</div>
+                formatted += `
+                    <div class="clean-card">
+                        <div class="clean-icon">${icon}</div>
+                        <div class="clean-content">
+                            <div class="clean-title">${field.label}</div>
+                            <div class="clean-description">${value}</div>
                         </div>
-                </div>
-            `;
+                    </div>
+                `;
             }
         });
         
@@ -342,81 +324,63 @@ class Modal {
      * @returns {string} Formatted HTML
      */
     formatJsonSection(title, data, fields) {
-        // Map section titles to CSS classes
-        const sectionClassMap = {
-            'КОПІРАЙТИНГ': 'copywriting',
-            'МАРКЕТИНГ': 'marketing', 
-            'ПСИХОЛОГІЯ': 'psychology',
-            'ПРОДАЖІ': 'sales',
-            'МЕТРИКИ': 'metrics'
-        };
-        
-        const sectionClass = sectionClassMap[title] || 'copywriting';
-        
         let formatted = `
-            <div class="analysis-section ${sectionClass}">
-                <div class="section-header ${sectionClass}">
-                    <h3 class="section-title">${title}</h3>
-                </div>
-                <div class="section-content">
+            <div class="clean-section">
+                <div class="section-pill">${title}</div>
+                <div class="clean-cards">
         `;
 
         fields.forEach(field => {
             const value = data[field.key];
             if (value !== undefined && value !== null) {
                 if (typeof value === 'object' && value.score !== undefined) {
-                    // Score-based field with container
+                    // Score-based field - remove score, just show description
                     const icon = this.getFieldIcon(field.key, title);
                     formatted += `
-                        <div class="analysis-item">
-                            <div class="item-icon">${icon}</div>
-                            <div class="item-content">
-                                <div class="item-header">
-                                    <span class="item-label">${field.label}</span>
-                                    <span class="item-score">${value.score}/10</span>
-                                </div>
-                                <div class="item-description">${value.description || ''}</div>
+                        <div class="clean-card">
+                            <div class="clean-icon">${icon}</div>
+                            <div class="clean-content">
+                                <div class="clean-title">${field.label}</div>
+                                <div class="clean-description">${value.description || ''}</div>
                             </div>
                         </div>
                     `;
                 } else if (typeof value === 'object' && field.key === 'mini_swot') {
-                    // Mini-SWOT special handling with container
+                    // Mini-SWOT special handling
                     formatted += `
-                        <div class="analysis-item swot-item">
-                            <div class="item-header">
-                                <span class="item-label">${field.label}</span>
-                            </div>
-                            <div class="swot-content">
-                                <div class="swot-row">
-                                    <span class="swot-label">S:</span>
-                                    <span class="swot-text">${value.strengths || ''}</span>
-                                </div>
-                                <div class="swot-row">
-                                    <span class="swot-label">W:</span>
-                                    <span class="swot-text">${value.weaknesses || ''}</span>
-                                </div>
-                                <div class="swot-row">
-                                    <span class="swot-label">O:</span>
-                                    <span class="swot-text">${value.opportunities || ''}</span>
-                                </div>
-                                <div class="swot-row">
-                                    <span class="swot-label">T:</span>
-                                    <span class="swot-text">${value.threats || ''}</span>
+                        <div class="clean-card swot-card">
+                            <div class="clean-content">
+                                <div class="clean-title">${field.label}</div>
+                                <div class="swot-content">
+                                    <div class="swot-row">
+                                        <span class="swot-label">S:</span>
+                                        <span class="swot-text">${value.strengths || ''}</span>
+                                    </div>
+                                    <div class="swot-row">
+                                        <span class="swot-label">W:</span>
+                                        <span class="swot-text">${value.weaknesses || ''}</span>
+                                    </div>
+                                    <div class="swot-row">
+                                        <span class="swot-label">O:</span>
+                                        <span class="swot-text">${value.opportunities || ''}</span>
+                                    </div>
+                                    <div class="swot-row">
+                                        <span class="swot-label">T:</span>
+                                        <span class="swot-text">${value.threats || ''}</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     `;
                 } else {
-                    // Simple text field with container
+                    // Simple text field
                     const icon = this.getFieldIcon(field.key, title);
                     formatted += `
-                        <div class="analysis-item">
-                            <div class="item-icon">${icon}</div>
-                            <div class="item-content">
-                                <div class="item-header">
-                                    <span class="item-label">${field.label}</span>
-                                </div>
-                                <div class="item-description">${value}</div>
+                        <div class="clean-card">
+                            <div class="clean-icon">${icon}</div>
+                            <div class="clean-content">
+                                <div class="clean-title">${field.label}</div>
+                                <div class="clean-description">${value}</div>
                             </div>
                         </div>
                     `;
@@ -439,21 +403,18 @@ class Modal {
      */
     formatRecommendationsSection(recommendations) {
         let formatted = `
-            <div class="analysis-section recommendations">
-                <div class="section-header recommendations">
-                    <h3 class="section-title">РЕКОМЕНДАЦІЇ</h3>
-                </div>
-                <div class="section-content">
+            <div class="clean-section">
+                <div class="section-pill">РЕКОМЕНДАЦІЇ</div>
+                <div class="clean-cards">
         `;
 
         // Inline notes
         if (recommendations.inline_notes && recommendations.inline_notes.length > 0) {
             formatted += `
-                <div class="analysis-item">
-                    <div class="item-header">
-                        <span class="item-label">ІНЛАЙН-ПОМЕТКИ</span>
-                    </div>
-                    <div class="item-description">
+                <div class="clean-card">
+                    <div class="clean-content">
+                        <div class="clean-title">ІНЛАЙН-ПОМЕТКИ</div>
+                        <div class="clean-description">
             `;
             recommendations.inline_notes.forEach(note => {
                 formatted += `
@@ -464,6 +425,7 @@ class Modal {
                 `;
             });
             formatted += `
+                        </div>
                     </div>
                 </div>
             `;
@@ -472,16 +434,16 @@ class Modal {
         // Quick wins
         if (recommendations.quick_wins && recommendations.quick_wins.length > 0) {
             formatted += `
-                <div class="analysis-item">
-                    <div class="item-header">
-                        <span class="item-label">QUICK WINS (1 день)</span>
-                    </div>
-                    <div class="item-description">
+                <div class="clean-card">
+                    <div class="clean-content">
+                        <div class="clean-title">QUICK WINS (1 день)</div>
+                        <div class="clean-description">
             `;
             recommendations.quick_wins.forEach((win, index) => {
                 formatted += `<div class="recommendation-item">${index + 1}. ${win}</div>`;
             });
             formatted += `
+                        </div>
                     </div>
                 </div>
             `;
@@ -490,34 +452,34 @@ class Modal {
         // Tactical
         if (recommendations.tactical && recommendations.tactical.length > 0) {
             formatted += `
-                <div class="analysis-item">
-                    <div class="item-header">
-                        <span class="item-label">TACTICAL ПОКРАЩЕННЯ (тиждень)</span>
-                    </div>
-                    <div class="item-description">
+                <div class="clean-card">
+                    <div class="clean-content">
+                        <div class="clean-title">TACTICAL ПОКРАЩЕННЯ (тиждень)</div>
+                        <div class="clean-description">
             `;
             recommendations.tactical.forEach((item, index) => {
                 formatted += `<div class="recommendation-item">${index + 1}. ${item}</div>`;
             });
             formatted += `
+                        </div>
                     </div>
                 </div>
-        `;
+            `;
         }
 
         // Strategic
         if (recommendations.strategic && recommendations.strategic.length > 0) {
             formatted += `
-                <div class="analysis-item">
-                    <div class="item-header">
-                        <span class="item-label">STRATEGIC ІДЕЯ (квартал)</span>
-                    </div>
-                    <div class="item-description">
+                <div class="clean-card">
+                    <div class="clean-content">
+                        <div class="clean-title">STRATEGIC ІДЕЯ (квартал)</div>
+                        <div class="clean-description">
             `;
             recommendations.strategic.forEach((item, index) => {
                 formatted += `<div class="recommendation-item">${index + 1}. ${item}</div>`;
             });
             formatted += `
+                        </div>
                     </div>
                 </div>
             `;

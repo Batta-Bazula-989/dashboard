@@ -1422,7 +1422,162 @@ body {
     transform: translateY(-1px);
 }
 
-/* JSON Analysis Structure Styles */
+/* Clean Design Styles */
+.clean-section {
+    margin-bottom: 24px;
+}
+
+.section-pill {
+    background: #3b82f6;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-block;
+    margin-bottom: 16px;
+}
+
+.clean-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.clean-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    transition: all 0.2s ease;
+}
+
+.clean-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transform: translateY(-1px);
+}
+
+.clean-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background: #f0f9ff;
+    border: 1px solid #bae6fd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+}
+
+.clean-card:hover .clean-icon {
+    background: #3b82f6;
+    border-color: #3b82f6;
+}
+
+.clean-icon svg {
+    width: 20px;
+    height: 20px;
+    color: #64748b;
+    transition: color 0.3s ease;
+}
+
+.clean-card:hover .clean-icon svg {
+    color: white;
+}
+
+.clean-content {
+    flex: 1;
+}
+
+.clean-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 4px;
+}
+
+.clean-description {
+    font-size: 13px;
+    color: #6b7280;
+    line-height: 1.5;
+}
+
+/* SWOT Card Special Styling */
+.clean-card.swot-card {
+    flex-direction: column;
+    gap: 8px;
+}
+
+.clean-card.swot-card .clean-content {
+    width: 100%;
+}
+
+.swot-content {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.swot-row {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+}
+
+.swot-label {
+    font-weight: 600;
+    color: #374151;
+    min-width: 20px;
+    flex-shrink: 0;
+}
+
+.swot-text {
+    color: #6b7280;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+/* Recommendation Items */
+.recommendation-item {
+    margin-bottom: 4px;
+    color: #6b7280;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.recommendation-item:last-child {
+    margin-bottom: 0;
+}
+
+/* Inline Notes */
+.inline-note {
+    margin-bottom: 8px;
+    padding: 8px;
+    background: #f8fafc;
+    border-radius: 6px;
+    border-left: 3px solid #3b82f6;
+}
+
+.quoted-text {
+    font-style: italic;
+    color: #374151;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.comment {
+    color: #6b7280;
+    font-size: 12px;
+}
+
+/* JSON Analysis Structure Styles - Keep for backward compatibility */
 .analysis-section {
     background: white;
     border-radius: 12px;
