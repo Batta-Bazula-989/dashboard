@@ -318,10 +318,10 @@ body {
 .meta { color: #6b7280; font-size: 12px; margin-bottom: 4px; }
 
 .content-divider {
-    width: 100%;
+    width: calc(100% + 20px);
     height: 1px;
     background: #e5e7eb;
-    margin: 8px 0;
+    margin: 8px -10px;
 }
 .ad-text { 
     color: #111827; 
@@ -331,12 +331,12 @@ body {
     margin: 2px 0;
 }
 .video-thumb {
-    width: 100%;
+    width: calc(100% + 20px);
     height: auto;
     max-height: 200px;
     object-fit: cover;
     border-radius: 0;
-    margin: 4px 0 0 0;
+    margin: 4px -10px 0 -10px;
     border: none;
     cursor: pointer;
     display: block;
