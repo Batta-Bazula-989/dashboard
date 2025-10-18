@@ -484,54 +484,65 @@ class DataDisplay {
         const videoAnalysisSection = document.createElement('div');
         videoAnalysisSection.className = 'video-analysis-section';
 
-        // Video analysis header
+        // Video analysis header with blue pill
         const videoHeader = document.createElement('div');
         videoHeader.className = 'analysis-header';
         videoHeader.innerHTML = `
-            <div class="analysis-badge">Video Creative</div>
+            <div class="analysis-badge">VIDEO CREATIVE</div>
         `;
         videoAnalysisSection.appendChild(videoHeader);
 
-        // Video info - REMOVED to hide Video ID and date line
-
-        // Video analysis content preview - NO FILTERING, just pass through whatever data we have
+        // Video analysis content - show metrics like in screenshot
         const videoContent = document.createElement('div');
-        videoContent.className = 'analysis-content';
+        videoContent.className = 'ai-preview-content';
         
         // Handle JSON structure for video analysis
-        let videoAnalysisText = 'No analysis available';
-        
-        if (videoData.ai_analysis) {
-            if (typeof videoData.ai_analysis === 'object') {
-                // Create a preview from JSON structure
-                const analysis = videoData.ai_analysis;
-                let previewParts = [];
-                
-                if (analysis.copywriting?.offer_clarity) {
-                    previewParts.push(`Ясність оффера: ${analysis.copywriting.offer_clarity.score}/10`);
-                }
-                if (analysis.marketing?.offer_type) {
-                    previewParts.push(`Тип оффера: ${analysis.marketing.offer_type}`);
-                }
-                if (analysis.sales?.value_proposition) {
-                    previewParts.push(`Value proposition: ${analysis.sales.value_proposition.score}/10`);
-                }
-                
-                videoAnalysisText = previewParts.join(' • ') || 'Аналіз доступний';
-            } else {
-                videoAnalysisText = videoData.ai_analysis;
+        if (videoData.ai_analysis && typeof videoData.ai_analysis === 'object') {
+            // Create metric rows like in screenshot
+            const analysis = videoData.ai_analysis;
+            let metricsHTML = '';
+            
+            if (analysis.copywriting?.offer_clarity) {
+                metricsHTML += `
+                    <div class="metric-row">
+                        <span class="metric-label">Ясність оффера:</span>
+                        <span class="metric-value">${analysis.copywriting.offer_clarity.score}/10</span>
+                    </div>
+                `;
             }
+            if (analysis.marketing?.offer_type) {
+                metricsHTML += `
+                    <div class="metric-row">
+                        <span class="metric-label">Тип оффера:</span>
+                        <span class="metric-value">${analysis.marketing.offer_type}</span>
+                    </div>
+                `;
+            }
+            if (analysis.sales?.value_proposition) {
+                metricsHTML += `
+                    <div class="metric-row">
+                        <span class="metric-label">Value proposition:</span>
+                        <span class="metric-value">${analysis.sales.value_proposition.score}/10</span>
+                    </div>
+                `;
+            }
+            
+            if (metricsHTML) {
+                videoContent.innerHTML = metricsHTML;
+            } else {
+                videoContent.textContent = 'Аналіз доступний';
+            }
+        } else {
+            videoContent.textContent = 'Аналіз доступний';
         }
         
-        const cleanVideoPreview = videoAnalysisText.trim();
-        videoContent.textContent = cleanVideoPreview;
         videoAnalysisSection.appendChild(videoContent);
 
-        // Video analysis actions - match text analysis structure
+        // Video analysis actions - three dots button aligned with header
         const videoActions = document.createElement('div');
         videoActions.className = 'ai-preview-actions';
 
-        // Add empty div to push button to the right (like text analysis has View Profile on left)
+        // Add empty div to push button to the right
         const spacer = document.createElement('div');
         videoActions.appendChild(spacer);
 
@@ -688,47 +699,64 @@ class DataDisplay {
             const preview = document.createElement('div');
             preview.className = 'ai-preview';
 
-            // Analysis header
+            // Analysis header with blue pill
             const analysisHeader = document.createElement('div');
             analysisHeader.className = 'analysis-header';
             analysisHeader.innerHTML = `
-                <div class="analysis-badge">Text Creative</div>
+                <div class="analysis-badge">TEXT CREATIVE</div>
             `;
             preview.appendChild(analysisHeader);
 
-            // Content - show small preview
+            // Content - show metrics like in screenshot
             const content = document.createElement('div');
             content.className = 'ai-preview-content';
             
-            let previewText = 'Аналіз доступний';
-            
             // Handle JSON structure for text analysis
             if (typeof full === 'object' && full.copywriting) {
-                // full is the ai_analysis object directly
-                let previewParts = [];
+                // Create metric rows like in screenshot
+                let metricsHTML = '';
                 
                 if (full.copywriting?.offer_clarity) {
-                    previewParts.push(`Ясність оффера: ${full.copywriting.offer_clarity.score}/10`);
+                    metricsHTML += `
+                        <div class="metric-row">
+                            <span class="metric-label">Ясність оффера:</span>
+                            <span class="metric-value">${full.copywriting.offer_clarity.score}/10</span>
+                        </div>
+                    `;
                 }
                 if (full.marketing?.offer_type) {
-                    previewParts.push(`Тип оффера: ${full.marketing.offer_type}`);
+                    metricsHTML += `
+                        <div class="metric-row">
+                            <span class="metric-label">Тип оффера:</span>
+                            <span class="metric-value">${full.marketing.offer_type}</span>
+                        </div>
+                    `;
                 }
                 if (full.sales?.value_proposition) {
-                    previewParts.push(`Value proposition: ${full.sales.value_proposition.score}/10`);
+                    metricsHTML += `
+                        <div class="metric-row">
+                            <span class="metric-label">Value proposition:</span>
+                            <span class="metric-value">${full.sales.value_proposition.score}/10</span>
+                        </div>
+                    `;
                 }
                 
-                previewText = previewParts.join(' • ') || 'Аналіз доступний';
+                if (metricsHTML) {
+                    content.innerHTML = metricsHTML;
+                } else {
+                    content.textContent = 'Аналіз доступний';
+                }
+            } else {
+                content.textContent = 'Аналіз доступний';
             }
             
-            const cleanPreview = previewText.trim();
-            content.textContent = cleanPreview;
             preview.appendChild(content);
 
-            // Actions
+            // Actions - three dots button aligned with header
             const actions = document.createElement('div');
             actions.className = 'ai-preview-actions';
 
-            // Add empty div to push button to the right (View Profile is now in title row)
+            // Add empty div to push button to the right
             const spacer = document.createElement('div');
             actions.appendChild(spacer);
 
