@@ -209,8 +209,19 @@ body {
     border-radius: 8px;
     padding: 10px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-    margin-bottom: 6px;
+    margin-bottom: 2px;
     max-width: 400px;
+    position: relative;
+}
+
+.card::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: #e5e7eb;
 }
 .card-header {
     display: flex;
@@ -310,13 +321,15 @@ body {
     font-size: 13px; 
     white-space: pre-wrap; 
     line-height: 1.4;
-    margin: 4px 0;
+    margin: 2px 0;
 }
 .video-thumb {
     width: 100%;
     height: auto;
+    max-height: 200px;
+    object-fit: cover;
     border-radius: 8px;
-    margin: 8px 0 0 0;
+    margin: 4px 0 0 0;
     border: 1px solid #e5e7eb;
     cursor: pointer;
     display: block;
