@@ -207,19 +207,20 @@ body {
     background: #ffffff;
     border: 1px solid #e5e7eb;
     border-radius: 8px;
-    padding: 14px;
+    padding: 10px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.04);
     margin-bottom: 6px;
+    max-width: 400px;
 }
 .card-header {
     display: flex;
     align-items: center;
-    gap: 12px;
-    margin-bottom: 4px;
+    gap: 8px;
+    margin-bottom: 2px;
 }
 .avatar {
-    width: 44px;
-    height: 44px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     object-fit: cover;
     border: 1px solid #e2e8f0;
@@ -304,13 +305,18 @@ body {
     border-color: #e2e8f0;
 }
 .meta { color: #6b7280; font-size: 12px; margin-bottom: 4px; }
-.ad-text { color: #111827; font-size: 14px; white-space: pre-wrap; }
+.ad-text { 
+    color: #111827; 
+    font-size: 13px; 
+    white-space: pre-wrap; 
+    line-height: 1.4;
+    margin: 4px 0;
+}
 .video-thumb {
     width: 100%;
-    max-width: 200px;
     height: auto;
-    border-radius: 10px;
-    margin: 10px auto 0 auto;
+    border-radius: 8px;
+    margin: 8px 0 0 0;
     border: 1px solid #e5e7eb;
     cursor: pointer;
     display: block;
@@ -319,7 +325,7 @@ body {
     background: #faf5ff;
     border: 1px solid #e9d5ff;
     border-radius: 8px;
-    padding: 8px;
+    padding: 6px;
     color: #334155;
     font-size: 13px;
     margin-top: 4px;
@@ -389,8 +395,8 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 4px;
-    padding: 2px 0;
+    margin-bottom: 2px;
+    padding: 1px 0;
 }
 
 .metric-row:last-child {
@@ -1373,8 +1379,8 @@ body {
     background: #f0f9ff;
     border: 1px solid #bae6fd;
     border-radius: 8px;
-    padding: 8px;
-    margin-top: 8px;
+    padding: 6px;
+    margin-top: 4px;
 }
 
 .video-analysis-section .analysis-header {
