@@ -316,6 +316,13 @@ body {
     border-color: #e2e8f0;
 }
 .meta { color: #6b7280; font-size: 12px; margin-bottom: 4px; }
+
+.content-divider {
+    width: 100%;
+    height: 1px;
+    background: #e5e7eb;
+    margin: 8px 0;
+}
 .ad-text { 
     color: #111827; 
     font-size: 13px; 

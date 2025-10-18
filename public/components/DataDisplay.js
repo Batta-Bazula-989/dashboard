@@ -665,6 +665,11 @@ class DataDisplay {
         header.appendChild(titleWrap);
         card.appendChild(header);
 
+        // Add elegant divider line between header and content
+        const divider = document.createElement('div');
+        divider.className = 'content-divider';
+        card.appendChild(divider);
+
         // Show ad text if available, otherwise show a placeholder
         const adText = entry?.ad_data?.ad_text || entry?.ad_text || entry?.text || entry?.original_text;
         if (adText) {
