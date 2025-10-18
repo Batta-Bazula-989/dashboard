@@ -343,12 +343,13 @@ body {
 }
 .ai-preview {
     background: #faf5ff;
-    border: 1px solid #e9d5ff;
-    border-radius: 8px;
+    border: none;
+    border-radius: 0;
     padding: 6px;
     color: #334155;
     font-size: 13px;
-    margin-top: 4px;
+    margin: 4px -10px 0 -10px;
+    width: calc(100% + 20px);
 }
 
 .ai-preview .analysis-header {
@@ -1397,10 +1398,11 @@ body {
 /* Video Analysis Section within Cards */
 .video-analysis-section {
     background: #f0f9ff;
-    border: 1px solid #bae6fd;
-    border-radius: 8px;
+    border: none;
+    border-radius: 0;
     padding: 6px;
-    margin-top: 4px;
+    margin: 4px -10px 0 -10px;
+    width: calc(100% + 20px);
 }
 
 .video-analysis-section .analysis-header {
