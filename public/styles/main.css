@@ -210,7 +210,7 @@ body {
     padding: 10px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.04);
     margin-bottom: 2px;
-    max-width: 400px;
+    max-width: 500px;
     position: relative;
 }
 
@@ -335,9 +335,9 @@ body {
     height: auto;
     max-height: 200px;
     object-fit: cover;
-    border-radius: 8px;
+    border-radius: 0;
     margin: 4px 0 0 0;
-    border: 1px solid #e5e7eb;
+    border: none;
     cursor: pointer;
     display: block;
 }
