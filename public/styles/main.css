@@ -370,7 +370,7 @@ body {
     background: #ABC8C7; /* Ash gray */
     color: white;
     font-size: 9px;
-    font-weight: 600;
+    font-weight: 700; /* Increased from 600 to 700 (about 17% more bulky) */
     padding: 4px 12px;
     border-radius: 3px;
     text-transform: uppercase;
@@ -464,7 +464,7 @@ body {
 
 .full-analysis-btn {
     background: #f8fafc;
-    border: 1px solid #e2e8f0;
+    border: 2px solid #ABC8C7; /* Ash gray border, more bulky */
     border-radius: 50%;
     width: 20px;
     height: 20px;
@@ -480,7 +480,7 @@ body {
 
 .full-analysis-btn:hover {
     background: #e2e8f0;
-    border-color: #cbd5e1;
+    border-color: #ABC8C7; /* Keep ash gray border on hover */
     color: #64748b;
 }
 
@@ -1431,7 +1431,7 @@ body {
     background: #ABC8C7; /* Ash gray */
     color: white;
     font-size: 9px;
-    font-weight: 600;
+    font-weight: 700; /* Increased from 600 to 700 (about 17% more bulky) */
     padding: 4px 12px;
     border-radius: 3px;
     text-transform: uppercase;
