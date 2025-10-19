@@ -355,7 +355,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 0;
+    margin-bottom: 6px;
     position: relative;
 }
 
@@ -367,7 +367,7 @@ body {
 }
 
 .ai-preview .analysis-badge {
-    background: #4f46e5;
+    background: #6366f1;
     color: white;
     font-size: 9px;
     font-weight: 600;
@@ -1416,7 +1416,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 0;
+    margin-bottom: 6px;
     position: relative;
 }
 
@@ -1428,7 +1428,7 @@ body {
 }
 
 .video-analysis-section .analysis-badge {
-    background: #4f46e5;
+    background: #6366f1;
     color: white;
     font-size: 9px;
     font-weight: 600;
