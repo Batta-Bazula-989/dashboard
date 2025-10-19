@@ -209,7 +209,7 @@ body {
     border-radius: 8px;
     padding: 10px 10px 0 10px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-    margin-bottom: 3px;
+    margin-bottom: 4px;
     max-width: 440px;
     position: relative;
 }
@@ -367,12 +367,12 @@ body {
 }
 
 .ai-preview .analysis-badge {
-    background: #3b82f6;
+    background: #4f46e5;
     color: white;
     font-size: 9px;
     font-weight: 600;
     padding: 4px 12px;
-    border-radius: 6px;
+    border-radius: 3px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
@@ -1428,12 +1428,12 @@ body {
 }
 
 .video-analysis-section .analysis-badge {
-    background: #3b82f6;
+    background: #4f46e5;
     color: white;
     font-size: 9px;
     font-weight: 600;
     padding: 4px 12px;
-    border-radius: 6px;
+    border-radius: 3px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
