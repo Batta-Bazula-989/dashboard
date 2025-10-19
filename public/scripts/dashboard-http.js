@@ -10,6 +10,8 @@ class DataDashboard {
         this.maxItems = 50;
         this.lastDataCount = 0;
         this.isFirstFetch = true; // Track first fetch to avoid duplicates on refresh
+        this.isFetching = false; // Guard against race conditions
+        this.scrollHandler = null; // Store scroll handler for cleanup
 
         // Component instances
         this.statsCards = null;
@@ -105,6 +107,9 @@ class DataDashboard {
      * Fetch data from API
      */
     async fetchData() {
+        if (this.isFetching) return; // Guard against race conditions
+        this.isFetching = true;
+        
         try {
             const response = await fetch('/api/data', {
                 method: 'GET',
@@ -193,6 +198,8 @@ class DataDashboard {
         } catch (error) {
             console.error('Error fetching data:', error);
             // Connection status removed
+        } finally {
+            this.isFetching = false; // Always release lock
         }
     }
 
@@ -274,7 +281,7 @@ class DataDashboard {
 
             // Add scroll behavior to hide/show button
             let lastScrollY = window.scrollY;
-            window.addEventListener('scroll', () => {
+            this.scrollHandler = () => {
                 const currentScrollY = window.scrollY;
                 
                 // Hide button when scrolling down, show when scrolling up
@@ -285,7 +292,8 @@ class DataDashboard {
                 }
                 
                 lastScrollY = currentScrollY;
-            });
+            };
+            window.addEventListener('scroll', this.scrollHandler);
 
             console.log('✅ Clear data button initialized and found!');
             console.log('Button element:', clearBtn);
@@ -435,34 +443,39 @@ class DataDashboard {
             overlay.appendChild(modal);
             document.body.appendChild(overlay);
             
+            // Cleanup function
+            const cleanup = () => {
+                overlay.remove();
+                document.removeEventListener('keydown', handleEscape);
+            };
+            
+            // Handle escape key
+            const handleEscape = (e) => {
+                if (e.key === 'Escape') {
+                    cleanup();
+                    resolve(false);
+                }
+            };
+            document.addEventListener('keydown', handleEscape);
+            
             // Handle button clicks
             document.getElementById('cancelClear').onclick = () => {
-                overlay.remove();
+                cleanup();
                 resolve(false);
             };
             
             document.getElementById('confirmClear').onclick = () => {
-                overlay.remove();
+                cleanup();
                 resolve(true);
             };
             
             // Handle overlay click to close
             overlay.onclick = (e) => {
                 if (e.target === overlay) {
-                    overlay.remove();
+                    cleanup();
                     resolve(false);
                 }
             };
-            
-            // Handle escape key
-            const handleEscape = (e) => {
-                if (e.key === 'Escape') {
-                    overlay.remove();
-                    document.removeEventListener('keydown', handleEscape);
-                    resolve(false);
-                }
-            };
-            document.addEventListener('keydown', handleEscape);
         });
     }
 
@@ -545,6 +558,12 @@ class DataDashboard {
             this.pollingInterval = null;
         }
 
+        // Remove scroll listener
+        if (this.scrollHandler) {
+            window.removeEventListener('scroll', this.scrollHandler);
+            this.scrollHandler = null;
+        }
+
         if (this.modal && this.modal.isOpen()) {
             this.modal.closeModal();
         }
@@ -556,12 +575,24 @@ class DataDashboard {
     }
 }
 
-// Initialize dashboard when page loads
+// At top of file, outside DOMContentLoaded
+let dashboardInstance = null;
+
 document.addEventListener('DOMContentLoaded', () => {
     try {
-        // Initialize dashboard (components are already loaded via script tags)
-        new DataDashboard();
+        // Destroy old instance first
+        if (dashboardInstance) {
+            dashboardInstance.destroy();
+        }
+        dashboardInstance = new DataDashboard();
     } catch (error) {
         console.error('Failed to initialize dashboard:', error);
+    }
+});
+
+// Clean up when page closes
+window.addEventListener('beforeunload', () => {
+    if (dashboardInstance) {
+        dashboardInstance.destroy();
     }
 });
