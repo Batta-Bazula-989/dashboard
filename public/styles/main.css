@@ -464,7 +464,7 @@ body {
 
 .full-analysis-btn {
     background: #f8fafc;
-    border: 2px solid #ABC8C7; /* Ash gray border, more bulky */
+    border: 1.66px solid #ABC8C7; /* Reduced from 2px to 1.66px (17% less bulky) */
     border-radius: 50%;
     width: 20px;
     height: 20px;
@@ -472,7 +472,7 @@ body {
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    font-size: 12px;
+    font-size: 15px; /* Increased from 12px to 15px (25% bigger) */
     color: #ABC8C7; /* Same ash gray as border */
     transition: all 0.2s ease;
     padding: 0;
