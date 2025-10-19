@@ -1314,10 +1314,10 @@ body {
 
 /* Full-length content divider */
 .content-divider-full {
-    width: 100%;
+    width: calc(100% + 100px); /* Extend beyond container padding */
     height: 1px;
     background-color: #e2e8f0;
-    margin: 20px 0;
+    margin: 20px -50px; /* Negative margin to counteract container padding */
 }
 
 /* Clear Data Button Styles */
