@@ -341,7 +341,7 @@ body {
     display: block;
 }
 .ai-preview {
-    background: #faf5ff;
+    background: #fefefe;
     border: none;
     border-radius: 0;
     padding: 6px;
@@ -1403,7 +1403,7 @@ body {
 
 /* Video Analysis Section within Cards */
 .video-analysis-section {
-    background: #f0f9ff;
+    background: #fefefe;
     border: none;
     border-radius: 0;
     padding: 6px;
