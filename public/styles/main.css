@@ -473,7 +473,7 @@ body {
     justify-content: center;
     cursor: pointer;
     font-size: 12px;
-    color: #94a3b8;
+    color: #ABC8C7; /* Same ash gray as border */
     transition: all 0.2s ease;
     padding: 0;
 }
@@ -481,7 +481,7 @@ body {
 .full-analysis-btn:hover {
     background: #e2e8f0;
     border-color: #ABC8C7; /* Keep ash gray border on hover */
-    color: #64748b;
+    color: #ABC8C7; /* Keep ash gray dots on hover */
 }
 
 /* Modal styles */
