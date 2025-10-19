@@ -16,6 +16,7 @@ body {
     margin: 0;
     width: 100%;
     padding: 14px;
+    position: relative; /* For Clear All button positioning */
 }
 
 .dashboard-content {
@@ -88,18 +89,10 @@ body {
     50% { opacity: 0.5; }
 }
 
-.header-area {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 20px;
-    width: 100%;
-}
-
 .stats-container {
     display: flex;
     gap: 20px;
-    margin-bottom: 0;
+    margin-bottom: 20px;
     width: fit-content;
     max-width: 600px;
 }
@@ -1321,7 +1314,10 @@ body {
 
 /* Clear Data Button Styles */
 .clear-data-btn {
-    position: static; /* Normal flow within header area */
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 10;
     background: transparent; /* No background */
     color: #64748b;
     border: none; /* No border */
