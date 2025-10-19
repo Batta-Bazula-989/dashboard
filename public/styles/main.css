@@ -94,6 +94,7 @@ body {
     margin-bottom: 0;
     width: fit-content;
     max-width: 600px;
+    position: relative; /* For Clear All button positioning */
 }
 
 .stats-card {
@@ -1313,20 +1314,20 @@ body {
 
 /* Clear Data Button Styles */
 .clear-data-btn {
-    position: fixed;
+    position: absolute;
     top: 20px;
     right: 20px;
-    z-index: 99999;
-    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    z-index: 10;
+    background: transparent; /* No background */
     color: #64748b;
-    border: 1px solid #cbd5e1;
+    border: none; /* No border */
     padding: 8px 12px;
-    border-radius: 6px;
+    border-radius: 0; /* No border radius */
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: none; /* No shadow */
     display: inline-flex;
     align-items: center;
     gap: 4px;
@@ -1345,17 +1346,18 @@ body {
 }
 
 .clear-data-btn:hover {
-    background: linear-gradient(135deg, #f1f5f9 0%, #d1d5db 100%);
-    color: #475569;
-    border-color: #94a3b8;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    background: transparent; /* Keep transparent on hover */
+    color: #475569; /* Slightly darker text on hover */
+    border: none; /* No border on hover */
+    transform: none; /* No transform on hover */
+    box-shadow: none; /* No shadow on hover */
 }
 
 .clear-data-btn:active {
-    transform: translateY(0);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-    background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+    transform: none; /* No transform on active */
+    box-shadow: none; /* No shadow on active */
+    background: transparent; /* Keep transparent on active */
+    color: #374151; /* Darker text on active */
 }
 
 .clear-data-btn:disabled {
