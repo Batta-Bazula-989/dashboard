@@ -210,7 +210,7 @@ body {
     padding: 10px 10px 0 10px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.04);
     margin-bottom: 2px;
-    max-width: 500px;
+    max-width: 440px;
     position: relative;
 }
 
@@ -356,6 +356,7 @@ body {
     align-items: center;
     justify-content: space-between;
     margin-bottom: 0;
+    position: relative;
 }
 
 .ai-preview .analysis-header h4 {
@@ -368,7 +369,7 @@ body {
 .ai-preview .analysis-badge {
     background: #3b82f6;
     color: white;
-    font-size: 11px;
+    font-size: 9px;
     font-weight: 600;
     padding: 6px 16px;
     border-radius: 12px;
@@ -1416,6 +1417,7 @@ body {
     align-items: center;
     justify-content: space-between;
     margin-bottom: 0;
+    position: relative;
 }
 
 .video-analysis-section .analysis-header h4 {
@@ -1428,7 +1430,7 @@ body {
 .video-analysis-section .analysis-badge {
     background: #3b82f6;
     color: white;
-    font-size: 11px;
+    font-size: 9px;
     font-weight: 600;
     padding: 6px 16px;
     border-radius: 12px;

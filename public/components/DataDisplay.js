@@ -484,12 +484,28 @@ class DataDisplay {
         const videoAnalysisSection = document.createElement('div');
         videoAnalysisSection.className = 'video-analysis-section';
 
-        // Video analysis header with blue pill
+        // Video analysis header with blue pill and three dots button
         const videoHeader = document.createElement('div');
         videoHeader.className = 'analysis-header';
-        videoHeader.innerHTML = `
-            <div class="analysis-badge">VIDEO CREATIVE</div>
-        `;
+        
+        const videoBadge = document.createElement('div');
+        videoBadge.className = 'analysis-badge';
+        videoBadge.textContent = 'VIDEO CREATIVE';
+        videoHeader.appendChild(videoBadge);
+        
+        const videoOptionsBtn = document.createElement('button');
+        videoOptionsBtn.className = 'full-analysis-btn';
+        videoOptionsBtn.innerHTML = '⋯';
+        videoOptionsBtn.onclick = () => {
+            if (this.onShowFullAnalysis) {
+                this.onShowFullAnalysis(
+                    `${videoData?.competitor_name || 'Unknown Competitor'} - Video Analysis`, 
+                    videoData
+                );
+            }
+        };
+        videoHeader.appendChild(videoOptionsBtn);
+        
         videoAnalysisSection.appendChild(videoHeader);
 
         // Video analysis content - show metrics like in screenshot
@@ -537,30 +553,6 @@ class DataDisplay {
         }
         
         videoAnalysisSection.appendChild(videoContent);
-
-        // Video analysis actions - three dots button aligned with header
-        const videoActions = document.createElement('div');
-        videoActions.className = 'ai-preview-actions';
-
-        // Add empty div to push button to the right
-        const spacer = document.createElement('div');
-        videoActions.appendChild(spacer);
-
-        // Add options button (dots) like in text analysis
-        const videoOptionsBtn = document.createElement('button');
-        videoOptionsBtn.className = 'full-analysis-btn';
-        videoOptionsBtn.innerHTML = '⋯';
-        videoOptionsBtn.onclick = () => {
-            if (this.onShowFullAnalysis) {
-                this.onShowFullAnalysis(
-                    `${videoData?.competitor_name || 'Unknown Competitor'} - Video Analysis`, 
-                    videoData
-                );
-            }
-        };
-        videoActions.appendChild(videoOptionsBtn);
-
-        videoAnalysisSection.appendChild(videoActions);
         
         // Add elegant divider between text and video analysis sections
         const sectionDivider = document.createElement('div');
@@ -710,12 +702,25 @@ class DataDisplay {
             const preview = document.createElement('div');
             preview.className = 'ai-preview';
 
-            // Analysis header with blue pill
+            // Analysis header with blue pill and three dots button
             const analysisHeader = document.createElement('div');
             analysisHeader.className = 'analysis-header';
-            analysisHeader.innerHTML = `
-                <div class="analysis-badge">TEXT CREATIVE</div>
-            `;
+            
+            const badge = document.createElement('div');
+            badge.className = 'analysis-badge';
+            badge.textContent = 'TEXT CREATIVE';
+            analysisHeader.appendChild(badge);
+            
+            const fullAnalysisBtn = document.createElement('button');
+            fullAnalysisBtn.className = 'full-analysis-btn';
+            fullAnalysisBtn.innerHTML = '⋯';
+            fullAnalysisBtn.onclick = () => {
+                if (this.onShowFullAnalysis) {
+                    this.onShowFullAnalysis(entry?.competitor_name || 'Unknown competitor', entry);
+                }
+            };
+            analysisHeader.appendChild(fullAnalysisBtn);
+            
             preview.appendChild(analysisHeader);
 
             // Content - show metrics like in screenshot
@@ -762,26 +767,6 @@ class DataDisplay {
             }
             
             preview.appendChild(content);
-
-            // Actions - three dots button aligned with header
-            const actions = document.createElement('div');
-            actions.className = 'ai-preview-actions';
-
-            // Add empty div to push button to the right
-            const spacer = document.createElement('div');
-            actions.appendChild(spacer);
-
-            const fullAnalysisBtn = document.createElement('button');
-            fullAnalysisBtn.className = 'full-analysis-btn';
-            fullAnalysisBtn.innerHTML = '⋯';
-            fullAnalysisBtn.onclick = () => {
-                if (this.onShowFullAnalysis) {
-                    this.onShowFullAnalysis(entry?.competitor_name || 'Unknown competitor', entry);
-                }
-            };
-            actions.appendChild(fullAnalysisBtn);
-
-            preview.appendChild(actions);
             card.appendChild(preview);
         }
 
