@@ -36,6 +36,8 @@ class DataDisplay {
                     </svg>
                     Clear All
                 </button>
+                <!-- Full-length horizontal line -->
+                <div class="content-divider-full"></div>
                 <div class="empty-state">
                     <div class="billboard-illustration">
                         <img src="/Screenshot_2025-10-04_155150_whitebg_v2.svg" alt="No ads illustration" style="max-width: 500px; height: auto;" />
@@ -859,6 +861,8 @@ class DataDisplay {
                     </svg>
                     Clear All
                 </button>
+                <!-- Full-length horizontal line -->
+                <div class="content-divider-full"></div>
                 <div class="empty-state">
                     <div class="billboard-illustration">
                         <img src="/Screenshot_2025-10-04_155150_whitebg_v2.svg" alt="No ads illustration" style="max-width: 500px; height: auto;" />
