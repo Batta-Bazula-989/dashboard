@@ -490,7 +490,7 @@ class DataDisplay {
         
         const videoBadge = document.createElement('div');
         videoBadge.className = 'analysis-badge';
-        videoBadge.textContent = 'VIDEO CREATIVE';
+        videoBadge.textContent = 'VIDEO';
         videoHeader.appendChild(videoBadge);
         
         const videoOptionsBtn = document.createElement('button');
@@ -708,7 +708,7 @@ class DataDisplay {
             
             const badge = document.createElement('div');
             badge.className = 'analysis-badge';
-            badge.textContent = 'TEXT CREATIVE';
+            badge.textContent = 'TEXT';
             analysisHeader.appendChild(badge);
             
             const fullAnalysisBtn = document.createElement('button');

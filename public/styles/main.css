@@ -367,7 +367,7 @@ body {
 }
 
 .ai-preview .analysis-badge {
-    background: #8b5cf6;
+    background: #ABC8C7; /* Ash gray */
     color: white;
     font-size: 9px;
     font-weight: 600;
@@ -1428,7 +1428,7 @@ body {
 }
 
 .video-analysis-section .analysis-badge {
-    background: #8b5cf6;
+    background: #ABC8C7; /* Ash gray */
     color: white;
     font-size: 9px;
     font-weight: 600;
