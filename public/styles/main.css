@@ -318,9 +318,9 @@ body {
 .section-divider {
     width: calc(100% + 20px);
     height: 1px;
-    background: #d1d5db;
+    background: #e5e7eb;
     margin: 0 -10px;
-    opacity: 0.7;
+    opacity: 1;
 }
 .ad-text { 
     color: #111827; 
@@ -341,7 +341,7 @@ body {
     display: block;
 }
 .ai-preview {
-    background: #fefefe;
+    background: #f2fcff;
     border: none;
     border-radius: 0;
     padding: 6px;
