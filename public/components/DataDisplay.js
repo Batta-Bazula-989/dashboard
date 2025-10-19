@@ -561,6 +561,12 @@ class DataDisplay {
         videoActions.appendChild(videoOptionsBtn);
 
         videoAnalysisSection.appendChild(videoActions);
+        
+        // Add elegant divider between text and video analysis sections
+        const sectionDivider = document.createElement('div');
+        sectionDivider.className = 'section-divider';
+        existingCard.appendChild(sectionDivider);
+        
         existingCard.appendChild(videoAnalysisSection);
 
         // Check if ad text still exists after adding video analysis
