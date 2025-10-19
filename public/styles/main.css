@@ -214,15 +214,6 @@ body {
     position: relative;
 }
 
-.card::after {
-    content: '';
-    position: absolute;
-    bottom: -1px;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: #e5e7eb;
-}
 .card-header {
     display: flex;
     align-items: center;
@@ -364,7 +355,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 8px;
+    margin-bottom: 0;
 }
 
 .ai-preview .analysis-header h4 {
@@ -412,7 +403,7 @@ body {
 .ai-preview-content {
     margin-bottom: 0;
     background: white;
-    padding: 6px 8px;
+    padding: 0 8px 6px 8px;
     border-radius: 0;
     color: #334155;
     font-size: 13px;
@@ -1424,7 +1415,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 8px;
+    margin-bottom: 0;
 }
 
 .video-analysis-section .analysis-header h4 {
@@ -1459,7 +1450,7 @@ body {
     color: #334155;
     font-size: 13px;
     line-height: 1.4;
-    margin-bottom: 8px;
+    margin-bottom: 0;
 }
 
 .video-analysis-section .analysis-actions {
