@@ -1,0 +1,185 @@
+/* Analysis Components */
+.data-display {
+    background: white;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    margin: 20px 0 0 0;
+    min-height: 200px;
+    position: relative; /* Creates positioning context for absolute children */
+    transition: min-height 0.3s ease;
+    width: 100%;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.data-display-header {
+    padding: 20px 30px 0 30px;
+    position: relative;
+    flex-shrink: 0;
+    height: 80px;
+}
+
+.data-display-content {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0 30px 30px 30px;
+    max-height: calc(100vh - 200px);
+    min-height: 400px;
+    height: calc(100vh - 200px);
+}
+
+/* Clear Data Button */
+.clear-data-btn {
+    position: fixed; /* Change from absolute to fixed */
+    top: 20px; /* Distance from top of viewport */
+    right: 20px; /* Distance from right of viewport */
+    z-index: 1000; /* Make sure it's on top */
+    background: transparent;
+    color: #64748b;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.clear-data-btn:hover {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+.clear-data-btn:active {
+    box-shadow: none;
+    background: transparent;
+    color: #374151;
+}
+
+.clear-data-btn:disabled {
+    background: #f1f5f9;
+    color: #94a3b8;
+    cursor: not-allowed;
+}
+
+.clear-data-btn.hidden {
+    opacity: 0;
+    transform: translateY(-20px);
+    pointer-events: none;
+}
+
+/* Content divider */
+.content-divider-full {
+    width: calc(100% + 60px);
+    height: 1px;
+    background-color: #e2e8f0;
+    margin: 20px -30px 0 -30px;
+}
+
+/* Empty state */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 20px;
+    color: #64748b;
+    min-height: calc(100vh - 400px);
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.billboard-illustration {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Pulsating Search Animation */
+.search-container {
+    position: relative;
+    width: 240px;
+    height: 240px;
+}
+
+.circle-outer {
+    position: absolute;
+    width: 240px;
+    height: 240px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #7ba3d4 0%, #6b8fbe 50%, #5a7dad 100%);
+    animation: pulse-outer 2s ease-in-out infinite;
+}
+
+.circle-inner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 160px;
+    height: 160px;
+    border-radius: 16px;
+    background: rgba(90, 110, 220, 0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: pulse-inner 2s ease-in-out infinite;
+}
+
+.search-icon {
+    width: 64px;
+    height: 64px;
+    position: relative;
+}
+
+.search-circle {
+    width: 40px;
+    height: 40px;
+    border: 5px solid white;
+    border-radius: 50%;
+    position: absolute;
+    top: 4px;
+    left: 4px;
+}
+
+.search-handle {
+    width: 5px;
+    height: 24px;
+    background: white;
+    position: absolute;
+    bottom: 0;
+    right: 8px;
+    transform: rotate(-45deg);
+    border-radius: 2px;
+}
+
+.dot {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: #5a6edc;
+    border-radius: 50%;
+    animation: pulse-dot 2s ease-in-out infinite;
+}
+
+.dot1 {
+    top: 16px;
+    right: 32px;
+}
+
+.dot2 {
+    top: 50%;
+    right: 12px;
+    transform: translateY(-50%);
+}

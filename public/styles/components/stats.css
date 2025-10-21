@@ -1,0 +1,107 @@
+/* Stats Components */
+.stats-card {
+    background: white;
+    border-radius: var(--radius-md);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid #e2e8f0;
+    min-height: 80px;
+    min-width: 200px;
+    transition: all 0.3s ease;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.stats-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+.stats-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: var(--spacing-xs);
+}
+
+.stats-label {
+    font-size: 0.875rem;
+    color: #64748b;
+    font-weight: 500;
+}
+
+.stats-icon-top-right {
+    position: absolute;
+    top: var(--spacing-md);
+    right: var(--spacing-md);
+    width: 24px;
+    height: 24px;
+    opacity: 0.8;
+}
+
+/* Platform badges */
+.platform-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    font-weight: 500;
+    background: #f1f5f9;
+    color: #475569;
+    border: 1px solid #e2e8f0;
+}
+
+.platform-badge svg {
+    width: 14px;
+    height: 14px;
+}
+
+/* AI Preview */
+.ai-preview-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: var(--spacing-sm);
+    flex-shrink: 0;
+}
+
+.ai-preview-icon svg {
+    width: 12px;
+    height: 12px;
+    color: white;
+}
+
+/* Recommendation icons */
+.recommendation-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #fef3c7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: var(--spacing-sm);
+    flex-shrink: 0;
+}
+
+.recommendation-icon svg {
+    width: 12px;
+    height: 12px;
+    color: #d97706;
+}
+
+@media (max-width: 768px) {
+    .stats-card {
+        padding: var(--spacing-md);
+        min-height: 100px;
+    }
+}

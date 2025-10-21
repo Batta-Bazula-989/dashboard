@@ -1,0 +1,127 @@
+/* Card Components */
+.card-grid {
+    display: grid;
+    grid-template-columns: 30% 30%;
+    gap: 15px;
+    align-items: start;
+    justify-content: start;
+}
+
+@media (max-width: 900px) {
+    .card-grid { 
+        grid-template-columns: 1fr; 
+    }
+}
+
+.card {
+    display: flex;
+    flex-direction: column;
+    background: white;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    transition: all 0.3s ease;
+    border: 1px solid #e2e8f0;
+}
+
+.card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+.card-header {
+    padding: var(--spacing-md);
+    border-bottom: 1px solid #e2e8f0;
+    background: #f8fafc;
+}
+
+.card-body {
+    padding: var(--spacing-md);
+    flex: 1;
+}
+
+.card-footer {
+    padding: var(--spacing-md);
+    border-top: 1px solid #e2e8f0;
+    background: #f8fafc;
+}
+
+/* Section headers with CSS variables */
+.section-header {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: var(--spacing-md);
+}
+
+.section-header--copywriting {
+    background: linear-gradient(135deg, var(--color-copywriting), var(--color-copywriting));
+}
+
+.section-header--marketing {
+    background: linear-gradient(135deg, var(--color-marketing), var(--color-marketing));
+}
+
+.section-header--psychology {
+    background: linear-gradient(135deg, var(--color-psychology), var(--color-psychology));
+}
+
+.section-header--sales {
+    background: linear-gradient(135deg, var(--color-sales), var(--color-sales));
+}
+
+.section-header--metrics {
+    background: linear-gradient(135deg, var(--color-metrics), var(--color-metrics));
+}
+
+.section-header--technical {
+    background: linear-gradient(135deg, var(--color-technical), var(--color-technical));
+}
+
+.section-header--visual {
+    background: linear-gradient(135deg, var(--color-visual), var(--color-visual));
+}
+
+.section-header--people {
+    background: linear-gradient(135deg, var(--color-people), var(--color-people));
+}
+
+.section-header--summary {
+    background: linear-gradient(135deg, var(--color-summary), var(--color-summary));
+}
+
+/* Item icons with simplified selectors */
+.item-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: var(--spacing-sm);
+    flex-shrink: 0;
+    background: #f1f5f9;
+    transition: all 0.2s ease;
+}
+
+.item-icon--copywriting { background: var(--color-copywriting); }
+.item-icon--marketing { background: var(--color-marketing); }
+.item-icon--psychology { background: var(--color-psychology); }
+.item-icon--sales { background: var(--color-sales); }
+.item-icon--metrics { background: var(--color-metrics); }
+.item-icon--technical { background: var(--color-technical); }
+.item-icon--visual { background: var(--color-visual); }
+.item-icon--people { background: var(--color-people); }
+.item-icon--summary { background: var(--color-summary); }
+
+/* Hover states */
+.item-icon--copywriting:hover { background: var(--color-copywriting-hover); }
+.item-icon--marketing:hover { background: var(--color-marketing-hover); }
+.item-icon--psychology:hover { background: var(--color-psychology-hover); }
+.item-icon--sales:hover { background: var(--color-sales-hover); }
+.item-icon--metrics:hover { background: var(--color-metrics-hover); }
+.item-icon--technical:hover { background: var(--color-technical-hover); }
+.item-icon--visual:hover { background: var(--color-visual-hover); }
+.item-icon--people:hover { background: var(--color-people-hover); }
+.item-icon--summary:hover { background: var(--color-summary-hover); }

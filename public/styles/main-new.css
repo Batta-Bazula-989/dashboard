@@ -1,0 +1,105 @@
+/* Main CSS - Imports only */
+@import url('./base.css');
+@import url('./utilities.css');
+@import url('./components/cards.css');
+@import url('./components/modal.css');
+@import url('./components/stats.css');
+@import url('./components/analysis.css');
+
+/* Legacy styles that need to be migrated */
+/* TODO: Move these to appropriate component files */
+
+/* Table responsive */
+.table-responsive {
+    overflow-x: auto;
+    border-radius: var(--radius-md);
+    border: 1px solid #e2e8f0;
+}
+
+.table-responsive table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+}
+
+.table-responsive th,
+.table-responsive td {
+    padding: var(--spacing-md);
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.table-responsive th {
+    background: #f8fafc;
+    font-weight: 600;
+    color: #374151;
+}
+
+/* Connection info */
+.connection-info {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 15px;
+    padding: 20px;
+    margin: 20px 0;
+    text-align: center;
+    color: white;
+}
+
+.connection-info h3 {
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+}
+
+.connection-info p {
+    opacity: 0.9;
+    line-height: 1.5;
+}
+
+/* Raw data display */
+.raw-data {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+    margin: var(--spacing-md) 0;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #1e293b;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+/* Toast notifications */
+.toast {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    z-index: 100001;
+    background: #10b981;
+    color: white;
+    padding: 12px 20px;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    font-weight: 500;
+    max-width: 300px;
+}
+
+.toast.error {
+    background: #ef4444;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .clear-data-btn {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+    
+    .stats-card {
+        padding: var(--spacing-md);
+        min-height: 100px;
+    }
+}
