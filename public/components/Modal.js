@@ -35,7 +35,10 @@ class Modal {
         content.className = 'modal-analysis-content';
 
         const formattedContent = this.formatSectionContent(fullAnalysis);
-        content.innerHTML = DOMPurify.sanitize(formattedContent);
+        content.innerHTML = DOMPurify.sanitize(formattedContent, {
+            ALLOWED_TAGS: ['div', 'span', 'p', 'strong', 'em', 'br', 'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'table', 'tr', 'td', 'th', 'thead', 'tbody'],
+            ALLOWED_ATTR: ['class', 'style', 'id']
+        });
 
         body.appendChild(content);
         modal.appendChild(body);
