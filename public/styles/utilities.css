@@ -11,6 +11,11 @@
     --color-people: #f0fdf4;
     --color-summary: #f8fafc;
     
+    /* Stats card colors */
+    --color-stats-bg: white;
+    --color-stats-label: #6b7280;
+    --color-stats-number: #1f2937;
+    
     /* Hover colors */
     --color-copywriting-hover: #10b981;
     --color-marketing-hover: #f59e0b;
