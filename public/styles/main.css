@@ -196,7 +196,7 @@ body {
 .card-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 6px;
+    gap: 3px;
     align-items: start;
 }
 @media (max-width: 900px) {
