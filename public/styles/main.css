@@ -212,9 +212,6 @@ body {
     padding: 0 30px 30px 30px;
     max-height: calc(100vh - 200px);
     min-height: 400px;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
 }
 
 .data-display:has(.table-responsive) {
@@ -1309,6 +1306,7 @@ body {
     position: relative;
     width: 100%;
     max-width: 600px;
+    margin: 0 auto;
 }
 
 .billboard-illustration {
@@ -1465,7 +1463,8 @@ body {
 .clear-data-btn {
     position: absolute;
     top: 0;
-    right: 0;
+    left: 50%;
+    transform: translateX(-50%);
     z-index: 10;
     background: transparent; /* No background */
     color: #64748b;
