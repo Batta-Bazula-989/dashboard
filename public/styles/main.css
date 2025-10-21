@@ -212,6 +212,9 @@ body {
     padding: 0 30px 30px 30px;
     max-height: calc(100vh - 200px);
     min-height: 400px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .data-display:has(.table-responsive) {
@@ -1462,9 +1465,9 @@ body {
 /* Clear Data Button Styles */
 .clear-data-btn {
     position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
     z-index: 10;
     background: transparent; /* No background */
     color: #64748b;
