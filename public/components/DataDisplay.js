@@ -561,8 +561,10 @@ class DataDisplay {
             
             if (metricsHTML) {
                 videoContent.innerHTML = DOMPurify.sanitize(metricsHTML, {
-                    ALLOWED_TAGS: ['div', 'span', 'p', 'strong', 'em', 'br', 'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
-                    ALLOWED_ATTR: ['class', 'style', 'id']
+                    ALLOWED_TAGS: ['div', 'span', 'p', 'strong', 'em', 'br', 'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'b', 'i', 'u'],
+                    ALLOWED_ATTR: ['class', 'style', 'id', 'data-*'],
+                    ALLOW_DATA_ATTR: true,
+                    KEEP_CONTENT: true
                 });
             } else {
                 videoContent.textContent = 'Аналіз доступний';
@@ -778,8 +780,10 @@ class DataDisplay {
                 
                 if (metricsHTML) {
                     content.innerHTML = DOMPurify.sanitize(metricsHTML, {
-                        ALLOWED_TAGS: ['div', 'span', 'p', 'strong', 'em', 'br', 'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
-                        ALLOWED_ATTR: ['class', 'style', 'id']
+                        ALLOWED_TAGS: ['div', 'span', 'p', 'strong', 'em', 'br', 'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'b', 'i', 'u'],
+                        ALLOWED_ATTR: ['class', 'style', 'id', 'data-*'],
+                        ALLOW_DATA_ATTR: true,
+                        KEEP_CONTENT: true
                     });
                 } else {
                     content.textContent = 'Аналіз доступний';
