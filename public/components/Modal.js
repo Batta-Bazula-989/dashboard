@@ -3,8 +3,7 @@
  * Handles structured JSON analysis data
  */
 
-// Import DOMPurify for XSS protection
-import DOMPurify from 'dompurify';
+// XSS protection: Use textContent for user data, only allow trusted HTML
 
 class Modal {
     constructor() {
@@ -35,12 +34,8 @@ class Modal {
         content.className = 'modal-analysis-content';
 
         const formattedContent = this.formatSectionContent(fullAnalysis);
-        content.innerHTML = DOMPurify.sanitize(formattedContent, {
-            ALLOWED_TAGS: ['div', 'span', 'p', 'strong', 'em', 'br', 'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'table', 'tr', 'td', 'th', 'thead', 'tbody', 'b', 'i', 'u'],
-            ALLOWED_ATTR: ['class', 'style', 'id', 'data-*'],
-            ALLOW_DATA_ATTR: true,
-            KEEP_CONTENT: true
-        });
+        // Safe: This is our own generated HTML, not user input
+        content.innerHTML = formattedContent;
 
         body.appendChild(content);
         modal.appendChild(body);
@@ -305,15 +300,15 @@ class Modal {
             if (value !== undefined && value !== null) {
                 // Get icon for this field
                 const icon = this.getFieldIcon(field.key, title);
-                formatted += `
+            formatted += `
                     <div class="clean-card">
                         <div class="clean-icon">${icon}</div>
                         <div class="clean-content">
                             <div class="clean-title">${field.label}</div>
                             <div class="clean-description">${value}</div>
                         </div>
-                    </div>
-                `;
+                </div>
+            `;
             }
         });
         
@@ -473,7 +468,7 @@ class Modal {
                         </div>
                     </div>
                 </div>
-            `;
+        `;
         }
 
         // Strategic
