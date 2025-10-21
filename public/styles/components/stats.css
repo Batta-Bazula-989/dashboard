@@ -58,12 +58,6 @@
     margin-bottom: var(--spacing-xs);
 }
 
-.stats-label {
-    font-size: 0.875rem;
-    color: #64748b;
-    font-weight: 500;
-}
-
 .stats-icon-top-right {
     position: absolute;
     top: var(--spacing-md);
