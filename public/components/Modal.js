@@ -2,6 +2,10 @@
  * Modal component for displaying full analysis
  * Handles structured JSON analysis data
  */
+
+// Import DOMPurify for XSS protection
+import DOMPurify from 'dompurify';
+
 class Modal {
     constructor() {
         this.currentModal = null;
@@ -31,7 +35,7 @@ class Modal {
         content.className = 'modal-analysis-content';
 
         const formattedContent = this.formatSectionContent(fullAnalysis);
-        content.innerHTML = formattedContent;
+        content.innerHTML = DOMPurify.sanitize(formattedContent);
 
         body.appendChild(content);
         modal.appendChild(body);

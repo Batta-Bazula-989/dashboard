@@ -2,6 +2,10 @@
  * DataDisplay Component
  * Handles the display of competitor data and cards
  */
+
+// Import DOMPurify for XSS protection
+import DOMPurify from 'dompurify';
+
 class DataDisplay {
     constructor() {
         this.dataDisplay = null;
@@ -556,7 +560,7 @@ class DataDisplay {
             }
             
             if (metricsHTML) {
-                videoContent.innerHTML = metricsHTML;
+                videoContent.innerHTML = DOMPurify.sanitize(metricsHTML);
             } else {
                 videoContent.textContent = 'Аналіз доступний';
             }
@@ -770,7 +774,7 @@ class DataDisplay {
                 }
                 
                 if (metricsHTML) {
-                    content.innerHTML = metricsHTML;
+                    content.innerHTML = DOMPurify.sanitize(metricsHTML);
                 } else {
                     content.textContent = 'Аналіз доступний';
                 }
