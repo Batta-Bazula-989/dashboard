@@ -1463,29 +1463,23 @@ body {
 
 /* Clear Data Button Styles */
 .clear-data-btn {
-    position: absolute;
-    top: 20px; /* ✅ Fixed top position */
-    right: 20px; /* ✅ Padding from edge */
-    transform: none; /* ✅ Remove translateY */
-    z-index: 10;
-    background: transparent; /* No background */
+    position: fixed; /* ✅ Change from absolute to fixed */
+    top: 20px; /* ✅ Distance from top of viewport */
+    right: 20px; /* ✅ Distance from right of viewport */
+    z-index: 1000; /* ✅ Make sure it's on top */
+    background: transparent;
     color: #64748b;
-    border: none; /* No border */
+    border: none;
     padding: 8px 12px;
-    border-radius: 0; /* No border radius */
+    border-radius: 6px;
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: none; /* No shadow */
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    min-width: 90px;
-    justify-content: center;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    opacity: 1;
-    transform: translateY(0);
 }
 
 /* Hide button when scrolled down */
@@ -1496,10 +1490,8 @@ body {
 }
 
 .clear-data-btn:hover {
-    background: transparent; /* Keep transparent on hover */
-    color: #475569; /* Slightly darker text on hover */
-    border: none; /* No border on hover */
-    box-shadow: none; /* No shadow on hover */
+    background: #f1f5f9;
+    color: #475569;
 }
 
 .clear-data-btn:active {
