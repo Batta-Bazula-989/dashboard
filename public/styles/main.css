@@ -203,9 +203,6 @@ body {
     padding: 20px 30px 20px 30px;
     position: relative;
     flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
 }
 
 .data-display-content {
@@ -1467,7 +1464,10 @@ body {
 
 /* Clear Data Button Styles */
 .clear-data-btn {
-    position: static;
+    position: absolute;
+    top: 50%;
+    right: 30px;
+    transform: translateY(-50%);
     z-index: 10;
     background: transparent; /* No background */
     color: #64748b;
@@ -1500,12 +1500,12 @@ body {
     background: transparent; /* Keep transparent on hover */
     color: #475569; /* Slightly darker text on hover */
     border: none; /* No border on hover */
-    transform: none; /* No transform on hover */
+    transform: translateY(-50%); /* Keep vertical centering on hover */
     box-shadow: none; /* No shadow on hover */
 }
 
 .clear-data-btn:active {
-    transform: none; /* No transform on active */
+    transform: translateY(-50%); /* Keep vertical centering on active */
     box-shadow: none; /* No shadow on active */
     background: transparent; /* Keep transparent on active */
     color: #374151; /* Darker text on active */
