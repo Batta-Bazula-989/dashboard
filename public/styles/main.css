@@ -1464,8 +1464,9 @@ body {
 /* Clear Data Button Styles */
 .clear-data-btn {
     position: absolute;
-    top: 10px;
-    right: 30px;
+    top: 50%;
+    right: 15px;
+    transform: translateY(-50%);
     z-index: 10;
     background: transparent; /* No background */
     color: #64748b;
@@ -1498,10 +1499,12 @@ body {
     background: transparent; /* Keep transparent on hover */
     color: #475569; /* Slightly darker text on hover */
     border: none; /* No border on hover */
+    transform: translateY(-50%); /* Keep vertical centering on hover */
     box-shadow: none; /* No shadow on hover */
 }
 
 .clear-data-btn:active {
+    transform: translateY(-50%); /* Keep vertical centering on active */
     box-shadow: none; /* No shadow on active */
     background: transparent; /* Keep transparent on active */
     color: #374151; /* Darker text on active */
