@@ -187,7 +187,6 @@ body {
 .data-display {
     background: white;
     border-radius: 8px;
-    padding: 50px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     margin: 20px 0 0 0;
     min-height: 200px;
@@ -195,8 +194,22 @@ body {
     transition: min-height 0.3s ease;
     width: 100%;
     flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.data-display-header {
+    padding: 20px 50px 0 50px;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.data-display-content {
+    flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
+    padding: 0 50px 50px 50px;
 }
 
 .data-display:has(.table-responsive) {
@@ -1287,7 +1300,7 @@ body {
     text-align: center;
     padding: 40px;
     color: #64748b;
-    min-height: calc(100vh - 300px);
+    min-height: calc(100vh - 400px);
     position: relative;
     width: 100%;
 }
@@ -1439,14 +1452,14 @@ body {
     width: calc(100% + 100px); /* Extend beyond container padding */
     height: 1px;
     background-color: #e2e8f0;
-    margin: 20px -50px; /* Negative margin to counteract container padding */
+    margin: 20px -50px 0 -50px; /* Negative margin to counteract container padding */
 }
 
 /* Clear Data Button Styles */
 .clear-data-btn {
     position: absolute;
-    top: 20px;
-    right: 20px;
+    top: 0;
+    right: 0;
     z-index: 10;
     background: transparent; /* No background */
     color: #64748b;
