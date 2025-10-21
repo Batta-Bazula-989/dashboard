@@ -6,6 +6,16 @@
 @import url('./components/stats.css');
 @import url('./components/analysis.css');
 
+/* CRITICAL FIX - Data display content height */
+.data-display-content {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0 30px 30px 30px;
+    min-height: 400px;
+    height: calc(100vh - 200px) !important;
+}
+
 /* Legacy styles that need to be migrated */
 /* TODO: Move these to appropriate component files */
 
