@@ -196,7 +196,7 @@ body {
 .card-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 0.2px;
+    gap: 8px;
     align-items: start;
 }
 @media (max-width: 900px) {
@@ -208,7 +208,7 @@ body {
     background: #ffffff;
     border: 1px solid #e5e7eb;
     border-radius: 8px;
-    padding: 10px 35px 0 35px;
+    padding: 10px 15px 0 15px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.04);
     margin-bottom: 2.4px;
     position: relative;
