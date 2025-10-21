@@ -309,17 +309,17 @@ body {
 .meta { color: #6b7280; font-size: 12px; margin-bottom: 4px; }
 
 .content-divider {
-    width: calc(100% + 20px);
+    width: calc(100% + 30px);
     height: 1px;
     background: #e5e7eb;
-    margin: 8px -10px;
+    margin: 8px -15px;
 }
 
 .section-divider {
-    width: calc(100% + 20px);
+    width: calc(100% + 30px);
     height: 1px;
     background: #e5e7eb;
-    margin: 0 -10px;
+    margin: 0 -15px;
     opacity: 0.5;
 }
 .ad-text { 
@@ -330,12 +330,12 @@ body {
     margin: 2px 0;
 }
 .video-thumb {
-    width: calc(100% + 20px);
+    width: calc(100% + 30px);
     height: auto;
     max-height: 200px;
     object-fit: cover;
     border-radius: 0;
-    margin: 4px -10px 0 -10px;
+    margin: 4px -15px 0 -15px;
     border: none;
     cursor: pointer;
     display: block;
@@ -347,8 +347,8 @@ body {
     padding: 6px;
     color: #334155;
     font-size: 13px;
-    margin: 0 -10px 0 -10px;
-    width: calc(100% + 20px);
+    margin: 0 -15px 0 -15px;
+    width: calc(100% + 30px);
 }
 
 .ai-preview .analysis-header {
@@ -1417,8 +1417,8 @@ body {
     border: none;
     border-radius: 0;
     padding: 6px;
-    margin: 0 -10px 0 -10px;
-    width: calc(100% + 20px);
+    margin: 0 -15px 0 -15px;
+    width: calc(100% + 30px);
 }
 
 .video-analysis-section .analysis-header {
