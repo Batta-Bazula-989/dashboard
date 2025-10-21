@@ -1293,6 +1293,117 @@ body {
     margin-bottom: 15px;
 }
 
+/* Pulsating Search Animation */
+.search-container {
+    position: relative;
+    width: 300px;
+    height: 300px;
+}
+
+.circle-outer {
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #7ba3d4 0%, #6b8fbe 50%, #5a7dad 100%);
+    animation: pulse-outer 2s ease-in-out infinite;
+}
+
+.circle-inner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 200px;
+    height: 200px;
+    border-radius: 20px;
+    background: rgba(90, 110, 220, 0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: pulse-inner 2s ease-in-out infinite;
+}
+
+.search-icon {
+    width: 80px;
+    height: 80px;
+    position: relative;
+}
+
+.search-circle {
+    width: 50px;
+    height: 50px;
+    border: 6px solid white;
+    border-radius: 50%;
+    position: absolute;
+    top: 5px;
+    left: 5px;
+}
+
+.search-handle {
+    width: 6px;
+    height: 30px;
+    background: white;
+    position: absolute;
+    bottom: 0;
+    right: 10px;
+    transform: rotate(-45deg);
+    border-radius: 3px;
+}
+
+.dot {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background: #5a6edc;
+    border-radius: 50%;
+    animation: pulse-dot 2s ease-in-out infinite;
+}
+
+.dot1 {
+    top: 20px;
+    right: 40px;
+}
+
+.dot2 {
+    top: 50%;
+    right: 15px;
+    transform: translateY(-50%);
+}
+
+@keyframes pulse-outer {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 0.8;
+    }
+    50% {
+        transform: scale(1.05);
+        opacity: 1;
+    }
+}
+
+@keyframes pulse-inner {
+    0%, 100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0.9;
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.08);
+        opacity: 1;
+    }
+}
+
+@keyframes pulse-dot {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 0.8;
+    }
+    50% {
+        transform: scale(1.3);
+        opacity: 1;
+    }
+}
+
 .connection-info {
     background: rgba(255, 255, 255, 0.15);
     border-radius: 15px;

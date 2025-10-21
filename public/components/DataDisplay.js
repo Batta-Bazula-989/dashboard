@@ -43,7 +43,18 @@ class DataDisplay {
                 <div class="content-divider-full"></div>
                 <div class="empty-state">
                     <div class="billboard-illustration">
-                        <img src="/Screenshot_2025-10-04_155150_whitebg_v2.svg" alt="No ads illustration" style="max-width: 500px; height: auto;" />
+                        <div class="search-container">
+                            <div class="circle-outer">
+                                <div class="dot dot1"></div>
+                                <div class="dot dot2"></div>
+                            </div>
+                            <div class="circle-inner">
+                                <div class="search-icon">
+                                    <div class="search-circle"></div>
+                                    <div class="search-handle"></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <h3>No ads yet</h3>
                 </div>
@@ -870,7 +881,18 @@ class DataDisplay {
                 <div class="content-divider-full"></div>
                 <div class="empty-state">
                     <div class="billboard-illustration">
-                        <img src="/Screenshot_2025-10-04_155150_whitebg_v2.svg" alt="No ads illustration" style="max-width: 500px; height: auto;" />
+                        <div class="search-container">
+                            <div class="circle-outer">
+                                <div class="dot dot1"></div>
+                                <div class="dot dot2"></div>
+                            </div>
+                            <div class="circle-inner">
+                                <div class="search-icon">
+                                    <div class="search-circle"></div>
+                                    <div class="search-handle"></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <h3>No ads yet</h3>
                 </div>
