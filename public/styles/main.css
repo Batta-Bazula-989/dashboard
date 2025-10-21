@@ -195,7 +195,7 @@ body {
 /* Cards for structured competitor data */
 .card-grid {
     display: grid;
-    grid-template-columns: 35% 35%;
+    grid-template-columns: 30% 30%;
     gap: 15px;
     align-items: start;
     justify-content: start;
