@@ -200,9 +200,10 @@ body {
 }
 
 .data-display-header {
-    padding: 20px 30px 20px 30px;
+    padding: 20px 30px 0 30px;
     position: relative;
     flex-shrink: 0;
+    height: 60px;
 }
 
 .data-display-content {
@@ -212,6 +213,7 @@ body {
     padding: 0 30px 30px 30px;
     max-height: calc(100vh - 200px);
     min-height: 400px;
+    height: calc(100vh - 200px);
 }
 
 .data-display:has(.table-responsive) {
@@ -1462,9 +1464,8 @@ body {
 /* Clear Data Button Styles */
 .clear-data-btn {
     position: absolute;
-    top: 50%;
+    top: 20px;
     right: 30px;
-    transform: translateY(-50%);
     z-index: 10;
     background: transparent; /* No background */
     color: #64748b;
@@ -1497,12 +1498,10 @@ body {
     background: transparent; /* Keep transparent on hover */
     color: #475569; /* Slightly darker text on hover */
     border: none; /* No border on hover */
-    transform: translateY(-50%); /* Keep vertical centering on hover */
     box-shadow: none; /* No shadow on hover */
 }
 
 .clear-data-btn:active {
-    transform: translateY(-50%); /* Keep vertical centering on active */
     box-shadow: none; /* No shadow on active */
     background: transparent; /* Keep transparent on active */
     color: #374151; /* Darker text on active */
