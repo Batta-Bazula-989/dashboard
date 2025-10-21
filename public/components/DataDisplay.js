@@ -92,9 +92,6 @@ class DataDisplay {
         console.log('Payload length:', Array.isArray(payload) ? payload.length : 1);
         console.log('Request ID:', incoming?.requestId || 'No ID');
 
-        const emptyState = this.dataDisplay.querySelector('.empty-state');
-        if (emptyState) emptyState.remove();
-
         // Simplified processing - always use the most robust method
         let renderedCount = 0;
         
@@ -104,6 +101,12 @@ class DataDisplay {
         } else {
             console.log('Processing single item');
             renderedCount = this.renderOpenAIResponse(payload);
+        }
+
+        // Only remove empty state if we actually rendered something
+        if (renderedCount > 0) {
+            const emptyState = this.dataDisplay.querySelector('.empty-state');
+            if (emptyState) emptyState.remove();
         }
 
         // Update status - count competitors and ads
