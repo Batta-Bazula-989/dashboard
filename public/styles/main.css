@@ -210,6 +210,8 @@ body {
     overflow-y: auto;
     overflow-x: hidden;
     padding: 0 50px 50px 50px;
+    max-height: calc(100vh - 200px);
+    min-height: 400px;
 }
 
 .data-display:has(.table-responsive) {
