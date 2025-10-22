@@ -4,20 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Data Dashboard</title>
-    <link rel="stylesheet" href="styles/main.css?v=76">
+    <link rel="stylesheet" href="styles/main.css?v=1.0.0">
 </head>
 <body>
 <div class="container">
     <!-- Components will be rendered here dynamically -->
 </div>
 
+<!-- Load in dependency order -->
 
+<!-- 1. Utilities (no dependencies) -->
+<script src="components/utilities/PlatformIcons.js"></script>
+<script src="components/utilities/DataProcessor.js"></script>
+<script src="components/utilities/CardMatcher.js"></script>
 
-<!-- Load components first, then main dashboard -->
-<script src="components/ComponentLoader.js"></script>
-<script src="components/StatsCards.js"></script>
-<script src="components/DataDisplay.js"></script>
-<script src="components/Modal.js"></script>
+<!-- 2. Builders (depend on utilities) -->
+<script src="components/builders/AnalysisSections.js"></script>
+<script src="components/builders/CardBuilder.js"></script>
+
+<!-- 3. Core components (depend on builders & utilities) -->
+<script src="components/core/ComponentLoader.js"></script>
+<script src="components/core/StatsCards.js"></script>
+<script src="components/core/Modal.js"></script>
+<script src="components/core/DataDisplay.js"></script>
+
+<!-- 4. Main app -->
 <script src="scripts/dashboard-http.js"></script>
 </body>
 </html>
