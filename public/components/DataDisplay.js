@@ -2,9 +2,6 @@
  * DataDisplay Component
  * Handles the display of competitor data and cards
  */
-
-// XSS protection: Use textContent for user data, only allow trusted HTML
-
 class DataDisplay {
     constructor() {
         this.dataDisplay = null;
@@ -46,26 +43,26 @@ class DataDisplay {
                 <!-- Scrollable Content Area -->
                 <div class="data-display-content">
                     <div class="empty-state">
-                    <div class="billboard-illustration">
-                        <div class="search-container">
-                            <div class="circle-outer">
-                                <div class="dot dot1"></div>
-                                <div class="dot dot2"></div>
-                            </div>
-                            <div class="circle-inner">
-                                <div class="search-icon">
-                                    <div class="search-circle"></div>
-                                    <div class="search-handle"></div>
+                        <div class="billboard-illustration">
+                            <div class="search-container">
+                                <div class="circle-outer">
+                                    <div class="dot dot1"></div>
+                                    <div class="dot dot2"></div>
+                                </div>
+                                <div class="circle-inner">
+                                    <div class="search-icon">
+                                        <div class="search-circle"></div>
+                                        <div class="search-handle"></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <h3>No ads yet</h3>
+                        <h3>No ads yet</h3>
                     </div>
                 </div>
             </div>
         `;
-        
+
         container.insertAdjacentHTML('beforeend', dataDisplayHTML);
     }
 
@@ -84,17 +81,8 @@ class DataDisplay {
         const timestamp = new Date().toLocaleString();
         const payload = (incoming && typeof incoming === 'object' && 'data' in incoming) ? incoming.data : incoming;
 
-        console.log('=== NEW DATA RECEIVED ===');
-        console.log('Timestamp:', timestamp);
-        console.log('Raw incoming:', incoming);
-        console.log('Payload:', payload);
-        console.log('Payload type:', Array.isArray(payload) ? 'array' : typeof payload);
-        console.log('Payload length:', Array.isArray(payload) ? payload.length : 1);
-        console.log('Request ID:', incoming?.requestId || 'No ID');
-
-        // Simplified processing - always use the most robust method
         let renderedCount = 0;
-        
+
         if (Array.isArray(payload)) {
             console.log(`Processing array with ${payload.length} items`);
             renderedCount = this.renderOpenAIResponse(payload);
@@ -103,7 +91,7 @@ class DataDisplay {
             renderedCount = this.renderOpenAIResponse(payload);
         }
 
-        // Only remove empty state if we actually rendered something
+        // Remove empty state if we rendered any cards
         if (renderedCount > 0) {
             const emptyState = this.dataDisplay.querySelector('.empty-state');
             if (emptyState) emptyState.remove();
@@ -112,7 +100,7 @@ class DataDisplay {
         // Update status - count competitors and ads
         const allCards = this.dataDisplay.querySelectorAll('.card');
         const totalCards = allCards.length;
-        
+
         // Count unique competitor names (business names)
         const competitorNames = new Set();
         allCards.forEach(card => {
@@ -122,15 +110,6 @@ class DataDisplay {
             }
         });
         const uniqueCompetitors = competitorNames.size;
-
-        console.log(`=== PROCESSING COMPLETE ===`);
-        console.log(`Rendered: ${renderedCount} items`);
-        console.log(`Total cards (ads): ${totalCards}`);
-        console.log(`Unique competitors: ${uniqueCompetitors}`);
-        console.log('All competitor names:', Array.from(competitorNames));
-        console.log('All cards in DOM:', this.dataDisplay.querySelectorAll('.card').length);
-        console.log('Card grid exists:', !!this.dataDisplay.querySelector('.card-grid'));
-        console.log('================================');
 
         // Return stats for parent component to update
         return { competitorCards: uniqueCompetitors, adsCount: totalCards };
@@ -142,18 +121,19 @@ class DataDisplay {
      * @returns {number} Number of items rendered
      */
     renderCompetitorArray(payload) {
-        let grid = this.dataDisplay.querySelector('.card-grid');
+        const contentArea = this.dataDisplay.querySelector('.data-display-content'); // ✅ FIXED
+        let grid = contentArea.querySelector('.card-grid'); // ✅ FIXED
         if (!grid) {
             grid = document.createElement('div');
             grid.className = 'card-grid';
-            this.dataDisplay.appendChild(grid);
+            contentArea.appendChild(grid); // ✅ FIXED - Add to content area
         }
-        
+
         payload.forEach((item, index) => {
             console.log(`Processing item ${index + 1}:`, item.competitor_name);
             grid.appendChild(this.createCompetitorCard(item));
         });
-        
+
         return payload.length;
     }
 
@@ -163,11 +143,12 @@ class DataDisplay {
      * @returns {number} Number of items rendered
      */
     renderSingleCompetitor(payload) {
-        let grid = this.dataDisplay.querySelector('.card-grid');
+        const contentArea = this.dataDisplay.querySelector('.data-display-content'); // ✅ FIXED
+        let grid = contentArea.querySelector('.card-grid'); // ✅ FIXED
         if (!grid) {
             grid = document.createElement('div');
             grid.className = 'card-grid';
-            this.dataDisplay.appendChild(grid);
+            contentArea.appendChild(grid); // ✅ FIXED - Add to content area
         }
         grid.appendChild(this.createCompetitorCard(payload));
         return 1;
@@ -180,60 +161,39 @@ class DataDisplay {
      */
     renderOpenAIResponse(payload) {
         let renderedCount = 0;
-        
+
         if (Array.isArray(payload)) {
-            let grid = this.dataDisplay.querySelector('.card-grid');
+            const contentArea = this.dataDisplay.querySelector('.data-display-content'); // ✅ FIXED
+            let grid = contentArea.querySelector('.card-grid'); // ✅ FIXED
             if (!grid) {
                 grid = document.createElement('div');
                 grid.className = 'card-grid';
-                this.dataDisplay.appendChild(grid);
+                contentArea.appendChild(grid); // ✅ FIXED - Add to content area
             }
-            
+
             payload.forEach((item, index) => {
-                console.log(`=== PROCESSING ITEM ${index + 1}/${payload.length} ===`);
                 console.log(`Raw item:`, item);
-                
+
                 const processed = this.processOpenAIResponse(item);
                 if (processed) {
-                    console.log(`Successfully processed item ${index + 1}:`, processed.competitor_name);
-                    console.log(`Item content_type:`, processed.content_type);
-                    
-                    // ALWAYS create new cards - text analysis creates the card, video analysis adds to existing cards
-                    console.log(`Processing item for: ${processed.competitor_name}, content_type: ${processed.content_type}`);
-                    
-                    // Simple: if content_type is 'video', it's video analysis
                     const hasVideoAnalysis = processed.content_type === 'video';
-                    
-                    console.log('=== VIDEO ANALYSIS DETECTION ===');
-                    console.log('content_type:', processed.content_type);
-                    console.log('has ai_analysis.full_analysis:', processed.ai_analysis?.full_analysis ? 'YES' : 'NO');
-                    console.log('hasVideoAnalysis:', hasVideoAnalysis ? 'YES' : 'NO');
-                    
+
                     if (hasVideoAnalysis) {
-                        // Video analysis - ONLY add to existing cards, NEVER create new
-                        console.log(`Video analysis for: ${processed.competitor_name} - finding existing card`);
+                        console.log(`Video analysis for: ${processed.competitor_name}`);
                         const videoAdText = processed.body || processed.ad_data?.ad_text || '';
-                        console.log(`Video analysis ad text: "${videoAdText.substring(0, 100)}..."`);
                         const existingCards = this.findAllExistingCards(processed.competitor_name, videoAdText);
                         if (existingCards.length > 0) {
-                            console.log(`Found ${existingCards.length} existing cards, adding video analysis`);
                             existingCards.forEach(card => {
                                 this.addVideoAnalysisToExistingCard(card, processed);
                             });
-                        } else {
-                            console.log(`⚠️ No existing card found for "${processed.competitor_name}" with matching ad text - video analysis SKIPPED`);
                         }
-                        // Don't increment renderedCount - no new card created
                     } else {
-                        // Text analysis - create new card
                         console.log(`Creating new card for text analysis: ${processed.competitor_name}`);
                         grid.appendChild(this.createCompetitorCard(processed));
                         renderedCount++;
                     }
                 } else {
                     console.log(`Failed to process item ${index + 1}, creating fallback entry`);
-                    console.log(`Raw item data:`, item);
-                    // Create a fallback entry for any item that fails to process
                     const fallbackEntry = {
                         competitor_name: `Item ${index + 1}`,
                         ai_analysis: {
@@ -245,61 +205,37 @@ class DataDisplay {
                             page_profile_uri: '#'
                         }
                     };
-                    console.log(`Created fallback entry for item ${index + 1}:`, fallbackEntry);
                     grid.appendChild(this.createCompetitorCard(fallbackEntry));
                     renderedCount++;
                 }
-                console.log(`Item ${index + 1} processed, renderedCount: ${renderedCount}`);
             });
         } else {
-            console.log('Processing single OpenAI item');
             const processed = this.processOpenAIResponse(payload);
             if (processed) {
-                console.log('Successfully processed single item:', processed.competitor_name);
-                console.log('Item content_type:', processed.content_type);
-                
-                // ALWAYS create new cards - text analysis creates the card, video analysis adds to existing cards
-                console.log(`Processing single item for: ${processed.competitor_name}, content_type: ${processed.content_type}`);
-                
-                // Simple: if content_type is 'video', it's video analysis
                 const hasVideoAnalysis = processed.content_type === 'video';
-                
-                console.log('=== SINGLE ITEM VIDEO ANALYSIS DETECTION ===');
-                console.log('content_type:', processed.content_type);
-                console.log('has ai_analysis.full_analysis:', processed.ai_analysis?.full_analysis ? 'YES' : 'NO');
-                console.log('hasVideoAnalysis:', hasVideoAnalysis ? 'YES' : 'NO');
-                
+
                 if (hasVideoAnalysis) {
-                    // Video analysis - ONLY add to existing cards, NEVER create new
-                    console.log(`Single video analysis for: ${processed.competitor_name} - finding existing card`);
                     const videoAdText = processed.body || processed.ad_data?.ad_text || '';
-                    console.log(`Video analysis ad text: "${videoAdText.substring(0, 100)}..."`);
                     const existingCards = this.findAllExistingCards(processed.competitor_name, videoAdText);
                     if (existingCards.length > 0) {
-                        console.log(`Found ${existingCards.length} existing cards, adding video analysis`);
                         existingCards.forEach(card => {
                             this.addVideoAnalysisToExistingCard(card, processed);
                         });
-                    } else {
-                        console.log(`⚠️ No existing card found for "${processed.competitor_name}" with matching ad text - video analysis SKIPPED`);
                     }
                     renderedCount = 0; // No new card created
                 } else {
-                    // Text analysis - create new card
                     console.log(`Creating new card for single text analysis: ${processed.competitor_name}`);
-                    let grid = this.dataDisplay.querySelector('.card-grid');
+                    const contentArea = this.dataDisplay.querySelector('.data-display-content'); // ✅ FIXED
+                    let grid = contentArea.querySelector('.card-grid'); // ✅ FIXED
                     if (!grid) {
                         grid = document.createElement('div');
                         grid.className = 'card-grid';
-                        this.dataDisplay.appendChild(grid);
+                        contentArea.appendChild(grid); // ✅ FIXED - Add to content area
                     }
                     grid.appendChild(this.createCompetitorCard(processed));
                     renderedCount = 1;
                 }
             } else {
-                console.log('Failed to process single item, creating fallback entry');
-                console.log('Raw payload data:', payload);
-                // Create a fallback entry for single item that fails to process
                 const fallbackEntry = {
                     competitor_name: 'Single Item',
                     ai_analysis: {
@@ -311,43 +247,35 @@ class DataDisplay {
                         page_profile_uri: '#'
                     }
                 };
-                let grid = this.dataDisplay.querySelector('.card-grid');
+                const contentArea = this.dataDisplay.querySelector('.data-display-content'); // ✅ FIXED
+                let grid = contentArea.querySelector('.card-grid'); // ✅ FIXED
                 if (!grid) {
                     grid = document.createElement('div');
                     grid.className = 'card-grid';
-                    this.dataDisplay.appendChild(grid);
+                    contentArea.appendChild(grid); // ✅ FIXED - Add to content area
                 }
                 grid.appendChild(this.createCompetitorCard(fallbackEntry));
                 renderedCount = 1;
             }
         }
-        
+
         return renderedCount;
     }
 
     /**
-     * Process OpenAI response format - SIMPLIFIED VERSION
+     * Process OpenAI response format
      * @param {Object} item - OpenAI response item
      * @returns {Object|null} Processed competitor data or null
      */
     processOpenAIResponse(item) {
-        console.log('=== PROCESSING ITEM - NO FILTERING ===');
-        console.log('Raw item:', item);
-        
-        // NO FILTERING - process everything that comes in
         if (item && typeof item === 'object') {
-            console.log('Processing item - NO FILTERING:', item);
-            
-            // Extract competitor name from various possible fields
-            const competitorName = item.competitor_name || 
-                                 item.name || 
-                                 item.competitor || 
+            const competitorName = item.competitor_name ||
+                                 item.name ||
+                                 item.competitor ||
                                  'Unknown Competitor';
-            
-            // Use ai_analysis directly if it exists as an object with the correct structure
+
             let aiAnalysis = item.ai_analysis || {};
-            
-            // Extract video data from various possible fields - NO FILTERING
+
             let videos = [];
             if (item.ad_data?.videos && Array.isArray(item.ad_data.videos)) {
                 videos = item.ad_data.videos;
@@ -358,23 +286,14 @@ class DataDisplay {
                     video_id: item.video_data.video_id || ''
                 }];
             }
-            
-            // Determine content type - NO FILTERING
+
             const contentType = item.content_type || (item.video_data ? 'video' : 'text');
-            
-            console.log('Processed item:', {
-                competitor_name: competitorName,
-                content_type: contentType,
-                has_ai_analysis: !!aiAnalysis,
-                videos_count: videos.length
-            });
-            
+
             return {
                 competitor_name: competitorName,
                 content_type: contentType,
-                body: item.body || '', // Preserve original ad text for matching
-                ai_analysis: aiAnalysis, // Keep the original structure!
-                video_analysis: undefined, // Disabled
+                body: item.body || '',
+                ai_analysis: aiAnalysis,
                 video_data: item.video_data ? {
                     video_id: item.video_data.video_id || 'Unknown Video',
                     ad_started: item.video_data.ad_started || new Date().toLocaleDateString(),
@@ -392,8 +311,7 @@ class DataDisplay {
                 }
             };
         }
-        
-        console.log('Item is null or not an object, returning null');
+
         return null;
     }
 
@@ -417,79 +335,33 @@ class DataDisplay {
     findAllExistingCards(competitorName, adText = null) {
         const cards = this.dataDisplay.querySelectorAll('.card');
         const matchingCards = [];
-        
-        console.log(`Looking for existing cards for: "${competitorName}"`);
-        if (adText) {
-            console.log(`With ad text: "${adText.substring(0, 100)}..."`);
-        }
-        console.log(`Available cards:`, Array.from(cards).map(card => {
-            const link = card.querySelector('.title-row a');
-            const adTextEl = card.querySelector('.ad-text');
-            return {
-                name: link ? link.textContent.trim() : 'NO LINK',
-                adText: adTextEl ? adTextEl.textContent.trim().substring(0, 50) + '...' : 'NO AD TEXT'
-            };
-        }));
-        
+
         for (let card of cards) {
             const link = card.querySelector('.title-row a');
             const adTextEl = card.querySelector('.ad-text');
-            
+
             if (link && link.textContent) {
                 const existingName = link.textContent.trim();
                 const existingAdText = adTextEl ? adTextEl.textContent.trim() : '';
-                
-                console.log(`Comparing "${competitorName}" with "${existingName}"`);
-                
-                // First check competitor name match
-                const nameMatches = existingName === competitorName || 
+
+                const nameMatches = existingName === competitorName ||
                     existingName.toLowerCase().includes(competitorName.toLowerCase()) ||
                     competitorName.toLowerCase().includes(existingName.toLowerCase());
-                
+
                 if (nameMatches) {
-                    // If ad text is provided, do precise matching
                     if (adText && existingAdText) {
-                        console.log(`Checking ad text match:`);
-                        console.log(`Video ad text: "${adText.substring(0, 100)}..."`);
-                        console.log(`Card ad text: "${existingAdText.substring(0, 100)}..."`);
-                        
-                        // Exact text match or high similarity
-                        if (existingAdText === adText || 
+                        if (existingAdText === adText ||
                             existingAdText.includes(adText.substring(0, 50)) ||
                             adText.includes(existingAdText.substring(0, 50))) {
-                            console.log(`✅ Found exact match by competitor name + ad text!`);
                             matchingCards.push(card);
-                        } else {
-                            console.log(`❌ Competitor matches but ad text doesn't match`);
                         }
                     } else {
-                        // No ad text provided, use old behavior (match all with same competitor)
-                        console.log(`✅ Found match by competitor name (no ad text provided)`);
                         matchingCards.push(card);
                     }
                 }
             }
         }
-        console.log(`Found ${matchingCards.length} matching cards for "${competitorName}"`);
         return matchingCards;
-    }
-
-    /**
-     * Update existing card with new data (text or video analysis)
-     * @param {HTMLElement} existingCard - The existing card element
-     * @param {Object} data - Analysis data (text or video)
-     */
-    updateExistingCard(existingCard, data) {
-        console.log('Updating existing card with data - NO FILTERING:', data);
-        
-        // Add video analysis if we have video analysis data - NO FILTERING
-        if (data.video_analysis && data.video_analysis.full_analysis) {
-            console.log('Video analysis data found, adding to existing card');
-            this.addVideoAnalysisToExistingCard(existingCard, data);
-        }
-        
-        // Update any other fields if needed
-        // (text analysis, profile info, etc.)
     }
 
     /**
@@ -498,60 +370,43 @@ class DataDisplay {
      * @param {Object} videoData - Video analysis data
      */
     addVideoAnalysisToExistingCard(existingCard, videoData) {
-        console.log('Adding video analysis to existing card:', videoData);
-        console.log('Video data structure:', JSON.stringify(videoData, null, 2));
-        
-        // Check if ad text exists before adding video analysis
-        const existingAdText = existingCard.querySelector('.ad-text');
-        console.log('Existing ad text before video analysis:', existingAdText ? existingAdText.textContent : 'NO AD TEXT FOUND');
-        
-        // DO NOT TOUCH VIDEO PREVIEW URL - just pass everything through
-        
-        // Check if video analysis section already exists
         const existingVideoSection = existingCard.querySelector('.video-analysis-section');
         if (existingVideoSection) {
-            console.log('Video analysis section already exists, updating it');
             existingVideoSection.remove();
         }
 
-        // Create video analysis section
         const videoAnalysisSection = document.createElement('div');
         videoAnalysisSection.className = 'video-analysis-section';
 
-        // Video analysis header with blue pill and three dots button
         const videoHeader = document.createElement('div');
         videoHeader.className = 'analysis-header';
-        
+
         const videoBadge = document.createElement('div');
         videoBadge.className = 'analysis-badge';
         videoBadge.textContent = 'VIDEO';
         videoHeader.appendChild(videoBadge);
-        
+
         const videoOptionsBtn = document.createElement('button');
         videoOptionsBtn.className = 'full-analysis-btn';
         videoOptionsBtn.innerHTML = '⋯';
         videoOptionsBtn.onclick = () => {
             if (this.onShowFullAnalysis) {
                 this.onShowFullAnalysis(
-                    `${videoData?.competitor_name || 'Unknown Competitor'} - Video Analysis`, 
+                    `${videoData?.competitor_name || 'Unknown Competitor'} - Video Analysis`,
                     videoData
                 );
             }
         };
         videoHeader.appendChild(videoOptionsBtn);
-        
         videoAnalysisSection.appendChild(videoHeader);
 
-        // Video analysis content - show metrics like in screenshot
         const videoContent = document.createElement('div');
         videoContent.className = 'ai-preview-content';
-        
-        // Handle JSON structure for video analysis
+
         if (videoData.ai_analysis && typeof videoData.ai_analysis === 'object') {
-            // Create metric rows like in screenshot
             const analysis = videoData.ai_analysis;
             let metricsHTML = '';
-            
+
             if (analysis.copywriting?.offer_clarity) {
                 metricsHTML += `
                     <div class="metric-row">
@@ -576,9 +431,8 @@ class DataDisplay {
                     </div>
                 `;
             }
-            
+
             if (metricsHTML) {
-                // Safe: This is our own generated HTML, not user input
                 videoContent.innerHTML = metricsHTML;
             } else {
                 videoContent.textContent = 'Аналіз доступний';
@@ -586,20 +440,13 @@ class DataDisplay {
         } else {
             videoContent.textContent = 'Аналіз доступний';
         }
-        
+
         videoAnalysisSection.appendChild(videoContent);
-        
-        // Add elegant divider between text and video analysis sections
+
         const sectionDivider = document.createElement('div');
         sectionDivider.className = 'section-divider';
         existingCard.appendChild(sectionDivider);
-        
         existingCard.appendChild(videoAnalysisSection);
-
-        // Check if ad text still exists after adding video analysis
-        const adTextAfter = existingCard.querySelector('.ad-text');
-        console.log('Ad text after adding video analysis:', adTextAfter ? adTextAfter.textContent : 'NO AD TEXT FOUND');
-        console.log('Video analysis section added to existing card');
     }
 
     /**
@@ -615,15 +462,10 @@ class DataDisplay {
             'messenger': '<svg width="16" height="16" viewBox="0 0 24 24" fill="#00B2FF"><path d="M12 2C6.48 2 2 6.48 2 12c0 1.54.36 2.98.97 4.29L1 23l6.71-1.97C9.02 21.64 10.46 22 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2zm4.64 6.12c-.15-.1-.33-.15-.52-.15-.15 0-.29.05-.41.13l-2.54 1.64-2.54-1.64c-.13-.08-.27-.13-.42-.13-.19 0-.37.05-.52.15-.19.12-.3.31-.3.52v6.72c0 .21.11.4.3.52.15.1.33.15.52.15.15 0 .29-.05.41-.13l2.54-1.64 2.54 1.64c.13.08.27.13.42.13.19 0 .37-.05.52-.15.19-.12.3-.31.3-.52V8.64c0-.21-.11-.4-.3-.52z"/></svg>',
             'threads': '<svg width="16" height="16" viewBox="0 0 24 24" fill="#000000"><path d="M12.186 24h-.007c-3.581-.024-6.334-1.205-8.184-3.509C2.35 18.44 1.5 15.586 1.5 12.068c0-3.518.85-6.372 2.495-8.423C5.845 1.205 8.598.024 12.186 0h.007c3.581.024 6.334 1.205 8.184 3.509C22.65 5.56 23.5 8.414 23.5 11.932c0 3.518-.85 6.372-2.495 8.423C19.155 20.795 16.402 21.976 12.814 24h-.628zm-.007-22.5c-3.096.02-5.474 1.04-6.982 2.974C3.69 7.408 2.93 9.698 2.93 12.068s.76 4.66 2.267 6.594c1.508 1.934 3.886 2.954 6.982 2.974 3.096-.02 5.474-1.04 6.982-2.974 1.507-1.934 2.267-4.224 2.267-6.594s-.76-4.66-2.267-6.594C17.653 2.54 15.275 1.52 12.179 1.5zm5.524 4.94c.406 0 .735.329.735.735 0 .406-.329.735-.735.735-.406 0-.735-.329-.735-.735 0-.406.329-.735.735-.735zm-3.726.882c1.442 0 2.608 1.166 2.608 2.608s-1.166 2.608-2.608 2.608-2.608-1.166-2.608-2.608 1.166-2.608 2.608-2.608zm0 1.47c-.627 0-1.137.51-1.137 1.137s.51 1.137 1.137 1.137 1.137-.51 1.137-1.137-.51-1.137-1.137-1.137zm-4.83 1.47c.406 0 .735.329.735.735 0 .406-.329.735-.735.735-.406 0-.735-.329-.735-.735 0-.406.329-.735.735-.735zm-2.941.882c.406 0 .735.329.735.735 0 .406-.329.735-.735.735-.406 0-.735-.329-.735-.735 0-.406.329-.735.735-.735zm8.712 1.47c.406 0 .735.329.735.735 0 .406-.329.735-.735.735-.406 0-.735-.329-.735-.735 0-.406.329-.735.735-.735zm-5.882 0c.406 0 .735.329.735.735 0 .406-.329.735-.735.735-.406 0-.735-.329-.735-.735 0-.406.329-.735.735-.735zm-2.941 0c.406 0 .735.329.735.735 0 .406-.329.735-.735.735-.406 0-.735-.329-.735-.735 0-.406.329-.735.735-.735z"/></svg>'
         };
-        
-        // Debug logging
-        console.log('Platform icon lookup:', { original: platform, normalized: String(platform).toLowerCase().replace(/[^a-z]/g, '') });
-        
+
         const normalizedPlatform = String(platform).toLowerCase().replace(/[^a-z]/g, '');
         const icon = platformIcons[normalizedPlatform] || String(platform).toLowerCase();
-        
-        console.log('Icon result:', { platform: normalizedPlatform, found: !!platformIcons[normalizedPlatform], result: icon.substring(0, 50) + '...' });
-        
+
         return icon;
     }
 
@@ -650,7 +492,6 @@ class DataDisplay {
         const titleRow = document.createElement('div');
         titleRow.className = 'title-row';
 
-        // Create left group for competitor name and badges
         const leftGroup = document.createElement('div');
         leftGroup.className = 'title-left-group';
 
@@ -669,7 +510,7 @@ class DataDisplay {
             const icon = this.getPlatformIcon(p);
             if (icon.startsWith('<svg')) {
                 b.innerHTML = icon;
-                b.title = String(p).toLowerCase(); // Add tooltip with platform name
+                b.title = String(p).toLowerCase();
             } else {
                 b.textContent = icon;
             }
@@ -679,252 +520,181 @@ class DataDisplay {
 
         titleRow.appendChild(leftGroup);
 
-        // Add View Profile link to the far right of title row
         const viewProfileLink = document.createElement('a');
         viewProfileLink.className = 'view-profile-link';
         viewProfileLink.href = entry?.ad_data?.page_profile_uri || '#';
         viewProfileLink.target = '_blank';
         viewProfileLink.rel = 'noopener noreferrer';
         viewProfileLink.innerHTML = 'View Profile <span>↗</span>';
-        console.log('Creating View Profile link with href:', viewProfileLink.href);
         titleRow.appendChild(viewProfileLink);
         titleWrap.appendChild(titleRow);
 
         const meta = document.createElement('div');
         meta.className = 'meta';
-        meta.textContent = `${entry?.ad_data?.ad_started || 'N/A'}`;
-        titleWrap.appendChild(meta);
+        meta.textContent = `${entry?.ad_data?.ad_started || 'N/
+        A'}`;
+                titleWrap.appendChild(meta);
 
-        header.appendChild(titleWrap);
-        card.appendChild(header);
+                header.appendChild(titleWrap);
+                card.appendChild(header);
 
-        // Add elegant divider line between header and content
-        const divider = document.createElement('div');
-        divider.className = 'content-divider';
-        card.appendChild(divider);
+                const divider = document.createElement('div');
+                divider.className = 'content-divider';
+                card.appendChild(divider);
 
-        // Show ad text if available, otherwise show a placeholder
-        const adText = entry?.ad_data?.ad_text || entry?.ad_text || entry?.text || entry?.original_text;
-        if (adText) {
-            const ad = document.createElement('div');
-            ad.className = 'ad-text';
-            ad.textContent = adText;
-            card.appendChild(ad);
-        }
-
-        const firstVideo = Array.isArray(entry?.ad_data?.videos) ? entry.ad_data.videos[0] : null;
-        console.log('Card creation - videos array:', entry?.ad_data?.videos);
-        console.log('Card creation - firstVideo:', firstVideo);
-        console.log('Card creation - video_preview_image_url:', firstVideo?.video_preview_image_url);
-        if (firstVideo?.video_preview_image_url) {
-            console.log('Creating video thumbnail with URL:', firstVideo.video_preview_image_url);
-            const imgVid = document.createElement('img');
-            imgVid.className = 'video-thumb';
-            imgVid.src = firstVideo.video_preview_image_url;
-            imgVid.alt = 'Video preview';
-            imgVid.onclick = () => {
-                const url = firstVideo.video_sd_url || firstVideo.video_preview_image_url;
-                window.open(url, '_blank');
-            };
-            card.appendChild(imgVid);
-        } else {
-            console.log('No video preview URL available, skipping video thumbnail creation');
-        }
-
-        // Text Analysis Section - NO FILTERING
-        const full = entry?.ai_analysis || '';
-        if (full) {
-            const preview = document.createElement('div');
-            preview.className = 'ai-preview';
-
-            // Analysis header with blue pill and three dots button
-            const analysisHeader = document.createElement('div');
-            analysisHeader.className = 'analysis-header';
-            
-            const badge = document.createElement('div');
-            badge.className = 'analysis-badge';
-            badge.textContent = 'TEXT';
-            analysisHeader.appendChild(badge);
-            
-            const fullAnalysisBtn = document.createElement('button');
-            fullAnalysisBtn.className = 'full-analysis-btn';
-            fullAnalysisBtn.innerHTML = '⋯';
-            fullAnalysisBtn.onclick = () => {
-                if (this.onShowFullAnalysis) {
-                    this.onShowFullAnalysis(entry?.competitor_name || 'Unknown competitor', entry);
+                // Add ad text
+                const adText = entry?.ad_data?.ad_text || entry?.ad_text || entry?.text || entry?.original_text;
+                if (adText) {
+                    const ad = document.createElement('div');
+                    ad.className = 'ad-text';
+                    ad.textContent = adText;
+                    card.appendChild(ad);
                 }
-            };
-            analysisHeader.appendChild(fullAnalysisBtn);
-            
-            preview.appendChild(analysisHeader);
 
-            // Content - show metrics like in screenshot
-            const content = document.createElement('div');
-            content.className = 'ai-preview-content';
-            
-            // Handle JSON structure for text analysis
-            if (typeof full === 'object' && full.copywriting) {
-                // Create metric rows like in screenshot
-                let metricsHTML = '';
-                
-                if (full.copywriting?.offer_clarity) {
-                    metricsHTML += `
-                        <div class="metric-row">
-                            <span class="metric-label">Ясність оффера:</span>
-                            <span class="metric-value">${full.copywriting.offer_clarity.score}/10</span>
-                        </div>
-                    `;
+                // Add video thumbnail if available
+                const firstVideo = Array.isArray(entry?.ad_data?.videos) ? entry.ad_data.videos[0] : null;
+                if (firstVideo?.video_preview_image_url) {
+                    const imgVid = document.createElement('img');
+                    imgVid.className = 'video-thumb';
+                    imgVid.src = firstVideo.video_preview_image_url;
+                    imgVid.alt = 'Video preview';
+                    imgVid.onclick = () => {
+                        const url = firstVideo.video_sd_url || firstVideo.video_preview_image_url;
+                        window.open(url, '_blank');
+                    };
+                    card.appendChild(imgVid);
                 }
-                if (full.marketing?.offer_type) {
-                    metricsHTML += `
-                        <div class="metric-row">
-                            <span class="metric-label">Тип оффера:</span>
-                            <span class="metric-value">${full.marketing.offer_type}</span>
-                        </div>
-                    `;
-                }
-                if (full.sales?.value_proposition) {
-                    metricsHTML += `
-                        <div class="metric-row">
-                            <span class="metric-label">Value proposition:</span>
-                            <span class="metric-value">${full.sales.value_proposition.score}/10</span>
-                        </div>
-                    `;
-                }
-                
-                if (metricsHTML) {
-                    // Safe: This is our own generated HTML, not user input
-                    content.innerHTML = metricsHTML;
-                } else {
-                    content.textContent = 'Аналіз доступний';
-                }
-            } else {
-                content.textContent = 'Аналіз доступний';
-            }
-            
-            preview.appendChild(content);
-            card.appendChild(preview);
-        }
 
-        // Video Analysis Section - DISABLED
-        if (false && (entry?.video_analysis?.full_analysis || entry?.ai_analysis)) {
-            const videoAnalysisSection = document.createElement('div');
-            videoAnalysisSection.className = 'video-analysis-section';
+                // Add AI analysis section
+                const full = entry?.ai_analysis || '';
+                if (full) {
+                    const preview = document.createElement('div');
+                    preview.className = 'ai-preview';
 
-            // Video analysis header
-            const videoHeader = document.createElement('div');
-            videoHeader.className = 'analysis-header';
-            videoHeader.innerHTML = `
-                <div class="analysis-badge">Video Creative</div>
-            `;
-            videoAnalysisSection.appendChild(videoHeader);
+                    const analysisHeader = document.createElement('div');
+                    analysisHeader.className = 'analysis-header';
 
-            // Video info - REMOVED to hide Video ID and date line
+                    const badge = document.createElement('div');
+                    badge.className = 'analysis-badge';
+                    badge.textContent = 'TEXT';
+                    analysisHeader.appendChild(badge);
 
-            // Video analysis content preview - NO FILTERING
-            const videoContent = document.createElement('div');
-            videoContent.className = 'analysis-content';
-            let videoAnalysisText = entry.video_analysis?.full_analysis || entry.ai_analysis;
-            
-            // Convert to string if it's an object
-            if (typeof videoAnalysisText === 'object') {
-                videoAnalysisText = JSON.stringify(videoAnalysisText, null, 2);
-            }
-            
-            // Clean the preview text by formatting markdown syntax
-            const cleanVideoPreview = videoAnalysisText
-                .replace(/^#{1,6}\s+/gm, '') // Remove markdown header symbols but keep text
-                .replace(/^\s*[-–—•*]\s*/gm, '') // Remove dashes from start of lines
-                .replace(/\*\*(.+?)\*\*/g, '$1') // Remove bold markdown
-                .replace(/\s+/g, ' ') // Clean up multiple spaces
-                .trim();
-            videoContent.textContent = cleanVideoPreview;
-            videoAnalysisSection.appendChild(videoContent);
+                    const fullAnalysisBtn = document.createElement('button');
+                    fullAnalysisBtn.className = 'full-analysis-btn';
+                    fullAnalysisBtn.innerHTML = '⋯';
+                    fullAnalysisBtn.onclick = () => {
+                        if (this.onShowFullAnalysis) {
+                            this.onShowFullAnalysis(entry?.competitor_name || 'Unknown competitor', entry);
+                        }
+                    };
+                    analysisHeader.appendChild(fullAnalysisBtn);
 
-            // Video analysis actions
-            const videoActions = document.createElement('div');
-            videoActions.className = 'ai-preview-actions';
+                    preview.appendChild(analysisHeader);
 
-            // Add empty div to push button to the right (View Profile is now in title row)
-            const spacer = document.createElement('div');
-            videoActions.appendChild(spacer);
+                    const content = document.createElement('div');
+                    content.className = 'ai-preview-content';
 
-            const viewFullVideoBtn = document.createElement('button');
-            viewFullVideoBtn.className = 'full-analysis-btn';
-            viewFullVideoBtn.innerHTML = '⋯';
-            viewFullVideoBtn.onclick = () => {
-                if (this.onShowFullAnalysis) {
-                    this.onShowFullAnalysis(
-                        `${entry?.competitor_name || 'Unknown Competitor'} - Video Analysis`, 
-                        videoAnalysisText
-                    );
-                }
-            };
-            videoActions.appendChild(viewFullVideoBtn);
+                    // Create metric rows from analysis data
+                    if (typeof full === 'object' && full.copywriting) {
+                        let metricsHTML = '';
 
-            videoAnalysisSection.appendChild(videoActions);
-            card.appendChild(videoAnalysisSection);
-        }
-
-        return card;
-    }
-
-    /**
-     * Clear all data from the display
-     */
-    clear() {
-        if (this.dataDisplay) {
-            this.dataDisplay.innerHTML = `
-                <!-- Fixed Header with Clear All Button -->
-                <div class="data-display-header">
-                    <button id="clearDataBtn" class="clear-data-btn">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="3,6 5,6 21,6"></polyline>
-                            <path d="m19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"></path>
-                            <line x1="10" y1="11" x2="10" y2="17"></line>
-                            <line x1="14" y1="11" x2="14" y2="17"></line>
-                        </svg>
-                        Clear All
-                    </button>
-                    <!-- Full-length horizontal line -->
-                    <div class="content-divider-full"></div>
-                </div>
-                <!-- Scrollable Content Area -->
-                <div class="data-display-content">
-                    <div class="empty-state">
-                        <div class="billboard-illustration">
-                            <div class="search-container">
-                                <div class="circle-outer">
-                                    <div class="dot dot1"></div>
-                                    <div class="dot dot2"></div>
+                        if (full.copywriting?.offer_clarity) {
+                            metricsHTML += `
+                                <div class="metric-row">
+                                    <span class="metric-label">Ясність оффера:</span>
+                                    <span class="metric-value">${full.copywriting.offer_clarity.score}/10</span>
                                 </div>
-                                <div class="circle-inner">
-                                    <div class="search-icon">
-                                        <div class="search-circle"></div>
-                                        <div class="search-handle"></div>
+                            `;
+                        }
+                        if (full.marketing?.offer_type) {
+                            metricsHTML += `
+                                <div class="metric-row">
+                                    <span class="metric-label">Тип оффера:</span>
+                                    <span class="metric-value">${full.marketing.offer_type}</span>
+                                </div>
+                            `;
+                        }
+                        if (full.sales?.value_proposition) {
+                            metricsHTML += `
+                                <div class="metric-row">
+                                    <span class="metric-label">Value proposition:</span>
+                                    <span class="metric-value">${full.sales.value_proposition.score}/10</span>
+                                </div>
+                            `;
+                        }
+
+                        if (metricsHTML) {
+                            content.innerHTML = metricsHTML;
+                        } else {
+                            content.textContent = 'Аналіз доступний';
+                        }
+                    } else {
+                        content.textContent = 'Аналіз доступний';
+                    }
+
+                    preview.appendChild(content);
+                    card.appendChild(preview);
+                }
+
+                return card;
+            }
+
+            /**
+             * Clear all data from the display
+             */
+            clear() {
+                if (this.dataDisplay) {
+                    this.dataDisplay.innerHTML = `
+                        <!-- Fixed Header with Clear All Button -->
+                        <div class="data-display-header">
+                            <button id="clearDataBtn" class="clear-data-btn">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="3,6 5,6 21,6"></polyline>
+                                    <path d="m19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"></path>
+                                    <line x1="10" y1="11" x2="10" y2="17"></line>
+                                    <line x1="14" y1="11" x2="14" y2="17"></line>
+                                </svg>
+                                Clear All
+                            </button>
+                            <!-- Full-length horizontal line -->
+                            <div class="content-divider-full"></div>
+                        </div>
+                        <!-- Scrollable Content Area -->
+                        <div class="data-display-content">
+                            <div class="empty-state">
+                                <div class="billboard-illustration">
+                                    <div class="search-container">
+                                        <div class="circle-outer">
+                                            <div class="dot dot1"></div>
+                                            <div class="dot dot2"></div>
+                                        </div>
+                                        <div class="circle-inner">
+                                            <div class="search-icon">
+                                                <div class="search-circle"></div>
+                                                <div class="search-handle"></div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
+                                <h3>No ads yet</h3>
                             </div>
                         </div>
-                        <h3>No ads yet</h3>
-                    </div>
-                </div>
-            `;
+                    `;
+                }
+            }
+
+            /**
+             * Get the data display element
+             * @returns {HTMLElement|null}
+             */
+            getElement() {
+                return this.dataDisplay;
+            }
         }
-    }
 
-    /**
-     * Get the data display element
-     * @returns {HTMLElement|null}
-     */
-    getElement() {
-        return this.dataDisplay;
-    }
-}
-
-// Export for use in other modules
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = DataDisplay;
-} else {
-    window.DataDisplay = DataDisplay;
-}
+        // Export for use in other modules
+        if (typeof module !== 'undefined' && module.exports) {
+            module.exports = DataDisplay;
+        } else {
+            window.DataDisplay = DataDisplay;
+        }
