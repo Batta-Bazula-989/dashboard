@@ -17,8 +17,8 @@
     justify-content: center;
     position: relative;
     flex: 0 0 auto; /* Don't grow, fixed width */
-    width: 200px; /* Fixed width for cards */
-    min-width: 180px;
+    width: 180px; /* Fixed width for cards */
+    min-width: 160px;
     transition: all 0.2s ease;
     min-height: 85px;
     max-height: 85px;
@@ -34,8 +34,8 @@
     position: absolute;
     top: 14px;
     right: 16px;
-    width: 32px;
-    height: 32px;
+    width: 30px;
+    height: 30px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -73,8 +73,8 @@
 }
 
 .stats-number {
-    font-size: 30px;
-    font-weight: 600;
+    font-size: 29px;
+    font-weight: 550;
     color: #0f172a;
     line-height: 1;
     margin-top: 2px;
@@ -88,8 +88,8 @@
     padding: 0 18px;
     min-height: 38px;
     max-height: 38px;
-    min-width: 120px; /* ✅ ADDED - Minimum width */
-    max-width: 120px; /* ✅ ADDED - Maximum width */
+    min-width: 115px; /* ✅ ADDED - Minimum width */
+    max-width: 115px; /* ✅ ADDED - Maximum width */
     display: inline-flex;
     align-items: center;
     justify-content: center;
