@@ -61,7 +61,7 @@ class DataDisplay {
                         </div>
                     </div>
                     <h3>No ads yet</h3>
-                </div>
+                    </div>
                 </div>
             </div>
         `;
