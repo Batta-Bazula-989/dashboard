@@ -874,10 +874,23 @@ class DataDisplay {
      */
     clear() {
         if (this.dataDisplay) {
-            // Only clear the content area, keep the header intact
-            const contentArea = this.dataDisplay.querySelector('.data-display-content');
-            if (contentArea) {
-                contentArea.innerHTML = `
+            this.dataDisplay.innerHTML = `
+                <!-- Fixed Header with Clear All Button -->
+                <div class="data-display-header">
+                    <button id="clearDataBtn" class="clear-data-btn">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="3,6 5,6 21,6"></polyline>
+                            <path d="m19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"></path>
+                            <line x1="10" y1="11" x2="10" y2="17"></line>
+                            <line x1="14" y1="11" x2="14" y2="17"></line>
+                        </svg>
+                        Clear All
+                    </button>
+                    <!-- Full-length horizontal line -->
+                    <div class="content-divider-full"></div>
+                </div>
+                <!-- Scrollable Content Area -->
+                <div class="data-display-content">
                     <div class="empty-state">
                         <div class="billboard-illustration">
                             <div class="search-container">

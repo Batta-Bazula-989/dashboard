@@ -13,6 +13,7 @@
     overflow-x: hidden;
     padding: 0 30px 30px 30px;
     min-height: 400px;
+    height: calc(100vh - 200px) !important;
 }
 
 /* Legacy styles that need to be migrated */
