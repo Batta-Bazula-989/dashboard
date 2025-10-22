@@ -24,8 +24,11 @@
     border-radius: 8px;
     padding: 10px 15px 0 15px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-    margin-bottom: 2.4px;
+    /* ❌ REMOVE THIS: */
+    /* margin-bottom: 2.4px; */
     position: relative;
+    width: 100%;
+    min-width: 0;
 }
 
 .card:hover {
