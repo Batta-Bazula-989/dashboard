@@ -3,32 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Data Dashboard</title>
-    <link rel="stylesheet" href="styles/main.css?v=1.0.0">
+    <title>Ad Analysis Dashboard</title>
+    <link rel="stylesheet" href="styles/main.css?v=2.0.0">
 </head>
 <body>
 <div class="container">
     <!-- Components will be rendered here dynamically -->
 </div>
 
-<!-- Load in dependency order -->
+<!-- ========================================= -->
+<!-- LOAD SCRIPTS IN DEPENDENCY ORDER -->
+<!-- ========================================= -->
 
-<!-- 1. Utilities (no dependencies) -->
+<!-- 1. UTILITIES (No dependencies) -->
 <script src="components/utilities/PlatformIcons.js"></script>
 <script src="components/utilities/DataProcessor.js"></script>
 <script src="components/utilities/CardMatcher.js"></script>
+<script src="components/utilities/Sanitizer.js"></script>
+<script src="components/utilities/ModalIcons.js"></script>
 
-<!-- 2. Builders (depend on utilities) -->
+<!-- 2. BUILDERS (Depend on utilities) -->
 <script src="components/builders/AnalysisSections.js"></script>
 <script src="components/builders/CardBuilder.js"></script>
 
-<!-- 3. Core components (depend on builders & utilities) -->
+<!-- 3. CORE COMPONENTS (Depend on builders & utilities) -->
 <script src="components/core/ComponentLoader.js"></script>
 <script src="components/core/StatsCards.js"></script>
 <script src="components/core/Modal.js"></script>
 <script src="components/core/DataDisplay.js"></script>
 
-<!-- 4. Main app -->
+<!-- 4. MAIN APPLICATION (Uses all components) -->
 <script src="scripts/dashboard-http.js"></script>
+
 </body>
 </html>
