@@ -26,9 +26,8 @@
     overflow-y: auto;
     overflow-x: hidden;
     padding: 0 30px 30px 30px;
-    max-height: calc(100vh - 200px);
+    max-height: calc(100vh - 300px);
     min-height: 400px;
-    height: calc(100vh - 200px);
 }
 
 /* Clear Data Button */
