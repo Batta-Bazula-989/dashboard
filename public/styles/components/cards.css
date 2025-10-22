@@ -1,22 +1,14 @@
-/* Card Components */
-
 /* Card Grid */
 .card-grid {
     display: grid;
-    grid-template-columns: repeat(2, minmax(300px, 1fr));
+    grid-template-columns: repeat(2, minmax(280px, 450px));
     gap: 20px;
     align-items: start;
+    justify-content: start;
     width: 100%;
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 30px; /* ✅ PADDING ON GRID ITSELF - THIS IS KEY! */
-}
-
-@media (max-width: 900px) {
-    .card-grid {
-        grid-template-columns: 1fr;
-        padding: 20px; /* ✅ Less padding on mobile */
-    }
+    max-width: 1000px;
+    margin: 0;
+    padding: 30px 15px;
 }
 
 /* Card Base */
@@ -28,15 +20,14 @@
     border-radius: 8px;
     padding: 10px 15px 0 15px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-    /* ❌ REMOVE THIS: */
-    /* margin-bottom: 2.4px; */
     position: relative;
     width: 100%;
     min-width: 0;
+    transition: all 0.2s ease;
 }
 
 .card:hover {
-    box-shadow: var(--shadow-md);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     transform: translateY(-2px);
 }
 
@@ -67,6 +58,11 @@
     color: #111827;
     text-decoration: none;
     font-weight: 600;
+    font-size: 15px;
+}
+
+.title-row a:hover {
+    color: #3b82f6;
 }
 
 .title-wrap {
@@ -89,12 +85,18 @@
     gap: 4px;
     margin-left: auto;
     flex-shrink: 0;
+    text-decoration: none;
+    transition: all 0.2s ease;
 }
 
-.badges { 
-    display: flex; 
-    gap: 6px; 
-    flex-wrap: wrap; 
+.title-row .view-profile-link:hover {
+    color: #2563eb;
+}
+
+.badges {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
 }
 
 .badge {
@@ -141,10 +143,10 @@
     border-color: #e2e8f0;
 }
 
-.meta { 
-    color: #6b7280; 
-    font-size: 12px; 
-    margin-bottom: 4px; 
+.meta {
+    color: #6b7280;
+    font-size: 12px;
+    margin-bottom: 4px;
 }
 
 .content-divider {
@@ -162,10 +164,10 @@
     opacity: 0.5;
 }
 
-.ad-text { 
-    color: #111827; 
-    font-size: 13px; 
-    white-space: pre-wrap; 
+.ad-text {
+    color: #111827;
+    font-size: 13px;
+    white-space: pre-wrap;
     line-height: 1.4;
     margin: 2px 0;
 }
