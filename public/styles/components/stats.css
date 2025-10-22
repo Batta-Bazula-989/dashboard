@@ -3,8 +3,8 @@
     display: flex;
     gap: 15px;
     width: 100%;
-    max-width: 100%; /* Allow full width */
-    align-items: stretch; /* All items same height */
+    max-width: 100%;
+    align-items: stretch;
 }
 
 .stats-card {
@@ -86,10 +86,10 @@
     border: 1px solid #e5e7eb;
     border-radius: 12px;
     padding: 0 20px;
-    min-height: 85px;
-    max-height: 85px;
-    min-width: 140px; /* ✅ ADDED - Minimum width */
-    max-width: 160px; /* ✅ ADDED - Maximum width */
+    min-height: 60px;
+    max-height: 60px;
+    min-width: 90px; /* ✅ ADDED - Minimum width */
+    max-width: 90px; /* ✅ ADDED - Maximum width */
     display: inline-flex;
     align-items: center;
     justify-content: center;
