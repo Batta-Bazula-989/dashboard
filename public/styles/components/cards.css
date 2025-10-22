@@ -3,15 +3,19 @@
 /* Card Grid */
 .card-grid {
     display: grid;
-    grid-template-columns: 30% 30%;
-    gap: 15px;
+    grid-template-columns: repeat(2, minmax(300px, 1fr));
+    gap: 20px;
     align-items: start;
-    justify-content: start;
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 30px; /* ✅ PADDING ON GRID ITSELF - THIS IS KEY! */
 }
 
 @media (max-width: 900px) {
-    .card-grid { 
-        grid-template-columns: 1fr; 
+    .card-grid {
+        grid-template-columns: 1fr;
+        padding: 20px; /* ✅ Less padding on mobile */
     }
 }
 

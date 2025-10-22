@@ -10,7 +10,7 @@ body {
     background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 25%, #cbd5e1 75%, #94a3b8 100%);
     height: 100vh;
     padding: 0;
-    overflow: hidden; /* Prevent body from scrolling */
+    overflow: hidden;
 }
 
 .container {
@@ -18,11 +18,11 @@ body {
     margin: 0;
     width: 100%;
     padding: 14px;
-    position: relative; /* For Clear All button positioning */
+    position: relative;
     height: 100vh;
     display: flex;
     flex-direction: column;
-    overflow: hidden; /* FIXED: Contain all content */
+    overflow: hidden;
 }
 
 .dashboard-content {
@@ -31,15 +31,15 @@ body {
     gap: 12px;
     width: 100%;
     flex: 1;
-    min-height: 0; /* FIXED: CRITICAL - Allows flex child to shrink */
-    overflow: hidden; /* FIXED: Prevent overflow */
+    min-height: 0;
+    overflow: hidden;
 }
 
 .stats-section {
     display: flex;
     justify-content: flex-start;
     width: 100%;
-    flex-shrink: 0; /* FIXED: Prevents stats from shrinking */
+    flex-shrink: 0;
 }
 
 .data-section {
@@ -47,8 +47,8 @@ body {
     flex: 1;
     display: flex;
     flex-direction: column;
-    min-height: 0; /* FIXED: CRITICAL - Allows proper scrolling */
-    overflow: hidden; /* FIXED: Contain scrollable content */
+    min-height: 0;
+    overflow: hidden;
 }
 
 .header {
@@ -69,38 +69,31 @@ body {
 }
 
 /* ========================================= */
-/* DATA DISPLAY CONTAINER - CRITICAL */
+/* DATA DISPLAY CONTAINER */
 /* ========================================= */
 
-.data-display-content {
-    flex: 1;
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding: 30px 30px 30px 30px; /* ✅ CHANGED - Add top padding */
-    min-height: 0;
-    display: block; /* ✅ Make sure it's block, not flex */
-}
-
-.data-display-header {
-    padding: 20px 30px 0 30px;
+.data-display {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    margin: 0;
+    min-height: 200px;
     position: relative;
-    flex-shrink: 0;
+    width: 100%;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
 }
 
 .data-display-content {
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
-    padding: 0 30px 30px 30px;
-    max-height: calc(100vh - 200px);
-    min-height: 400px;
+    padding: 0;
+    min-height: 0;
     display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.data-display:has(.table-responsive) {
-    min-height: calc(100vh - 200px);
+    flex-direction: column;
 }
 
 /* ========================================= */
@@ -113,13 +106,10 @@ body {
     align-items: center;
     justify-content: center;
     text-align: center;
-    padding: 20px;
+    padding: 60px 20px;
     color: #64748b;
-    min-height: calc(100vh - 400px);
-    position: relative;
+    flex: 1;
     width: 100%;
-    max-width: 600px;
-    margin: 0 auto;
 }
 
 .billboard-illustration {
@@ -129,11 +119,6 @@ body {
     align-items: center;
 }
 
-.billboard-illustration img {
-    max-width: 500px;
-    height: auto;
-}
-
 .empty-state h3 {
     font-size: 1.2rem;
     color: #64748b;
@@ -141,63 +126,117 @@ body {
     font-weight: 500;
 }
 
-.empty-state-icon {
-    font-size: 3rem;
-    margin-bottom: 15px;
-}
-
 /* ========================================= */
-/* CLEAR ALL BUTTON */
+/* EMPTY STATE ANIMATION */
 /* ========================================= */
 
-.clear-data-btn {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 1000;
-    background: transparent;
-    color: #64748b;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 6px;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: inline-flex;
+.search-container {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    display: flex;
     align-items: center;
-    gap: 4px;
-    min-width: 90px;
     justify-content: center;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-.clear-data-btn:hover {
-    background: #f1f5f9;
-    color: #475569;
+.circle-outer {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 3px solid #e2e8f0;
+    animation: pulse-outer 2s ease-in-out infinite;
 }
 
-.clear-data-btn:active {
-    transform: scale(0.95);
-    background: #e2e8f0;
+.circle-inner {
+    position: relative;
+    width: 70%;
+    height: 70%;
+    border-radius: 50%;
+    background: #f8fafc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: pulse-inner 2s ease-in-out infinite;
 }
 
-.clear-data-btn.hidden {
-    opacity: 0;
-    transform: translateY(-20px);
-    pointer-events: none;
+.search-icon {
+    position: relative;
+    width: 40px;
+    height: 40px;
 }
 
-.clear-data-btn:disabled {
-    background: #f1f5f9;
-    color: #94a3b8;
-    cursor: not-allowed;
-    transform: none;
+.search-circle {
+    width: 32px;
+    height: 32px;
+    border: 3px solid #94a3b8;
+    border-radius: 50%;
+    position: absolute;
+    top: 0;
+    left: 0;
 }
 
-.clear-data-btn svg {
-    width: 14px;
-    height: 14px;
+.search-handle {
+    width: 3px;
+    height: 16px;
+    background: #94a3b8;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    transform: rotate(-45deg);
+    transform-origin: top;
+    border-radius: 2px;
+}
+
+.dot {
+    width: 8px;
+    height: 8px;
+    background: #3b82f6;
+    border-radius: 50%;
+    position: absolute;
+}
+
+.dot1 {
+    top: 10%;
+    left: 30%;
+    animation: float-dot 3s ease-in-out infinite;
+}
+
+.dot2 {
+    top: 30%;
+    right: 20%;
+    animation: float-dot 3s ease-in-out infinite 1.5s;
+}
+
+@keyframes pulse-outer {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 0.3;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 0.6;
+    }
+}
+
+@keyframes pulse-inner {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+@keyframes float-dot {
+    0%, 100% {
+        transform: translateY(0) translateX(0);
+        opacity: 0.4;
+    }
+    50% {
+        transform: translateY(-15px) translateX(10px);
+        opacity: 1;
+    }
 }
 
 /* ========================================= */
@@ -209,9 +248,22 @@ body {
         font-size: 2rem;
     }
 
-    .clear-data-btn {
-        padding: 6px 10px;
-        font-size: 12px;
-        min-width: 80px;
+    .search-container {
+        width: 100px;
+        height: 100px;
+    }
+
+    .search-icon {
+        width: 32px;
+        height: 32px;
+    }
+
+    .search-circle {
+        width: 26px;
+        height: 26px;
+    }
+
+    .search-handle {
+        height: 12px;
     }
 }
