@@ -1,145 +1,119 @@
-/* Stats Components */
+/* Stats Cards Component */
 .stats-container {
     display: flex;
-    gap: var(--spacing-lg);
-    flex-wrap: wrap;
+    gap: 15px;
+    width: 100%;
+    max-width: 500px; /* Limit max width */
 }
 
 .stats-card {
-    background: var(--color-stats-bg);
-    border-radius: var(--radius-md);
-    padding: var(--spacing-lg);
-    box-shadow: var(--shadow-sm);
-    border: 1px solid #e2e8f0;
-    min-height: 80px;
-    min-width: 200px;
-    transition: all 0.3s ease;
-    overflow: hidden;
+    background: white;
+    border-radius: 12px;
+    padding: 16px 20px; /* Reduced from 20px 24px */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* ✅ Center content vertically */
     position: relative;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-}
-
-.stats-content {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: flex-start;
     flex: 1;
-}
-
-.stats-label {
-    font-size: 12px;
-    color: var(--color-stats-label);
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin: 0 0 var(--spacing-xs) 0;
-}
-
-.stats-number {
-    font-size: 32px;
-    font-weight: 700;
-    color: var(--color-stats-number);
-    line-height: 1;
-    margin: 0;
+    min-width: 0;
+    transition: all 0.2s ease;
+    min-height: 85px; /* ✅ 15% smaller (was ~100px) */
+    max-height: 85px; /* ✅ Fixed height */
 }
 
 .stats-card:hover {
-    box-shadow: var(--shadow-md);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
     transform: translateY(-2px);
 }
 
-.stats-value {
-    font-size: 2rem;
-    font-weight: 700;
-    color: #1e293b;
-    margin-bottom: var(--spacing-xs);
-}
-
+/* Icon in top-right corner */
 .stats-icon-top-right {
     position: absolute;
-    top: var(--spacing-md);
-    right: var(--spacing-md);
-    width: 24px;
-    height: 24px;
-    opacity: 0.8;
+    top: 14px; /* Adjusted for smaller card */
+    right: 16px;
+    width: 32px; /* Slightly smaller icon */
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8fafc;
+    border-radius: 8px;
+    color: #64748b;
+    transition: all 0.2s ease;
 }
 
-/* Platform badges */
-.platform-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--spacing-xs);
-    padding: var(--spacing-xs) var(--spacing-sm);
-    border-radius: var(--radius-sm);
-    font-size: 12px;
-    font-weight: 500;
+.stats-card:hover .stats-icon-top-right {
     background: #f1f5f9;
     color: #475569;
-    border: 1px solid #e2e8f0;
 }
 
-.platform-badge svg {
-    width: 14px;
-    height: 14px;
+.stats-icon-top-right svg {
+    width: 18px; /* Slightly smaller */
+    height: 18px;
 }
 
-/* AI Preview */
-.ai-preview-icon {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+/* Stats content - left aligned */
+.stats-content {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: var(--spacing-sm);
-    flex-shrink: 0;
+    flex-direction: column;
+    gap: 4px; /* ✅ Consistent spacing */
+    padding-right: 40px; /* Space for icon */
 }
 
-.ai-preview-icon svg {
-    width: 12px;
-    height: 12px;
-    color: white;
+.stats-label {
+    font-size: 11px; /* Slightly smaller */
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #64748b;
+    line-height: 1.2;
 }
 
-/* Recommendation icons */
-.recommendation-icon {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: #fef3c7;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: var(--spacing-sm);
-    flex-shrink: 0;
+.stats-number {
+    font-size: 32px; /* Slightly smaller from 36px */
+    font-weight: 700;
+    color: #0f172a;
+    line-height: 1;
+    margin-top: 2px; /* ✅ Better alignment */
 }
 
-.recommendation-icon svg {
-    width: 12px;
-    height: 12px;
-    color: #d97706;
-}
-
+/* Responsive adjustments */
 @media (max-width: 768px) {
     .stats-container {
-        flex-direction: column;
-        gap: 16px;
+        max-width: 100%;
     }
-    
+
     .stats-card {
-        padding: var(--spacing-md);
-        min-height: 100px;
+        padding: 14px 18px;
+        min-height: 75px;
+        max-height: 75px;
     }
-    
-    .stats-content h3 {
-        font-size: 14px;
-    }
-    
-    .stats-content .stats-number {
+
+    .stats-number {
         font-size: 28px;
+    }
+
+    .stats-label {
+        font-size: 10px;
+    }
+
+    .stats-icon-top-right {
+        width: 28px;
+        height: 28px;
+        top: 12px;
+        right: 14px;
+    }
+
+    .stats-icon-top-right svg {
+        width: 16px;
+        height: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .stats-card {
+        min-height: 70px;
+        max-height: 70px;
     }
 }
