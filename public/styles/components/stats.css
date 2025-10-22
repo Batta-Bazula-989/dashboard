@@ -84,10 +84,10 @@
 .clear-data-btn-stats {
     background: white;
     border: 1px solid #e5e7eb;
-    border-radius: 12px;
+    border-radius: 8px;
     padding: 0 20px;
-    min-height: 60px;
-    max-height: 60px;
+    min-height: 50px;
+    max-height: 50px;
     min-width: 90px; /* ✅ ADDED - Minimum width */
     max-width: 90px; /* ✅ ADDED - Maximum width */
     display: inline-flex;
