@@ -106,102 +106,107 @@ class DataDashboard {
     /**
      * Fetch data from API
      */
-    async fetchData() {
-        if (this.isFetching) return; // Guard against race conditions
-        this.isFetching = true;
-        
-        try {
-            const response = await fetch('/api/data', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
+   /**
+    * Fetch data from API
+    */
+   async fetchData() {
+       if (this.isFetching) return; // Guard against race conditions
+       this.isFetching = true;
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
+       try {
+           const response = await fetch('/api/data', {
+               method: 'GET',
+               headers: {
+                   'Content-Type': 'application/json'
+               }
+           });
 
-            const result = await response.json();
+           if (!response.ok) {
+               throw new Error(`HTTP error! status: ${response.status}`);
+           }
 
-            if (result.success && result.data) {
-                console.log(`=== API RESPONSE ===`);
-                console.log(`API returned ${result.data.length} items`);
-                console.log(`Last data count: ${this.lastDataCount}`);
-                console.log(`Is first fetch: ${this.isFirstFetch}`);
-                console.log(`Full API response:`, result);
-                
-                // On first fetch after page load/refresh, process ALL existing data
-                if (this.isFirstFetch) {
-                    console.log(`First fetch - processing all ${result.data.length} items`);
-                    
-                    // Clear the display first
-                    if (this.dataDisplay) {
-                        this.dataDisplay.clear();
-                    }
-                    
-                    // Process all items
-                    result.data.forEach((item, index) => {
-                        console.log(`=== PROCESSING ITEM ${index + 1}/${result.data.length} ===`);
-                        console.log(`Item data:`, item);
-                        console.log(`Item dataType:`, item.dataType);
-                        this.addDataItem(item);
-                    });
-                    
-                    this.lastDataCount = result.data.length;
-                    this.isFirstFetch = false; // Mark first fetch as complete
-                    console.log(`=== FIRST FETCH COMPLETE ===`);
-                    console.log(`Processed all ${result.data.length} items`);
-                } else if (result.data.length > this.lastDataCount) {
-                    // Process only NEW items to preserve existing cards
-                    const newItems = result.data.slice(this.lastDataCount);
-                    console.log(`Found ${newItems.length} new items, processing only new items`);
-                    
-                    newItems.forEach((item, index) => {
-                        console.log(`=== PROCESSING NEW ITEM ${index + 1}/${newItems.length} ===`);
-                        console.log(`Item data:`, item);
-                        console.log(`Item dataType:`, item.dataType);
-                        this.addDataItem(item);
-                    });
-                    
-                    this.lastDataCount = result.data.length;
-                    console.log(`=== NEW ITEMS PROCESSING COMPLETE ===`);
-                    console.log(`Processed ${newItems.length} new items, total items: ${result.data.length}`);
-                } else if (result.data.length < this.lastDataCount) {
-                    // Data was cleared, reprocess everything
-                    console.log(`Data count decreased from ${this.lastDataCount} to ${result.data.length}, reprocessing all data`);
-                    
-                    // Clear the display
-                    if (this.dataDisplay) {
-                        this.dataDisplay.clear();
-                    }
-                    
-                    // Process all items
-                    result.data.forEach((item, index) => {
-                        console.log(`=== REPROCESSING ITEM ${index + 1}/${result.data.length} ===`);
-                        console.log(`Item data:`, item);
-                        console.log(`Item dataType:`, item.dataType);
-                        this.addDataItem(item);
-                    });
-                    
-                    this.lastDataCount = result.data.length;
-                    console.log(`=== REPROCESSING COMPLETE ===`);
-                    console.log(`Reprocessed all ${result.data.length} items`);
-                } else {
-                    console.log(`Data count unchanged (${result.data.length}), no processing needed`);
-                }
+           const result = await response.json();
 
-                // Connection status removed
-            } else {
-                console.log(`API response not successful or no data:`, result);
-            }
-        } catch (error) {
-            console.error('Error fetching data:', error);
-            // Connection status removed
-        } finally {
-            this.isFetching = false; // Always release lock
-        }
-    }
+           if (result.success) {
+               const dataArray = result.data || []; // Handle null/undefined
+
+               console.log(`=== API RESPONSE ===`);
+               console.log(`API returned ${dataArray.length} items`);
+               console.log(`Last data count: ${this.lastDataCount}`);
+               console.log(`Is first fetch: ${this.isFirstFetch}`);
+               console.log(`Full API response:`, result);
+
+               // On first fetch after page load/refresh, process ALL existing data
+               if (this.isFirstFetch) {
+                   console.log(`First fetch - processing all ${dataArray.length} items`);
+
+                   // ✅ FIX: Only clear if there's data to add (preserves empty state)
+                   if (dataArray.length > 0 && this.dataDisplay) {
+                       this.dataDisplay.clear();
+                   }
+
+                   // Process all items
+                   dataArray.forEach((item, index) => {
+                       console.log(`=== PROCESSING ITEM ${index + 1}/${dataArray.length} ===`);
+                       console.log(`Item data:`, item);
+                       console.log(`Item dataType:`, item.dataType);
+                       this.addDataItem(item);
+                   });
+
+                   this.lastDataCount = dataArray.length;
+                   this.isFirstFetch = false; // Mark first fetch as complete
+                   console.log(`=== FIRST FETCH COMPLETE ===`);
+                   console.log(`Processed all ${dataArray.length} items`);
+               }
+               else if (dataArray.length > this.lastDataCount) {
+                   // Process only NEW items to preserve existing cards
+                   const newItems = dataArray.slice(this.lastDataCount);
+                   console.log(`Found ${newItems.length} new items, processing only new items`);
+
+                   newItems.forEach((item, index) => {
+                       console.log(`=== PROCESSING NEW ITEM ${index + 1}/${newItems.length} ===`);
+                       console.log(`Item data:`, item);
+                       console.log(`Item dataType:`, item.dataType);
+                       this.addDataItem(item);
+                   });
+
+                   this.lastDataCount = dataArray.length;
+                   console.log(`=== NEW ITEMS PROCESSING COMPLETE ===`);
+                   console.log(`Processed ${newItems.length} new items, total items: ${dataArray.length}`);
+               }
+               else if (dataArray.length < this.lastDataCount) {
+                   // Data was cleared, reprocess everything
+                   console.log(`Data count decreased from ${this.lastDataCount} to ${dataArray.length}, reprocessing all data`);
+
+                   // Clear the display
+                   if (this.dataDisplay) {
+                       this.dataDisplay.clear();
+                   }
+
+                   // Process all items (if any)
+                   dataArray.forEach((item, index) => {
+                       console.log(`=== REPROCESSING ITEM ${index + 1}/${dataArray.length} ===`);
+                       console.log(`Item data:`, item);
+                       console.log(`Item dataType:`, item.dataType);
+                       this.addDataItem(item);
+                   });
+
+                   this.lastDataCount = dataArray.length;
+                   console.log(`=== REPROCESSING COMPLETE ===`);
+                   console.log(`Reprocessed all ${dataArray.length} items`);
+               }
+               else {
+                   console.log(`Data count unchanged (${dataArray.length}), no processing needed`);
+               }
+           } else {
+               console.log(`API response not successful or no data:`, result);
+           }
+       } catch (error) {
+           console.error('Error fetching data:', error);
+       } finally {
+           this.isFetching = false; // Always release lock
+       }
+   }
 
     // Connection status methods removed
 
