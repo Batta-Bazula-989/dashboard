@@ -6,14 +6,13 @@
 @import './components/stats.css';
 @import './components/analysis.css';
 
-/* CRITICAL FIX - Data display content height */
+/* FIXED: Data display content height - proper flex scrolling */
 .data-display-content {
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
     padding: 0 30px 30px 30px;
-    min-height: 400px;
-    height: calc(100vh - 200px) !important;
+    min-height: 0; /* FIXED: CRITICAL - Allows flex child to shrink below content size */
 }
 
 /* Legacy styles that need to be migrated */
@@ -107,7 +106,7 @@
         padding: 6px 10px;
         font-size: 12px;
     }
-    
+
     .stats-card {
         padding: var(--spacing-md);
         min-height: 100px;
