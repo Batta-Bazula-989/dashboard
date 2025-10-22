@@ -85,11 +85,11 @@
     background: white;
     border: 1px solid #e5e7eb;
     border-radius: 8px;
-    padding: 0 18px;
+    padding: 0 14px;
     min-height: 36px;
     max-height: 36px;
-    min-width: 102px; /* ✅ ADDED - Minimum width */
-    max-width: 102px; /* ✅ ADDED - Maximum width */
+    min-width: 106px; /* ✅ ADDED - Minimum width */
+    max-width: 106px; /* ✅ ADDED - Maximum width */
     display: inline-flex;
     align-items: center;
     justify-content: center;
