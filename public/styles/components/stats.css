@@ -86,10 +86,10 @@
     border: 1px solid #e5e7eb;
     border-radius: 8px;
     padding: 0 18px;
-    min-height: 40px;
-    max-height: 40px;
-    min-width: 80px; /* ✅ ADDED - Minimum width */
-    max-width: 80px; /* ✅ ADDED - Maximum width */
+    min-height: 38px;
+    max-height: 38px;
+    min-width: 120px; /* ✅ ADDED - Minimum width */
+    max-width: 120px; /* ✅ ADDED - Maximum width */
     display: inline-flex;
     align-items: center;
     justify-content: center;
