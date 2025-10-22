@@ -17,7 +17,7 @@
     justify-content: center;
     position: relative;
     flex: 0 0 auto; /* Don't grow, fixed width */
-    width: 180px; /* Fixed width for cards */
+    width: 160px; /* Fixed width for cards */
     min-width: 160px;
     transition: all 0.2s ease;
     min-height: 85px;
@@ -86,10 +86,10 @@
     border: 1px solid #e5e7eb;
     border-radius: 8px;
     padding: 0 18px;
-    min-height: 38px;
-    max-height: 38px;
-    min-width: 110px; /* ✅ ADDED - Minimum width */
-    max-width: 110px; /* ✅ ADDED - Maximum width */
+    min-height: 36px;
+    max-height: 36px;
+    min-width: 102px; /* ✅ ADDED - Minimum width */
+    max-width: 102px; /* ✅ ADDED - Maximum width */
     display: inline-flex;
     align-items: center;
     justify-content: center;
