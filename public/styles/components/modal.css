@@ -90,6 +90,12 @@
     gap: 14px;
 }
 
+/* Cards without icons (recommendations) - remove gap */
+.clean-card:not(:has(.clean-icon)) {
+    gap: 0;
+    display: block;
+}
+
 .clean-card:hover {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     transform: translateY(-2px);
@@ -129,6 +135,12 @@
     min-width: 0;
 }
 
+/* Remove extra spacing in recommendation cards */
+.clean-card:not(:has(.clean-icon)) .clean-content {
+    margin: 0;
+    padding: 0;
+}
+
 .clean-title {
     font-size: 14px;
     font-weight: 600;
@@ -142,6 +154,12 @@
     color: #475569;
     line-height: 1.5;
     white-space: pre-wrap;
+}
+
+/* No extra margin in recommendation descriptions */
+.clean-card:not(:has(.clean-icon)) .clean-description {
+    margin: 0;
+    padding: 0;
 }
 
 /* SWOT card special styling */
