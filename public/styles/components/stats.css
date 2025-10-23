@@ -3,7 +3,7 @@
 /* Stats Container - All items on same row */
 .stats-container {
     display: flex;
-    gap: 15px;
+    gap: 12px;
     width: 100%;
     align-items: flex-start; /* ✅ Vertically center all items */
 }
@@ -19,11 +19,11 @@
     justify-content: center;
     position: relative;
     flex: 0 0 auto;
-    width: 160px;
-    min-width: 160px;
+    width: 156px;
+    min-width: 156px;
     transition: all 0.2s ease;
-    min-height: 75px;
-    max-height: 75px;
+    min-height: 72px;
+    max-height: 72px;
 }
 
 .stats-card:hover {
