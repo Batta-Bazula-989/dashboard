@@ -191,7 +191,12 @@
 
 /* Override padding for recommendation cards - VERY COMPACT */
 .clean-card:has(.clean-title) {
-    padding: 8px 10px;
+    padding: 8px 10px !important;
+}
+
+/* Even more specific - cards without icons (recommendations) */
+.clean-card:not(:has(.clean-icon)) {
+    padding: 8px 10px !important;
 }
 
 .inline-note {
