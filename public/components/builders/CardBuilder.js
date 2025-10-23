@@ -85,28 +85,30 @@ class CardBuilder {
         return link;
     }
 
-    buildPlatformBadges(platforms) {
-        const badges = document.createElement('div');
-        badges.className = 'badges';
+buildPlatformBadges(platforms) {
+    const badges = document.createElement('div');
+    badges.className = 'badges';
 
-        (platforms || []).forEach(platform => {
-            const badge = document.createElement('span');
-            badge.className = 'badge platform-badge';
+    (platforms || []).forEach(platform => {
+        const badge = document.createElement('span');
+        badge.className = 'badge platform-badge';
 
-            const icon = PlatformIcons.get(platform); // ✅ FIXED - Changed from getIcon to get
+        // ✅ FIX: Convert to lowercase before getting icon
+        const platformLower = String(platform).toLowerCase();
+        const icon = PlatformIcons.get(platformLower);
 
-            if (icon.startsWith('<svg')) {
-                badge.innerHTML = icon;
-                badge.title = platform;
-            } else {
-                badge.textContent = icon;
-            }
+        if (icon && icon.startsWith('<svg')) {
+            badge.innerHTML = icon;
+            badge.title = platform; // Keep original case for tooltip
+        } else {
+            badge.textContent = platform.substring(0, 2).toUpperCase(); // Fallback: "FB", "IG"
+        }
 
-            badges.appendChild(badge);
-        });
+        badges.appendChild(badge);
+    });
 
-        return badges;
-    }
+    return badges;
+}
 
     buildViewProfileLink(uri) {
         const link = document.createElement('a');
