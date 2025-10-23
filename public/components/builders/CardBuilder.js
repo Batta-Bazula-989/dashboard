@@ -93,7 +93,8 @@ class CardBuilder {
             const badge = document.createElement('span');
             badge.className = 'badge platform-badge';
 
-            const icon = PlatformIcons.getIcon(platform);
+            const icon = PlatformIcons.get(platform); // ✅ FIXED - Changed from getIcon to get
+
             if (icon.startsWith('<svg')) {
                 badge.innerHTML = icon;
                 badge.title = platform;
