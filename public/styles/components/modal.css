@@ -46,43 +46,65 @@
 }
 
 /* Clean sections formatting */
-.analysis-content {
+.modal-analysis-content {
     max-height: calc(90vh - 120px);
     overflow-y: auto;
     background: #f8fafc;
-    padding: var(--spacing-md);
-    border-radius: var(--radius-md);
+    padding: 20px;
 }
 
 .clean-section {
-    margin-bottom: var(--spacing-lg);
-    padding: 0;
-    box-shadow: var(--shadow-sm);
-    overflow: hidden;
+    margin-bottom: 32px;
 }
 
+/* Section pill header */
+.section-pill {
+    display: inline-block;
+    background: #3b82f6;
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 6px 16px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 16px;
+}
+
+/* Cards container */
+.clean-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Individual clean card */
 .clean-card {
     background: white;
-    border-radius: var(--radius-md);
-    padding: var(--spacing-lg);
-    margin-bottom: var(--spacing-md);
+    border-radius: 12px;
+    padding: 20px;
     border: 1px solid #e2e8f0;
     transition: all 0.2s ease;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
 }
 
 .clean-card:hover {
-    box-shadow: var(--shadow-md);
-    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+    border-color: #cbd5e1;
 }
 
+/* Icon container */
 .clean-icon {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-right: var(--spacing-sm);
     background: #f1f5f9;
     transition: all 0.2s ease;
 }
@@ -92,11 +114,103 @@
 }
 
 .clean-icon svg {
-    width: 16px;
-    height: 16px;
+    width: 20px;
+    height: 20px;
     color: #64748b;
 }
 
 .clean-card:hover .clean-icon svg {
     color: #374151;
+}
+
+/* Card content */
+.clean-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.clean-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #0f172a;
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+
+.clean-description {
+    font-size: 14px;
+    color: #475569;
+    line-height: 1.6;
+    white-space: pre-wrap;
+}
+
+/* SWOT card special styling */
+.swot-card {
+    flex-direction: column;
+}
+
+.swot-content {
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.swot-row {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+}
+
+.swot-label {
+    font-weight: 700;
+    color: #1e293b;
+    min-width: 20px;
+    font-size: 14px;
+}
+
+.swot-text {
+    flex: 1;
+    font-size: 14px;
+    color: #475569;
+    line-height: 1.6;
+}
+
+/* Recommendations styling */
+.inline-note {
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.inline-note:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.quoted-text {
+    display: block;
+    font-style: italic;
+    color: #64748b;
+    margin-bottom: 6px;
+    font-size: 13px;
+}
+
+.comment {
+    display: block;
+    color: #374151;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.recommendation-item {
+    margin-bottom: 10px;
+    color: #374151;
+    line-height: 1.6;
+    font-size: 14px;
+}
+
+.recommendation-item:last-child {
+    margin-bottom: 0;
 }
