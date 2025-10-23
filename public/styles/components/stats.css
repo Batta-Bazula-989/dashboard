@@ -18,10 +18,10 @@
     position: relative;
     flex: 0 0 auto; /* Don't grow, fixed width */
     width: 160px; /* Fixed width for cards */
-    min-width: 160px;
+    min-width: 150px;
     transition: all 0.2s ease;
-    min-height: 85px;
-    max-height: 85px;
+    min-height: 82px;
+    max-height: 82px;
 }
 
 .stats-card:hover {
@@ -73,8 +73,8 @@
 }
 
 .stats-number {
-    font-size: 26px;
-    font-weight: 530;
+    font-size: 24px;
+    font-weight: 520;
     color: #0f172a;
     line-height: 1;
     margin-top: 2px;
@@ -85,7 +85,7 @@
     background: white;
     border: 1px solid #e5e7eb;
     border-radius: 8px;
-    padding: 0 14px;
+    padding: 0 12px;
     min-height: 36px;
     max-height: 36px;
     min-width: 106px; /* ✅ ADDED - Minimum width */
@@ -110,7 +110,7 @@
     background: #f8fafc;
     border-color: #d1d5db;
     color: #475569;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 4px 11px rgba(0, 0, 0, 0.11);
     transform: translateY(-2px);
 }
 
