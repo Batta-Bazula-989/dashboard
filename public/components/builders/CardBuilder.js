@@ -93,15 +93,16 @@ buildPlatformBadges(platforms) {
         const badge = document.createElement('span');
         badge.className = 'badge platform-badge';
 
-        // ✅ FIX: Convert to lowercase before getting icon
+        // ✅ Normalize to lowercase before getting icon
         const platformLower = String(platform).toLowerCase();
-        const icon = PlatformIcons.get(platformLower);
+        const icon = PlatformIcons.getIcon(platformLower); // ✅ Correct method name
 
         if (icon && icon.startsWith('<svg')) {
             badge.innerHTML = icon;
-            badge.title = platform; // Keep original case for tooltip
+            badge.title = platform; // Original case for tooltip
         } else {
-            badge.textContent = platform.substring(0, 2).toUpperCase(); // Fallback: "FB", "IG"
+            // Fallback: Show first 2 letters (FB, IG, etc.)
+            badge.textContent = platform.substring(0, 2).toUpperCase();
         }
 
         badges.appendChild(badge);
