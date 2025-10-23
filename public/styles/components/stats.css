@@ -110,7 +110,7 @@
     background: #f8fafc;
     border-color: #d1d5db;
     color: #475569;
-    box-shadow: 0 4px 11px rgba(0, 0, 0, 0.11);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
     transform: translateY(-2px);
 }
 
@@ -126,8 +126,8 @@
 }
 
 .clear-data-btn-stats svg {
-    width: 10px;
-    height: 10px;
+    width: 14px; /* ✅ Slightly smaller icon */
+    height: 14px;
 }
 
 .clear-data-btn-stats.hidden {
