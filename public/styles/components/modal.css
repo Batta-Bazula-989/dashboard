@@ -177,6 +177,23 @@
 }
 
 /* Recommendations styling */
+
+/* Special compact styling for recommendation title cards */
+.clean-card .clean-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 10px;
+    line-height: 1.2;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+/* Override padding for recommendation cards */
+.clean-card:has(.clean-title) {
+    padding: 12px 14px;
+}
+
 .inline-note {
     margin-bottom: 10px;
     padding: 12px 14px;
@@ -208,7 +225,7 @@
 }
 
 .recommendation-item {
-    margin-bottom: 8px;
+    margin-bottom: 6px;
     color: #374151;
     line-height: 1.5;
     font-size: 13px;
