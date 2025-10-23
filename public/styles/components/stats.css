@@ -81,49 +81,41 @@
 }
 
 /* Clear All Button in Stats Row */
-.clear-data-btn-stats {
+clearDataBtn {
     background: white;
     border: 1px solid #e5e7eb;
-    border-radius: 8px;
-    padding: 6px 10px; /* ✅ Super tight: 6px vertical, 10px horizontal */
-    height: auto; /* ✅ Let content determine height */
-    min-height: unset;
-    max-height: unset;
-    min-width: unset;
-    max-width: unset;
-    width: auto;
+    border-radius: 6px;
+    padding: 6px 10px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 4px; /* ✅ Reduced gap to 4px */
+    gap: 5px;
     font-size: 13px;
     font-weight: 600;
-    line-height: 1; /* ✅ CRITICAL - No extra line height! */
+    line-height: 1;
     color: #64748b;
     cursor: pointer;
     transition: all 0.2s ease;
     margin-left: auto;
-    flex-shrink: 0;
     white-space: nowrap;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
-.clear-data-btn-stats:hover {
+#clearDataBtn:hover {
     background: #f8fafc;
     border-color: #d1d5db;
     color: #475569;
     transform: translateY(-1px);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
-.clear-data-btn-stats:active {
-    transform: translateY(0) scale(0.98);
+#clearDataBtn:active {
+    transform: scale(0.98);
 }
 
-.clear-data-btn-stats svg {
-    width: 14px;
-    height: 14px;
-    flex-shrink: 0; /* ✅ Prevent icon from growing */
+#clearDataBtn svg {
+    width: 13px;
+    height: 13px;
+    flex-shrink: 0;
 }
 
 /* Responsive adjustments */
