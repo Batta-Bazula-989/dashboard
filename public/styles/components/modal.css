@@ -54,7 +54,7 @@
 }
 
 .clean-section {
-    margin-bottom: 24px;
+    margin-bottom: 18px;
 }
 
 /* Section pill header */
@@ -68,14 +68,14 @@
     border-radius: 20px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
 }
 
 /* Cards container */
 .clean-cards {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
 }
 
 /* Individual clean card */
@@ -183,20 +183,20 @@
     font-size: 13px;
     font-weight: 700;
     color: #0f172a;
-    margin-bottom: 10px;
-    line-height: 1.2;
+    margin-bottom: 6px;
+    line-height: 1.1;
     text-transform: uppercase;
     letter-spacing: 0.3px;
 }
 
-/* Override padding for recommendation cards */
+/* Override padding for recommendation cards - VERY COMPACT */
 .clean-card:has(.clean-title) {
-    padding: 12px 14px;
+    padding: 8px 10px;
 }
 
 .inline-note {
-    margin-bottom: 10px;
-    padding: 12px 14px;
+    margin-bottom: 6px;
+    padding: 8px 10px;
     background: #f8fafc;
     border-radius: 6px;
     border-left: 3px solid #3b82f6;
@@ -210,24 +210,24 @@
     display: block;
     font-style: italic;
     color: #3b82f6;
-    margin-bottom: 6px;
-    font-size: 14px;
+    margin-bottom: 4px;
+    font-size: 13px;
     font-weight: 500;
-    line-height: 1.4;
+    line-height: 1.2;
 }
 
 .comment {
     display: block;
     color: #1e293b;
     font-size: 13px;
-    line-height: 1.5;
+    line-height: 1.3;
     font-weight: 400;
 }
 
 .recommendation-item {
-    margin-bottom: 6px;
+    margin-bottom: 4px;
     color: #374151;
-    line-height: 1.5;
+    line-height: 1.3;
     font-size: 13px;
 }
 
