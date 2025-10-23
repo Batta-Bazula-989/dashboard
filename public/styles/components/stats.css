@@ -88,8 +88,8 @@
     padding: 0 12px;
     min-height: 36px;
     max-height: 36px;
-    min-width: 106px; /* ✅ ADDED - Minimum width */
-    max-width: 106px; /* ✅ ADDED - Maximum width */
+    min-width: 104px; /* ✅ ADDED - Minimum width */
+    max-width: 104px; /* ✅ ADDED - Maximum width */
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -126,8 +126,8 @@
 }
 
 .clear-data-btn-stats svg {
-    width: 12px;
-    height: 12px;
+    width: 10px;
+    height: 10px;
 }
 
 .clear-data-btn-stats.hidden {
