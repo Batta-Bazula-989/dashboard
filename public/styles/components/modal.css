@@ -178,30 +178,33 @@
 
 /* Recommendations styling */
 .inline-note {
-    margin-bottom: 12px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid #f1f5f9;
+    margin-bottom: 16px;
+    padding: 16px;
+    background: #f8fafc;
+    border-radius: 8px;
+    border-left: 3px solid #3b82f6;
 }
 
 .inline-note:last-child {
-    border-bottom: none;
     margin-bottom: 0;
-    padding-bottom: 0;
 }
 
 .quoted-text {
     display: block;
     font-style: italic;
-    color: #64748b;
-    margin-bottom: 6px;
-    font-size: 13px;
+    color: #3b82f6;
+    margin-bottom: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.5;
 }
 
 .comment {
     display: block;
-    color: #374151;
+    color: #1e293b;
     font-size: 14px;
     line-height: 1.6;
+    font-weight: 400;
 }
 
 .recommendation-item {
