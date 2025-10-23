@@ -5,7 +5,7 @@
     display: flex;
     gap: 15px;
     width: 100%;
-    align-items: center; /* ✅ Vertically center all items */
+    align-items: flex-start; /* ✅ Vertically center all items */
 }
 
 /* Stats Cards */
@@ -19,11 +19,11 @@
     justify-content: center;
     position: relative;
     flex: 0 0 auto;
-    width: 200px;
-    min-width: 180px;
+    width: 160px;
+    min-width: 160px;
     transition: all 0.2s ease;
-    min-height: 85px;
-    max-height: 85px;
+    min-height: 75px;
+    max-height: 75px;
 }
 
 .stats-card:hover {
