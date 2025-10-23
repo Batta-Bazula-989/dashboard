@@ -208,14 +208,9 @@
     letter-spacing: 0.3px;
 }
 
-/* Override padding for recommendation cards - VERY COMPACT */
+/* Override padding for recommendation cards */
 .clean-card:has(.clean-title) {
-    padding: 8px 10px !important;
-}
-
-/* Even more specific - cards without icons (recommendations) */
-.clean-card:not(:has(.clean-icon)) {
-    padding: 8px 10px !important;
+    padding: 8px 12px !important;
 }
 
 .inline-note {
