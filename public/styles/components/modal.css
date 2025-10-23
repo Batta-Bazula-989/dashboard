@@ -90,16 +90,17 @@
     gap: 14px;
 }
 
-/* Cards without icons (recommendations) - remove gap */
-.clean-card:not(:has(.clean-icon)) {
-    gap: 0;
-    display: block;
-}
-
 .clean-card:hover {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     transform: translateY(-2px);
     border-color: #cbd5e1;
+}
+
+/* Cards without icons (recommendations) - MUST COME AFTER DEFAULT */
+.clean-card:not(:has(.clean-icon)) {
+    padding: 8px 12px !important;
+    gap: 0;
+    display: block;
 }
 
 /* Icon container */
