@@ -46,7 +46,7 @@ class CardBuilder {
         img.alt = 'Profile';
         header.appendChild(img);
 
-        // Content wrapper (name + date)
+        // Content wrapper (name + social icons + date)
         const contentWrap = document.createElement('div');
         contentWrap.className = 'header-content';
 
@@ -59,29 +59,36 @@ class CardBuilder {
         
         contentWrap.appendChild(nameRow);
         
-        // Date below name
+        // Social icons row (where red line is drawn)
+        const platforms = entry.ad_data?.platforms || [];
+        if (platforms.length > 0) {
+            const socialIconsRow = this.buildSocialIconsRow(platforms);
+            contentWrap.appendChild(socialIconsRow);
+        }
+        
+        // Date below social icons
         const meta = this.buildMeta(entry.ad_data?.ad_started);
         contentWrap.appendChild(meta);
 
         header.appendChild(contentWrap);
         
-        // Right side: View Profile link and social icons
-        const rightSide = document.createElement('div');
-        rightSide.className = 'header-right';
-        
+        // View Profile link on the right
         const viewProfileLink = this.buildViewProfileLink(entry.ad_data?.page_profile_uri);
-        rightSide.appendChild(viewProfileLink);
-        
-        // Add all social media icons in grid
-        const platforms = entry.ad_data?.platforms || [];
-        if (platforms.length > 0) {
-            const socialIconsGrid = this.buildSocialIconsGrid(platforms);
-            rightSide.appendChild(socialIconsGrid);
-        }
-        
-        header.appendChild(rightSide);
+        header.appendChild(viewProfileLink);
         
         return header;
+    }
+
+    buildSocialIconsRow(platforms) {
+        const row = document.createElement('div');
+        row.className = 'social-icons-row';
+
+        platforms.forEach(platform => {
+            const icon = this.buildSingleSocialIcon(platform);
+            row.appendChild(icon);
+        });
+
+        return row;
     }
 
     buildSocialIconsGrid(platforms) {
