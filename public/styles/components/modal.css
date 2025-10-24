@@ -82,6 +82,7 @@
 .clean-card {
     background: white;
     border-radius: 10px;
+    padding: 16px;  /* ← REMOVE THIS LINE */
     border: 1px solid #e2e8f0;
     transition: all 0.2s ease;
     display: flex;
