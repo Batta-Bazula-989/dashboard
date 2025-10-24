@@ -105,7 +105,7 @@
 }
 
 .recommendations-header {
-    background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+    background: linear-gradient(135deg, #64748b 0%, #475569 100%);
     color: white;
     font-size: 11px;
     font-weight: 700;
@@ -143,21 +143,21 @@
     display: inline-block;
 }
 
-/* Different colors for different recommendation types */
+/* Different colors for different recommendation types - Calm and muted */
 .subsection-title.inline-notes {
-    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
 }
 
 .subsection-title.quick-wins {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
 }
 
 .subsection-title.tactical {
-    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
 }
 
 .subsection-title.strategic {
-    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
 }
 
 /* Inline Notes Styling - Screenshot Design */
