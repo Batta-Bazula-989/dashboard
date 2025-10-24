@@ -405,7 +405,7 @@ class Modal {
 
         if (recommendations.quick_wins && recommendations.quick_wins.length > 0) {
             formatted += `
-                <div class="clean-card recommendation-card">
+                <div class="clean-card recommendation-card" style="padding: 4px 8px !important;">
                     <div class="clean-content">
                         <div class="clean-title">QUICK WINS (1 день)</div>
                         <div class="clean-description">
@@ -423,7 +423,7 @@ class Modal {
 
         if (recommendations.tactical && recommendations.tactical.length > 0) {
             formatted += `
-                <div class="clean-card recommendation-card">
+                <div class="clean-card recommendation-card" style="padding: 4px 8px !important;">
                     <div class="clean-content">
                         <div class="clean-title">TACTICAL ПОКРАЩЕННЯ (тиждень)</div>
                         <div class="clean-description">
@@ -441,7 +441,7 @@ class Modal {
 
         if (recommendations.strategic && recommendations.strategic.length > 0) {
             formatted += `
-                <div class="clean-card recommendation-card">
+                <div class="clean-card recommendation-card" style="padding: 4px 8px !important;">
                     <div class="clean-content">
                         <div class="clean-title">STRATEGIC ІДЕЯ (квартал)</div>
                         <div class="clean-description">
