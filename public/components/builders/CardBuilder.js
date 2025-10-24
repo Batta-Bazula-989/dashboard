@@ -46,23 +46,16 @@ class CardBuilder {
         img.alt = 'Profile';
         header.appendChild(img);
 
-        // Content wrapper (name + social icons + date)
+        // Content wrapper (name + date)
         const contentWrap = document.createElement('div');
         contentWrap.className = 'header-content';
 
-        // Name and social media icons row
+        // Name row
         const nameRow = document.createElement('div');
         nameRow.className = 'name-row';
         
         const nameLink = this.buildNameLink(entry);
         nameRow.appendChild(nameLink);
-        
-        // Add first social media icon inline with name
-        const platforms = entry.ad_data?.platforms || [];
-        if (platforms.length > 0) {
-            const socialIcon = this.buildSingleSocialIcon(platforms[0]);
-            nameRow.appendChild(socialIcon);
-        }
         
         contentWrap.appendChild(nameRow);
         
@@ -72,11 +65,35 @@ class CardBuilder {
 
         header.appendChild(contentWrap);
         
-        // View Profile link on the right
+        // Right side: View Profile link and social icons
+        const rightSide = document.createElement('div');
+        rightSide.className = 'header-right';
+        
         const viewProfileLink = this.buildViewProfileLink(entry.ad_data?.page_profile_uri);
-        header.appendChild(viewProfileLink);
+        rightSide.appendChild(viewProfileLink);
+        
+        // Add all social media icons in grid
+        const platforms = entry.ad_data?.platforms || [];
+        if (platforms.length > 0) {
+            const socialIconsGrid = this.buildSocialIconsGrid(platforms);
+            rightSide.appendChild(socialIconsGrid);
+        }
+        
+        header.appendChild(rightSide);
         
         return header;
+    }
+
+    buildSocialIconsGrid(platforms) {
+        const grid = document.createElement('div');
+        grid.className = 'social-icons-grid';
+
+        platforms.forEach(platform => {
+            const icon = this.buildSingleSocialIcon(platform);
+            grid.appendChild(icon);
+        });
+
+        return grid;
     }
 
     buildSingleSocialIcon(platform) {
