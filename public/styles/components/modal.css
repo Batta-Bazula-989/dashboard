@@ -60,12 +60,12 @@
 /* Section pill header */
 .section-pill {
     display: inline-block;
-    background: #3b82f6;
-    color: white;
+    background: #def7ff;
+    color: #475569;
     font-size: 11px;
     font-weight: 700;
     padding: 6px 16px;
-    border-radius: 20px;
+    border-radius: 18px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     margin-bottom: 10px;
