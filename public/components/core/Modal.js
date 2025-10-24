@@ -1,7 +1,3 @@
-/**
- * Modal component for displaying full analysis
- * XSS-protected with proper sanitization
- */
 class Modal {
     constructor() {
         this.currentModal = null;
