@@ -246,3 +246,21 @@
 .recommendation-item:last-child {
     margin-bottom: 0;
 }
+
+/* COMPACT INLINE NOTES */
+.inline-note {
+    margin-bottom: 3px !important;
+    padding: 4px 6px !important;
+    line-height: 1.2 !important;
+}
+
+.quoted-text {
+    margin-bottom: 2px !important;
+    font-size: 12px !important;
+    line-height: 1.1 !important;
+}
+
+.comment {
+    font-size: 12px !important;
+    line-height: 1.2 !important;
+}
