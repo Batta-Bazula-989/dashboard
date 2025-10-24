@@ -121,7 +121,7 @@ class DataDisplay {
         const names = new Set();
 
         cards.forEach(card => {
-            const link = card.querySelector('.title-row a');
+            const link = card.querySelector('.name-row a');
             if (link?.textContent) {
                 names.add(link.textContent.trim());
             }
