@@ -370,54 +370,112 @@ class Modal {
      */
 formatRecommendationsSection(recommendations) {
     let formatted = `
-        <div class="clean-section">
-            <div class="section-pill">РЕКОМЕНДАЦІЇ</div>
-            <div class="clean-cards">
-                <div class="clean-card recommendation-card">
-                    <div class="clean-content">
+        <div class="clean-section recommendations-section">
+            <div class="section-pill recommendations-header">РЕКОМЕНДАЦІЇ</div>
+            <div class="recommendations-container">
     `;
 
+    // Inline Notes Section
     if (recommendations.inline_notes && recommendations.inline_notes.length > 0) {
-        formatted += `<div class="clean-title">ІНЛАЙН-ПОМЕТКИ</div>`;
-        recommendations.inline_notes.forEach(note => {
+        formatted += `
+            <div class="recommendation-subsection">
+                <div class="subsection-title">ІНЛАЙН-ПОМЕТКИ</div>
+                <div class="inline-notes-container">
+        `;
+        
+        recommendations.inline_notes.forEach((note, index) => {
             const safeQuoted = Sanitizer.escapeHTML(note.quoted_text);
             const safeComment = Sanitizer.escapeHTML(note.comment);
             formatted += `
-                <div class="inline-note">
-                    <span class="quoted-text">"${safeQuoted}"</span>
-                    <span class="comment">- ${safeComment}</span>
+                <div class="inline-note-item">
+                    <div class="note-number">${index + 1}.</div>
+                    <div class="note-content">
+                        <div class="quoted-text">"${safeQuoted}"</div>
+                        <div class="comment">— ${safeComment}</div>
+                    </div>
                 </div>
             `;
         });
+        
+        formatted += `
+                </div>
+            </div>
+        `;
     }
 
+    // Quick Wins Section
     if (recommendations.quick_wins && recommendations.quick_wins.length > 0) {
-        formatted += `<div class="clean-title">QUICK WINS (1 день)</div>`;
+        formatted += `
+            <div class="recommendation-subsection">
+                <div class="subsection-title">QUICK WINS (1 ДЕНЬ)</div>
+                <div class="recommendation-list">
+        `;
+        
         recommendations.quick_wins.forEach((win, index) => {
             const safeWin = Sanitizer.escapeHTML(win);
-            formatted += `<div class="recommendation-item">${index + 1}. ${safeWin}</div>`;
+            formatted += `
+                <div class="recommendation-item">
+                    <span class="item-number">${index + 1}.</span>
+                    <span class="item-text">${safeWin}</span>
+                </div>
+            `;
         });
+        
+        formatted += `
+                </div>
+            </div>
+        `;
     }
 
+    // Tactical Improvements Section
     if (recommendations.tactical && recommendations.tactical.length > 0) {
-        formatted += `<div class="clean-title">TACTICAL ПОКРАЩЕННЯ (тиждень)</div>`;
+        formatted += `
+            <div class="recommendation-subsection">
+                <div class="subsection-title">TACTICAL ПОКРАЩЕННЯ (ТИЖДЕНЬ)</div>
+                <div class="recommendation-list">
+        `;
+        
         recommendations.tactical.forEach((item, index) => {
             const safeItem = Sanitizer.escapeHTML(item);
-            formatted += `<div class="recommendation-item">${index + 1}. ${safeItem}</div>`;
+            formatted += `
+                <div class="recommendation-item">
+                    <span class="item-number">${index + 1}.</span>
+                    <span class="item-text">${safeItem}</span>
+                </div>
+            `;
         });
+        
+        formatted += `
+                </div>
+            </div>
+        `;
     }
 
+    // Strategic Ideas Section
     if (recommendations.strategic && recommendations.strategic.length > 0) {
-        formatted += `<div class="clean-title">STRATEGIC ІДЕЯ (квартал)</div>`;
+        formatted += `
+            <div class="recommendation-subsection">
+                <div class="subsection-title">STRATEGIC ІДЕЯ (КВАРТАЛ)</div>
+                <div class="recommendation-list">
+        `;
+        
         recommendations.strategic.forEach((item, index) => {
             const safeItem = Sanitizer.escapeHTML(item);
-            formatted += `<div class="recommendation-item">${index + 1}. ${safeItem}</div>`;
+            formatted += `
+                <div class="recommendation-item">
+                    <span class="item-number">${index + 1}.</span>
+                    <span class="item-text">${safeItem}</span>
+                </div>
+            `;
         });
+        
+        formatted += `
+                </div>
+            </div>
+        `;
     }
 
     formatted += `
-                    </div>
-                </div>
             </div>
         </div>
     `;

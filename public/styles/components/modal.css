@@ -96,27 +96,143 @@
     border-color: #cbd5e1;
 }
 
-/* Recommendation cards - COMPACT */
-.clean-card.recommendation-card {
-    padding: 4px 8px !important;
-    gap: 0 !important;
-    display: block !important;
+/* Recommendations Section - New Structure */
+.recommendations-section {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid #e2e8f0;
+    margin-bottom: 20px;
 }
 
-.clean-card.recommendation-card .clean-title {
-    margin-bottom: 2px !important;
-    line-height: 1 !important;
+.recommendations-header {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    color: white;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 8px 20px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 20px;
+    display: inline-block;
 }
 
-.clean-card.recommendation-card .clean-description {
-    margin: 0 !important;
-    padding: 0 !important;
-    line-height: 1.3 !important;
+.recommendations-container {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
 }
 
-.clean-card.recommendation-card .recommendation-item {
-    margin-bottom: 1px !important;
-    line-height: 1.2 !important;
+.recommendation-subsection {
+    border-left: 4px solid #e2e8f0;
+    padding-left: 16px;
+    margin-left: 8px;
+}
+
+.subsection-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid #f1f5f9;
+    padding-bottom: 6px;
+    display: inline-block;
+}
+
+/* Inline Notes Styling */
+.inline-notes-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.inline-note-item {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 12px;
+    background: #f8fafc;
+    border-radius: 8px;
+    border-left: 3px solid #3b82f6;
+    transition: all 0.2s ease;
+}
+
+.inline-note-item:hover {
+    background: #f1f5f9;
+    transform: translateX(2px);
+}
+
+.note-number {
+    font-weight: 700;
+    color: #3b82f6;
+    font-size: 13px;
+    min-width: 20px;
+    flex-shrink: 0;
+}
+
+.note-content {
+    flex: 1;
+}
+
+.quoted-text {
+    font-style: italic;
+    color: #1e293b;
+    font-weight: 600;
+    font-size: 13px;
+    line-height: 1.4;
+    margin-bottom: 4px;
+    background: rgba(59, 130, 246, 0.1);
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.comment {
+    color: #475569;
+    font-size: 13px;
+    line-height: 1.5;
+    font-weight: 400;
+}
+
+/* Recommendation Lists Styling */
+.recommendation-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.recommendation-item {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 10px 12px;
+    background: #f8fafc;
+    border-radius: 6px;
+    border-left: 3px solid #10b981;
+    transition: all 0.2s ease;
+}
+
+.recommendation-item:hover {
+    background: #f0fdf4;
+    transform: translateX(2px);
+}
+
+.item-number {
+    font-weight: 700;
+    color: #10b981;
+    font-size: 13px;
+    min-width: 20px;
+    flex-shrink: 0;
+}
+
+.item-text {
+    color: #374151;
+    font-size: 13px;
+    line-height: 1.5;
+    font-weight: 400;
 }
 
 /* Icon container */
@@ -203,47 +319,4 @@
     font-size: 14px;
     color: #475569;
     line-height: 1.6;
-}
-
-/* Inline notes - COMPACT */
-.inline-note {
-    margin-bottom: 3px;
-    padding: 4px 6px;
-    background: #f8fafc;
-    border-radius: 6px;
-    border-left: 3px solid #3b82f6;
-    line-height: 1.2;
-}
-
-.inline-note:last-child {
-    margin-bottom: 0;
-}
-
-.quoted-text {
-    display: block;
-    font-style: italic;
-    color: #3b82f6;
-    margin-bottom: 2px;
-    font-size: 12px;
-    font-weight: 500;
-    line-height: 1.1;
-}
-
-.comment {
-    display: block;
-    color: #1e293b;
-    font-size: 12px;
-    line-height: 1.2;
-    font-weight: 400;
-}
-
-.recommendation-item {
-    margin-bottom: 4px;
-    color: #374151;
-    line-height: 1.3;
-    font-size: 13px;
-}
-
-.recommendation-item:last-child {
-    margin-bottom: 0;
 }
