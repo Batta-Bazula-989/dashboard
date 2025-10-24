@@ -4,11 +4,7 @@ class Modal {
         this.escapeHandler = null; // Store reference for cleanup
     }
 
-    /**
-     * Show full analysis in a modal
-     * @param {string} competitorName - Name of the competitor
-     * @param {Object|string} fullAnalysis - Full analysis data
-     */
+
     showFullAnalysis(competitorName, fullAnalysis) {
         const overlay = document.createElement('div');
         overlay.className = 'modal-overlay';
@@ -46,11 +42,7 @@ class Modal {
         document.addEventListener('keydown', this.escapeHandler);
     }
 
-    /**
-     * Format section content
-     * @param {Object|string} content - Content to format
-     * @returns {string} Formatted HTML content
-     */
+
     formatSectionContent(content) {
         // Extract ai_analysis
         if (typeof content === 'object' && content.copywriting) {
@@ -89,11 +81,7 @@ class Modal {
         </div>`;
     }
 
-    /**
-     * Format JSON analysis structure
-     * @param {Object} analysis - AI analysis object
-     * @returns {string} Formatted HTML content
-     */
+
     formatJsonAnalysis(analysis) {
         // Check if video analysis format
         if (analysis.technical || analysis.visual_and_editing || analysis.people_and_product) {
@@ -159,11 +147,7 @@ class Modal {
         return formatted;
     }
 
-    /**
-     * Format video analysis
-     * @param {Object} analysis - Video analysis object
-     * @returns {string} Formatted HTML
-     */
+
     formatVideoAnalysis(analysis) {
         let formatted = '';
 
@@ -239,13 +223,7 @@ class Modal {
         return formatted;
     }
 
-    /**
-     * Format video section (text-based)
-     * @param {string} title - Section title
-     * @param {Object} data - Section data
-     * @param {Array} fields - Fields to display
-     * @returns {string} Formatted HTML
-     */
+
     formatVideoSection(title, data, fields) {
         let formatted = `
             <div class="clean-section">
@@ -280,13 +258,7 @@ class Modal {
         return formatted;
     }
 
-    /**
-     * Format JSON section (score-based)
-     * @param {string} title - Section title
-     * @param {Object} data - Section data
-     * @param {Array} fields - Fields to display
-     * @returns {string} Formatted HTML
-     */
+
     formatJsonSection(title, data, fields) {
         let formatted = `
             <div class="clean-section">
@@ -363,11 +335,7 @@ class Modal {
         return formatted;
     }
 
-    /**
-     * Format recommendations section
-     * @param {Object} recommendations - Recommendations data
-     * @returns {string} Formatted HTML
-     */
+
 formatRecommendationsSection(recommendations) {
     let formatted = `
         <div class="clean-section recommendations-section">
