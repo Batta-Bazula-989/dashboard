@@ -183,10 +183,16 @@
 
 .note-number {
     font-weight: 700;
-    color: #374151;
-    font-size: 13px;
-    min-width: 20px;
+    color: white;
+    font-size: 12px;
+    min-width: 24px;
+    height: 24px;
     flex-shrink: 0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #6366f1;
 }
 
 .note-content {
@@ -232,10 +238,16 @@
 
 .item-number {
     font-weight: 700;
-    color: #374151;
-    font-size: 13px;
-    min-width: 20px;
+    color: white;
+    font-size: 12px;
+    min-width: 24px;
+    height: 24px;
     flex-shrink: 0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #16a34a;
 }
 
 .item-text {
@@ -243,6 +255,23 @@
     font-size: 13px;
     line-height: 1.5;
     font-weight: 400;
+}
+
+/* Different colors for different recommendation types - Circular numbers */
+.recommendation-subsection.inline-notes .note-number {
+    background: #6366f1;
+}
+
+.recommendation-subsection.quick-wins .item-number {
+    background: #16a34a;
+}
+
+.recommendation-subsection.tactical .item-number {
+    background: #d97706;
+}
+
+.recommendation-subsection.strategic .item-number {
+    background: #dc2626;
 }
 
 /* Icon container */

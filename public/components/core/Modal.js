@@ -378,7 +378,7 @@ formatRecommendationsSection(recommendations) {
     // Inline Notes Section
     if (recommendations.inline_notes && recommendations.inline_notes.length > 0) {
         formatted += `
-            <div class="recommendation-subsection">
+            <div class="recommendation-subsection inline-notes">
                 <div class="subsection-title inline-notes">ІНЛАЙН-ПОМЕТКИ</div>
                 <div class="inline-notes-container">
         `;
@@ -388,7 +388,7 @@ formatRecommendationsSection(recommendations) {
             const safeComment = Sanitizer.escapeHTML(note.comment);
             formatted += `
                 <div class="inline-note-item">
-                    <div class="note-number">${index + 1}.</div>
+                    <div class="note-number">${index + 1}</div>
                     <div class="note-content">
                         <div class="quoted-text">"${safeQuoted}"</div>
                         <div class="comment">— ${safeComment}</div>
@@ -406,7 +406,7 @@ formatRecommendationsSection(recommendations) {
     // Quick Wins Section
     if (recommendations.quick_wins && recommendations.quick_wins.length > 0) {
         formatted += `
-            <div class="recommendation-subsection">
+            <div class="recommendation-subsection quick-wins">
                 <div class="subsection-title quick-wins">QUICK WINS (1 ДЕНЬ)</div>
                 <div class="recommendation-list">
         `;
@@ -415,7 +415,7 @@ formatRecommendationsSection(recommendations) {
             const safeWin = Sanitizer.escapeHTML(win);
             formatted += `
                 <div class="recommendation-item">
-                    <span class="item-number">${index + 1}.</span>
+                    <span class="item-number">${index + 1}</span>
                     <span class="item-text">${safeWin}</span>
                 </div>
             `;
@@ -430,7 +430,7 @@ formatRecommendationsSection(recommendations) {
     // Tactical Improvements Section
     if (recommendations.tactical && recommendations.tactical.length > 0) {
         formatted += `
-            <div class="recommendation-subsection">
+            <div class="recommendation-subsection tactical">
                 <div class="subsection-title tactical">TACTICAL ПОКРАЩЕННЯ (ТИЖДЕНЬ)</div>
                 <div class="recommendation-list">
         `;
@@ -439,7 +439,7 @@ formatRecommendationsSection(recommendations) {
             const safeItem = Sanitizer.escapeHTML(item);
             formatted += `
                 <div class="recommendation-item">
-                    <span class="item-number">${index + 1}.</span>
+                    <span class="item-number">${index + 1}</span>
                     <span class="item-text">${safeItem}</span>
                 </div>
             `;
@@ -454,7 +454,7 @@ formatRecommendationsSection(recommendations) {
     // Strategic Ideas Section
     if (recommendations.strategic && recommendations.strategic.length > 0) {
         formatted += `
-            <div class="recommendation-subsection">
+            <div class="recommendation-subsection strategic">
                 <div class="subsection-title strategic">STRATEGIC ІДЕЯ (КВАРТАЛ)</div>
                 <div class="recommendation-list">
         `;
@@ -463,7 +463,7 @@ formatRecommendationsSection(recommendations) {
             const safeItem = Sanitizer.escapeHTML(item);
             formatted += `
                 <div class="recommendation-item">
-                    <span class="item-number">${index + 1}.</span>
+                    <span class="item-number">${index + 1}</span>
                     <span class="item-text">${safeItem}</span>
                 </div>
             `;
