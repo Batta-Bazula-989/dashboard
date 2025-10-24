@@ -46,34 +46,56 @@ class CardBuilder {
         img.alt = 'Profile';
         header.appendChild(img);
 
-        // Title and meta
-        const titleWrap = document.createElement('div');
-        titleWrap.className = 'title-wrap';
+        // Content wrapper (name + social icons + date)
+        const contentWrap = document.createElement('div');
+        contentWrap.className = 'header-content';
 
-        titleWrap.appendChild(this.buildTitleRow(entry));
-        titleWrap.appendChild(this.buildMeta(entry.ad_data?.ad_started));
+        // Name and social media icons row
+        const nameRow = document.createElement('div');
+        nameRow.className = 'name-row';
+        
+        const nameLink = this.buildNameLink(entry);
+        nameRow.appendChild(nameLink);
+        
+        // Add first social media icon inline with name
+        const platforms = entry.ad_data?.platforms || [];
+        if (platforms.length > 0) {
+            const socialIcon = this.buildSingleSocialIcon(platforms[0]);
+            nameRow.appendChild(socialIcon);
+        }
+        
+        contentWrap.appendChild(nameRow);
+        
+        // Date below name
+        const meta = this.buildMeta(entry.ad_data?.ad_started);
+        contentWrap.appendChild(meta);
 
-        header.appendChild(titleWrap);
+        header.appendChild(contentWrap);
+        
+        // View Profile link on the right
+        const viewProfileLink = this.buildViewProfileLink(entry.ad_data?.page_profile_uri);
+        header.appendChild(viewProfileLink);
+        
         return header;
     }
 
-    buildTitleRow(entry) {
-        const row = document.createElement('div');
-        row.className = 'title-row';
+    buildSingleSocialIcon(platform) {
+        const icon = document.createElement('span');
+        icon.className = 'social-icon';
 
-        // Left: Name + badges
-        const leftGroup = document.createElement('div');
-        leftGroup.className = 'title-left-group';
+        // Normalize to lowercase before getting icon
+        const platformLower = String(platform).toLowerCase();
+        const iconSvg = PlatformIcons.getIcon(platformLower);
 
-        leftGroup.appendChild(this.buildNameLink(entry));
-        leftGroup.appendChild(this.buildPlatformBadges(entry.ad_data?.platforms));
+        if (iconSvg && iconSvg.startsWith('<svg')) {
+            icon.innerHTML = iconSvg;
+            icon.title = platform; // Original case for tooltip
+        } else {
+            // Fallback: Show first letter
+            icon.textContent = platform.substring(0, 1).toUpperCase();
+        }
 
-        row.appendChild(leftGroup);
-
-        // Right: View Profile link
-        row.appendChild(this.buildViewProfileLink(entry.ad_data?.page_profile_uri));
-
-        return row;
+        return icon;
     }
 
     buildNameLink(entry) {
