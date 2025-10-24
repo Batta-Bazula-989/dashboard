@@ -97,7 +97,7 @@
 }
 
 /* Recommendation cards - ULTRA MINIMAL PADDING */
-.recommendation-card {
+.clean-card.recommendation-card {
     padding: 4px 8px !important;
     gap: 0 !important;
     display: block !important;
