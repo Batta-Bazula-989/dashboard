@@ -368,98 +368,98 @@ class Modal {
      * @param {Object} recommendations - Recommendations data
      * @returns {string} Formatted HTML
      */
-    formatRecommendationsSection(recommendations) {
-        let formatted = `
-            <div class="clean-section">
-                <div class="section-pill">РЕКОМЕНДАЦІЇ</div>
-                <div class="clean-cards">
-        `;
+formatRecommendationsSection(recommendations) {
+    let formatted = `
+        <div class="clean-section">
+            <div class="section-pill">РЕКОМЕНДАЦІЇ</div>
+            <div class="clean-cards">
+    `;
 
-        if (recommendations.inline_notes && recommendations.inline_notes.length > 0) {
-            formatted += `
-                <div class="clean-card">
-                    <div class="clean-content">
-                        <div class="clean-title">ІНЛАЙН-ПОМЕТКИ</div>
-                        <div class="clean-description">
-            `;
-            recommendations.inline_notes.forEach(note => {
-                const safeQuoted = Sanitizer.escapeHTML(note.quoted_text);
-                const safeComment = Sanitizer.escapeHTML(note.comment);
-                formatted += `
-                    <div class="inline-note">
-                        <span class="quoted-text">"${safeQuoted}"</span>
-                        <span class="comment">- ${safeComment}</span>
-                    </div>
-                `;
-            });
-            formatted += `
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        if (recommendations.quick_wins && recommendations.quick_wins.length > 0) {
-            formatted += `
-                <div class="clean-card recommendation-card" style="padding: 4px 8px !important;">
-                    <div class="clean-content">
-                        <div class="clean-title">QUICK WINS (1 день)</div>
-                        <div class="clean-description">
-            `;
-            recommendations.quick_wins.forEach((win, index) => {
-                const safeWin = Sanitizer.escapeHTML(win);
-                formatted += `<div class="recommendation-item">${index + 1}. ${safeWin}</div>`;
-            });
-            formatted += `
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        if (recommendations.tactical && recommendations.tactical.length > 0) {
-            formatted += `
-                <div class="clean-card recommendation-card" style="padding: 4px 8px !important;">
-                    <div class="clean-content">
-                        <div class="clean-title">TACTICAL ПОКРАЩЕННЯ (тиждень)</div>
-                        <div class="clean-description">
-            `;
-            recommendations.tactical.forEach((item, index) => {
-                const safeItem = Sanitizer.escapeHTML(item);
-                formatted += `<div class="recommendation-item">${index + 1}. ${safeItem}</div>`;
-            });
-            formatted += `
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        if (recommendations.strategic && recommendations.strategic.length > 0) {
-            formatted += `
-                <div class="clean-card recommendation-card" style="padding: 4px 8px !important;">
-                    <div class="clean-content">
-                        <div class="clean-title">STRATEGIC ІДЕЯ (квартал)</div>
-                        <div class="clean-description">
-            `;
-            recommendations.strategic.forEach((item, index) => {
-                const safeItem = Sanitizer.escapeHTML(item);
-                formatted += `<div class="recommendation-item">${index + 1}. ${safeItem}</div>`;
-            });
-            formatted += `
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
+    if (recommendations.inline_notes && recommendations.inline_notes.length > 0) {
         formatted += `
+            <div class="clean-card recommendation-card">
+                <div class="clean-content">
+                    <div class="clean-title">ІНЛАЙН-ПОМЕТКИ</div>
+                    <div class="clean-description">
+        `;
+        recommendations.inline_notes.forEach(note => {
+            const safeQuoted = Sanitizer.escapeHTML(note.quoted_text);
+            const safeComment = Sanitizer.escapeHTML(note.comment);
+            formatted += `
+                <div class="inline-note">
+                    <span class="quoted-text">"${safeQuoted}"</span>
+                    <span class="comment">- ${safeComment}</span>
+                </div>
+            `;
+        });
+        formatted += `
+                    </div>
                 </div>
             </div>
         `;
-
-        return formatted;
     }
+
+    if (recommendations.quick_wins && recommendations.quick_wins.length > 0) {
+        formatted += `
+            <div class="clean-card recommendation-card">
+                <div class="clean-content">
+                    <div class="clean-title">QUICK WINS (1 день)</div>
+                    <div class="clean-description">
+        `;
+        recommendations.quick_wins.forEach((win, index) => {
+            const safeWin = Sanitizer.escapeHTML(win);
+            formatted += `<div class="recommendation-item">${index + 1}. ${safeWin}</div>`;
+        });
+        formatted += `
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    if (recommendations.tactical && recommendations.tactical.length > 0) {
+        formatted += `
+            <div class="clean-card recommendation-card">
+                <div class="clean-content">
+                    <div class="clean-title">TACTICAL ПОКРАЩЕННЯ (тиждень)</div>
+                    <div class="clean-description">
+        `;
+        recommendations.tactical.forEach((item, index) => {
+            const safeItem = Sanitizer.escapeHTML(item);
+            formatted += `<div class="recommendation-item">${index + 1}. ${safeItem}</div>`;
+        });
+        formatted += `
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    if (recommendations.strategic && recommendations.strategic.length > 0) {
+        formatted += `
+            <div class="clean-card recommendation-card">
+                <div class="clean-content">
+                    <div class="clean-title">STRATEGIC ІДЕЯ (квартал)</div>
+                    <div class="clean-description">
+        `;
+        recommendations.strategic.forEach((item, index) => {
+            const safeItem = Sanitizer.escapeHTML(item);
+            formatted += `<div class="recommendation-item">${index + 1}. ${safeItem}</div>`;
+        });
+        formatted += `
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    formatted += `
+            </div>
+        </div>
+    `;
+
+    return formatted;
+}
 
     /**
      * Close the current modal (with cleanup)
