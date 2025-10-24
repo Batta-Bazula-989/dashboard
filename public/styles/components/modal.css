@@ -96,11 +96,20 @@
     border-color: #cbd5e1;
 }
 
-/* Recommendation cards - COMPACT PADDING */
+/* Recommendation cards - ULTRA MINIMAL PADDING */
 .recommendation-card {
-    padding: 8px 12px !important;
+    padding: 4px 8px !important;
     gap: 0 !important;
     display: block !important;
+}
+
+.recommendation-card .clean-title {
+    margin-bottom: 4px !important;
+}
+
+.recommendation-card .recommendation-item {
+    margin-bottom: 2px !important;
+    line-height: 1.2 !important;
 }
 
 /* Icon container */
