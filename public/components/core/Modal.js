@@ -379,7 +379,7 @@ formatRecommendationsSection(recommendations) {
     if (recommendations.inline_notes && recommendations.inline_notes.length > 0) {
         formatted += `
             <div class="recommendation-subsection">
-                <div class="subsection-title">ІНЛАЙН-ПОМЕТКИ</div>
+                <div class="subsection-title inline-notes">ІНЛАЙН-ПОМЕТКИ</div>
                 <div class="inline-notes-container">
         `;
         
@@ -407,7 +407,7 @@ formatRecommendationsSection(recommendations) {
     if (recommendations.quick_wins && recommendations.quick_wins.length > 0) {
         formatted += `
             <div class="recommendation-subsection">
-                <div class="subsection-title">QUICK WINS (1 ДЕНЬ)</div>
+                <div class="subsection-title quick-wins">QUICK WINS (1 ДЕНЬ)</div>
                 <div class="recommendation-list">
         `;
         
@@ -431,7 +431,7 @@ formatRecommendationsSection(recommendations) {
     if (recommendations.tactical && recommendations.tactical.length > 0) {
         formatted += `
             <div class="recommendation-subsection">
-                <div class="subsection-title">TACTICAL ПОКРАЩЕННЯ (ТИЖДЕНЬ)</div>
+                <div class="subsection-title tactical">TACTICAL ПОКРАЩЕННЯ (ТИЖДЕНЬ)</div>
                 <div class="recommendation-list">
         `;
         
@@ -455,7 +455,7 @@ formatRecommendationsSection(recommendations) {
     if (recommendations.strategic && recommendations.strategic.length > 0) {
         formatted += `
             <div class="recommendation-subsection">
-                <div class="subsection-title">STRATEGIC ІДЕЯ (КВАРТАЛ)</div>
+                <div class="subsection-title strategic">STRATEGIC ІДЕЯ (КВАРТАЛ)</div>
                 <div class="recommendation-list">
         `;
         
