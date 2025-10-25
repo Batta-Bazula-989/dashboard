@@ -44,7 +44,6 @@ class Modal {
 
 
     formatSectionContent(content) {
-        // Extract ai_analysis
         if (typeof content === 'object' && content.copywriting) {
             return this.formatJsonAnalysis(content);
         }
