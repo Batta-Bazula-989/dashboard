@@ -39,7 +39,7 @@ class DataDisplay {
                                 </div>
                             </div>
                         </div>
-                        <h3>No ads yet</h3>
+                        <h3>Enter competitor names and click "Run Analysis" to discover their advertising strategies and performance metrics</h3>
                     </div>
                 </div>
             </div>
@@ -173,7 +173,7 @@ class DataDisplay {
                                </div>
                            </div>
                        </div>
-                       <h3>No ads yet</h3>
+                       <h3>Enter competitor names and click "Run Analysis" to discover their advertising strategies and performance metrics</h3>
                    </div>
                </div>
            `;
