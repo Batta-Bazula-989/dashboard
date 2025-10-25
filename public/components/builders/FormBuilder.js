@@ -16,25 +16,20 @@ class FormBuilder {
      * @returns {string} Form HTML
      */
     build(isHeader = false) {
-        const formClass = isHeader ? 'header-form' : 'competitor-form';
         return `
-            <div class="${formClass}">
-                <div class="form-header">
-                    <div class="competitors-label">
-                        <span>Competitors (${this.competitors.length} added)</span>
-                        ${this.competitors.length < this.maxCompetitors ? `
-                            <button type="button" class="add-more-btn" id="addCompetitorBtn">
-                                + Add more
-                            </button>
-                        ` : ''}
+            <div class="competitor-form">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="competitorInput">Competitor Name</label>
+                        <input
+                            type="text"
+                            id="competitorInput"
+                            class="competitor-input"
+                            placeholder="Enter competitor name"
+                            value="${this.competitors[0].value}"
+                        />
                     </div>
-                </div>
-
-                <div class="competitors-list" id="competitorsList">
-                    ${this.buildCompetitorInput(this.competitors[0])}
-                </div>
-
-                <div class="form-row">
+                    
                     <div class="form-group">
                         <label for="countrySelect">Country</label>
                         <select id="countrySelect" class="form-select">
@@ -42,7 +37,7 @@ class FormBuilder {
                             <option value="Poland">Poland</option>
                         </select>
                     </div>
-
+                    
                     <div class="form-group">
                         <label for="statusSelect">Status</label>
                         <select id="statusSelect" class="form-select">
@@ -50,16 +45,24 @@ class FormBuilder {
                             <option value="inactive">Inactive</option>
                         </select>
                     </div>
+                    
+                    <button type="button" class="add-competitor-btn" id="addCompetitorBtn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        Add Competitor
+                    </button>
+                    
+                    <button type="button" class="run-analysis-btn" id="runAnalysisBtn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.35-4.35"></path>
+                        </svg>
+                        Analyze
+                    </button>
                 </div>
-
-                <button type="button" class="run-analysis-btn" id="runAnalysisBtn">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="11" cy="11" r="8"></circle>
-                        <path d="m21 21-4.35-4.35"></path>
-                    </svg>
-                    Run Analysis
-                </button>
-
+                
                 <div class="form-error" id="formError" style="display: none;"></div>
             </div>
         `;
@@ -100,21 +103,19 @@ class FormBuilder {
             addBtn.addEventListener('click', () => this.addCompetitor(container));
         }
 
-        this.attachRemoveListeners(container);
-
         const runBtn = container.querySelector('#runAnalysisBtn');
         if (runBtn) {
             runBtn.addEventListener('click', () => this.submitForm(container, onSuccess, onError));
         }
 
-        const inputs = container.querySelectorAll('.competitor-input');
-        inputs.forEach(input => {
-            input.addEventListener('keypress', (e) => {
+        const competitorInput = container.querySelector('#competitorInput');
+        if (competitorInput) {
+            competitorInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
                     this.submitForm(container, onSuccess, onError);
                 }
             });
-        });
+        }
     }
 
     /**
@@ -216,14 +217,13 @@ class FormBuilder {
      * Submit form to n8n webhook
      */
     async submitForm(container, onSuccess, onError) {
-        const inputs = container.querySelectorAll('.competitor-input');
-        const competitorValues = Array.from(inputs).map(input => input.value);
+        const competitorInput = container.querySelector('#competitorInput');
+        const competitorValue = competitorInput ? competitorInput.value.trim() : '';
         const country = container.querySelector('#countrySelect').value;
         const status = container.querySelector('#statusSelect').value;
 
-        const validation = this.validateForm(competitorValues);
-        if (!validation.valid) {
-            this.showError(container, validation.error);
+        if (!competitorValue) {
+            this.showError(container, 'Please enter a competitor name');
             return;
         }
 
@@ -234,35 +234,30 @@ class FormBuilder {
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spinning">
                 <path d="M21 12a9 9 0 1 1-6.219-8.56"></path>
             </svg>
-            Submitting...
+            Analyzing...
         `;
 
-        const submissions = validation.competitors.map(brand => ({
+        const submission = {
             Country: country,
-            Brand: brand,
+            Brand: competitorValue,
             Status: status,
             submittedAt: new Date().toISOString(),
             formMode: 'production'
-        }));
+        };
 
         try {
-            const promises = submissions.map(data =>
-                fetch(this.webhookUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                })
-            );
+            const response = await fetch(this.webhookUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(submission)
+            });
 
-            const responses = await Promise.all(promises);
-            const allSucceeded = responses.every(r => r.ok);
-
-            if (allSucceeded) {
-                console.log('Form submitted successfully:', submissions);
+            if (response.ok) {
+                console.log('Form submitted successfully:', submission);
                 this.resetForm(container);
-                if (onSuccess) onSuccess(`Successfully submitted ${validation.competitors.length} competitor(s)`);
+                if (onSuccess) onSuccess(`Successfully submitted ${competitorValue} for analysis`);
             } else {
-                throw new Error('Some submissions failed');
+                throw new Error('Submission failed');
             }
         } catch (error) {
             console.error('Form submission error:', error);
@@ -278,17 +273,13 @@ class FormBuilder {
      * Reset form to initial state
      */
     resetForm(container) {
-        this.competitors = [{ id: 1, value: '' }];
-        this.nextId = 2;
-
-        const list = container.querySelector('#competitorsList');
-        list.innerHTML = this.buildCompetitorInput(this.competitors[0]);
+        const competitorInput = container.querySelector('#competitorInput');
+        if (competitorInput) {
+            competitorInput.value = '';
+        }
 
         container.querySelector('#countrySelect').value = 'Ukraine';
         container.querySelector('#statusSelect').value = 'active';
-
-        this.updateHeader(container);
-        this.attachRemoveListeners(container);
     }
 }
 
