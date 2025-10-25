@@ -66,18 +66,15 @@ class DataDisplay {
             console.log('Processed item:', processed);
             console.log('Content type:', processed.content_type);
             
-            // Always add the main card first
-            console.log('Adding text card');
-            this.addTextCard(processed);
-            renderedCount++;
-            
-            // Then check if this also has video analysis to add
-            const hasVideoAnalysis = this.isVideoAnalysisData(processed);
-            console.log('Has video analysis:', hasVideoAnalysis);
-            
-            if (hasVideoAnalysis) {
-                console.log('Adding video analysis to the card');
-                this.addVideoAnalysisToCard(processed);
+            if (processed.content_type === 'video') {
+                // Video analysis data - add to existing text card
+                console.log('Adding video analysis to existing cards');
+                this.addVideoAnalysis(processed);
+            } else {
+                // Text analysis data - create new card
+                console.log('Adding text card');
+                this.addTextCard(processed);
+                renderedCount++;
             }
         });
 
@@ -95,66 +92,6 @@ class DataDisplay {
         grid.appendChild(card);
     }
 
-    /**
-     * Check if the data represents video analysis based on ai_analysis structure
-     * @param {Object} data - Processed data item
-     * @returns {boolean} True if this is video analysis data
-     */
-    isVideoAnalysisData(data) {
-        const analysis = data.ai_analysis;
-        if (!analysis || typeof analysis !== 'object') return false;
-
-        // Check for video-specific analysis fields
-        const videoFields = [
-            'technical',
-            'visual_and_editing', 
-            'people_and_product',
-            'psychology'
-        ];
-
-        const hasVideoFields = videoFields.some(field => analysis[field] && typeof analysis[field] === 'object');
-        
-        console.log('=== VIDEO ANALYSIS DETECTION ===');
-        console.log('Data:', data);
-        console.log('Analysis:', analysis);
-        console.log('Video fields found:', videoFields.filter(field => analysis[field]));
-        console.log('Is video analysis:', hasVideoFields);
-        console.log('Content type:', data.content_type);
-        
-        return hasVideoFields;
-    }
-
-    addVideoAnalysisToCard(videoData) {
-        console.log('=== ADDING VIDEO ANALYSIS TO CARD ===');
-        console.log('Video data:', videoData);
-        
-        // Find the most recently added card (last card in the grid)
-        const grid = this.dataDisplay.querySelector('.card-grid');
-        if (!grid) {
-            console.log('No card grid found');
-            return;
-        }
-        
-        const cards = grid.querySelectorAll('.card');
-        if (cards.length === 0) {
-            console.log('No cards found');
-            return;
-        }
-        
-        const lastCard = cards[cards.length - 1];
-        console.log('Adding video analysis to last card:', lastCard);
-        
-        const section = AnalysisSections.createVideoAnalysis(
-            videoData,
-            this.onShowFullAnalysis
-        );
-        const divider = document.createElement('div');
-        divider.className = 'section-divider';
-        lastCard.appendChild(divider);
-        lastCard.appendChild(section);
-        
-        console.log('Video analysis section added successfully');
-    }
 
     addVideoAnalysis(videoData) {
         console.log('=== ADDING VIDEO ANALYSIS ===');
