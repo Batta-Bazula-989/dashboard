@@ -71,11 +71,20 @@ class ComponentLoader {
      * @param {...any} args - Additional arguments for component init
      * @returns {Object} Component instance
      */
-    initComponent(componentName, container, ...args) {
-        const component = this.createComponent(componentName);
-        component.init(container, ...args);
-        return component;
-    }
+   initComponent(componentName, container, ...args) {
+       const Component = this.components.get(componentName);
+       if (!Component) {
+           console.error(`Component ${componentName} not found`);
+           return null;
+       }
+
+       const instance = new Component();
+       if (instance.init) {
+           instance.init(container, ...args); // This passes all arguments
+       }
+
+       return instance;
+   }
 
     /**
      * Get all registered component names

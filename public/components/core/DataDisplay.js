@@ -7,18 +7,22 @@ class DataDisplay {
         this.dataDisplay = null;
         this.onShowFullAnalysis = null;
         this.cardBuilder = null;
+        this.formBuilder = null;
+        this.dashboardInstance = null; // Reference to main dashboard for callbacks
     }
 
-    init(container, onShowFullAnalysis = null) {
+    init(container, onShowFullAnalysis = null, dashboardInstance = null) {
         this.onShowFullAnalysis = onShowFullAnalysis;
+        this.dashboardInstance = dashboardInstance;
         this.cardBuilder = new CardBuilder(onShowFullAnalysis);
+        this.formBuilder = new FormBuilder();
         this.render(container);
         this.bindElements();
+        this.initializeForm();
     }
 
     /**
-     * Render the data display HTML
-     * @param {HTMLElement} container - The container element
+     * Render the data display HTML with form
      */
     render(container) {
         const dataDisplayHTML = `
@@ -40,6 +44,10 @@ class DataDisplay {
                             </div>
                         </div>
                         <h3>Enter competitor names and click "Run Analysis" to discover their advertising strategies and performance metrics</h3>
+
+                        <div class="form-container" id="formContainer">
+                            ${this.formBuilder.build()}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -50,6 +58,46 @@ class DataDisplay {
 
     bindElements() {
         this.dataDisplay = document.getElementById('dataDisplay');
+    }
+
+    /**
+     * Initialize form event listeners
+     */
+    initializeForm() {
+        const formContainer = document.getElementById('formContainer');
+        if (formContainer && this.formBuilder) {
+            this.formBuilder.initEventListeners(
+                formContainer,
+                (message) => this.onFormSuccess(message),
+                (error) => this.onFormError(error)
+            );
+        }
+    }
+
+    /**
+     * Handle successful form submission
+     */
+    onFormSuccess(message) {
+        console.log('Form submission successful:', message);
+
+        // Show success toast using dashboard's method
+        if (this.dashboardInstance && this.dashboardInstance.showSuccessMessage) {
+            this.dashboardInstance.showSuccessMessage(message);
+        }
+
+        // The polling mechanism will automatically pick up new data
+    }
+
+    /**
+     * Handle form submission error
+     */
+    onFormError(error) {
+        console.error('Form submission error:', error);
+
+        // Show error toast using dashboard's method
+        if (this.dashboardInstance && this.dashboardInstance.showErrorMessage) {
+            this.dashboardInstance.showErrorMessage(error);
+        }
     }
 
     addDataItem(incoming) {
@@ -65,13 +113,11 @@ class DataDisplay {
             console.log('=== PROCESSING ITEM ===');
             console.log('Processed item:', processed);
             console.log('Content type:', processed.content_type);
-            
+
             if (processed.content_type === 'video') {
-                // Video analysis data - add to existing text card
                 console.log('Adding video analysis to existing cards');
                 this.addVideoAnalysis(processed);
             } else {
-                // Text analysis data - create new card
                 console.log('Adding text card');
                 this.addTextCard(processed);
                 renderedCount++;
@@ -92,13 +138,12 @@ class DataDisplay {
         grid.appendChild(card);
     }
 
-
     addVideoAnalysis(videoData) {
         console.log('=== ADDING VIDEO ANALYSIS ===');
         console.log('Video data:', videoData);
         console.log('Looking for competitor:', videoData.competitor_name);
         console.log('Looking for body:', videoData.body);
-        
+
         const existingCards = CardMatcher.findAll(
             this.dataDisplay,
             videoData.competitor_name,
@@ -106,7 +151,6 @@ class DataDisplay {
         );
 
         console.log('Found existing cards:', existingCards.length);
-        console.log('Existing cards:', existingCards);
 
         existingCards.forEach((card, index) => {
             console.log(`Adding video analysis to card ${index + 1}`);
@@ -151,34 +195,41 @@ class DataDisplay {
         };
     }
 
-   /**
-    * Clear all data from the display
-    */
-   clear() {
-       if (this.dataDisplay) {
-           this.dataDisplay.innerHTML = `
-               <div class="data-display-content">
-                   <div class="empty-state">
-                       <div class="billboard-illustration">
-                           <div class="search-container">
-                               <div class="circle-outer">
-                                   <div class="dot dot1"></div>
-                                   <div class="dot dot2"></div>
-                               </div>
-                               <div class="circle-inner">
-                                   <div class="search-icon">
-                                       <div class="search-circle"></div>
-                                       <div class="search-handle"></div>
-                                   </div>
-                               </div>
-                           </div>
-                       </div>
-                       <h3>Enter competitor names and click "Run Analysis" to discover their advertising strategies and performance metrics</h3>
-                   </div>
-               </div>
-           `;
-       }
-   }
+    /**
+     * Clear all data from the display
+     */
+    clear() {
+        if (this.dataDisplay) {
+            this.dataDisplay.innerHTML = `
+                <div class="data-display-content">
+                    <div class="empty-state">
+                        <div class="billboard-illustration">
+                            <div class="search-container">
+                                <div class="circle-outer">
+                                    <div class="dot dot1"></div>
+                                    <div class="dot dot2"></div>
+                                </div>
+                                <div class="circle-inner">
+                                    <div class="search-icon">
+                                        <div class="search-circle"></div>
+                                        <div class="search-handle"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <h3>Enter competitor names and click "Run Analysis" to discover their advertising strategies and performance metrics</h3>
+
+                        <div class="form-container" id="formContainer">
+                            ${this.formBuilder.build()}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Re-initialize form after clear
+            this.initializeForm();
+        }
+    }
 
     getElement() {
         return this.dataDisplay;

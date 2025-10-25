@@ -81,7 +81,8 @@ class DataDashboard {
 
         // Initialize DataDisplay in data section with modal callback
         this.dataDisplay = this.componentLoader.initComponent('DataDisplay', dataSection,
-            (competitorName, fullAnalysis) => this.showFullAnalysis(competitorName, fullAnalysis)
+            (competitorName, fullAnalysis) => this.showFullAnalysis(competitorName, fullAnalysis),
+            this // Pass dashboard instance for form callbacks
         );
 
         // Initialize Modal
