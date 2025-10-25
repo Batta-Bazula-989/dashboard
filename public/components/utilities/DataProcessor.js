@@ -8,7 +8,7 @@ class DataProcessor {
 
         return {
             competitor_name: item.competitor_name || 'Unknown Competitor',
-            content_type: item.content_type || 'text',
+            content_type: item.content_type || 'text', // Preserve original content_type from N8N
             body: item.body || '',
             ai_analysis: item.ai_analysis || {},
             ad_data: {

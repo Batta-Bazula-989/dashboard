@@ -62,9 +62,20 @@ class DataDisplay {
             const processed = DataProcessor.process(item);
             if (!processed) return;
 
-            if (processed.content_type === 'video') {
+            // Check if this is video analysis data
+            const isVideoAnalysis = processed.content_type === 'video' || 
+                                  this.isVideoAnalysisData(processed);
+
+            console.log('=== PROCESSING ITEM ===');
+            console.log('Processed item:', processed);
+            console.log('Content type:', processed.content_type);
+            console.log('Is video analysis:', isVideoAnalysis);
+
+            if (isVideoAnalysis) {
+                console.log('Adding video analysis to existing cards');
                 this.addVideoAnalysis(processed);
             } else {
+                console.log('Adding text card');
                 this.addTextCard(processed);
                 renderedCount++;
             }
@@ -84,14 +95,52 @@ class DataDisplay {
         grid.appendChild(card);
     }
 
+    /**
+     * Check if the data represents video analysis based on ai_analysis structure
+     * @param {Object} data - Processed data item
+     * @returns {boolean} True if this is video analysis data
+     */
+    isVideoAnalysisData(data) {
+        const analysis = data.ai_analysis;
+        if (!analysis || typeof analysis !== 'object') return false;
+
+        // Check for video-specific analysis fields
+        const videoFields = [
+            'technical',
+            'visual_and_editing', 
+            'people_and_product',
+            'psychology'
+        ];
+
+        const hasVideoFields = videoFields.some(field => analysis[field] && typeof analysis[field] === 'object');
+        
+        console.log('=== VIDEO ANALYSIS DETECTION ===');
+        console.log('Data:', data);
+        console.log('Analysis:', analysis);
+        console.log('Video fields found:', videoFields.filter(field => analysis[field]));
+        console.log('Is video analysis:', hasVideoFields);
+        console.log('Content type:', data.content_type);
+        
+        return hasVideoFields;
+    }
+
     addVideoAnalysis(videoData) {
+        console.log('=== ADDING VIDEO ANALYSIS ===');
+        console.log('Video data:', videoData);
+        console.log('Looking for competitor:', videoData.competitor_name);
+        console.log('Looking for body:', videoData.body);
+        
         const existingCards = CardMatcher.findAll(
             this.dataDisplay,
             videoData.competitor_name,
             videoData.body
         );
 
-        existingCards.forEach(card => {
+        console.log('Found existing cards:', existingCards.length);
+        console.log('Existing cards:', existingCards);
+
+        existingCards.forEach((card, index) => {
+            console.log(`Adding video analysis to card ${index + 1}`);
             const section = AnalysisSections.createVideoAnalysis(
                 videoData,
                 this.onShowFullAnalysis

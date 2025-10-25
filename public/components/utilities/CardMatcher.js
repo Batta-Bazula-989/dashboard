@@ -8,7 +8,7 @@ class CardMatcher {
         const matches = [];
 
         for (let card of cards) {
-            const link = card.querySelector('.title-row a');
+            const link = card.querySelector('.name-row a');
             const adTextEl = card.querySelector('.ad-text');
 
             if (!link?.textContent) continue;
