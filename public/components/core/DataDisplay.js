@@ -22,34 +22,34 @@ class DataDisplay {
     }
 
     /**
-     * Render the data display HTML with form
+     * Render the data display HTML with form ABOVE data container
      */
     render(container) {
         const dataDisplayHTML = `
             <div class="data-display" id="dataDisplay">
-                <div class="data-display-content">
-                    <div class="empty-state">
-                        <div class="billboard-illustration">
-                            <div class="search-container">
-                                <div class="circle-outer">
-                                    <div class="dot dot1"></div>
-                                    <div class="dot dot2"></div>
-                                </div>
-                                <div class="circle-inner">
-                                    <div class="search-icon">
-                                        <div class="search-circle"></div>
-                                        <div class="search-handle"></div>
-                                    </div>
+                <div class="empty-state">
+                    <div class="billboard-illustration">
+                        <div class="search-container">
+                            <div class="circle-outer">
+                                <div class="dot dot1"></div>
+                                <div class="dot dot2"></div>
+                            </div>
+                            <div class="circle-inner">
+                                <div class="search-icon">
+                                    <div class="search-circle"></div>
+                                    <div class="search-handle"></div>
                                 </div>
                             </div>
                         </div>
-                        <h3>Enter competitor names and click "Run Analysis" to discover their advertising strategies and performance metrics</h3>
+                    </div>
+                    <h3>Enter competitor names and click "Run Analysis" to discover their advertising strategies and performance metrics</h3>
 
-                        <div class="form-container" id="formContainer">
-                            ${this.formBuilder.build()}
-                        </div>
+                    <div class="form-container" id="formContainer">
+                        ${this.formBuilder.build()}
                     </div>
                 </div>
+
+                <div class="data-display-content"></div>
             </div>
         `;
 
@@ -125,8 +125,11 @@ class DataDisplay {
         });
 
         if (renderedCount > 0) {
+            // Hide empty state when data is added
             const emptyState = this.dataDisplay.querySelector('.empty-state');
-            if (emptyState) emptyState.remove();
+            if (emptyState) {
+                emptyState.style.display = 'none';
+            }
         }
 
         return this.getStats();
@@ -201,29 +204,29 @@ class DataDisplay {
     clear() {
         if (this.dataDisplay) {
             this.dataDisplay.innerHTML = `
-                <div class="data-display-content">
-                    <div class="empty-state">
-                        <div class="billboard-illustration">
-                            <div class="search-container">
-                                <div class="circle-outer">
-                                    <div class="dot dot1"></div>
-                                    <div class="dot dot2"></div>
-                                </div>
-                                <div class="circle-inner">
-                                    <div class="search-icon">
-                                        <div class="search-circle"></div>
-                                        <div class="search-handle"></div>
-                                    </div>
+                <div class="empty-state">
+                    <div class="billboard-illustration">
+                        <div class="search-container">
+                            <div class="circle-outer">
+                                <div class="dot dot1"></div>
+                                <div class="dot dot2"></div>
+                            </div>
+                            <div class="circle-inner">
+                                <div class="search-icon">
+                                    <div class="search-circle"></div>
+                                    <div class="search-handle"></div>
                                 </div>
                             </div>
                         </div>
-                        <h3>Enter competitor names and click "Run Analysis" to discover their advertising strategies and performance metrics</h3>
+                    </div>
+                    <h3>Enter competitor names and click "Run Analysis" to discover their advertising strategies and performance metrics</h3>
 
-                        <div class="form-container" id="formContainer">
-                            ${this.formBuilder.build()}
-                        </div>
+                    <div class="form-container" id="formContainer">
+                        ${this.formBuilder.build()}
                     </div>
                 </div>
+
+                <div class="data-display-content"></div>
             `;
 
             // Re-initialize form after clear
