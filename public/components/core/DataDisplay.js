@@ -62,22 +62,22 @@ class DataDisplay {
             const processed = DataProcessor.process(item);
             if (!processed) return;
 
-            // Check if this is video analysis data
-            const isVideoAnalysis = processed.content_type === 'video' || 
-                                  this.isVideoAnalysisData(processed);
-
             console.log('=== PROCESSING ITEM ===');
             console.log('Processed item:', processed);
             console.log('Content type:', processed.content_type);
-            console.log('Is video analysis:', isVideoAnalysis);
-
-            if (isVideoAnalysis) {
-                console.log('Adding video analysis to existing cards');
-                this.addVideoAnalysis(processed);
-            } else {
-                console.log('Adding text card');
-                this.addTextCard(processed);
-                renderedCount++;
+            
+            // Always add the main card first
+            console.log('Adding text card');
+            this.addTextCard(processed);
+            renderedCount++;
+            
+            // Then check if this also has video analysis to add
+            const hasVideoAnalysis = this.isVideoAnalysisData(processed);
+            console.log('Has video analysis:', hasVideoAnalysis);
+            
+            if (hasVideoAnalysis) {
+                console.log('Adding video analysis to the card');
+                this.addVideoAnalysisToCard(processed);
             }
         });
 
@@ -122,6 +122,38 @@ class DataDisplay {
         console.log('Content type:', data.content_type);
         
         return hasVideoFields;
+    }
+
+    addVideoAnalysisToCard(videoData) {
+        console.log('=== ADDING VIDEO ANALYSIS TO CARD ===');
+        console.log('Video data:', videoData);
+        
+        // Find the most recently added card (last card in the grid)
+        const grid = this.dataDisplay.querySelector('.card-grid');
+        if (!grid) {
+            console.log('No card grid found');
+            return;
+        }
+        
+        const cards = grid.querySelectorAll('.card');
+        if (cards.length === 0) {
+            console.log('No cards found');
+            return;
+        }
+        
+        const lastCard = cards[cards.length - 1];
+        console.log('Adding video analysis to last card:', lastCard);
+        
+        const section = AnalysisSections.createVideoAnalysis(
+            videoData,
+            this.onShowFullAnalysis
+        );
+        const divider = document.createElement('div');
+        divider.className = 'section-divider';
+        lastCard.appendChild(divider);
+        lastCard.appendChild(section);
+        
+        console.log('Video analysis section added successfully');
     }
 
     addVideoAnalysis(videoData) {
