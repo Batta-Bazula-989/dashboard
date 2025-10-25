@@ -31,40 +31,38 @@
 
 /* Clear Data Button */
 .clear-data-btn {
-    position: fixed; /* Change from absolute to fixed */
-    top: 20px; /* Distance from top of viewport */
-    right: 20px; /* Distance from right of viewport */
-    z-index: 1000; /* Make sure it's on top */
-    background: transparent;
-    color: #64748b;
-    border: none;
-    padding: 2px 4px;
-    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 8px 12px;
+    border-radius: 8px;
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
     display: inline-flex;
     align-items: center;
-    gap: 2px;
+    gap: 6px;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    backdrop-filter: blur(10px);
 }
 
 .clear-data-btn:hover {
-    background: #f1f5f9;
-    color: #475569;
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(-1px);
 }
 
 .clear-data-btn:active {
-    box-shadow: none;
-    background: transparent;
-    color: #374151;
+    transform: translateY(0);
+    background: rgba(255, 255, 255, 0.2);
 }
 
 .clear-data-btn:disabled {
-    background: #f1f5f9;
-    color: #94a3b8;
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.6);
     cursor: not-allowed;
+    transform: none;
 }
 
 .clear-data-btn.hidden {

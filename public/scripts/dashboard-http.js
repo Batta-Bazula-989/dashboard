@@ -62,30 +62,55 @@ class DataDashboard {
     initializeComponents() {
         const container = document.querySelector('.container');
 
-        // Create dashboard layout structure
+        // Create header
+        const header = document.createElement('div');
+        header.className = 'dashboard-header';
+        header.innerHTML = `
+            <div class="header-content">
+                <div class="header-left">
+                    <h1 class="header-title">Ad Analysis Dashboard</h1>
+                </div>
+                <div class="header-form">
+                    <div class="header-form-container" id="headerFormContainer">
+                        <!-- Form will be inserted here -->
+                    </div>
+                </div>
+                <div class="header-right">
+                    <button id="clearDataBtn" class="clear-data-btn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="3,6 5,6 21,6"></polyline>
+                            <path d="m19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"></path>
+                            <line x1="10" y1="11" x2="10" y2="17"></line>
+                            <line x1="14" y1="11" x2="14" y2="17"></line>
+                        </svg>
+                        Clear All
+                    </button>
+                </div>
+            </div>
+        `;
+
+        // Create dashboard content structure
         const dashboardContent = document.createElement('div');
         dashboardContent.className = 'dashboard-content';
         
         const statsSection = document.createElement('div');
         statsSection.className = 'stats-section';
         
-        const formSection = document.createElement('div');
-        formSection.className = 'form-section';
-        
         const dataSection = document.createElement('div');
         dataSection.className = 'data-section';
         
         dashboardContent.appendChild(statsSection);
-        dashboardContent.appendChild(formSection);
         dashboardContent.appendChild(dataSection);
+        
+        container.appendChild(header);
         container.appendChild(dashboardContent);
 
-        // Initialize StatsCards in stats section (now at the top)
+        // Initialize StatsCards in stats section
         this.statsCards = this.componentLoader.initComponent('StatsCards', statsSection);
 
-        // Initialize FormBuilder in form section
+        // Initialize FormBuilder in header
         this.formBuilder = new FormBuilder();
-        this.initializeForm(formSection);
+        this.initializeHeaderForm(header);
 
         // Initialize DataDisplay in data section with modal callback
         this.dataDisplay = this.componentLoader.initComponent('DataDisplay', dataSection,
@@ -97,7 +122,23 @@ class DataDashboard {
     }
 
     /**
-     * Initialize the form in the form section
+     * Initialize the form in the header
+     * @param {HTMLElement} header - The header container
+     */
+    initializeHeaderForm(header) {
+        const formContainer = header.querySelector('#headerFormContainer');
+        formContainer.innerHTML = this.formBuilder.build(true);
+        
+        // Initialize form event listeners
+        this.formBuilder.initEventListeners(
+            formContainer,
+            (data) => this.handleFormSuccess(data),
+            (error) => this.handleFormError(error)
+        );
+    }
+
+    /**
+     * Initialize the form in the form section (legacy method)
      * @param {HTMLElement} formSection - The form section container
      */
     initializeForm(formSection) {

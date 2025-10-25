@@ -41,7 +41,59 @@
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
 }
 
-/* Only the form itself has white background */
+/* Header form styling */
+.header-form-container {
+    width: 100%;
+}
+
+.header-form {
+    background: rgba(255, 255, 255, 0.95) !important;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Compact form layout for header */
+.header-form .form-header {
+    margin-bottom: 12px;
+}
+
+.header-form .competitors-label {
+    font-size: 13px;
+    margin-bottom: 8px;
+}
+
+.header-form .competitors-list {
+    margin-bottom: 12px;
+}
+
+.header-form .competitor-input {
+    padding: 8px 12px;
+    font-size: 13px;
+}
+
+.header-form .form-row {
+    margin-bottom: 12px;
+    gap: 8px;
+}
+
+.header-form .form-group label {
+    font-size: 12px;
+}
+
+.header-form .form-select {
+    padding: 8px 12px;
+    font-size: 13px;
+}
+
+.header-form .run-analysis-btn {
+    padding: 10px 16px;
+    font-size: 13px;
+}
+
+/* Regular form styling for standalone use */
 .form-container {
     margin-top: 0;
     max-width: 520px;
@@ -240,6 +292,23 @@
 }
 
 /* Responsive */
+@media (max-width: 968px) {
+    .header-form .form-row {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+    
+    .header-form .competitors-label {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+    }
+    
+    .header-form .add-more-btn {
+        align-self: flex-start;
+    }
+}
+
 @media (max-width: 640px) {
     .form-container {
         margin-top: 24px;
@@ -262,5 +331,24 @@
 
     .add-more-btn {
         align-self: flex-start;
+    }
+    
+    .header-form {
+        padding: 12px;
+    }
+    
+    .header-form .competitor-input {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+    
+    .header-form .form-select {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+    
+    .header-form .run-analysis-btn {
+        padding: 8px 12px;
+        font-size: 12px;
     }
 }

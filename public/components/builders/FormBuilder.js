@@ -12,11 +12,13 @@ class FormBuilder {
 
     /**
      * Build the complete form HTML
+     * @param {boolean} isHeader - Whether this is for header use
      * @returns {string} Form HTML
      */
-    build() {
+    build(isHeader = false) {
+        const formClass = isHeader ? 'header-form' : 'competitor-form';
         return `
-            <div class="competitor-form">
+            <div class="${formClass}">
                 <div class="form-header">
                     <div class="competitors-label">
                         <span>Competitors (${this.competitors.length} added)</span>
