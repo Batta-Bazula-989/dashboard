@@ -1,11 +1,11 @@
 /* Analysis Components */
 .data-display {
-    background: white;
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-sm);
-    margin: 20px 0 0 0;
+    background: transparent;
+    border-radius: 0;
+    box-shadow: none;
+    margin: 0;
     min-height: 200px;
-    position: relative; /* Creates positioning context for absolute children */
+    position: relative;
     transition: min-height 0.3s ease;
     width: 100%;
     flex: 1;
