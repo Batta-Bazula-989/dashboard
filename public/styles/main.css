@@ -98,7 +98,7 @@
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .clear-data-btn {
-        padding: 6px 10px;
+        padding: 2px 4px;
         font-size: 12px;
     }
 
