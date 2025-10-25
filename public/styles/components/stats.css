@@ -82,13 +82,13 @@
     margin-top: 2px;
 }
 
-/* Clear All Button - SMALL and COMPACT */
+/* Clear Button - TEXT + ICON */
 #clearDataBtn {
     background: white;
     border: 1px solid #e5e7eb;
     border-radius: 8px;
-    padding: 8px 14px; /* ✅ Compact padding */
-    height: auto; /* ✅ Natural height */
+    padding: 8px 12px;
+    height: auto;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -100,7 +100,7 @@
     cursor: pointer;
     transition: all 0.2s ease;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    margin-left: auto; /* ✅ Push to far right */
+    margin-left: auto;
     flex-shrink: 0;
     white-space: nowrap;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
