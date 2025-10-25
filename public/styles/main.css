@@ -4,6 +4,34 @@
 @import './components/modal.css';
 @import './components/stats.css';
 @import './components/analysis.css';
+@import './components/form-styles.css';
+
+/* Dashboard Layout */
+.dashboard-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.stats-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.form-section {
+    display: flex;
+    justify-content: center;
+    padding: 0 20px;
+}
+
+.data-section {
+    flex: 1;
+    min-height: 300px;
+}
 
 .data-display-content {
     flex: 1;

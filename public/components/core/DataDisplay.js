@@ -7,22 +7,18 @@ class DataDisplay {
         this.dataDisplay = null;
         this.onShowFullAnalysis = null;
         this.cardBuilder = null;
-        this.formBuilder = null;
-        this.dashboardInstance = null; // Reference to main dashboard for callbacks
     }
 
-    init(container, onShowFullAnalysis = null, dashboardInstance = null) {
+    init(container, onShowFullAnalysis = null) {
         this.onShowFullAnalysis = onShowFullAnalysis;
-        this.dashboardInstance = dashboardInstance;
         this.cardBuilder = new CardBuilder(onShowFullAnalysis);
-        this.formBuilder = new FormBuilder();
         this.render(container);
         this.bindElements();
-        this.initializeForm();
     }
 
     /**
-     * Render the data display HTML with form ABOVE data container
+     * Render the data display HTML
+     * @param {HTMLElement} container - The container element
      */
     render(container) {
         const dataDisplayHTML = `
@@ -43,12 +39,7 @@ class DataDisplay {
                         </div>
                     </div>
                     <h3>Enter competitor names and click "Run Analysis" to discover their advertising strategies and performance metrics</h3>
-
-                    <div class="form-container" id="formContainer">
-                        ${this.formBuilder.build()}
-                    </div>
                 </div>
-
                 <div class="data-display-content"></div>
             </div>
         `;
@@ -58,46 +49,6 @@ class DataDisplay {
 
     bindElements() {
         this.dataDisplay = document.getElementById('dataDisplay');
-    }
-
-    /**
-     * Initialize form event listeners
-     */
-    initializeForm() {
-        const formContainer = document.getElementById('formContainer');
-        if (formContainer && this.formBuilder) {
-            this.formBuilder.initEventListeners(
-                formContainer,
-                (message) => this.onFormSuccess(message),
-                (error) => this.onFormError(error)
-            );
-        }
-    }
-
-    /**
-     * Handle successful form submission
-     */
-    onFormSuccess(message) {
-        console.log('Form submission successful:', message);
-
-        // Show success toast using dashboard's method
-        if (this.dashboardInstance && this.dashboardInstance.showSuccessMessage) {
-            this.dashboardInstance.showSuccessMessage(message);
-        }
-
-        // The polling mechanism will automatically pick up new data
-    }
-
-    /**
-     * Handle form submission error
-     */
-    onFormError(error) {
-        console.error('Form submission error:', error);
-
-        // Show error toast using dashboard's method
-        if (this.dashboardInstance && this.dashboardInstance.showErrorMessage) {
-            this.dashboardInstance.showErrorMessage(error);
-        }
     }
 
     addDataItem(incoming) {
@@ -204,41 +155,33 @@ class DataDisplay {
         };
     }
 
-    /**
-     * Clear all data from the display
-     */
-    clear() {
-        if (this.dataDisplay) {
-            this.dataDisplay.innerHTML = `
-                <div class="empty-state">
-                    <div class="billboard-illustration">
-                        <div class="search-container">
-                            <div class="circle-outer">
-                                <div class="dot dot1"></div>
-                                <div class="dot dot2"></div>
-                            </div>
-                            <div class="circle-inner">
-                                <div class="search-icon">
-                                    <div class="search-circle"></div>
-                                    <div class="search-handle"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <h3>Enter competitor names and click "Run Analysis" to discover their advertising strategies and performance metrics</h3>
-
-                    <div class="form-container" id="formContainer">
-                        ${this.formBuilder.build()}
-                    </div>
-                </div>
-
-                <div class="data-display-content"></div>
-            `;
-
-            // Re-initialize form after clear
-            this.initializeForm();
-        }
-    }
+   /**
+    * Clear all data from the display
+    */
+   clear() {
+       if (this.dataDisplay) {
+           this.dataDisplay.innerHTML = `
+               <div class="empty-state">
+                   <div class="billboard-illustration">
+                       <div class="search-container">
+                           <div class="circle-outer">
+                               <div class="dot dot1"></div>
+                               <div class="dot dot2"></div>
+                           </div>
+                           <div class="circle-inner">
+                               <div class="search-icon">
+                                   <div class="search-circle"></div>
+                                   <div class="search-handle"></div>
+                               </div>
+                           </div>
+                       </div>
+                   </div>
+                   <h3>Enter competitor names and click "Run Analysis" to discover their advertising strategies and performance metrics</h3>
+               </div>
+               <div class="data-display-content"></div>
+           `;
+       }
+   }
 
     getElement() {
         return this.dataDisplay;

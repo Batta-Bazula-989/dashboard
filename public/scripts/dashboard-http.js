@@ -69,24 +69,77 @@ class DataDashboard {
         const statsSection = document.createElement('div');
         statsSection.className = 'stats-section';
         
+        const formSection = document.createElement('div');
+        formSection.className = 'form-section';
+        
         const dataSection = document.createElement('div');
         dataSection.className = 'data-section';
         
         dashboardContent.appendChild(statsSection);
+        dashboardContent.appendChild(formSection);
         dashboardContent.appendChild(dataSection);
         container.appendChild(dashboardContent);
 
         // Initialize StatsCards in stats section (now at the top)
         this.statsCards = this.componentLoader.initComponent('StatsCards', statsSection);
 
+        // Initialize FormBuilder in form section
+        this.formBuilder = new FormBuilder();
+        this.initializeForm(formSection);
+
         // Initialize DataDisplay in data section with modal callback
         this.dataDisplay = this.componentLoader.initComponent('DataDisplay', dataSection,
-            (competitorName, fullAnalysis) => this.showFullAnalysis(competitorName, fullAnalysis),
-            this // Pass dashboard instance for form callbacks
+            (competitorName, fullAnalysis) => this.showFullAnalysis(competitorName, fullAnalysis)
         );
 
         // Initialize Modal
         this.modal = this.componentLoader.createComponent('Modal');
+    }
+
+    /**
+     * Initialize the form in the form section
+     * @param {HTMLElement} formSection - The form section container
+     */
+    initializeForm(formSection) {
+        const formHTML = `
+            <div class="form-container" id="formContainer">
+                ${this.formBuilder.build()}
+            </div>
+        `;
+        
+        formSection.insertAdjacentHTML('beforeend', formHTML);
+        
+        // Initialize form event listeners
+        this.formBuilder.initEventListeners(
+            formSection,
+            (data) => this.handleFormSuccess(data),
+            (error) => this.handleFormError(error)
+        );
+    }
+
+    /**
+     * Handle successful form submission
+     * @param {Object} data - Form data
+     */
+    handleFormSuccess(data) {
+        console.log('Form submitted successfully:', data);
+        // Hide the form and show loading state
+        const formContainer = document.getElementById('formContainer');
+        if (formContainer) {
+            formContainer.style.display = 'none';
+        }
+        
+        // Show success message
+        this.showSuccessMessage('Analysis started! Results will appear shortly.');
+    }
+
+    /**
+     * Handle form submission error
+     * @param {Error} error - Error object
+     */
+    handleFormError(error) {
+        console.error('Form submission error:', error);
+        this.showErrorMessage('Failed to start analysis. Please try again.');
     }
 
     /**

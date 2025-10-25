@@ -40,7 +40,7 @@
 
 /* Only the form itself has white background */
 .form-container {
-    margin-top: 32px;
+    margin-top: 0;
     max-width: 520px;
     width: 100%;
     margin-left: auto;
