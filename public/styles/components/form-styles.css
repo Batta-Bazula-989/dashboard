@@ -1,15 +1,54 @@
 /* ============================================
-   COMPETITOR FORM STYLES
+   COMPETITOR FORM STYLES - OVERRIDE BASE.CSS
    ============================================ */
 
+/* CRITICAL: Override base.css white backgrounds */
+.data-section {
+    background: transparent !important;
+}
+
+.data-display {
+    background: transparent !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+}
+
+/* Empty state and form should NOT have background */
+.empty-state {
+    text-align: center;
+    padding: 40px 20px !important;
+    background: transparent !important;
+}
+
+/* Data container should have NO background/padding when empty */
+.data-display-content {
+    background: transparent !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+/* Data container gets white background ONLY when it has data (has-data class) */
+.data-display-content.has-data {
+    background: white !important;
+    border-radius: 12px !important;
+    padding: 20px !important;
+    margin-top: 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Only the form itself has white background */
 .form-container {
     margin-top: 32px;
     max-width: 520px;
     width: 100%;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .competitor-form {
-    background: white;
+    background: white !important;
     border-radius: 12px;
     padding: 24px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
