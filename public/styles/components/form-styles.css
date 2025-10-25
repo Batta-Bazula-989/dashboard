@@ -4,7 +4,10 @@
 
 /* CRITICAL: Override base.css white backgrounds */
 .data-section {
-    background: transparent !important;
+    background: white !important;
+    border-radius: 12px !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+    padding: 20px !important;
 }
 
 .data-display {
