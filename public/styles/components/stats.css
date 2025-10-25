@@ -57,14 +57,12 @@
     height: 18px;
 }
 
-/* Stats content - horizontal alignment */
+/* Stats content - left aligned */
 .stats-content {
     display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
+    flex-direction: column;
+    gap: 4px;
     padding-right: 40px;
-    gap: 8px;
 }
 
 .stats-label {
@@ -81,7 +79,7 @@
     font-weight: 560;
     color: #0f172a;
     line-height: 1;
-    margin-top: 0;
+    margin-top: 2px;
 }
 
 /* Clear All Button - SMALL and COMPACT */
