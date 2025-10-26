@@ -141,8 +141,8 @@
 
 .add-competitor-btn {
     background: white;
-    color: #6b7280;
-    border-color: #c084fc;
+    color: #374151;
+    border: 1px solid #c084fc;
 }
 
 .add-competitor-btn:hover {
@@ -174,8 +174,8 @@
 }
 
 .add-competitor-btn svg {
-    stroke: #c084fc;
-    color: #c084fc;
+    stroke: #374151;
+    color: #374151;
 }
 
 .run-analysis-btn svg {
