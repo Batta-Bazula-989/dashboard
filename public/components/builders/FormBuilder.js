@@ -41,8 +41,8 @@ class FormBuilder {
                     <div class="form-group">
                         <label for="statusSelect">Status</label>
                         <select id="statusSelect" class="form-select">
-                            <option value="active">Active</option>
-                            <option value="inactive">Inactive</option>
+                            <option value="active">active</option>
+                            <option value="inactive">inactive</option>
                         </select>
                     </div>
                     
