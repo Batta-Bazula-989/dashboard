@@ -108,10 +108,10 @@
 /* Buttons matching screenshot */
 .add-competitor-btn,
 .run-analysis-btn {
-    padding: 10px 16px;
+    padding: 8px 14px;
     border: none;
     border-radius: 8px;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 600;
     cursor: pointer;
     display: flex;
@@ -119,6 +119,8 @@
     gap: 6px;
     transition: all 0.2s ease;
     white-space: nowrap;
+    min-width: 120px;
+    justify-content: center;
 }
 
 .add-competitor-btn {
@@ -149,8 +151,8 @@
 
 .add-competitor-btn svg,
 .run-analysis-btn svg {
-    width: 14px;
-    height: 14px;
+    width: 12px;
+    height: 12px;
 }
 
 /* Form Header */
