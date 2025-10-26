@@ -95,7 +95,7 @@
 .competitor-input,
 .form-select {
     padding: 8px 12px;
-    height: 36px;
+    height: 34px;
     border: 1px solid #d1d5db;
     border-radius: 8px;
     font-size: 13px;
@@ -120,7 +120,7 @@
 .add-competitor-btn,
 .run-analysis-btn {
     padding: 8px 8px;
-    height: 36px;
+    height: 34px;
     border: 1px solid #c084fc;
     border-radius: 8px;
     font-size: 12px;
