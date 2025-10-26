@@ -15,7 +15,7 @@ body {
 }
 
 .container {
-    max-width: 1600px;
+    max-width: 1200px;
     margin: 0 auto;
     width: 100%;
     padding: 20px;
@@ -34,6 +34,9 @@ body {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     padding: 24px;
     flex-shrink: 0;
+    max-width: 900px;
+    margin: 0 auto;
+    width: 100%;
 }
 
 /* Main Content Area */
@@ -252,7 +255,7 @@ body {
 /* RESPONSIVE */
 /* ========================================= */
 
-@media (max-width: 1600px) {
+@media (max-width: 1200px) {
     .container {
         max-width: 100%;
         padding: 16px;
