@@ -86,9 +86,9 @@
     align-items: center;
     justify-content: center;
     text-align: center;
-    padding: 80px 20px;
+    padding: 20px;
     color: #6b7280;
-    min-height: calc(100vh - 400px);
+    height: 100%;
     position: relative;
     width: 100%;
     max-width: 600px;
@@ -100,6 +100,14 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    width: 100%;
+}
+
+.search-container {
+    position: relative;
+    width: 180px;
+    height: 180px;
+    margin: 0 auto;
 }
 
 .empty-state h3 {

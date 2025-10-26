@@ -30,7 +30,12 @@ class DataDisplay {
                                 <div class="dot dot1"></div>
                                 <div class="dot dot2"></div>
                             </div>
-                            <div class="circle-inner"></div>
+                            <div class="circle-inner">
+                                <div class="search-icon">
+                                    <div class="search-circle"></div>
+                                    <div class="search-handle"></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <h3>Enter competitor names and click "Run Analysis" to discover their advertising strategies and performance metrics</h3>
@@ -163,7 +168,12 @@ class DataDisplay {
                                <div class="dot dot1"></div>
                                <div class="dot dot2"></div>
                            </div>
-                           <div class="circle-inner"></div>
+                           <div class="circle-inner">
+                               <div class="search-icon">
+                                   <div class="search-circle"></div>
+                                   <div class="search-handle"></div>
+                               </div>
+                           </div>
                        </div>
                    </div>
                    <h3>Enter competitor names and click "Run Analysis" to discover their advertising strategies and performance metrics</h3>
