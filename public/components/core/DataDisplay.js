@@ -26,19 +26,17 @@ class DataDisplay {
                 <div class="empty-state">
                     <div class="billboard-illustration">
                         <div class="search-container">
-                            <div class="circle-outer">
-                                <div class="dot dot1"></div>
-                                <div class="dot dot2"></div>
-                            </div>
-                            <div class="circle-inner">
-                                <div class="search-icon">
-                                    <div class="search-circle"></div>
-                                    <div class="search-handle"></div>
-                                </div>
+                            <div class="circle-outer"></div>
+                            <div class="square-inner">
+                                <svg class="search-icon" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="11" cy="11" r="8"></circle>
+                                    <path d="m21 21-4.35-4.35"></path>
+                                </svg>
                             </div>
                         </div>
                     </div>
-                    <h3>Enter competitor names and click "Run Analysis" to discover their advertising strategies and performance metrics</h3>
+                    <h2 class="empty-state-title">Start Your Analysis</h2>
+                    <p class="empty-state-description">Enter competitor names and click <span class="highlight">Analyze</span> to discover their advertising strategies and performance metrics</p>
                 </div>
                 <div class="data-display-content"></div>
             </div>
@@ -164,19 +162,17 @@ class DataDisplay {
                <div class="empty-state">
                    <div class="billboard-illustration">
                        <div class="search-container">
-                           <div class="circle-outer">
-                               <div class="dot dot1"></div>
-                               <div class="dot dot2"></div>
-                           </div>
-                           <div class="circle-inner">
-                               <div class="search-icon">
-                                   <div class="search-circle"></div>
-                                   <div class="search-handle"></div>
-                               </div>
+                           <div class="circle-outer"></div>
+                           <div class="square-inner">
+                               <svg class="search-icon" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                   <circle cx="11" cy="11" r="8"></circle>
+                                   <path d="m21 21-4.35-4.35"></path>
+                               </svg>
                            </div>
                        </div>
                    </div>
-                   <h3>Enter competitor names and click "Run Analysis" to discover their advertising strategies and performance metrics</h3>
+                   <h2 class="empty-state-title">Start Your Analysis</h2>
+                   <p class="empty-state-description">Enter competitor names and click <span class="highlight">Analyze</span> to discover their advertising strategies and performance metrics</p>
                </div>
                <div class="data-display-content"></div>
            `;

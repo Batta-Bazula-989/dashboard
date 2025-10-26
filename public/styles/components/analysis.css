@@ -105,9 +105,31 @@
 
 .search-container {
     position: relative;
-    width: 180px;
-    height: 180px;
+    width: 200px;
+    height: 200px;
     margin: 0 auto;
+}
+
+.empty-state-title {
+    font-size: 1.75rem;
+    color: #374151;
+    margin-bottom: 12px;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.empty-state-description {
+    font-size: 0.95rem;
+    color: #374151;
+    margin-bottom: 0;
+    font-weight: 400;
+    line-height: 1.6;
+    max-width: 500px;
+}
+
+.empty-state-description .highlight {
+    color: #7c3aed;
+    font-weight: 600;
 }
 
 .empty-state h3 {
@@ -120,30 +142,26 @@
 }
 
 /* Pulsating Search Animation */
-.search-container {
-    position: relative;
-    width: 180px;
-    height: 180px;
-}
 
 .circle-outer {
     position: absolute;
-    width: 180px;
-    height: 180px;
+    width: 200px;
+    height: 200px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #b8d4f0 0%, #a8c8e8 50%, #98b8e0 100%);
+    background: rgba(196, 181, 253, 0.3);
     animation: pulse-outer 2s ease-in-out infinite;
+    box-shadow: 0 0 40px rgba(196, 181, 253, 0.4);
 }
 
-.circle-inner {
+.square-inner {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 120px;
-    height: 120px;
-    border-radius: 16px;
-    background: rgba(150, 170, 240, 0.8);
+    width: 140px;
+    height: 140px;
+    border-radius: 20px;
+    background: #e9d5ff;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -151,50 +169,10 @@
 }
 
 .search-icon {
-    width: 48px;
-    height: 48px;
-    position: relative;
-}
-
-.search-circle {
-    width: 30px;
-    height: 30px;
-    border: 4px solid white;
-    border-radius: 50%;
-    position: absolute;
-    top: 3px;
-    left: 3px;
-}
-
-.search-handle {
-    width: 4px;
-    height: 18px;
-    background: white;
-    position: absolute;
-    bottom: 0;
-    right: 6px;
-    transform: rotate(-45deg);
-    border-radius: 2px;
-}
-
-.dot {
-    position: absolute;
-    width: 8px;
-    height: 8px;
-    background: #a8c8e8;
-    border-radius: 50%;
-    animation: pulse-dot 2s ease-in-out infinite;
-}
-
-.dot1 {
-    top: 12px;
-    right: 24px;
-}
-
-.dot2 {
-    top: 50%;
-    right: 9px;
-    transform: translateY(-50%);
+    width: 64px;
+    height: 64px;
+    color: #7c3aed;
+    stroke-width: 2;
 }
 
 /* Animation keyframes */
@@ -214,7 +192,7 @@
         transform: translate(-50%, -50%) scale(1);
     }
     50% {
-        transform: translate(-50%, -50%) scale(1.03);
+        transform: translate(-50%, -50%) scale(1.05);
     }
 }
 
