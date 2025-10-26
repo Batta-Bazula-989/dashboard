@@ -66,9 +66,17 @@
 /* Form layout matching screenshot */
 .form-grid {
     display: grid;
-    grid-template-columns: 200px 150px 120px auto auto;
-    gap: 8px;
+    grid-template-columns: 200px 150px 120px minmax(auto, 85px) minmax(auto, 85px);
+    gap: 0 4px;
     align-items: end;
+}
+
+.form-grid > .add-competitor-btn {
+    margin-right: 4px;
+}
+
+.form-grid > .run-analysis-btn {
+    margin-right: 0;
 }
 
 .form-group {
@@ -128,6 +136,7 @@
     box-sizing: border-box;
     align-self: start;
     margin-top: 28px;
+    margin-right: 0;
 }
 
 .add-competitor-btn {
