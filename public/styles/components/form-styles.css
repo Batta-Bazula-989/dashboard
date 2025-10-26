@@ -66,7 +66,7 @@
 /* Form layout matching screenshot */
 .form-grid {
     display: grid;
-    grid-template-columns: 200px 70px 86px minmax(auto, 85px) minmax(auto, 85px);
+    grid-template-columns: 200px 68px 86px minmax(auto, 85px) minmax(auto, 85px);
     gap: 0 4px;
     align-items: start;
 }
