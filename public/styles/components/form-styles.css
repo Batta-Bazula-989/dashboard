@@ -68,7 +68,7 @@
     display: grid;
     grid-template-columns: 200px 86px 86px minmax(auto, 85px) minmax(auto, 85px);
     gap: 0 4px;
-    align-items: end;
+    align-items: start;
 }
 
 .form-grid > .add-competitor-btn {
@@ -90,6 +90,8 @@
     font-size: 13px;
     font-weight: 600;
     color: #374151;
+    line-height: 1.2;
+    height: 18px;
 }
 
 .competitor-input,
@@ -99,6 +101,7 @@
     border: 1px solid #d1d5db;
     border-radius: 8px;
     font-size: 13px;
+    line-height: 18px;
     color: #1f2937 !important;
     font-weight: 500;
     background: white;
@@ -147,7 +150,6 @@
     max-width: 85px;
     justify-content: center;
     box-sizing: border-box;
-    align-self: start;
     margin-top: 28px;
     margin-right: 0;
 }
@@ -247,6 +249,7 @@
     border: 1px solid #d1d5db;
     border-radius: 8px;
     font-size: 13px;
+    line-height: 18px;
     color: #374151;
     font-weight: 500;
     transition: all 0.2s ease;
@@ -286,38 +289,6 @@
     grid-template-columns: 1fr 1fr;
     gap: 12px;
     margin-bottom: 20px;
-}
-
-.form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.form-group label {
-    font-size: 13px;
-    font-weight: 600;
-    color: #374151;
-}
-
-.form-select {
-    padding: 8px 12px;
-    height: 34px;
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
-    font-size: 13px;
-    color: #1f2937 !important;
-    font-weight: 500;
-    background: white;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    box-sizing: border-box;
-}
-
-.form-select:focus {
-    outline: none;
-    border-color: #4f46e5;
-    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
 }
 
 /* Spinning animation for loading state */
