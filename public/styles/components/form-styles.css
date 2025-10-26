@@ -71,11 +71,8 @@
     align-items: end;
 }
 
-.form-grid > .form-group:nth-child(3) {
-    margin-right: 18px;
-}
-
 .form-grid > .add-competitor-btn {
+    margin-left: 22px;
     margin-right: 4px;
 }
 
