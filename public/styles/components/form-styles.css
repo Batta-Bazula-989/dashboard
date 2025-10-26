@@ -19,8 +19,14 @@
 /* Empty state and form should NOT have background */
 .empty-state {
     text-align: center;
-    padding: 40px 20px !important;
+    padding: 20px !important;
     background: transparent !important;
+    margin-top: 0px !important;
+    height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
 }
 
 /* Data container should have NO background/padding when empty */
@@ -30,6 +36,10 @@
     padding: 0 !important;
     border-radius: 0 !important;
     box-shadow: none !important;
+}
+
+.data-display-content:empty {
+    display: none !important;
 }
 
 /* Data container gets white background ONLY when it has data (has-data class) */
