@@ -109,8 +109,8 @@
 .add-competitor-btn,
 .run-analysis-btn {
     padding: 8px 12px;
-    border: none;
-    border-radius: 8px;
+    border: 1px solid #c084fc;
+    border-radius: 12px;
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
@@ -124,22 +124,24 @@
 }
 
 .add-competitor-btn {
-    background: #8b5cf6;
-    color: white;
+    background: white;
+    color: #6b7280;
+    border-color: #c084fc;
 }
 
 .add-competitor-btn:hover {
-    background: #7c3aed;
-    transform: translateY(-1px);
+    background: #f9fafb;
+    border-color: #a855f7;
 }
 
 .run-analysis-btn {
-    background: #8b5cf6;
+    background: linear-gradient(135deg, #a855f7 0%, #8b5cf6 100%);
     color: white;
+    border: none;
 }
 
 .run-analysis-btn:hover:not(:disabled) {
-    background: #7c3aed;
+    background: linear-gradient(135deg, #9333ea 0%, #7c3aed 100%);
     transform: translateY(-1px);
 }
 
@@ -153,6 +155,16 @@
 .run-analysis-btn svg {
     width: 12px;
     height: 12px;
+}
+
+.add-competitor-btn svg {
+    stroke: #c084fc;
+    color: #c084fc;
+}
+
+.run-analysis-btn svg {
+    stroke: white;
+    color: white;
 }
 
 /* Form Header */
