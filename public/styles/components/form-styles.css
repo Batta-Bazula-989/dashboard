@@ -99,10 +99,17 @@
     border: 1px solid #d1d5db;
     border-radius: 8px;
     font-size: 13px;
-    color: #374151;
+    color: #1f2937 !important;
+    font-weight: 500;
     background: white;
     transition: all 0.2s ease;
     box-sizing: border-box;
+}
+
+.form-select option {
+    color: #1f2937 !important;
+    background: white;
+    font-weight: 500;
 }
 
 .competitor-input:focus,
