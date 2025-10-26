@@ -86,8 +86,8 @@
     align-items: center;
     justify-content: center;
     text-align: center;
-    padding: 20px;
-    color: #64748b;
+    padding: 80px 20px;
+    color: #6b7280;
     min-height: calc(100vh - 400px);
     position: relative;
     width: 100%;
@@ -95,11 +95,20 @@
     margin: 0 auto;
 }
 
-.billboard-illustration {
-    margin-bottom: 20px;
+.empty-state-icon {
+    margin-bottom: 24px;
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.empty-state h3 {
+    font-size: 1rem;
+    color: #374151;
+    margin-bottom: 0;
+    font-weight: 500;
+    line-height: 1.5;
+    max-width: 500px;
 }
 
 /* Pulsating Search Animation */
