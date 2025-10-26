@@ -104,6 +104,10 @@
     background: white;
     transition: all 0.2s ease;
     box-sizing: border-box;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    outline: none;
 }
 
 .form-select option {
@@ -238,12 +242,13 @@
 
 .competitor-input {
     flex: 1;
-    padding: 10px 14px;
+    padding: 8px 12px;
     height: 34px;
     border: 1px solid #d1d5db;
     border-radius: 8px;
-    font-size: 14px;
+    font-size: 13px;
     color: #374151;
+    font-weight: 500;
     transition: all 0.2s ease;
     box-sizing: border-box;
 }
