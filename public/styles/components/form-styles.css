@@ -108,7 +108,7 @@
 /* Buttons matching screenshot */
 .add-competitor-btn,
 .run-analysis-btn {
-    padding: 8px 14px;
+    padding: 8px 12px;
     border: none;
     border-radius: 8px;
     font-size: 12px;
@@ -119,7 +119,7 @@
     gap: 6px;
     transition: all 0.2s ease;
     white-space: nowrap;
-    min-width: 120px;
+    width: 110px;
     justify-content: center;
 }
 
@@ -273,44 +273,6 @@
     box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
 }
 
-/* Run Analysis Button */
-.run-analysis-btn {
-    width: 100%;
-    padding: 12px 20px;
-    background: #4f46e5;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    transition: all 0.2s ease;
-}
-
-.run-analysis-btn:hover:not(:disabled) {
-    background: #4338ca;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
-}
-
-.run-analysis-btn:active:not(:disabled) {
-    transform: translateY(0);
-}
-
-.run-analysis-btn:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
-}
-
-.run-analysis-btn svg {
-    width: 16px;
-    height: 16px;
-}
-
 /* Spinning animation for loading state */
 @keyframes spin {
     from {
@@ -372,7 +334,8 @@
     
     .add-competitor-btn,
     .run-analysis-btn {
-        padding: 10px 16px;
-        font-size: 13px;
+        padding: 8px 12px;
+        font-size: 12px;
+        width: 100px;
     }
 }
