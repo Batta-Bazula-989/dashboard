@@ -95,7 +95,7 @@
     margin: 0 auto;
 }
 
-.empty-state-icon {
+.billboard-illustration {
     margin-bottom: 24px;
     display: flex;
     justify-content: center;
@@ -187,4 +187,36 @@
     top: 50%;
     right: 9px;
     transform: translateY(-50%);
+}
+
+/* Animation keyframes */
+@keyframes pulse-outer {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 0.8;
+    }
+    50% {
+        transform: scale(1.05);
+        opacity: 1;
+    }
+}
+
+@keyframes pulse-inner {
+    0%, 100% {
+        transform: translate(-50%, -50%) scale(1);
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.03);
+    }
+}
+
+@keyframes pulse-dot {
+    0%, 100% {
+        opacity: 0.4;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.2);
+    }
 }

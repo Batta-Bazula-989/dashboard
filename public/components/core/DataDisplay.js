@@ -24,11 +24,14 @@ class DataDisplay {
         const dataDisplayHTML = `
             <div class="data-display" id="dataDisplay">
                 <div class="empty-state">
-                    <div class="empty-state-icon">
-                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="11" cy="11" r="8"></circle>
-                            <path d="m21 21-4.35-4.35"></path>
-                        </svg>
+                    <div class="billboard-illustration">
+                        <div class="search-container">
+                            <div class="circle-outer">
+                                <div class="dot dot1"></div>
+                                <div class="dot dot2"></div>
+                            </div>
+                            <div class="circle-inner"></div>
+                        </div>
                     </div>
                     <h3>Enter competitor names and click "Run Analysis" to discover their advertising strategies and performance metrics</h3>
                 </div>
@@ -154,11 +157,14 @@ class DataDisplay {
        if (this.dataDisplay) {
            this.dataDisplay.innerHTML = `
                <div class="empty-state">
-                   <div class="empty-state-icon">
-                       <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                           <circle cx="11" cy="11" r="8"></circle>
-                           <path d="m21 21-4.35-4.35"></path>
-                       </svg>
+                   <div class="billboard-illustration">
+                       <div class="search-container">
+                           <div class="circle-outer">
+                               <div class="dot dot1"></div>
+                               <div class="dot dot2"></div>
+                           </div>
+                           <div class="circle-inner"></div>
+                       </div>
                    </div>
                    <h3>Enter competitor names and click "Run Analysis" to discover their advertising strategies and performance metrics</h3>
                </div>
