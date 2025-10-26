@@ -94,8 +94,8 @@
 
 .competitor-input,
 .form-select {
-    padding: 10px 12px;
-    height: 40px;
+    padding: 8px 12px;
+    height: 36px;
     border: 1px solid #d1d5db;
     border-radius: 8px;
     font-size: 13px;
@@ -119,8 +119,8 @@
 /* Buttons matching screenshot */
 .add-competitor-btn,
 .run-analysis-btn {
-    padding: 10px 8px;
-    height: 40px;
+    padding: 8px 8px;
+    height: 36px;
     border: 1px solid #c084fc;
     border-radius: 8px;
     font-size: 12px;
