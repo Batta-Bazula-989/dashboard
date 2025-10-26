@@ -66,8 +66,8 @@
 /* Form layout matching screenshot */
 .form-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr auto auto;
-    gap: 16px;
+    grid-template-columns: 200px 150px 120px auto auto;
+    gap: 12px;
     align-items: end;
 }
 
@@ -78,17 +78,17 @@
 }
 
 .form-group label {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 600;
     color: #374151;
 }
 
 .competitor-input,
 .form-select {
-    padding: 12px 16px;
+    padding: 10px 12px;
     border: 1px solid #d1d5db;
     border-radius: 8px;
-    font-size: 14px;
+    font-size: 13px;
     color: #374151;
     background: white;
     transition: all 0.2s ease;
@@ -108,15 +108,15 @@
 /* Buttons matching screenshot */
 .add-competitor-btn,
 .run-analysis-btn {
-    padding: 12px 20px;
+    padding: 10px 16px;
     border: none;
     border-radius: 8px;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 600;
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     transition: all 0.2s ease;
     white-space: nowrap;
 }
@@ -149,8 +149,8 @@
 
 .add-competitor-btn svg,
 .run-analysis-btn svg {
-    width: 16px;
-    height: 16px;
+    width: 14px;
+    height: 14px;
 }
 
 /* Form Header */
