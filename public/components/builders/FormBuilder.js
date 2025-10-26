@@ -20,7 +20,7 @@ class FormBuilder {
             <div class="competitor-form">
                 <div class="form-grid">
                     <div class="form-group">
-                        <label for="competitorInput">Competitor Name</label>
+                        <label for="competitorInput">Brand Name</label>
                         <input
                             type="text"
                             id="competitorInput"
