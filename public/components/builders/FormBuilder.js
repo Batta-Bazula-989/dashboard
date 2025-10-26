@@ -33,8 +33,8 @@ class FormBuilder {
                     <div class="form-group">
                         <label for="countrySelect">Country</label>
                         <select id="countrySelect" class="form-select">
-                            <option value="Ukraine">Ukraine</option>
-                            <option value="Poland">Poland</option>
+                            <option value="UA">UA</option>
+                            <option value="PL">PL</option>
                         </select>
                     </div>
                     
@@ -278,7 +278,7 @@ class FormBuilder {
             competitorInput.value = '';
         }
 
-        container.querySelector('#countrySelect').value = 'Ukraine';
+        container.querySelector('#countrySelect').value = 'UA';
         container.querySelector('#statusSelect').value = 'active';
     }
 }
