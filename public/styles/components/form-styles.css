@@ -67,8 +67,8 @@
 .form-grid {
     display: grid;
     grid-template-columns: 200px 150px 120px auto auto;
-    gap: 12px;
-    align-items: end;
+    gap: 8px;
+    align-items: center;
 }
 
 .form-group {
@@ -86,12 +86,14 @@
 .competitor-input,
 .form-select {
     padding: 10px 12px;
+    height: 40px;
     border: 1px solid #d1d5db;
     border-radius: 8px;
     font-size: 13px;
     color: #374151;
     background: white;
     transition: all 0.2s ease;
+    box-sizing: border-box;
 }
 
 .competitor-input:focus,
@@ -108,10 +110,11 @@
 /* Buttons matching screenshot */
 .add-competitor-btn,
 .run-analysis-btn {
-    padding: 8px 12px;
+    padding: 10px 12px;
+    height: 40px;
     border: 1px solid #c084fc;
-    border-radius: 12px;
-    font-size: 12px;
+    border-radius: 8px;
+    font-size: 13px;
     font-weight: 600;
     cursor: pointer;
     display: flex;
@@ -119,7 +122,8 @@
     gap: 6px;
     transition: all 0.2s ease;
     white-space: nowrap;
-    width: 110px;
+    width: auto;
+    min-width: 110px;
     justify-content: center;
 }
 
