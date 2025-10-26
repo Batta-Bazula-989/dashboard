@@ -25,7 +25,7 @@ class FormBuilder {
                             type="text"
                             id="competitorInput"
                             class="competitor-input"
-                            placeholder="Enter competitor name"
+                            placeholder="Enter brand name"
                             value="${this.competitors[0].value}"
                         />
                     </div>
