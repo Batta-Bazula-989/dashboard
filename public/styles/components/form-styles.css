@@ -94,12 +94,11 @@
 
 .competitor-input,
 .form-select {
-    padding: 6px 12px;
+    padding: 8px 12px;
     height: 34px;
     border: 1px solid #d1d5db;
     border-radius: 8px;
     font-size: 13px;
-    line-height: 22px;
     color: #1f2937 !important;
     font-weight: 500;
     background: white;
@@ -239,14 +238,12 @@
 
 .competitor-input {
     flex: 1;
-    padding: 6px 12px;
+    padding: 10px 14px;
     height: 34px;
     border: 1px solid #d1d5db;
     border-radius: 8px;
-    font-size: 13px;
-    line-height: 22px;
+    font-size: 14px;
     color: #374151;
-    font-weight: 500;
     transition: all 0.2s ease;
     box-sizing: border-box;
 }
@@ -299,12 +296,11 @@
 }
 
 .form-select {
-    padding: 6px 12px;
+    padding: 8px 12px;
     height: 34px;
     border: 1px solid #d1d5db;
     border-radius: 8px;
     font-size: 13px;
-    line-height: 22px;
     color: #1f2937 !important;
     font-weight: 500;
     background: white;
@@ -375,7 +371,6 @@
     .competitor-input,
     .form-select {
         padding: 10px 12px;
-        line-height: 22px;
         font-size: 13px;
     }
     
