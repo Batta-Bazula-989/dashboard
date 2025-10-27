@@ -61,14 +61,20 @@
     border-radius: 0;
     padding: 0;
     box-shadow: none;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    position: relative;
 }
 
 /* Form layout matching screenshot */
 .form-grid {
     display: grid;
-    grid-template-columns: 200px 64px 86px minmax(auto, 85px) minmax(auto, 85px) minmax(auto, 85px);
+    grid-template-columns: 200px 64px 86px minmax(auto, 85px) minmax(auto, 85px);
     gap: 0 4px;
     align-items: start;
+    flex: 1;
 }
 
 .form-grid > .add-competitor-btn {
@@ -141,8 +147,7 @@
 
 /* Buttons matching screenshot */
 .add-competitor-btn,
-.run-analysis-btn,
-.clear-data-btn {
+.run-analysis-btn {
     padding: 8px 8px;
     height: 32px;
     border: 1px solid #c084fc;
@@ -192,9 +197,27 @@
 }
 
 .clear-data-btn {
+    padding: 8px 8px;
+    height: 32px;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    min-width: 85px;
+    max-width: 85px;
+    justify-content: center;
+    box-sizing: border-box;
     background: #fee2e2;
     color: #dc2626;
-    border: 1px solid #fecaca;
+    margin-top: 22px;
+    align-self: flex-start;
+    flex-shrink: 0;
 }
 
 .clear-data-btn:hover:not(:disabled) {
@@ -210,8 +233,7 @@
 }
 
 .add-competitor-btn svg,
-.run-analysis-btn svg,
-.clear-data-btn svg {
+.run-analysis-btn svg {
     width: 12px;
     height: 12px;
 }
@@ -224,6 +246,13 @@
 .run-analysis-btn svg {
     stroke: white;
     color: white;
+}
+
+.clear-data-btn svg {
+    width: 12px;
+    height: 12px;
+    stroke: #dc2626;
+    color: #dc2626;
 }
 
 /* Form Header */
@@ -347,27 +376,51 @@
 
 /* Responsive */
 @media (max-width: 1024px) {
+    .competitor-form {
+        flex-direction: column;
+        gap: 12px;
+    }
+    
     .form-grid {
         grid-template-columns: 1fr 1fr;
         gap: 12px;
+        width: 100%;
     }
     
     .form-grid .add-competitor-btn,
     .form-grid .run-analysis-btn {
         grid-column: span 1;
     }
+    
+    .clear-data-btn {
+        width: 100%;
+        max-width: none;
+        margin-top: 0;
+    }
 }
 
 @media (max-width: 768px) {
+    .competitor-form {
+        flex-direction: column;
+        gap: 12px;
+    }
+    
     .form-grid {
         grid-template-columns: 1fr;
         gap: 16px;
+        width: 100%;
     }
     
     .form-grid .add-competitor-btn,
     .form-grid .run-analysis-btn {
         grid-column: span 1;
         justify-self: stretch;
+    }
+    
+    .clear-data-btn {
+        width: 100%;
+        max-width: none;
+        margin-top: 0;
     }
 }
 
@@ -379,9 +432,15 @@
     }
     
     .add-competitor-btn,
-    .run-analysis-btn {
+    .run-analysis-btn,
+    .clear-data-btn {
         padding: 8px 12px;
         font-size: 12px;
-        width: 100px;
+        width: 100%;
+        max-width: none;
+    }
+    
+    .clear-data-btn {
+        margin-top: 0;
     }
 }
