@@ -6,7 +6,7 @@
     align-items: start;
     justify-content: start;
     width: 100%;
-    max-width: 820px;
+    max-width: max-content;
     margin: 0;
     padding: 28px 0;
 }

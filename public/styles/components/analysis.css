@@ -95,12 +95,6 @@
     margin: 0 auto;
 }
 
-/* Hide empty state when data is present */
-.data-display:has(.data-display-content.has-data) .empty-state,
-.data-display:has(.card-grid) .empty-state {
-    display: none !important;
-}
-
 .billboard-illustration {
     margin-bottom: 24px;
     display: flex;
