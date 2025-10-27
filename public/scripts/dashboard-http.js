@@ -186,7 +186,6 @@ class DataDashboard {
                    // Process all items
                    dataArray.forEach((item, index) => {
                        console.log(`=== PROCESSING ITEM ${index + 1}/${dataArray.length} ===`);
-                       console.log(`Item data:`, item);
                        console.log(`Item dataType:`, item.dataType);
                        this.addDataItem(item);
                    });
@@ -203,7 +202,6 @@ class DataDashboard {
 
                    newItems.forEach((item, index) => {
                        console.log(`=== PROCESSING NEW ITEM ${index + 1}/${newItems.length} ===`);
-                       console.log(`Item data:`, item);
                        console.log(`Item dataType:`, item.dataType);
                        this.addDataItem(item);
                    });
@@ -224,7 +222,6 @@ class DataDashboard {
                    // Process all items (if any)
                    dataArray.forEach((item, index) => {
                        console.log(`=== REPROCESSING ITEM ${index + 1}/${dataArray.length} ===`);
-                       console.log(`Item data:`, item);
                        console.log(`Item dataType:`, item.dataType);
                        this.addDataItem(item);
                    });
