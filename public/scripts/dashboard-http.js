@@ -189,6 +189,10 @@ class DataDashboard {
 
                    this.lastDataCount = dataArray.length;
                    this.isFirstFetch = false; // Mark first fetch as complete
+                   
+                   // Update clear button visibility after first fetch
+                   this.updateClearButtonVisibility();
+                   
                    console.log(`=== FIRST FETCH COMPLETE ===`);
                    console.log(`Processed all ${dataArray.length} items`);
                }
@@ -208,6 +212,10 @@ class DataDashboard {
                    });
 
                    this.lastDataCount = dataArray.length;
+                   
+                   // Update clear button visibility after adding new items
+                   this.updateClearButtonVisibility();
+                   
                    console.log(`=== NEW ITEMS PROCESSING COMPLETE ===`);
                    console.log(`Processed ${newItems.length} new items, total items: ${dataArray.length}`);
                }
@@ -226,6 +234,10 @@ class DataDashboard {
                    });
 
                    this.lastDataCount = dataArray.length;
+                   
+                   // Update clear button visibility
+                   this.updateClearButtonVisibility();
+                   
                    console.log(`=== REPROCESSING COMPLETE ===`);
                    console.log(`Reprocessed all ${dataArray.length} items`);
                }
@@ -394,6 +406,9 @@ class DataDashboard {
                     this.statsCards.updateStats(0, 0);
                 }
                 
+                // Hide clear button after clearing
+                this.updateClearButtonVisibility();
+                
                 console.log('All data cleared successfully');
                 
                 // Show success message
@@ -420,6 +435,23 @@ class DataDashboard {
                     Clear All
                 `;
             }
+        }
+    }
+    
+    /**
+     * Update clear button visibility based on data presence
+     */
+    updateClearButtonVisibility() {
+        const clearBtn = document.getElementById('clearDataBtn');
+        if (!clearBtn) return;
+        
+        // Check if there are any cards displayed
+        const hasData = this.dataDisplay && this.dataDisplay.dataDisplay.querySelectorAll('.card').length > 0;
+        
+        if (hasData) {
+            clearBtn.style.display = 'flex';
+        } else {
+            clearBtn.style.display = 'none';
         }
     }
 

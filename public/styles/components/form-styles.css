@@ -66,7 +66,7 @@
 /* Form layout matching screenshot */
 .form-grid {
     display: grid;
-    grid-template-columns: 200px 64px 86px minmax(auto, 85px) minmax(auto, 85px);
+    grid-template-columns: 200px 64px 86px minmax(auto, 85px) minmax(auto, 85px) minmax(auto, 85px);
     gap: 0 4px;
     align-items: start;
 }
@@ -141,7 +141,8 @@
 
 /* Buttons matching screenshot */
 .add-competitor-btn,
-.run-analysis-btn {
+.run-analysis-btn,
+.clear-data-btn {
     padding: 8px 8px;
     height: 32px;
     border: 1px solid #c084fc;
@@ -190,8 +191,27 @@
     transform: none;
 }
 
+.clear-data-btn {
+    background: #fee2e2;
+    color: #dc2626;
+    border: 1px solid #fecaca;
+}
+
+.clear-data-btn:hover:not(:disabled) {
+    background: #fecaca;
+    border-color: #fca5a5;
+    transform: translateY(-1px);
+}
+
+.clear-data-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+}
+
 .add-competitor-btn svg,
-.run-analysis-btn svg {
+.run-analysis-btn svg,
+.clear-data-btn svg {
     width: 12px;
     height: 12px;
 }
