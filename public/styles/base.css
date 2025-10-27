@@ -18,7 +18,7 @@ body {
     max-width: 1600px;
     margin: 0 auto;
     width: 100%;
-    padding: 0;
+    padding: 20px 0;
     position: relative;
     height: 100vh;
     display: flex;
@@ -257,13 +257,13 @@ body {
 @media (max-width: 1600px) {
     .container {
         max-width: 100%;
-        padding: 0;
+        padding: 16px 0;
     }
 }
 
 @media (max-width: 768px) {
     .container {
-        padding: 0;
+        padding: 12px 0;
         gap: 16px;
     }
     
@@ -297,7 +297,7 @@ body {
 
 @media (max-width: 480px) {
     .container {
-        padding: 0;
+        padding: 8px 0;
         gap: 12px;
     }
     
