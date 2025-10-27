@@ -192,7 +192,7 @@
 
 .clear-data-btn {
     position: absolute;
-    top: 52px;
+    top: 22px;
     right: 16px;
     padding: 8px 8px;
     height: 32px;
@@ -382,7 +382,7 @@
     }
     
     .clear-data-btn {
-        top: 62px;
+        top: 22px;
         right: 12px;
     }
 }
@@ -400,7 +400,7 @@
     }
     
     .clear-data-btn {
-        top: 58px;
+        top: 22px;
         right: 10px;
     }
 }
@@ -420,7 +420,7 @@
     }
     
     .clear-data-btn {
-        top: 54px;
+        top: 22px;
         right: 8px;
     }
 }
