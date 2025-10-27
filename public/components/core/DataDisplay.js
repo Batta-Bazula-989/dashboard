@@ -79,8 +79,12 @@ class DataDisplay {
         if (hasProcessedItems) {
             // Remove empty state when any data is added (text cards or video analysis)
             const emptyState = this.dataDisplay.querySelector('.empty-state');
+            console.log('=== REMOVING EMPTY STATE ===');
+            console.log('Empty state found:', !!emptyState);
             if (emptyState) {
+                console.log('Removing empty state element');
                 emptyState.remove();
+                console.log('Empty state removed');
             }
         }
 
@@ -158,8 +162,11 @@ class DataDisplay {
 
    /**
     * Clear all data from the display
+    * @param {boolean} showEmptyState - Whether to show the empty state after clearing
     */
-   clear() {
+   clear(showEmptyState = false) {
+       console.log('=== CLEAR() CALLED ===');
+       console.log('showEmptyState:', showEmptyState);
        if (this.dataDisplay) {
            // Clear only the content area
            const contentArea = this.dataDisplay.querySelector('.data-display-content');
@@ -168,27 +175,38 @@ class DataDisplay {
                contentArea.classList.remove('has-data');
            }
            
-           // Recreate empty state if it doesn't exist
-           let emptyState = this.dataDisplay.querySelector('.empty-state');
-           if (!emptyState) {
-               const emptyStateHTML = `
-                   <div class="empty-state">
-                       <div class="billboard-illustration">
-                           <div class="search-container">
-                               <div class="circle-outer"></div>
-                               <div class="square-inner">
-                                   <svg class="search-icon" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                       <circle cx="11" cy="11" r="8"></circle>
-                                       <path d="m21 21-4.35-4.35"></path>
-                                   </svg>
+           // Handle empty state based on parameter
+           const emptyState = this.dataDisplay.querySelector('.empty-state');
+           console.log('Empty state found:', !!emptyState);
+           if (showEmptyState) {
+               // Show empty state if it doesn't exist
+               if (!emptyState) {
+                   console.log('Creating empty state');
+                   const emptyStateHTML = `
+                       <div class="empty-state">
+                           <div class="billboard-illustration">
+                               <div class="search-container">
+                                   <div class="circle-outer"></div>
+                                   <div class="square-inner">
+                                       <svg class="search-icon" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                           <circle cx="11" cy="11" r="8"></circle>
+                                           <path d="m21 21-4.35-4.35"></path>
+                                       </svg>
+                                   </div>
                                </div>
                            </div>
+                           <h2 class="empty-state-title">Start Your Analysis</h2>
+                           <p class="empty-state-description">Enter competitor names and click <span class="highlight">Analyze</span> to discover their advertising strategies and performance metrics</p>
                        </div>
-                       <h2 class="empty-state-title">Start Your Analysis</h2>
-                       <p class="empty-state-description">Enter competitor names and click <span class="highlight">Analyze</span> to discover their advertising strategies and performance metrics</p>
-                   </div>
-               `;
-               this.dataDisplay.insertAdjacentHTML('afterbegin', emptyStateHTML);
+                   `;
+                   this.dataDisplay.insertAdjacentHTML('afterbegin', emptyStateHTML);
+               }
+           } else {
+               // Remove the empty state if it exists
+               if (emptyState) {
+                   console.log('Removing empty state in clear()');
+                   emptyState.remove();
+               }
            }
        }
    }

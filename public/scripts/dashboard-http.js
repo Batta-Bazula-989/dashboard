@@ -373,9 +373,9 @@ class DataDashboard {
             if (response.ok) {
                 console.log('Data cleared from server');
                 
-                // Clear UI
+                // Clear UI and show empty state
                 if (this.dataDisplay) {
-                    this.dataDisplay.clear();
+                    this.dataDisplay.clear(true);
                 }
                 
                 // Reset counters
