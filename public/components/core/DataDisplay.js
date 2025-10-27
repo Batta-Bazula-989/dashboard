@@ -95,12 +95,6 @@ class DataDisplay {
         const grid = this.getOrCreateGrid();
         const card = this.cardBuilder.build(data);
         grid.appendChild(card);
-
-        // Add 'has-data' class to data-display-content for styling
-        const contentArea = this.dataDisplay.querySelector('.data-display-content');
-        if (contentArea) {
-            contentArea.classList.add('has-data');
-        }
         
         // ALWAYS remove empty state when adding a card
         const emptyState = this.dataDisplay.querySelector('.empty-state');
