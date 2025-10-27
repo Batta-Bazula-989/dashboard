@@ -197,6 +197,12 @@ class DataDashboard {
                    const newItems = dataArray.slice(this.lastDataCount);
                    console.log(`Found ${newItems.length} new items, processing only new items`);
 
+                   // If we're going from 0 to having data, clear the empty state
+                   if (this.lastDataCount === 0 && this.dataDisplay) {
+                       console.log('🚨 FIXING EMPTY STATE: Clearing because lastDataCount is 0');
+                       this.dataDisplay.clear();
+                   }
+
                    newItems.forEach((item, index) => {
                        this.addDataItem(item);
                    });

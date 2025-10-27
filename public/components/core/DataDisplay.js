@@ -101,6 +101,13 @@ class DataDisplay {
         if (contentArea) {
             contentArea.classList.add('has-data');
         }
+        
+        // ALWAYS remove empty state when adding a card
+        const emptyState = this.dataDisplay.querySelector('.empty-state');
+        if (emptyState) {
+            console.log('🚨 REMOVING EMPTY STATE FROM addTextCard');
+            emptyState.remove();
+        }
     }
 
     addVideoAnalysis(videoData) {
