@@ -168,7 +168,6 @@ class DataDashboard {
            if (result.success) {
                const dataArray = result.data || []; // Handle null/undefined
 
-               console.log(`=== API RESPONSE ===`);
                console.log(`API returned ${dataArray.length} items`);
                console.log(`Last data count: ${this.lastDataCount}`);
                console.log(`Is first fetch: ${this.isFirstFetch}`);
@@ -185,8 +184,6 @@ class DataDashboard {
 
                    // Process all items
                    dataArray.forEach((item, index) => {
-                       console.log(`=== PROCESSING ITEM ${index + 1}/${dataArray.length} ===`);
-                       console.log(`Item dataType:`, item.dataType);
                        this.addDataItem(item);
                    });
 
@@ -201,8 +198,6 @@ class DataDashboard {
                    console.log(`Found ${newItems.length} new items, processing only new items`);
 
                    newItems.forEach((item, index) => {
-                       console.log(`=== PROCESSING NEW ITEM ${index + 1}/${newItems.length} ===`);
-                       console.log(`Item dataType:`, item.dataType);
                        this.addDataItem(item);
                    });
 
@@ -221,8 +216,6 @@ class DataDashboard {
 
                    // Process all items (if any)
                    dataArray.forEach((item, index) => {
-                       console.log(`=== REPROCESSING ITEM ${index + 1}/${dataArray.length} ===`);
-                       console.log(`Item dataType:`, item.dataType);
                        this.addDataItem(item);
                    });
 
@@ -242,9 +235,6 @@ class DataDashboard {
            this.isFetching = false; // Always release lock
        }
    }
-
-    // Connection status methods removed
-
 
     /**
      * Add data item to display
