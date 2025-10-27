@@ -76,6 +76,23 @@ class DataDashboard {
         // Initialize FormBuilder in form section
         this.formBuilder = new FormBuilder();
         this.initializeForm(formSection);
+        
+        // Add clear button to container (header area)
+        const clearButton = document.createElement('button');
+        clearButton.type = 'button';
+        clearButton.className = 'clear-data-btn';
+        clearButton.id = 'clearDataBtn';
+        clearButton.style.display = 'none';
+        clearButton.innerHTML = `
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3,6 5,6 21,6"></polyline>
+                <path d="m19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"></path>
+                <line x1="10" y1="11" x2="10" y2="17"></line>
+                <line x1="14" y1="11" x2="14" y2="17"></line>
+            </svg>
+            Clear All
+        `;
+        container.appendChild(clearButton);
 
         // Initialize DataDisplay in main content area with modal callback
         this.dataDisplay = this.componentLoader.initComponent('DataDisplay', mainContent,
