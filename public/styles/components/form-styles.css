@@ -191,9 +191,6 @@
 }
 
 .clear-data-btn {
-    position: absolute;
-    top: 22px;
-    right: 16px;
     padding: 8px 8px;
     height: 32px;
     border: 1px solid #fecaca;
@@ -212,7 +209,6 @@
     box-sizing: border-box;
     background: #fee2e2;
     color: #dc2626;
-    z-index: 10;
 }
 
 .clear-data-btn:hover:not(:disabled) {
@@ -381,10 +377,6 @@
         grid-column: span 1;
     }
     
-    .clear-data-btn {
-        top: 22px;
-        right: 12px;
-    }
 }
 
 @media (max-width: 768px) {
@@ -399,10 +391,6 @@
         justify-self: stretch;
     }
     
-    .clear-data-btn {
-        top: 22px;
-        right: 10px;
-    }
 }
 
 @media (max-width: 480px) {
@@ -419,8 +407,4 @@
         font-size: 12px;
     }
     
-    .clear-data-btn {
-        top: 22px;
-        right: 8px;
-    }
 }

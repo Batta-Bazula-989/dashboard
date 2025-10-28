@@ -1,0 +1,134 @@
+/* Counter Badges Styles */
+.header-actions {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    z-index: 10;
+}
+
+.counter-badge {
+    background: #fef7f0;
+    border-radius: 12px;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+    min-width: 140px;
+}
+
+.counter-badge:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+.counter-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.counter-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.counter-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #64748b;
+    line-height: 1.2;
+}
+
+.counter-number {
+    font-size: 24px;
+    font-weight: 600;
+    color: #0f172a;
+    line-height: 1;
+}
+
+#competitorCounter {
+    background: #fef7f0;
+}
+
+#adsCounter {
+    background: #faf5ff;
+}
+
+@media (max-width: 1024px) {
+    .header-actions {
+        top: 0px;
+        right: 0px;
+        gap: 8px;
+    }
+    
+    .counter-badge {
+        min-width: 120px;
+        padding: 10px 12px;
+        gap: 10px;
+    }
+    
+    .counter-icon {
+        width: 32px;
+        height: 32px;
+    }
+    
+    .counter-number {
+        font-size: 20px;
+    }
+    
+    .counter-label {
+        font-size: 10px;
+    }
+}
+
+@media (max-width: 768px) {
+    .header-actions {
+        top: 0px;
+        right: 0px;
+        gap: 6px;
+    }
+    
+    .counter-badge {
+        min-width: 100px;
+        padding: 8px 10px;
+    }
+    
+    .counter-icon {
+        width: 28px;
+        height: 28px;
+    }
+    
+    .counter-number {
+        font-size: 18px;
+    }
+    
+    .counter-label {
+        font-size: 9px;
+    }
+}
+
+@media (max-width: 480px) {
+    .header-actions {
+        flex-direction: column;
+        top: 0px;
+        right: 0px;
+        gap: 6px;
+    }
+    
+    .counter-badge {
+        min-width: 90px;
+        padding: 6px 8px;
+    }
+}

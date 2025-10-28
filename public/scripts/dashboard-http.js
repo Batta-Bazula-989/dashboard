@@ -11,7 +11,6 @@ class DataDashboard {
         this.lastDataCount = 0;
         this.isFirstFetch = true; // Track first fetch to avoid duplicates on refresh
         this.isFetching = false; // Guard against race conditions
-        this.scrollHandler = null; // Store scroll handler for cleanup
 
         // Component instances
         this.statsCards = null;
@@ -77,12 +76,47 @@ class DataDashboard {
         this.formBuilder = new FormBuilder();
         this.initializeForm(formSection);
         
-        // Add clear button to container (header area)
+        // Add counter badges and clear button container
+        const headerActions = document.createElement('div');
+        headerActions.className = 'header-actions';
+        headerActions.style.display = 'none';
+        
+        // Counter badges
+        const competitorBadge = document.createElement('div');
+        competitorBadge.className = 'counter-badge';
+        competitorBadge.id = 'competitorCounter';
+        competitorBadge.innerHTML = `
+            <div class="counter-icon" style="background: #fce7f3;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+                </svg>
+            </div>
+            <div class="counter-content">
+                <div class="counter-label">COMPETITORS</div>
+                <div class="counter-number" id="competitorBadgeCount">0</div>
+            </div>
+        `;
+        
+        const adsBadge = document.createElement('div');
+        adsBadge.className = 'counter-badge';
+        adsBadge.id = 'adsCounter';
+        adsBadge.innerHTML = `
+            <div class="counter-icon" style="background: #fae8ff;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#a855f7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="22,3 2,3 10,12.46 10,19 14,21 14,12.46"></polygon>
+                </svg>
+            </div>
+            <div class="counter-content">
+                <div class="counter-label">CAMPAIGNS</div>
+                <div class="counter-number" id="adsBadgeCount">0</div>
+            </div>
+        `;
+        
+        // Clear button
         const clearButton = document.createElement('button');
         clearButton.type = 'button';
         clearButton.className = 'clear-data-btn';
         clearButton.id = 'clearDataBtn';
-        clearButton.style.display = 'none';
         clearButton.innerHTML = `
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="3,6 5,6 21,6"></polyline>
@@ -92,7 +126,11 @@ class DataDashboard {
             </svg>
             Clear All
         `;
-        container.appendChild(clearButton);
+        
+        headerActions.appendChild(competitorBadge);
+        headerActions.appendChild(adsBadge);
+        headerActions.appendChild(clearButton);
+        container.appendChild(headerActions);
 
         // Initialize DataDisplay in main content area with modal callback
         this.dataDisplay = this.componentLoader.initComponent('DataDisplay', mainContent,
@@ -344,22 +382,6 @@ class DataDashboard {
                 this.clearAllData();
             });
 
-            // Add scroll behavior to hide/show button
-            let lastScrollY = window.scrollY;
-            this.scrollHandler = () => {
-                const currentScrollY = window.scrollY;
-                
-                // Hide button when scrolling down, show when scrolling up
-                if (currentScrollY > 100 && currentScrollY > lastScrollY) {
-                    clearBtn.classList.add('hidden');
-                } else if (currentScrollY < lastScrollY || currentScrollY <= 100) {
-                    clearBtn.classList.remove('hidden');
-                }
-                
-                lastScrollY = currentScrollY;
-            };
-            window.addEventListener('scroll', this.scrollHandler);
-
             console.log('✅ Clear data button initialized and found!');
             console.log('Button element:', clearBtn);
             console.log('Button position:', clearBtn.getBoundingClientRect());
@@ -459,16 +481,39 @@ class DataDashboard {
      * Update clear button visibility based on data presence
      */
     updateClearButtonVisibility() {
-        const clearBtn = document.getElementById('clearDataBtn');
-        if (!clearBtn) return;
+        const headerActions = document.querySelector('.header-actions');
+        if (!headerActions) return;
         
         // Check if there are any cards displayed
         const hasData = this.dataDisplay && this.dataDisplay.dataDisplay.querySelectorAll('.card').length > 0;
         
         if (hasData) {
-            clearBtn.style.display = 'flex';
+            headerActions.style.display = 'flex';
+            
+            // Update counter values
+            this.updateCounterBadges();
         } else {
-            clearBtn.style.display = 'none';
+            headerActions.style.display = 'none';
+        }
+    }
+    
+    /**
+     * Update counter badge values
+     */
+    updateCounterBadges() {
+        if (!this.dataDisplay) return;
+        
+        const stats = this.dataDisplay.getStats();
+        
+        const competitorBadgeCount = document.getElementById('competitorBadgeCount');
+        const adsBadgeCount = document.getElementById('adsBadgeCount');
+        
+        if (competitorBadgeCount) {
+            competitorBadgeCount.textContent = stats.competitorCards || 0;
+        }
+        
+        if (adsBadgeCount) {
+            adsBadgeCount.textContent = stats.adsCount || 0;
         }
     }
 
@@ -643,11 +688,6 @@ class DataDashboard {
             this.pollingInterval = null;
         }
 
-        // Remove scroll listener
-        if (this.scrollHandler) {
-            window.removeEventListener('scroll', this.scrollHandler);
-            this.scrollHandler = null;
-        }
 
         if (this.modal && this.modal.isOpen()) {
             this.modal.closeModal();
