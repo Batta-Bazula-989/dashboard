@@ -92,7 +92,7 @@ class DataDashboard {
                 </svg>
             </div>
             <div class="counter-content">
-                <div class="counter-label">COMPETITORS</div>
+                <div class="counter-label">ADVERTISERS</div>
                 <div class="counter-number" id="competitorBadgeCount">0</div>
             </div>
         `;
@@ -107,7 +107,7 @@ class DataDashboard {
                 </svg>
             </div>
             <div class="counter-content">
-                <div class="counter-label">CAMPAIGNS</div>
+                <div class="counter-label">ADS</div>
                 <div class="counter-number" id="adsBadgeCount">0</div>
             </div>
         `;

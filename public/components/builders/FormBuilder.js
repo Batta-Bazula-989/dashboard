@@ -78,7 +78,7 @@ class FormBuilder {
                 <input
                     type="text"
                     class="competitor-input"
-                    placeholder="Competitor ${competitor.id}"
+                    placeholder="Advertiser ${competitor.id}"
                     value="${competitor.value}"
                     data-competitor-id="${competitor.id}"
                 />
@@ -173,7 +173,7 @@ class FormBuilder {
 
         header.innerHTML = `
             <div class="competitors-label">
-                <span>Competitors (${this.competitors.length} added)</span>
+                <span>Advertisers (${this.competitors.length} added)</span>
                 ${this.competitors.length < this.maxCompetitors ? `
                     <button type="button" class="add-more-btn" id="addCompetitorBtn">
                         + Add more

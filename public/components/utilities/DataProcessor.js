@@ -7,7 +7,7 @@ class DataProcessor {
         if (!item || typeof item !== 'object') return null;
 
         return {
-            competitor_name: item.competitor_name || 'Unknown Competitor',
+            competitor_name: item.competitor_name || 'Unknown Advertiser',
             content_type: item.content_type || 'text', // Preserve original content_type from N8N
             body: item.body || '',
             ai_analysis: item.ai_analysis || {},

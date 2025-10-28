@@ -1,7 +1,7 @@
 /* Counter Badges Styles */
 .header-actions {
     position: absolute;
-    top: 0px;
+    top: 22px; /* Align with input fields (label height) */
     right: 16px;
     display: flex;
     gap: 0px;
@@ -75,7 +75,7 @@
 
 @media (max-width: 1024px) {
     .header-actions {
-        top: 0px;
+        top: 22px;
         right: 16px;
         gap: 0px;
     }
@@ -106,7 +106,7 @@
 
 @media (max-width: 768px) {
     .header-actions {
-        top: 0px;
+        top: 22px;
         right: 16px;
         gap: 0px;
     }
@@ -137,7 +137,7 @@
 @media (max-width: 480px) {
     .header-actions {
         flex-direction: column;
-        top: 0px;
+        top: 22px;
         right: 8px;
         gap: 6px;
     }

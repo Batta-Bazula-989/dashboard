@@ -1,6 +1,6 @@
 /**
  * StatsCards Component
- * Handles the display of competitor and campaign statistics
+ * Handles the display of advertiser and ad statistics
  */
 class StatsCards {
     constructor() {
@@ -80,7 +80,7 @@ class StatsCards {
 
     /**
      * Update competitor count
-     * @param {number} count - Number of competitors
+     * @param {number} count - Number of advertisers
      */
     updateCompetitorCount(count) {
         if (this.competitorCount) {
@@ -90,7 +90,7 @@ class StatsCards {
 
     /**
      * Update ads count
-     * @param {number} count - Number of active campaigns
+     * @param {number} count - Number of ads
      */
     updateAdsCount(count) {
         if (this.adsCount) {
@@ -100,8 +100,8 @@ class StatsCards {
 
     /**
      * Update both stats at once
-     * @param {number} competitorCount - Number of competitors
-     * @param {number} adsCount - Number of active campaigns
+     * @param {number} competitorCount - Number of advertisers
+     * @param {number} adsCount - Number of ads
      */
     updateStats(competitorCount, adsCount) {
         this.updateCompetitorCount(competitorCount);
