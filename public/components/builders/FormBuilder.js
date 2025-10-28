@@ -195,7 +195,7 @@ class FormBuilder {
         const validCompetitors = competitorValues.filter(v => v.trim() !== '');
 
         if (validCompetitors.length === 0) {
-            return { valid: false, error: 'Please add at least one competitor' };
+            return { valid: false, error: 'Please add at least one advertiser' };
         }
 
         return { valid: true, competitors: validCompetitors };
@@ -223,7 +223,7 @@ class FormBuilder {
         const status = container.querySelector('#statusSelect').value;
 
         if (!competitorValue) {
-            this.showError(container, 'Please enter a competitor name');
+            this.showError(container, 'Please enter an advertiser name');
             return;
         }
 

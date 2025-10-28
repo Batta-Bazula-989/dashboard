@@ -197,7 +197,7 @@ class DataDisplay {
                                </div>
                            </div>
                            <h2 class="empty-state-title">Start Your Analysis</h2>
-                           <p class="empty-state-description">Enter competitor names and click <span class="highlight">Analyze</span> to discover their advertising strategies and performance metrics</p>
+                           <p class="empty-state-description">Enter advertiser names and click <span class="highlight">Analyze</span> to discover their advertising strategies and performance metrics</p>
                        </div>
                    `;
                    this.dataDisplay.insertAdjacentHTML('afterbegin', emptyStateHTML);
