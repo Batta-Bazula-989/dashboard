@@ -127,8 +127,13 @@ class DataDashboard {
             Clear All
         `;
         
-        headerActions.appendChild(competitorBadge);
-        headerActions.appendChild(adsBadge);
+        // Create wrapper for counter badges
+        const counterWrapper = document.createElement('div');
+        counterWrapper.className = 'counter-badges-wrapper';
+        counterWrapper.appendChild(competitorBadge);
+        counterWrapper.appendChild(adsBadge);
+        
+        headerActions.appendChild(counterWrapper);
         headerActions.appendChild(clearButton);
         container.appendChild(headerActions);
 

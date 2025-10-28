@@ -2,9 +2,9 @@
 .header-actions {
     position: absolute;
     top: 0px;
-    right: 0px;
+    right: 16px;
     display: flex;
-    gap: 12px;
+    gap: 0px;
     align-items: center;
     z-index: 10;
 }
@@ -12,13 +12,20 @@
 .counter-badge {
     background: #fef7f0;
     border-radius: 12px;
-    padding: 12px 16px;
+    padding: 8px 16px;
     display: flex;
     align-items: center;
     gap: 12px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     transition: all 0.2s ease;
     min-width: 140px;
+    height: 32px;
+}
+
+.counter-badges-wrapper {
+    display: flex;
+    gap: 12px;
+    margin-right: 17px; /* 40% more distance from Clear button */
 }
 
 .counter-badge:hover {
@@ -27,8 +34,8 @@
 }
 
 .counter-icon {
-    width: 40px;
-    height: 40px;
+    width: 32px;
+    height: 32px;
     border-radius: 10px;
     display: flex;
     align-items: center;
@@ -69,19 +76,19 @@
 @media (max-width: 1024px) {
     .header-actions {
         top: 0px;
-        right: 0px;
-        gap: 8px;
+        right: 16px;
+        gap: 0px;
     }
     
     .counter-badge {
         min-width: 120px;
-        padding: 10px 12px;
+        padding: 8px 12px;
         gap: 10px;
     }
     
     .counter-icon {
-        width: 32px;
-        height: 32px;
+        width: 28px;
+        height: 28px;
     }
     
     .counter-number {
@@ -91,23 +98,27 @@
     .counter-label {
         font-size: 10px;
     }
+    
+    .counter-badges-wrapper {
+        margin-right: 14px;
+    }
 }
 
 @media (max-width: 768px) {
     .header-actions {
         top: 0px;
-        right: 0px;
-        gap: 6px;
+        right: 16px;
+        gap: 0px;
     }
     
     .counter-badge {
         min-width: 100px;
-        padding: 8px 10px;
+        padding: 6px 10px;
     }
     
     .counter-icon {
-        width: 28px;
-        height: 28px;
+        width: 24px;
+        height: 24px;
     }
     
     .counter-number {
@@ -117,13 +128,17 @@
     .counter-label {
         font-size: 9px;
     }
+    
+    .counter-badges-wrapper {
+        margin-right: 12px;
+    }
 }
 
 @media (max-width: 480px) {
     .header-actions {
         flex-direction: column;
         top: 0px;
-        right: 0px;
+        right: 8px;
         gap: 6px;
     }
     
