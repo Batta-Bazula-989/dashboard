@@ -91,11 +91,7 @@
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-    .clear-data-btn {
-        padding: 2px 4px;
-        font-size: 12px;
-    }
-
+    /* Note: Header-actions clear button styles are in counter-badges.css */
     .stats-card {
         padding: var(--spacing-md);
         min-height: 100px;
