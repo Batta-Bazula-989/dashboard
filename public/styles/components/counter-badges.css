@@ -27,6 +27,7 @@
     display: flex;
     gap: 12px;
     align-items: center;
+    height: 58px;
 }
 
 /* Clear button in header-actions - override ALL selectors including ID, restore original size but align horizontally */
@@ -51,10 +52,8 @@
     background: #fee2e2 !important;
     color: #dc2626 !important;
     align-self: center !important;
-    margin-left: 0 !important;
-    margin-right: 0 !important;
-    margin-top: 0 !important;
-    margin-bottom: 0 !important;
+    margin: 0 !important;
+    padding: 8px 8px !important;
     flex-shrink: 0 !important;
     box-shadow: none !important;
     line-height: 1 !important;
@@ -157,6 +156,7 @@
     
     .counter-badges-wrapper {
         margin-right: 0;
+        height: 42px;
     }
     
     .header-actions .clear-data-btn,
@@ -203,6 +203,7 @@
     
     .counter-badges-wrapper {
         margin-right: 0;
+        height: 42px;
     }
     
     .header-actions .clear-data-btn,
