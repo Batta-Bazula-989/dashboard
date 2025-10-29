@@ -50,9 +50,7 @@
     background: #fee2e2 !important;
     color: #dc2626 !important;
     align-self: center !important;
-    margin-left: 0 !important;
-    margin-right: 0 !important;
-    margin-top: 0 !important;
+    margin: 0 !important;  /* Changed this line to reset ALL margins */
     flex-shrink: 0 !important;
     box-shadow: none !important;
 }
