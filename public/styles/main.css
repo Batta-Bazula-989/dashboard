@@ -2,7 +2,6 @@
 @import './utilities.css';
 @import './components/cards.css';
 @import './components/modal.css';
-@import './components/stats.css';
 @import './components/analysis.css';
 @import './components/form-styles.css';
 @import './components/counter-badges.css';
@@ -92,8 +91,4 @@
 /* Responsive adjustments */
 @media (max-width: 768px) {
     /* Note: Header-actions clear button styles are in counter-badges.css */
-    .stats-card {
-        padding: var(--spacing-md);
-        min-height: 100px;
-    }
 }
