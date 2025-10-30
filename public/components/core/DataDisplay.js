@@ -1,7 +1,3 @@
-/**
- * DataDisplay Component
- * Orchestrates data display - delegates to specialized classes
- */
 class DataDisplay {
     constructor() {
         this.dataDisplay = null;
@@ -62,7 +58,6 @@ class DataDisplay {
 
             hasProcessedItems = true;
 
-            console.log('=== PROCESSING ITEM ===');
             console.log('Processed item:', processed);
             console.log('Content type:', processed.content_type);
 
@@ -105,7 +100,6 @@ class DataDisplay {
     }
 
 addVideoAnalysis(videoData) {
-    console.log('=== ADDING VIDEO ANALYSIS ===');
     console.log('Video data:', videoData);
     console.log('Looking for competitor:', videoData.competitor_name);
     console.log('Looking for body:', videoData.body);
