@@ -89,8 +89,7 @@ class DataDisplay {
         const grid = this.getOrCreateGrid();
         const card = this.cardBuilder.build(data);
         grid.appendChild(card);
-        
-        // ALWAYS remove empty state when adding a card
+
         const emptyState = this.dataDisplay.querySelector('.empty-state');
         if (emptyState) {
             console.log('🚨 REMOVING EMPTY STATE FROM addTextCard');
