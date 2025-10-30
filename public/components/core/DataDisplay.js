@@ -74,7 +74,6 @@ class DataDisplay {
         if (hasProcessedItems) {
             // Remove empty state when any data is added (text cards or video analysis)
             const emptyState = this.dataDisplay.querySelector('.empty-state');
-            console.log('=== REMOVING EMPTY STATE ===');
             console.log('Empty state found:', !!emptyState);
             if (emptyState) {
                 console.log('Removing empty state element');
