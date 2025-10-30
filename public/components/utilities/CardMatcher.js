@@ -16,10 +16,12 @@ class CardMatcher {
 
             if (nameMatches) {
                 if (adText && existingAdText) {
+                    // Only match if BOTH name AND text match
                     if (this.textsMatch(existingAdText, adText)) {
                         matches.push(card);
                     }
                 } else {
+                    // If no adText provided, match by name only
                     matches.push(card);
                 }
             }
@@ -28,16 +30,24 @@ class CardMatcher {
         return matches;
     }
 
+    // ✅ FIX: Exact match only (case-insensitive)
     static namesMatch(name1, name2) {
-        return name1 === name2 ||
-            name1.toLowerCase().includes(name2.toLowerCase()) ||
-            name2.toLowerCase().includes(name1.toLowerCase());
+        return name1.toLowerCase() === name2.toLowerCase();
     }
 
+    // ✅ FIX: More reliable text matching
     static textsMatch(text1, text2) {
-        return text1 === text2 ||
-            text1.includes(text2.substring(0, 50)) ||
-            text2.includes(text1.substring(0, 50));
+        const t1 = text1.toLowerCase().trim();
+        const t2 = text2.toLowerCase().trim();
+
+        // Exact match
+        if (t1 === t2) return true;
+
+        // Match first 100 chars (more reliable than 50)
+        const preview1 = t1.substring(0, 100);
+        const preview2 = t2.substring(0, 100);
+
+        return preview1 === preview2;
     }
 }
 
