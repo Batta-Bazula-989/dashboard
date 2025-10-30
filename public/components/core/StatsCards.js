@@ -1,7 +1,3 @@
-/**
- * StatsCards Component
- * Handles the display of advertiser and ad statistics
- */
 class StatsCards {
     constructor() {
         this.competitorCount = null;
