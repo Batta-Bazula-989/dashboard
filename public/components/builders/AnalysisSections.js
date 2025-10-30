@@ -1,7 +1,3 @@
-/**
- * Analysis Sections
- * Creates TEXT and VIDEO analysis sections
- */
 class AnalysisSections {
     static createTextAnalysis(aiAnalysis, onShowFullAnalysis, competitorName) {
         const preview = document.createElement('div');
