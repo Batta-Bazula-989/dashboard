@@ -105,11 +105,6 @@ class DataDisplay {
     }
 
     addVideoAnalysis(videoData) {
-        console.log('=== ADDING VIDEO ANALYSIS ===');
-        console.log('Video data:', videoData);
-        console.log('Looking for competitor:', videoData.competitor_name);
-        console.log('Looking for body:', videoData.body);
-
         const existingCards = CardMatcher.findAll(
             this.dataDisplay,
             videoData.competitor_name,
@@ -119,6 +114,13 @@ class DataDisplay {
         console.log('Found existing cards:', existingCards.length);
 
         existingCards.forEach((card, index) => {
+            // ✅ Check if this card already has video analysis
+            const hasVideoAnalysis = card.querySelector('.video-analysis-section');
+            if (hasVideoAnalysis) {
+                console.log(`Card ${index + 1} already has video analysis, skipping`);
+                return;
+            }
+
             console.log(`Adding video analysis to card ${index + 1}`);
             const section = AnalysisSections.createVideoAnalysis(
                 videoData,
