@@ -111,6 +111,7 @@ class DataDisplay {
   }
 
 addVideoAnalysis(videoData) {
+    console.log('=== ADDING VIDEO ANALYSIS ===');
     console.log('Video data:', videoData);
     console.log('Looking for competitor:', videoData.competitor_name);
     console.log('Looking for body:', videoData.body);

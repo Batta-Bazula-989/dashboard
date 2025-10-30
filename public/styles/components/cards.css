@@ -405,6 +405,19 @@
     background: linear-gradient(135deg, var(--color-summary), var(--color-summary));
 }
 
+/* Competitor columns - group cards by competitor */
+.competitor-column {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.card-grid {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+}
+
 /* Item icons with simplified selectors */
 .item-icon {
     width: 20px;
