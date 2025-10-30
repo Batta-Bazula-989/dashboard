@@ -1,7 +1,3 @@
-/**
- * Card Matcher
- * Finds existing cards by competitor name and ad text
- */
 class CardMatcher {
     static findAll(container, competitorName, adText = null) {
         const cards = container.querySelectorAll('.card');

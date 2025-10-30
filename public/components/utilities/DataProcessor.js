@@ -1,7 +1,3 @@
-/**
- * Data Processor
- * Processes and normalizes API responses
- */
 class DataProcessor {
     static process(item) {
         if (!item || typeof item !== 'object') return null;
