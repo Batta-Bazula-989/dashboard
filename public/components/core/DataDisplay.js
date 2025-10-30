@@ -85,17 +85,32 @@ class DataDisplay {
         return this.getStats();
     }
 
-    addTextCard(data) {
-        const grid = this.getOrCreateGrid();
-        const card = this.cardBuilder.build(data);
-        grid.appendChild(card);
+  addTextCard(data) {
+      const grid = this.getOrCreateGrid();
+      const competitorName = data.competitor_name;
 
-        const emptyState = this.dataDisplay.querySelector('.empty-state');
-        if (emptyState) {
-            console.log('🚨 REMOVING EMPTY STATE FROM addTextCard');
-            emptyState.remove();
-        }
-    }
+      // Find or create a column for this competitor
+      let column = grid.querySelector(`[data-competitor="${CSS.escape(competitorName)}"]`);
+
+      if (!column) {
+          // Create new column for this competitor
+          column = document.createElement('div');
+          column.className = 'competitor-column';
+          column.setAttribute('data-competitor', competitorName);
+          grid.appendChild(column);
+      }
+
+      // Add card to the competitor's column
+      const card = this.cardBuilder.build(data);
+      column.appendChild(card);
+
+      // ALWAYS remove empty state when adding a card
+      const emptyState = this.dataDisplay.querySelector('.empty-state');
+      if (emptyState) {
+          console.log('🚨 REMOVING EMPTY STATE FROM addTextCard');
+          emptyState.remove();
+      }
+  }
 
 addVideoAnalysis(videoData) {
     console.log('Video data:', videoData);
