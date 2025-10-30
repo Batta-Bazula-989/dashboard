@@ -1,13 +1,5 @@
-/**
- * HTML Sanitizer
- * Prevents XSS attacks by escaping HTML entities
- */
+
 class Sanitizer {
-    /**
-     * Escape HTML special characters
-     * @param {string} str - String to sanitize
-     * @returns {string} Sanitized string
-     */
     static escapeHTML(str) {
         if (typeof str !== 'string') return '';
 
@@ -16,11 +8,6 @@ class Sanitizer {
         return div.innerHTML;
     }
 
-    /**
-     * Sanitize an object's values recursively
-     * @param {any} data - Data to sanitize
-     * @returns {any} Sanitized data
-     */
     static sanitize(data) {
         if (typeof data === 'string') {
             return this.escapeHTML(data);

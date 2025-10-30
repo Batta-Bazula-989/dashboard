@@ -1,7 +1,3 @@
-/**
- * Platform Icons
- * Social media platform icon definitions
- */
 class PlatformIcons {
     static getIcon(platform) {
         const icons = {
