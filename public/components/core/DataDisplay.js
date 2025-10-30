@@ -89,11 +89,9 @@ class DataDisplay {
       const grid = this.getOrCreateGrid();
       const competitorName = data.competitor_name;
 
-      // Find or create a column for this competitor
       let column = grid.querySelector(`[data-competitor="${CSS.escape(competitorName)}"]`);
 
       if (!column) {
-          // Create new column for this competitor
           column = document.createElement('div');
           column.className = 'competitor-column';
           column.setAttribute('data-competitor', competitorName);
