@@ -3,47 +3,54 @@
  * Uses HTTP polling for reliable data fetching
  */
 class DataDashboard {
-    constructor() {
-        this.pollingInterval = null;
-        this.pollingRate = 5000; // Poll every 5 seconds
-        this.dataCount = 0;
-        this.maxItems = 50;
-        this.lastDataCount = 0;
-        this.isFirstFetch = true; // Track first fetch to avoid duplicates on refresh
-        this.isFetching = false; // Guard against race conditions
+constructor() {
+    this.pollingInterval = null;
+    this.pollingRate = 5000; // Poll every 5 seconds
+    this.dataCount = 0;
+    this.maxItems = 50;
+    this.lastDataCount = 0;
+    this.isFirstFetch = true; // Track first fetch to avoid duplicates on refresh
+    this.isFetching = false; // Guard against race conditions
 
-        // Component instances
-        this.statsCards = null;
-        this.dataDisplay = null;
-        this.modal = null;
+    // ✅ ADD THESE 2 LINES:
+    this.notificationInterval = null;
+    this.lastNotificationId = -1;
 
-        // Component loader
-        this.componentLoader = new ComponentLoader();
+    // Component instances
+    this.statsCards = null;
+    this.dataDisplay = null;
+    this.modal = null;
 
-        this.init();
-    }
+    // Component loader
+    this.componentLoader = new ComponentLoader();
+
+    this.init();
+}
 
     /**
      * Initialize the dashboard
      */
-    async init() {
-        try {
-            // Load all components
-            await this.loadComponents();
+   async init() {
+       try {
+           // Load all components
+           await this.loadComponents();
 
-            // Initialize components
-            this.initializeComponents();
+           // Initialize components
+           this.initializeComponents();
 
-            // Start polling
-            this.startPolling();
+           // Start polling
+           this.startPolling();
 
-            // Initialize clear data button
-            this.initializeClearButton();
+           // Initialize clear data button
+           this.initializeClearButton();
 
-        } catch (error) {
-            console.error('Failed to initialize dashboard:', error);
-        }
-    }
+           // ✅ ADD THIS LINE:
+           this.startNotificationPolling();
+
+       } catch (error) {
+           console.error('Failed to initialize dashboard:', error);
+       }
+   }
 
     /**
      * Load all required components
@@ -481,6 +488,156 @@ class DataDashboard {
             }
         }
     }
+
+
+    /**
+         * Start polling for notifications
+         */
+        startNotificationPolling() {
+            this.fetchNotifications();
+
+            this.notificationInterval = setInterval(() => {
+                this.fetchNotifications();
+            }, 2000);
+
+            console.log('Started notification polling');
+        }
+
+        /**
+         * Fetch new notifications from server
+         */
+        async fetchNotifications() {
+            try {
+                const url = this.lastNotificationId >= 0
+                    ? `/api/notifications?since=${this.lastNotificationId}`
+                    : '/api/notifications';
+
+                const response = await fetch(url);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+
+                if (result.success && result.notifications && result.notifications.length > 0) {
+                    console.log(`Received ${result.notifications.length} new notifications`);
+
+                    result.notifications.forEach(notification => {
+                        this.showNotification(notification);
+                    });
+
+                    if (result.latestId !== undefined) {
+                        this.lastNotificationId = result.latestId;
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching notifications:', error);
+            }
+        }
+
+        /**
+         * Show notification based on type
+         */
+        showNotification(notification) {
+            const { type, message } = notification;
+
+            let icon = '';
+            let color = '';
+            let bgColor = '';
+
+            switch(type) {
+                case 'analysis_started':
+                    icon = '🚀';
+                    color = '#3b82f6';
+                    bgColor = '#eff6ff';
+                    break;
+                case 'text_analysis_starting':
+                    icon = '📝';
+                    color = '#8b5cf6';
+                    bgColor = '#f5f3ff';
+                    break;
+                case 'text_analysis_complete':
+                    icon = '✅';
+                    color = '#10b981';
+                    bgColor = '#f0fdf4';
+                    break;
+                case 'video_analysis_starting':
+                    icon = '🎥';
+                    color = '#f59e0b';
+                    bgColor = '#fffbeb';
+                    break;
+                case 'video_analysis_complete':
+                    icon = '✅';
+                    color = '#10b981';
+                    bgColor = '#f0fdf4';
+                    break;
+                case 'all_complete':
+                    icon = '🎉';
+                    color = '#10b981';
+                    bgColor = '#f0fdf4';
+                    break;
+                case 'error':
+                    icon = '❌';
+                    color = '#ef4444';
+                    bgColor = '#fef2f2';
+                    break;
+                default:
+                    icon = 'ℹ️';
+                    color = '#6b7280';
+                    bgColor = '#f9fafb';
+            }
+
+            this.showProgressToast(message, icon, color, bgColor);
+        }
+
+        /**
+         * Show progress toast notification
+         */
+        showProgressToast(message, icon, color, bgColor) {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                top: 80px;
+                right: 20px;
+                z-index: 100001;
+                background: ${bgColor};
+                color: #374151;
+                padding: 14px 18px;
+                border-radius: 8px;
+                font-size: 14px;
+                font-weight: 500;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                border-left: 4px solid ${color};
+                transform: translateX(400px);
+                transition: transform 0.3s ease;
+                max-width: 350px;
+                min-width: 280px;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            `;
+
+            toast.innerHTML = `
+                <span style="font-size: 22px; line-height: 1;">${icon}</span>
+                <span style="flex: 1; line-height: 1.4;">${message}</span>
+            `;
+
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.transform = 'translateX(0)';
+            }, 100);
+
+            setTimeout(() => {
+                toast.style.transform = 'translateX(400px)';
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.parentNode.removeChild(toast);
+                    }
+                }, 300);
+            }, 4000);
+        }
     
     /**
      * Update clear button visibility based on data presence
@@ -687,22 +844,27 @@ class DataDashboard {
     /**
      * Destroy the dashboard and clean up resources
      */
-    destroy() {
-        if (this.pollingInterval) {
-            clearInterval(this.pollingInterval);
-            this.pollingInterval = null;
-        }
+   destroy() {
+           if (this.pollingInterval) {
+               clearInterval(this.pollingInterval);
+               this.pollingInterval = null;
+           }
 
+           // ✅ ADD THESE 4 LINES:
+           if (this.notificationInterval) {
+               clearInterval(this.notificationInterval);
+               this.notificationInterval = null;
+           }
 
-        if (this.modal && this.modal.isOpen()) {
-            this.modal.closeModal();
-        }
+           if (this.modal && this.modal.isOpen()) {
+               this.modal.closeModal();
+           }
 
-        // Clear component references
-        this.statsCards = null;
-        this.dataDisplay = null;
-        this.modal = null;
-    }
+           // Clear component references
+           this.statsCards = null;
+           this.dataDisplay = null;
+           this.modal = null;
+       }
 }
 
 // At top of file, outside DOMContentLoaded

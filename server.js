@@ -12,7 +12,9 @@ app.use(express.static('public'));
 
 // In-memory data storage (persists within Railway instance)
 let recentData = [];
+let notifications = []; // ✅ ADD: Store notifications
 const maxDataSize = 100;
+const maxNotifications = 50; // ✅ ADD: Limit notifications
 
 // API Routes
 app.get('/api/data', (req, res) => {
@@ -70,7 +72,7 @@ app.delete('/api/data', (req, res) => {
   try {
     const previousCount = recentData.length;
     recentData = [];
-    
+
     console.log(`DELETE /api/data - cleared ${previousCount} items`);
 
     res.json({
@@ -88,18 +90,102 @@ app.delete('/api/data', (req, res) => {
   }
 });
 
+// ✅ ADD: Notification endpoints
+app.post('/api/notification', (req, res) => {
+  try {
+    const { type, message, competitor_name, metadata } = req.body;
+
+    const notification = {
+      id: notifications.length,
+      type,
+      message,
+      competitor_name,
+      metadata: metadata || {},
+      timestamp: new Date().toISOString()
+    };
+
+    notifications.push(notification);
+
+    // Keep only last 50 notifications
+    if (notifications.length > maxNotifications) {
+      notifications.shift();
+    }
+
+    console.log(`NOTIFICATION: [${type}] ${message}`);
+
+    res.json({
+      success: true,
+      notification
+    });
+  } catch (error) {
+    console.error('POST /api/notification error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+app.get('/api/notifications', (req, res) => {
+  try {
+    const { since } = req.query;
+
+    let filteredNotifications = notifications;
+
+    // Optionally filter by ID (for polling)
+    if (since) {
+      const sinceId = parseInt(since);
+      filteredNotifications = notifications.filter(n => n.id > sinceId);
+    }
+
+    res.json({
+      success: true,
+      notifications: filteredNotifications,
+      count: filteredNotifications.length,
+      latestId: notifications.length > 0 ? notifications[notifications.length - 1].id : -1
+    });
+  } catch (error) {
+    console.error('GET /api/notifications error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+app.delete('/api/notifications', (req, res) => {
+  try {
+    const previousCount = notifications.length;
+    notifications = [];
+
+    console.log(`DELETE /api/notifications - cleared ${previousCount} notifications`);
+
+    res.json({
+      success: true,
+      message: 'All notifications cleared',
+      previousCount
+    });
+  } catch (error) {
+    console.error('DELETE /api/notifications error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
 // Main route
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-
 // Health check endpoint
 app.get('/health', (req, res) => {
-  res.json({ 
-    status: 'ok', 
+  res.json({
+    status: 'ok',
     timestamp: new Date().toISOString(),
     dataCount: recentData.length,
+    notificationCount: notifications.length,
     environment: process.env.NODE_ENV || 'development'
   });
 });
