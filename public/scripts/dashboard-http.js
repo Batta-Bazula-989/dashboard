@@ -1,7 +1,3 @@
-/**
- * Main Dashboard Application - HTTP Polling Version
- * Uses HTTP polling for reliable data fetching
- */
 class DataDashboard {
 constructor() {
     this.pollingInterval = null;
@@ -594,50 +590,73 @@ constructor() {
         /**
          * Show progress toast notification
          */
-        showProgressToast(message, icon, color, bgColor) {
-            const toast = document.createElement('div');
-            toast.style.cssText = `
-                position: fixed;
-                top: 80px;
-                right: 20px;
-                z-index: 100001;
-                background: ${bgColor};
-                color: #374151;
-                padding: 14px 18px;
-                border-radius: 8px;
-                font-size: 14px;
-                font-weight: 500;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-                border-left: 4px solid ${color};
-                transform: translateX(400px);
-                transition: transform 0.3s ease;
-                max-width: 350px;
-                min-width: 280px;
-                display: flex;
-                align-items: center;
-                gap: 12px;
-            `;
+showProgressToast(message, icon, color, bgColor) {
+    const toast = document.createElement('div');
+    toast.style.cssText = `
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        z-index: 100001;
+        background: ${bgColor};
+        color: #374151;
+        padding: 14px 18px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        border-left: 4px solid ${color};
+        transform: translateX(400px);
+        transition: transform 0.3s ease;
+        max-width: 350px;
+        min-width: 280px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    `;
 
-            toast.innerHTML = `
-                <span style="font-size: 22px; line-height: 1;">${icon}</span>
-                <span style="flex: 1; line-height: 1.4;">${message}</span>
-            `;
+    toast.innerHTML = `
+        <span style="font-size: 22px; line-height: 1;">${icon}</span>
+        <span style="flex: 1; line-height: 1.4;">${message}</span>
+        <button style="
+            background: none;
+            border: none;
+            color: #9ca3af;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 0;
+            margin: 0;
+            line-height: 1;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.2s ease;
+        "
+        onmouseover="this.style.color='#374151'"
+        onmouseout="this.style.color='#9ca3af'"
+        onclick="this.closest('div').style.transform='translateX(400px)'; setTimeout(() => this.closest('div').remove(), 300);">
+            ✕
+        </button>
+    `;
 
-            document.body.appendChild(toast);
+    document.body.appendChild(toast);
 
-            setTimeout(() => {
-                toast.style.transform = 'translateX(0)';
-            }, 100);
+    // Animate in
+    setTimeout(() => {
+        toast.style.transform = 'translateX(0)';
+    }, 100);
 
-            setTimeout(() => {
-                toast.style.transform = 'translateX(400px)';
-                setTimeout(() => {
-                    if (toast.parentNode) {
-                        toast.parentNode.removeChild(toast);
-                    }
-                }, 300);
-            }, 4000);
-        }
+    // Auto remove after 15 seconds (changed from 4 to 15)
+    setTimeout(() => {
+        toast.style.transform = 'translateX(400px)';
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.parentNode.removeChild(toast);
+            }
+        }, 300);
+    }, 15000); // ✅ Changed from 4000 to 15000 (15 seconds)
+}
     
     /**
      * Update clear button visibility based on data presence
