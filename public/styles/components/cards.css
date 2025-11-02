@@ -416,7 +416,7 @@
     display: flex;
     gap: 20px;
     align-items: flex-start;
-    max-width: 560px;  /* ADD THIS - constrains total width */
+    max-width: 504px;  /* ADD THIS - constrains total width */
 }
 
 /* Item icons with simplified selectors */
