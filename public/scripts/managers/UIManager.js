@@ -25,6 +25,15 @@ class UIManager {
      * Create loading overlay element
      */
     createLoadingOverlay() {
+        // Check if one already exists in the DOM (manually added)
+        let existingOverlay = document.getElementById('loadingOverlay');
+        
+        if (existingOverlay) {
+            // Remove any manually added empty overlay
+            existingOverlay.remove();
+            console.log('Removed existing empty loading overlay');
+        }
+
         if (this.loadingOverlay) return;
 
         this.loadingOverlay = document.createElement('div');
@@ -44,6 +53,7 @@ class UIManager {
             </div>
         `;
         document.body.appendChild(this.loadingOverlay);
+        console.log('✅ Loading overlay created successfully');
     }
 
     /**
@@ -52,6 +62,9 @@ class UIManager {
     showLoading() {
         if (this.loadingOverlay) {
             this.loadingOverlay.classList.add('active');
+            console.log('🔄 Loading animation shown');
+        } else {
+            console.error('❌ Loading overlay not found!');
         }
     }
 
@@ -61,6 +74,7 @@ class UIManager {
     hideLoading() {
         if (this.loadingOverlay) {
             this.loadingOverlay.classList.remove('active');
+            console.log('✅ Loading animation hidden');
         }
     }
 
