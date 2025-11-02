@@ -8,6 +8,22 @@ class StateManager {
         this.lastDataCount = 0;
         this.isFirstFetch = true;
         this.isFetching = false;
+        this.isLoading = false; // Track loading state
+    }
+
+    /**
+     * Set loading state
+     */
+    setLoading(value) {
+        this.isLoading = value;
+        console.log('Loading state set to:', value);
+    }
+
+    /**
+     * Check if currently in loading state
+     */
+    isLoadingData() {
+        return this.isLoading;
     }
 
     /**
@@ -60,6 +76,7 @@ class StateManager {
         this.lastDataCount = 0;
         this.isFirstFetch = true;
         this.isFetching = false;
+        this.isLoading = false;
     }
 
     /**

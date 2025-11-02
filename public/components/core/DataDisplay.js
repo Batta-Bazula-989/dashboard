@@ -45,6 +45,56 @@ class DataDisplay {
         this.dataDisplay = document.getElementById('dataDisplay');
     }
 
+    /**
+     * Show loading state - replaces empty state with loading animation
+     */
+    showLoading() {
+        console.log('=== SHOWING LOADING STATE ===');
+
+        // Remove empty state if it exists
+        const emptyState = this.dataDisplay.querySelector('.empty-state');
+        if (emptyState) {
+            emptyState.remove();
+        }
+
+        // Remove any existing loading state
+        const existingLoading = this.dataDisplay.querySelector('.loading-state');
+        if (existingLoading) {
+            existingLoading.remove();
+        }
+
+        // Create loading state
+        const loadingStateHTML = `
+            <div class="loading-state">
+                <div class="loading-state-illustration">
+                    <div class="neural-network">
+                        <div class="node"></div>
+                        <div class="node"></div>
+                        <div class="node"></div>
+                        <div class="node"></div>
+                        <div class="node"></div>
+                    </div>
+                </div>
+                <div class="loading-dots"></div>
+                <div class="loading-subtitle">Analyzing data</div>
+            </div>
+        `;
+
+        // Insert loading state at the beginning of data display
+        this.dataDisplay.insertAdjacentHTML('afterbegin', loadingStateHTML);
+    }
+
+    /**
+     * Hide loading state
+     */
+    hideLoading() {
+        console.log('=== HIDING LOADING STATE ===');
+        const loadingState = this.dataDisplay.querySelector('.loading-state');
+        if (loadingState) {
+            loadingState.remove();
+        }
+    }
+
     addDataItem(incoming) {
         const payload = incoming?.data || incoming;
         const items = Array.isArray(payload) ? payload : [payload];
@@ -72,6 +122,9 @@ class DataDisplay {
         });
 
         if (hasProcessedItems) {
+            // Remove loading state when data arrives
+            this.hideLoading();
+
             // Remove empty state when any data is added (text cards or video analysis)
             const emptyState = this.dataDisplay.querySelector('.empty-state');
             console.log('Empty state found:', !!emptyState);
@@ -101,6 +154,9 @@ class DataDisplay {
       // Add card to the competitor's column
       const card = this.cardBuilder.build(data);
       column.appendChild(card);
+
+      // Remove loading state when adding cards
+      this.hideLoading();
 
       // ALWAYS remove empty state when adding a card
       const emptyState = this.dataDisplay.querySelector('.empty-state');
@@ -188,7 +244,10 @@ addVideoAnalysis(videoData) {
                contentArea.innerHTML = '';
                contentArea.classList.remove('has-data');
            }
-           
+
+           // Remove loading state if it exists
+           this.hideLoading();
+
            // Handle empty state based on parameter
            const emptyState = this.dataDisplay.querySelector('.empty-state');
            console.log('Empty state found:', !!emptyState);
