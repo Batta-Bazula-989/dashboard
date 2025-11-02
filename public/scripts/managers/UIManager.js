@@ -8,6 +8,7 @@ class UIManager {
         this.headerActions = null;
         this.competitorBadgeCount = null;
         this.adsBadgeCount = null;
+        this.loadingOverlay = null;
     }
 
     /**
@@ -17,6 +18,50 @@ class UIManager {
         this.headerActions = document.querySelector('.header-actions');
         this.competitorBadgeCount = document.getElementById('competitorBadgeCount');
         this.adsBadgeCount = document.getElementById('adsBadgeCount');
+        this.createLoadingOverlay();
+    }
+
+    /**
+     * Create loading overlay element
+     */
+    createLoadingOverlay() {
+        if (this.loadingOverlay) return;
+
+        this.loadingOverlay = document.createElement('div');
+        this.loadingOverlay.className = 'loading-overlay';
+        this.loadingOverlay.id = 'loadingOverlay';
+        this.loadingOverlay.innerHTML = `
+            <div class="loader-container">
+                <div class="neural-network">
+                    <div class="node"></div>
+                    <div class="node"></div>
+                    <div class="node"></div>
+                    <div class="node"></div>
+                    <div class="node"></div>
+                </div>
+                <div class="dots"></div>
+                <div class="subtitle">Analyzing data</div>
+            </div>
+        `;
+        document.body.appendChild(this.loadingOverlay);
+    }
+
+    /**
+     * Show loading state
+     */
+    showLoading() {
+        if (this.loadingOverlay) {
+            this.loadingOverlay.classList.add('active');
+        }
+    }
+
+    /**
+     * Hide loading state
+     */
+    hideLoading() {
+        if (this.loadingOverlay) {
+            this.loadingOverlay.classList.remove('active');
+        }
     }
 
     /**

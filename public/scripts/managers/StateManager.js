@@ -3,11 +3,19 @@
  * Manages application state
  */
 class StateManager {
-    constructor() {
+    constructor(uiManager = null) {
         this.dataCount = 0;
         this.lastDataCount = 0;
         this.isFirstFetch = true;
         this.isFetching = false;
+        this.uiManager = uiManager;
+    }
+
+    /**
+     * Set UI Manager reference
+     */
+    setUIManager(uiManager) {
+        this.uiManager = uiManager;
     }
 
     /**
@@ -15,6 +23,15 @@ class StateManager {
      */
     setFetching(value) {
         this.isFetching = value;
+        
+        // Update loading UI
+        if (this.uiManager) {
+            if (value) {
+                this.uiManager.showLoading();
+            } else {
+                this.uiManager.hideLoading();
+            }
+        }
     }
 
     /**

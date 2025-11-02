@@ -5,6 +5,7 @@
 @import './components/analysis.css';
 @import './components/form-styles.css';
 @import './components/counter-badges.css';
+@import './components/loading.css';
 
 /* Table responsive */
 .table-responsive {

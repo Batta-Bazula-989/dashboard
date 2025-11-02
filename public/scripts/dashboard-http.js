@@ -31,6 +31,8 @@ class DataDashboard {
             await this.loadComponents();
             this.initializeComponents();
             this.uiManager.init();
+            // Connect StateManager to UIManager for loading states
+            this.stateManager.setUIManager(this.uiManager);
             this.pollingService.start();
             this.notificationService.start();
             this.initializeClearButton();
