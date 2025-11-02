@@ -5,6 +5,8 @@ class DataDashboard {
         this.pollingService = new PollingService(() => this.fetchData());
         this.notificationService = new NotificationService((notification) => {
             this.uiManager.showNotification(notification);
+            // Show loading animation when notification arrives
+            this.stateManager.showWorkflowLoading();
         });
 
         // Managers
@@ -164,9 +166,6 @@ class DataDashboard {
         if (formContainer) {
             formContainer.style.display = 'none';
         }
-        
-        // Show loading animation when workflow is triggered
-        this.stateManager.showWorkflowLoading();
         
         this.uiManager.showToast('Analysis started! Results will appear shortly.', 'success');
     }
