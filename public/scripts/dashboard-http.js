@@ -1,58 +1,48 @@
 class DataDashboard {
-constructor() {
-    this.pollingInterval = null;
-    this.pollingRate = 5000; // Poll every 5 seconds
-    this.dataCount = 0;
-    this.maxItems = 50;
-    this.lastDataCount = 0;
-    this.isFirstFetch = true; // Track first fetch to avoid duplicates on refresh
-    this.isFetching = false; // Guard against race conditions
+    constructor() {
+        // Services
+        this.dataService = new DataService();
+        this.pollingService = new PollingService(() => this.fetchData());
+        this.notificationService = new NotificationService((notification) => {
+            this.uiManager.showNotification(notification);
+        });
 
-    // ✅ ADD THESE 2 LINES:
-    this.notificationInterval = null;
-    this.lastNotificationId = -1;
+        // Managers
+        this.stateManager = new StateManager();
+        this.uiManager = new UIManager();
 
-    // Component instances
-    this.statsCards = null;
-    this.dataDisplay = null;
-    this.modal = null;
+        // Component instances
+        this.statsCards = null;
+        this.dataDisplay = null;
+        this.modal = null;
+        this.formBuilder = null;
 
-    // Component loader
-    this.componentLoader = new ComponentLoader();
+        // Component loader
+        this.componentLoader = new ComponentLoader();
 
-    this.init();
-}
+        this.init();
+    }
 
     /**
      * Initialize the dashboard
      */
-   async init() {
-       try {
-           // Load all components
-           await this.loadComponents();
-
-           // Initialize components
-           this.initializeComponents();
-
-           // Start polling
-           this.startPolling();
-
-           // Initialize clear data button
-           this.initializeClearButton();
-
-           // ✅ ADD THIS LINE:
-           this.startNotificationPolling();
-
-       } catch (error) {
-           console.error('Failed to initialize dashboard:', error);
-       }
-   }
+    async init() {
+        try {
+            await this.loadComponents();
+            this.initializeComponents();
+            this.uiManager.init();
+            this.pollingService.start();
+            this.notificationService.start();
+            this.initializeClearButton();
+        } catch (error) {
+            console.error('Failed to initialize dashboard:', error);
+        }
+    }
 
     /**
      * Load all required components
      */
     async loadComponents() {
-        // Register components (they're already loaded via script tags)
         this.componentLoader.register('StatsCards', window.StatsCards);
         this.componentLoader.register('DataDisplay', window.DataDisplay);
         this.componentLoader.register('Modal', window.Modal);
@@ -64,27 +54,37 @@ constructor() {
     initializeComponents() {
         const container = document.querySelector('.container');
 
-        // Create form section
         const formSection = document.createElement('div');
         formSection.className = 'form-section';
-        
-        // Create main content area
+
         const mainContent = document.createElement('div');
         mainContent.className = 'main-content';
-        
+
         container.appendChild(formSection);
         container.appendChild(mainContent);
 
-        // Initialize FormBuilder in form section
         this.formBuilder = new FormBuilder();
         this.initializeForm(formSection);
-        
-        // Add counter badges and clear button container
+
+        // Create header actions (counter badges + clear button)
+        const headerActions = this.createHeaderActions();
+        container.appendChild(headerActions);
+
+        this.dataDisplay = this.componentLoader.initComponent('DataDisplay', mainContent,
+            (competitorName, fullAnalysis) => this.showFullAnalysis(competitorName, fullAnalysis)
+        );
+
+        this.modal = this.componentLoader.createComponent('Modal');
+    }
+
+    /**
+     * Create header actions (counter badges + clear button)
+     */
+    createHeaderActions() {
         const headerActions = document.createElement('div');
         headerActions.className = 'header-actions';
         headerActions.style.display = 'none';
-        
-        // Counter badges
+
         const competitorBadge = document.createElement('div');
         competitorBadge.className = 'counter-badge';
         competitorBadge.id = 'competitorCounter';
@@ -99,7 +99,7 @@ constructor() {
                 <div class="counter-number" id="competitorBadgeCount">0</div>
             </div>
         `;
-        
+
         const adsBadge = document.createElement('div');
         adsBadge.className = 'counter-badge';
         adsBadge.id = 'adsCounter';
@@ -114,8 +114,7 @@ constructor() {
                 <div class="counter-number" id="adsBadgeCount">0</div>
             </div>
         `;
-        
-        // Clear button
+
         const clearButton = document.createElement('button');
         clearButton.type = 'button';
         clearButton.className = 'clear-data-btn';
@@ -129,34 +128,24 @@ constructor() {
             </svg>
             Clear All
         `;
-        
-        // Create wrapper for counter badges
+
         const counterWrapper = document.createElement('div');
         counterWrapper.className = 'counter-badges-wrapper';
         counterWrapper.appendChild(competitorBadge);
         counterWrapper.appendChild(adsBadge);
-        
+
         headerActions.appendChild(counterWrapper);
         headerActions.appendChild(clearButton);
-        container.appendChild(headerActions);
 
-        // Initialize DataDisplay in main content area with modal callback
-        this.dataDisplay = this.componentLoader.initComponent('DataDisplay', mainContent,
-            (competitorName, fullAnalysis) => this.showFullAnalysis(competitorName, fullAnalysis)
-        );
-
-        // Initialize Modal
-        this.modal = this.componentLoader.createComponent('Modal');
+        return headerActions;
     }
 
     /**
-     * Initialize the form in the form section
-     * @param {HTMLElement} formSection - The form section container
+     * Initialize the form
      */
     initializeForm(formSection) {
         formSection.innerHTML = this.formBuilder.build();
-        
-        // Initialize form event listeners
+
         this.formBuilder.initEventListeners(
             formSection,
             (data) => this.handleFormSuccess(data),
@@ -166,174 +155,109 @@ constructor() {
 
     /**
      * Handle successful form submission
-     * @param {Object} data - Form data
      */
     handleFormSuccess(data) {
         console.log('Form submitted successfully:', data);
-        // Hide the form and show loading state
         const formContainer = document.getElementById('formContainer');
         if (formContainer) {
             formContainer.style.display = 'none';
         }
-        
-        // Show success message
-        this.showSuccessMessage('Analysis started! Results will appear shortly.');
+        this.uiManager.showToast('Analysis started! Results will appear shortly.', 'success');
     }
 
     /**
      * Handle form submission error
-     * @param {Error} error - Error object
      */
     handleFormError(error) {
         console.error('Form submission error:', error);
-        this.showErrorMessage('Failed to start analysis. Please try again.');
-    }
-
-    /**
-     * Start HTTP polling
-     */
-    startPolling() {
-        // Initial fetch
-        this.fetchData();
-
-        // Set up polling interval
-        this.pollingInterval = setInterval(() => {
-            this.fetchData();
-        }, this.pollingRate);
-
-        console.log(`Started polling at ${this.pollingRate}ms interval`);
+        this.uiManager.showToast('Failed to start analysis. Please try again.', 'error');
     }
 
     /**
      * Fetch data from API
      */
-   /**
-    * Fetch data from API
-    */
-   async fetchData() {
-       if (this.isFetching) return; // Guard against race conditions
-       this.isFetching = true;
+    async fetchData() {
+        if (this.stateManager.isFetchingData()) return;
+        this.stateManager.setFetching(true);
 
-       try {
-           const response = await fetch('/api/data', {
-               method: 'GET',
-               headers: {
-                   'Content-Type': 'application/json'
-               }
-           });
+        try {
+            const result = await this.dataService.fetchData();
 
-           if (!response.ok) {
-               throw new Error(`HTTP error! status: ${response.status}`);
-           }
+            if (result.success) {
+                const dataArray = result.data || [];
+                const counts = this.stateManager.getCounts();
 
-           const result = await response.json();
+                console.log(`API returned ${dataArray.length} items`);
+                console.log(`Last data count: ${counts.lastDataCount}`);
+                console.log(`Is first fetch: ${this.stateManager.isFirstDataFetch()}`);
 
-           if (result.success) {
-               const dataArray = result.data || []; // Handle null/undefined
+                if (this.stateManager.isFirstDataFetch()) {
+                    console.log(`First fetch - processing all ${dataArray.length} items`);
 
-               console.log(`API returned ${dataArray.length} items`);
-               console.log(`Last data count: ${this.lastDataCount}`);
-               console.log(`Is first fetch: ${this.isFirstFetch}`);
-               console.log(`Full API response:`, result);
+                    if (dataArray.length > 0 && this.dataDisplay) {
+                        this.dataDisplay.clear();
+                    }
 
-               // On first fetch after page load/refresh, process ALL existing data
-               if (this.isFirstFetch) {
-                   console.log(`First fetch - processing all ${dataArray.length} items`);
+                    dataArray.forEach((item) => {
+                        this.addDataItem(item);
+                    });
 
-                   // ✅ FIX: Only clear if there's data to add (preserves empty state)
-                   if (dataArray.length > 0 && this.dataDisplay) {
-                       this.dataDisplay.clear();
-                   }
+                    this.stateManager.updateCounts(dataArray.length);
+                    this.stateManager.completeFirstFetch();
+                    this.updateUI();
 
-                   // Process all items
-                   dataArray.forEach((item, index) => {
-                       this.addDataItem(item);
-                   });
+                    console.log(`=== FIRST FETCH COMPLETE ===`);
+                }
+                else if (dataArray.length > counts.lastDataCount) {
+                    const newItems = dataArray.slice(counts.lastDataCount);
+                    console.log(`Found ${newItems.length} new items`);
 
-                   this.lastDataCount = dataArray.length;
-                   this.isFirstFetch = false; // Mark first fetch as complete
-                   
-                   // Update clear button visibility after first fetch
-                   this.updateClearButtonVisibility();
-                   
-                   console.log(`=== FIRST FETCH COMPLETE ===`);
-                   console.log(`Processed all ${dataArray.length} items`);
-               }
-               else if (dataArray.length > this.lastDataCount) {
-                   // Process only NEW items to preserve existing cards
-                   const newItems = dataArray.slice(this.lastDataCount);
-                   console.log(`Found ${newItems.length} new items, processing only new items`);
+                    if (counts.lastDataCount === 0 && this.dataDisplay) {
+                        this.dataDisplay.clear();
+                    }
 
-                   // If we're going from 0 to having data, clear the empty state
-                   if (this.lastDataCount === 0 && this.dataDisplay) {
-                       console.log('🚨 FIXING EMPTY STATE: Clearing because lastDataCount is 0');
-                       this.dataDisplay.clear();
-                   }
+                    newItems.forEach((item) => {
+                        this.addDataItem(item);
+                    });
 
-                   newItems.forEach((item, index) => {
-                       this.addDataItem(item);
-                   });
+                    this.stateManager.updateCounts(dataArray.length);
+                    this.updateUI();
+                }
+                else if (dataArray.length < counts.lastDataCount) {
+                    console.log(`Data count decreased, reprocessing`);
 
-                   this.lastDataCount = dataArray.length;
-                   
-                   // Update clear button visibility after adding new items
-                   this.updateClearButtonVisibility();
-                   
-                   console.log(`=== NEW ITEMS PROCESSING COMPLETE ===`);
-                   console.log(`Processed ${newItems.length} new items, total items: ${dataArray.length}`);
-               }
-               else if (dataArray.length < this.lastDataCount) {
-                   // Data was cleared, reprocess everything
-                   console.log(`Data count decreased from ${this.lastDataCount} to ${dataArray.length}, reprocessing all data`);
+                    if (this.dataDisplay) {
+                        this.dataDisplay.clear();
+                    }
 
-                   // Clear the display
-                   if (this.dataDisplay) {
-                       this.dataDisplay.clear();
-                   }
+                    dataArray.forEach((item) => {
+                        this.addDataItem(item);
+                    });
 
-                   // Process all items (if any)
-                   dataArray.forEach((item, index) => {
-                       this.addDataItem(item);
-                   });
-
-                   this.lastDataCount = dataArray.length;
-                   
-                   // Update clear button visibility
-                   this.updateClearButtonVisibility();
-                   
-                   console.log(`=== REPROCESSING COMPLETE ===`);
-                   console.log(`Reprocessed all ${dataArray.length} items`);
-               }
-               else {
-                   console.log(`Data count unchanged (${dataArray.length}), no processing needed`);
-               }
-           } else {
-               console.log(`API response not successful or no data:`, result);
-           }
-       } catch (error) {
-           console.error('Error fetching data:', error);
-       } finally {
-           this.isFetching = false; // Always release lock
-       }
-   }
+                    this.stateManager.updateCounts(dataArray.length);
+                    this.updateUI();
+                }
+            }
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        } finally {
+            this.stateManager.setFetching(false);
+        }
+    }
 
     /**
      * Add data item to display
-     * @param {Object} incoming - Incoming data
      */
     addDataItem(incoming) {
         const dataType = incoming.dataType || 'unknown';
         console.log(`Adding ${dataType} data item:`, incoming);
 
-        // All competitor data (both text and video analysis) goes to main DataDisplay
         if (this.dataDisplay) {
             const stats = this.dataDisplay.addDataItem(incoming);
             console.log(`Analysis stats:`, stats);
 
-            // Update data count
-            this.dataCount++;
+            this.stateManager.incrementDataCount();
 
-            // Update stats cards
             if (this.statsCards && stats) {
                 this.statsCards.updateStats(stats.competitorCards, stats.adsCount);
             }
@@ -341,42 +265,16 @@ constructor() {
     }
 
     /**
-     * Clear all data and reprocess from API
+     * Update UI (badges, visibility)
      */
-    async clearAndReprocess() {
-        if (this.dataDisplay) {
-            this.dataDisplay.clear();
-        }
-        this.lastDataCount = 0;
-        await this.fetchData();
-    }
+    updateUI() {
+        const hasData = this.dataDisplay && this.dataDisplay.dataDisplay.querySelectorAll('.card').length > 0;
 
-    /**
-     * Show full analysis modal
-     * @param {string} competitorName - Competitor name
-     * @param {string} fullAnalysis - Full analysis text
-     */
-    showFullAnalysis(competitorName, fullAnalysis) {
-        if (this.modal) {
-            this.modal.showFullAnalysis(competitorName, fullAnalysis);
-        }
-    }
+        this.uiManager.updateClearButtonVisibility(hasData);
 
-    /**
-     * Get component instance
-     * @param {string} componentName - Name of the component
-     * @returns {Object|null} Component instance or null
-     */
-    getComponent(componentName) {
-        switch (componentName) {
-            case 'statsCards':
-                return this.statsCards;
-            case 'dataDisplay':
-                return this.dataDisplay;
-            case 'modal':
-                return this.modal;
-            default:
-                return null;
+        if (hasData && this.dataDisplay) {
+            const stats = this.dataDisplay.getStats();
+            this.uiManager.updateCounterBadges(stats.competitorCards, stats.adsCount);
         }
     }
 
@@ -389,509 +287,78 @@ constructor() {
             clearBtn.addEventListener('click', () => {
                 this.clearAllData();
             });
-
-            console.log('✅ Clear data button initialized and found!');
-            console.log('Button element:', clearBtn);
-            console.log('Button position:', clearBtn.getBoundingClientRect());
-        } else {
-            console.error('❌ Clear data button not found!');
-            console.log('Available elements with IDs:', Array.from(document.querySelectorAll('[id]')).map(el => el.id));
+            console.log('✅ Clear data button initialized');
         }
     }
 
     /**
-     * Clear all data from server and UI
+     * Clear all data
      */
     async clearAllData() {
-        // Check if there's any data to clear by looking at actual DOM cards
         const hasData = this.dataDisplay && this.dataDisplay.dataDisplay.querySelectorAll('.card').length > 0;
-        
-        // If no data, don't do anything
-        if (!hasData) {
-            return;
-        }
-        
-        // Show confirmation dialog only if there's data
-        const confirmed = await this.showClearConfirmation();
-        if (!confirmed) {
-            return;
-        }
+
+        if (!hasData) return;
+
+        const confirmed = await this.uiManager.showClearConfirmation();
+        if (!confirmed) return;
 
         try {
-            const clearBtn = document.getElementById('clearDataBtn');
-            if (clearBtn) {
-                clearBtn.disabled = true;
-                clearBtn.innerHTML = `
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <path d="m9,12 2,2 4,-4"></path>
-                    </svg>
-                    Clearing...
-                `;
+            this.uiManager.setClearButtonState(true);
+
+            await this.dataService.clearData();
+
+            if (this.dataDisplay) {
+                this.dataDisplay.clear(true);
             }
 
-            // Clear data on server
-            const response = await fetch('/api/data', {
-                method: 'DELETE'
-            });
+            this.stateManager.reset();
 
-            if (response.ok) {
-                console.log('Data cleared from server');
-                
-                // Clear UI and show empty state
-                if (this.dataDisplay) {
-                    this.dataDisplay.clear(true);
-                }
-                
-                // Reset counters
-                this.dataCount = 0;
-                this.lastDataCount = 0;
-                this.isFirstFetch = true; // Reset first fetch flag
-                
-                // Update stats
-                if (this.statsCards) {
-                    this.statsCards.updateStats(0, 0);
-                }
-                
-                // Hide clear button after clearing
-                this.updateClearButtonVisibility();
-                
-                console.log('All data cleared successfully');
-                
-                // Show success message
-                this.showSuccessMessage('All data cleared successfully');
-            } else {
-                console.error('Failed to clear data from server');
-                this.showErrorMessage('Failed to clear data from server');
+            if (this.statsCards) {
+                this.statsCards.updateStats(0, 0);
             }
 
+            this.updateUI();
+
+            this.uiManager.showToast('All data cleared successfully', 'success');
         } catch (error) {
             console.error('Error clearing data:', error);
-            this.showErrorMessage('Error clearing data');
+            this.uiManager.showToast('Failed to clear data from server', 'error');
         } finally {
-            const clearBtn = document.getElementById('clearDataBtn');
-            if (clearBtn) {
-                clearBtn.disabled = false;
-                clearBtn.innerHTML = `
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="3,6 5,6 21,6"></polyline>
-                        <path d="m19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"></path>
-                        <line x1="10" y1="11" x2="10" y2="17"></line>
-                        <line x1="14" y1="11" x2="14" y2="17"></line>
-                    </svg>
-                    Clear All
-                `;
-            }
-        }
-    }
-
-
-    /**
-         * Start polling for notifications
-         */
-        startNotificationPolling() {
-            this.fetchNotifications();
-
-            this.notificationInterval = setInterval(() => {
-                this.fetchNotifications();
-            }, 2000);
-
-            console.log('Started notification polling');
-        }
-
-        /**
-         * Fetch new notifications from server
-         */
-        async fetchNotifications() {
-            try {
-                const url = this.lastNotificationId >= 0
-                    ? `/api/notifications?since=${this.lastNotificationId}`
-                    : '/api/notifications';
-
-                const response = await fetch(url);
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const result = await response.json();
-
-                if (result.success && result.notifications && result.notifications.length > 0) {
-                    console.log(`Received ${result.notifications.length} new notifications`);
-
-                    result.notifications.forEach(notification => {
-                        this.showNotification(notification);
-                    });
-
-                    if (result.latestId !== undefined) {
-                        this.lastNotificationId = result.latestId;
-                    }
-                }
-            } catch (error) {
-                console.error('Error fetching notifications:', error);
-            }
-        }
-
-        /**
-         * Show notification based on type
-         */
-        showNotification(notification) {
-            const { type, message } = notification;
-
-            let icon = '';
-            let color = '';
-            let bgColor = '';
-
-            switch(type) {
-                case 'analysis_started':
-                    icon = '🚀';
-                    color = '#3b82f6';
-                    bgColor = '#eff6ff';
-                    break;
-                case 'text_analysis_starting':
-                    icon = '📝';
-                    color = '#8b5cf6';
-                    bgColor = '#f5f3ff';
-                    break;
-                case 'text_analysis_complete':
-                    icon = '✅';
-                    color = '#10b981';
-                    bgColor = '#f0fdf4';
-                    break;
-                case 'video_analysis_starting':
-                    icon = '🎥';
-                    color = '#f59e0b';
-                    bgColor = '#fffbeb';
-                    break;
-                case 'video_analysis_complete':
-                    icon = '✅';
-                    color = '#10b981';
-                    bgColor = '#f0fdf4';
-                    break;
-                case 'all_complete':
-                    icon = '🎉';
-                    color = '#10b981';
-                    bgColor = '#f0fdf4';
-                    break;
-                case 'error':
-                    icon = '❌';
-                    color = '#ef4444';
-                    bgColor = '#fef2f2';
-                    break;
-                default:
-                    icon = 'ℹ️';
-                    color = '#6b7280';
-                    bgColor = '#f9fafb';
-            }
-
-            this.showProgressToast(message, icon, color, bgColor);
-        }
-
-        /**
-         * Show progress toast notification
-         */
-showProgressToast(message, icon, color, bgColor) {
-    const toast = document.createElement('div');
-    toast.style.cssText = `
-        position: fixed;
-        top: 80px;
-        right: 20px;
-        z-index: 100001;
-        background: ${bgColor};
-        color: #374151;
-        padding: 14px 18px;
-        border-radius: 8px;
-        font-size: 14px;
-        font-weight: 500;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        border-left: 4px solid ${color};
-        transform: translateX(400px);
-        transition: transform 0.3s ease;
-        max-width: 350px;
-        min-width: 280px;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    `;
-
-    toast.innerHTML = `
-        <span style="font-size: 22px; line-height: 1;">${icon}</span>
-        <span style="flex: 1; line-height: 1.4;">${message}</span>
-        <button style="
-            background: none;
-            border: none;
-            color: #9ca3af;
-            font-size: 20px;
-            cursor: pointer;
-            padding: 0;
-            margin: 0;
-            line-height: 1;
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: color 0.2s ease;
-        "
-        onmouseover="this.style.color='#374151'"
-        onmouseout="this.style.color='#9ca3af'"
-        onclick="this.closest('div').style.transform='translateX(400px)'; setTimeout(() => this.closest('div').remove(), 300);">
-            ✕
-        </button>
-    `;
-
-    document.body.appendChild(toast);
-
-    // Animate in
-    setTimeout(() => {
-        toast.style.transform = 'translateX(0)';
-    }, 100);
-
-    // Auto remove after 15 seconds (changed from 4 to 15)
-    setTimeout(() => {
-        toast.style.transform = 'translateX(400px)';
-        setTimeout(() => {
-            if (toast.parentNode) {
-                toast.parentNode.removeChild(toast);
-            }
-        }, 300);
-    }, 15000); // ✅ Changed from 4000 to 15000 (15 seconds)
-}
-    
-    /**
-     * Update clear button visibility based on data presence
-     */
-    updateClearButtonVisibility() {
-        const headerActions = document.querySelector('.header-actions');
-        if (!headerActions) return;
-        
-        // Check if there are any cards displayed
-        const hasData = this.dataDisplay && this.dataDisplay.dataDisplay.querySelectorAll('.card').length > 0;
-        
-        if (hasData) {
-            headerActions.style.display = 'flex';
-            
-            // Update counter values
-            this.updateCounterBadges();
-        } else {
-            headerActions.style.display = 'none';
-        }
-    }
-    
-    /**
-     * Update counter badge values
-     */
-    updateCounterBadges() {
-        if (!this.dataDisplay) return;
-        
-        const stats = this.dataDisplay.getStats();
-        
-        const competitorBadgeCount = document.getElementById('competitorBadgeCount');
-        const adsBadgeCount = document.getElementById('adsBadgeCount');
-        
-        if (competitorBadgeCount) {
-            competitorBadgeCount.textContent = stats.competitorCards || 0;
-        }
-        
-        if (adsBadgeCount) {
-            adsBadgeCount.textContent = stats.adsCount || 0;
+            this.uiManager.setClearButtonState(false);
         }
     }
 
     /**
-     * Show confirmation dialog for clearing data
-     * @returns {Promise<boolean>} True if user confirms
+     * Show full analysis modal
      */
-    showClearConfirmation() {
-        return new Promise((resolve) => {
-            // Create modal overlay
-            const overlay = document.createElement('div');
-            overlay.className = 'modal-overlay';
-            overlay.style.zIndex = '100000';
-            
-            // Create modal content
-            const modal = document.createElement('div');
-            modal.className = 'modal-content';
-            modal.style.maxWidth = '400px';
-            modal.style.width = '90%';
-            
-            modal.innerHTML = `
-                <div class="modal-body">
-                    <p style="margin-bottom: 20px; color: #374151; line-height: 1.5;">
-                        Are you sure you want to clear all data? This action cannot be undone.
-                    </p>
-                    <div style="display: flex; gap: 12px; justify-content: flex-end;">
-                        <button id="cancelClear" style="
-                            background: #f8fafc;
-                            border: 1px solid #d1d5db;
-                            border-radius: 6px;
-                            padding: 8px 16px;
-                            font-size: 14px;
-                            font-weight: 600;
-                            color: #374151;
-                            cursor: pointer;
-                            transition: all 0.2s ease;
-                        " onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='#f8fafc'">
-                            Cancel
-                        </button>
-                        <button id="confirmClear" style="
-                            background: #ef4444;
-                            border: 1px solid #dc2626;
-                            border-radius: 6px;
-                            padding: 8px 16px;
-                            font-size: 14px;
-                            font-weight: 600;
-                            color: white;
-                            cursor: pointer;
-                            transition: all 0.2s ease;
-                        " onmouseover="this.style.background='#dc2626'" onmouseout="this.style.background='#ef4444'">
-                            Clear All Data
-                        </button>
-                    </div>
-                </div>
-            `;
-            
-            overlay.appendChild(modal);
-            document.body.appendChild(overlay);
-            
-            // Cleanup function
-            const cleanup = () => {
-                overlay.remove();
-                document.removeEventListener('keydown', handleEscape);
-            };
-            
-            // Handle escape key
-            const handleEscape = (e) => {
-                if (e.key === 'Escape') {
-                    cleanup();
-                    resolve(false);
-                }
-            };
-            document.addEventListener('keydown', handleEscape);
-            
-            // Handle button clicks
-            document.getElementById('cancelClear').onclick = () => {
-                cleanup();
-                resolve(false);
-            };
-            
-            document.getElementById('confirmClear').onclick = () => {
-                cleanup();
-                resolve(true);
-            };
-            
-            // Handle overlay click to close
-            overlay.onclick = (e) => {
-                if (e.target === overlay) {
-                    cleanup();
-                    resolve(false);
-                }
-            };
-        });
+    showFullAnalysis(competitorName, fullAnalysis) {
+        if (this.modal) {
+            this.modal.showFullAnalysis(competitorName, fullAnalysis);
+        }
     }
 
     /**
-     * Show success message
-     * @param {string} message - Success message
+     * Destroy and clean up
      */
-    showSuccessMessage(message) {
-        this.showToast(message, 'success');
+    destroy() {
+        this.pollingService.stop();
+        this.notificationService.stop();
+
+        if (this.modal && this.modal.isOpen()) {
+            this.modal.closeModal();
+        }
+
+        this.statsCards = null;
+        this.dataDisplay = null;
+        this.modal = null;
     }
-
-    /**
-     * Show error message
-     * @param {string} message - Error message
-     */
-    showErrorMessage(message) {
-        this.showToast(message, 'error');
-    }
-
-    /**
-     * Show toast notification
-     * @param {string} message - Message to show
-     * @param {string} type - Type of message (success, error)
-     */
-    showToast(message, type = 'success') {
-        const toast = document.createElement('div');
-        toast.style.cssText = `
-            position: fixed;
-            top: 80px;
-            right: 20px;
-            z-index: 100001;
-            background: ${type === 'success' ? '#10b981' : '#ef4444'};
-            color: white;
-            padding: 12px 20px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            transform: translateX(100%);
-            transition: transform 0.3s ease;
-            max-width: 300px;
-        `;
-        
-        toast.innerHTML = `
-            <div style="display: flex; align-items: center; gap: 8px;">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    ${type === 'success' 
-                        ? '<path d="m9,12 2,2 4,-4"></path><circle cx="12" cy="12" r="10"></circle>'
-                        : '<circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line>'
-                    }
-                </svg>
-                ${message}
-            </div>
-        `;
-        
-        document.body.appendChild(toast);
-        
-        // Animate in
-        setTimeout(() => {
-            toast.style.transform = 'translateX(0)';
-        }, 100);
-        
-        // Auto remove after 3 seconds
-        setTimeout(() => {
-            toast.style.transform = 'translateX(100%)';
-            setTimeout(() => {
-                if (toast.parentNode) {
-                    toast.parentNode.removeChild(toast);
-                }
-            }, 300);
-        }, 3000);
-    }
-
-    /**
-     * Destroy the dashboard and clean up resources
-     */
-   destroy() {
-           if (this.pollingInterval) {
-               clearInterval(this.pollingInterval);
-               this.pollingInterval = null;
-           }
-
-           // ✅ ADD THESE 4 LINES:
-           if (this.notificationInterval) {
-               clearInterval(this.notificationInterval);
-               this.notificationInterval = null;
-           }
-
-           if (this.modal && this.modal.isOpen()) {
-               this.modal.closeModal();
-           }
-
-           // Clear component references
-           this.statsCards = null;
-           this.dataDisplay = null;
-           this.modal = null;
-       }
 }
 
-// At top of file, outside DOMContentLoaded
+// Initialize dashboard
 let dashboardInstance = null;
 
 document.addEventListener('DOMContentLoaded', () => {
     try {
-        // Destroy old instance first
         if (dashboardInstance) {
             dashboardInstance.destroy();
         }
@@ -901,7 +368,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Clean up when page closes
 window.addEventListener('beforeunload', () => {
     if (dashboardInstance) {
         dashboardInstance.destroy();
