@@ -1,12 +1,12 @@
 /* Card Grid */
 .card-grid {
     display: grid;
-    grid-template-columns: repeat(2, minmax(280px, 450px));
+    grid-template-columns: repeat(2, minmax(168px, 270px));
     gap: 20px;
     align-items: start;
     justify-content: start;
     width: 100%;
-    max-width: 820px;
+    max-width: 492px;
     margin: 0;
     padding: 28px 15px;
 }
@@ -416,6 +416,7 @@
     display: flex;
     gap: 20px;
     align-items: flex-start;
+    max-width: 560px;  /* ADD THIS - constrains total width */
 }
 
 /* Item icons with simplified selectors */
