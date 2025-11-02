@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Loading Animation - STANDALONE TEST</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: white;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        .loader-container {
+            text-align: center;
+        }
+
+        .neural-network {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 30px;
+        }
+
+        .node {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .node:nth-child(1) {
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        .node:nth-child(2) {
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: pulse 1.5s ease-in-out 0.2s infinite;
+        }
+
+        .node:nth-child(3) {
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: pulse 1.5s ease-in-out 0.4s infinite;
+        }
+
+        .node:nth-child(4) {
+            top: 80%;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: pulse 1.5s ease-in-out 0.6s infinite;
+        }
+
+        .node:nth-child(5) {
+            top: 50%;
+            right: 0;
+            transform: translateY(-50%);
+            animation: pulse 1.5s ease-in-out 0.8s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1) translateY(-50%);
+                opacity: 0.6;
+            }
+            50% {
+                transform: scale(1.3) translateY(-50%);
+                opacity: 1;
+            }
+        }
+
+        .node:nth-child(2),
+        .node:nth-child(4) {
+            animation-name: pulseCenter;
+        }
+
+        @keyframes pulseCenter {
+            0%, 100% {
+                transform: scale(1) translateX(-50%);
+                opacity: 0.6;
+            }
+            50% {
+                transform: scale(1.3) translateX(-50%);
+                opacity: 1;
+            }
+        }
+
+        .node:nth-child(3) {
+            animation-name: pulseCenterBoth;
+        }
+
+        @keyframes pulseCenterBoth {
+            0%, 100% {
+                transform: scale(1) translate(-50%, -50%);
+                opacity: 0.6;
+            }
+            50% {
+                transform: scale(1.3) translate(-50%, -50%);
+                opacity: 1;
+            }
+        }
+
+        .loading-text {
+            color: #333;
+            font-size: 18px;
+            font-weight: 500;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
+        }
+
+        .dots {
+            color: #333;
+            font-size: 18px;
+            letter-spacing: 3px;
+            display: inline-block;
+            min-width: 40px;
+            text-align: left;
+        }
+
+        .dots::after {
+            content: '';
+            animation: dots 3s steps(4, end) infinite;
+        }
+
+        @keyframes dots {
+            0%, 25% { content: ''; }
+            50% { content: '.'; }
+            75% { content: '..'; }
+            100% { content: '...'; }
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 14px;
+            margin-top: 10px;
+            font-weight: 300;
+        }
+    </style>
+</head>
+<body>
+    <div class="loader-container">
+        <div class="neural-network">
+            <div class="node"></div>
+            <div class="node"></div>
+            <div class="node"></div>
+            <div class="node"></div>
+            <div class="node"></div>
+        </div>
+        <div class="dots"></div>
+        <div class="subtitle">Analyzing data</div>
+    </div>
+</body>
+</html>
+

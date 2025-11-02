@@ -25,15 +25,38 @@ class UIManager {
      * Create loading overlay element
      */
     createLoadingOverlay() {
-        // Check if one already exists in the DOM (manually added)
+        // Check if one already exists in the DOM (from HTML)
         let existingOverlay = document.getElementById('loadingOverlay');
         
         if (existingOverlay) {
-            // Remove any manually added empty overlay
-            existingOverlay.remove();
-            console.log('Removed existing empty loading overlay');
+            // Use the existing overlay from HTML
+            this.loadingOverlay = existingOverlay;
+            console.log('✅ Using existing loading overlay from HTML');
+            
+            // Make sure it has content
+            if (!existingOverlay.querySelector('.loader-container')) {
+                existingOverlay.innerHTML = `
+                    <div class="loader-container">
+                        <div class="neural-network">
+                            <div class="node"></div>
+                            <div class="node"></div>
+                            <div class="node"></div>
+                            <div class="node"></div>
+                            <div class="node"></div>
+                        </div>
+                        <div class="dots"></div>
+                        <div class="subtitle">Analyzing data</div>
+                    </div>
+                `;
+                console.log('✅ Populated empty loading overlay with content');
+            }
+            
+            // Remove the active class so it starts hidden
+            this.loadingOverlay.classList.remove('active');
+            return;
         }
 
+        // Create new overlay if none exists
         if (this.loadingOverlay) return;
 
         this.loadingOverlay = document.createElement('div');
@@ -53,7 +76,7 @@ class UIManager {
             </div>
         `;
         document.body.appendChild(this.loadingOverlay);
-        console.log('✅ Loading overlay created successfully');
+        console.log('✅ Loading overlay created dynamically');
     }
 
     /**
