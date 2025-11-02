@@ -23,15 +23,8 @@ class StateManager {
      */
     setFetching(value) {
         this.isFetching = value;
-        
-        // Update loading UI
-        if (this.uiManager) {
-            if (value) {
-                this.uiManager.showLoading();
-            } else {
-                this.uiManager.hideLoading();
-            }
-        }
+        // Note: Loading animation is now controlled manually via showWorkflowLoading()
+        // NOT automatically during polling
     }
 
     /**
@@ -67,6 +60,26 @@ class StateManager {
      */
     incrementDataCount() {
         this.dataCount++;
+    }
+
+    /**
+     * Show loading for workflow (manual trigger)
+     */
+    showWorkflowLoading() {
+        if (this.uiManager) {
+            this.uiManager.showLoading();
+            console.log('🔄 Workflow loading shown');
+        }
+    }
+
+    /**
+     * Hide workflow loading
+     */
+    hideWorkflowLoading() {
+        if (this.uiManager) {
+            this.uiManager.hideLoading();
+            console.log('✅ Workflow loading hidden');
+        }
     }
 
     /**

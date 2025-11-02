@@ -164,6 +164,10 @@ class DataDashboard {
         if (formContainer) {
             formContainer.style.display = 'none';
         }
+        
+        // Show loading animation when workflow is triggered
+        this.stateManager.showWorkflowLoading();
+        
         this.uiManager.showToast('Analysis started! Results will appear shortly.', 'success');
     }
 
@@ -253,6 +257,9 @@ class DataDashboard {
     addDataItem(incoming) {
         const dataType = incoming.dataType || 'unknown';
         console.log(`Adding ${dataType} data item:`, incoming);
+
+        // Hide loading animation when first data arrives
+        this.stateManager.hideWorkflowLoading();
 
         if (this.dataDisplay) {
             const stats = this.dataDisplay.addDataItem(incoming);
