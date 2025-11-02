@@ -1,56 +1,38 @@
 /**
- * DataService
- * Handles all API calls related to data
+ * DataService - Handles data fetching and clearing
  */
 class DataService {
-    constructor() {
-        this.baseUrl = '/api/data';
-    }
-
     /**
      * Fetch data from API
-     * @returns {Promise<Object>} API response
      */
     async fetchData() {
-        try {
-            const response = await fetch(this.baseUrl, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+        const response = await fetch('/api/data', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
             }
+        });
 
-            return await response.json();
-        } catch (error) {
-            console.error('Error fetching data:', error);
-            throw error;
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
+
+        return await response.json();
     }
 
     /**
-     * Clear all data on server
-     * @returns {Promise<boolean>} Success status
+     * Clear data on server
      */
     async clearData() {
-        try {
-            const response = await fetch(this.baseUrl, {
-                method: 'DELETE'
-            });
+        const response = await fetch('/api/data', {
+            method: 'DELETE'
+        });
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            console.log('Data cleared from server');
-            return true;
-        } catch (error) {
-            console.error('Error clearing data:', error);
-            throw error;
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
+
+        return response.ok;
     }
 }
 

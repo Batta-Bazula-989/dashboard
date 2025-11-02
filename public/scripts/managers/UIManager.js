@@ -1,24 +1,7 @@
 /**
- * UIManager
- * Handles all UI operations (toasts, modals, badges, etc.)
+ * UIManager - Handles all UI operations
  */
 class UIManager {
-    constructor() {
-        // UI element references
-        this.headerActions = null;
-        this.competitorBadgeCount = null;
-        this.adsBadgeCount = null;
-    }
-
-    /**
-     * Initialize UI element references
-     */
-    init() {
-        this.headerActions = document.querySelector('.header-actions');
-        this.competitorBadgeCount = document.getElementById('competitorBadgeCount');
-        this.adsBadgeCount = document.getElementById('adsBadgeCount');
-    }
-
     /**
      * Show notification toast
      */
@@ -144,53 +127,40 @@ class UIManager {
     }
 
     /**
-     * Show simple toast notification
+     * Update clear button visibility
      */
-    showToast(message, type = 'success') {
-        const toast = document.createElement('div');
-        toast.style.cssText = `
-            position: fixed;
-            top: 80px;
-            right: 20px;
-            z-index: 100001;
-            background: ${type === 'success' ? '#10b981' : '#ef4444'};
-            color: white;
-            padding: 12px 20px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            transform: translateX(100%);
-            transition: transform 0.3s ease;
-            max-width: 300px;
-        `;
+    updateClearButtonVisibility(dataDisplay) {
+        const headerActions = document.querySelector('.header-actions');
+        if (!headerActions) return;
 
-        toast.innerHTML = `
-            <div style="display: flex; align-items: center; gap: 8px;">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    ${type === 'success'
-                        ? '<path d="m9,12 2,2 4,-4"></path><circle cx="12" cy="12" r="10"></circle>'
-                        : '<circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line>'
-                    }
-                </svg>
-                ${message}
-            </div>
-        `;
+        const hasData = dataDisplay && dataDisplay.dataDisplay.querySelectorAll('.card').length > 0;
 
-        document.body.appendChild(toast);
+        if (hasData) {
+            headerActions.style.display = 'flex';
+            this.updateCounterBadges(dataDisplay);
+        } else {
+            headerActions.style.display = 'none';
+        }
+    }
 
-        setTimeout(() => {
-            toast.style.transform = 'translateX(0)';
-        }, 100);
+    /**
+     * Update counter badges
+     */
+    updateCounterBadges(dataDisplay) {
+        if (!dataDisplay) return;
 
-        setTimeout(() => {
-            toast.style.transform = 'translateX(100%)';
-            setTimeout(() => {
-                if (toast.parentNode) {
-                    toast.parentNode.removeChild(toast);
-                }
-            }, 300);
-        }, 3000);
+        const stats = dataDisplay.getStats();
+
+        const competitorBadgeCount = document.getElementById('competitorBadgeCount');
+        const adsBadgeCount = document.getElementById('adsBadgeCount');
+
+        if (competitorBadgeCount) {
+            competitorBadgeCount.textContent = stats.competitorCards || 0;
+        }
+
+        if (adsBadgeCount) {
+            adsBadgeCount.textContent = stats.adsCount || 0;
+        }
     }
 
     /**
@@ -279,59 +249,53 @@ class UIManager {
     }
 
     /**
-     * Update clear button visibility
+     * Show toast notification
      */
-    updateClearButtonVisibility(hasData) {
-        if (!this.headerActions) return;
+    showToast(message, type = 'success') {
+        const toast = document.createElement('div');
+        toast.style.cssText = `
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 100001;
+            background: ${type === 'success' ? '#10b981' : '#ef4444'};
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            max-width: 300px;
+        `;
 
-        if (hasData) {
-            this.headerActions.style.display = 'flex';
-        } else {
-            this.headerActions.style.display = 'none';
-        }
-    }
-
-    /**
-     * Update counter badges
-     */
-    updateCounterBadges(competitorCount, adsCount) {
-        if (this.competitorBadgeCount) {
-            this.competitorBadgeCount.textContent = competitorCount || 0;
-        }
-
-        if (this.adsBadgeCount) {
-            this.adsBadgeCount.textContent = adsCount || 0;
-        }
-    }
-
-    /**
-     * Set clear button state
-     */
-    setClearButtonState(isClearing) {
-        const clearBtn = document.getElementById('clearDataBtn');
-        if (!clearBtn) return;
-
-        if (isClearing) {
-            clearBtn.disabled = true;
-            clearBtn.innerHTML = `
+        toast.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 8px;">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <path d="m9,12 2,2 4,-4"></path>
+                    ${type === 'success'
+                        ? '<path d="m9,12 2,2 4,-4"></path><circle cx="12" cy="12" r="10"></circle>'
+                        : '<circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line>'
+                    }
                 </svg>
-                Clearing...
-            `;
-        } else {
-            clearBtn.disabled = false;
-            clearBtn.innerHTML = `
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="3,6 5,6 21,6"></polyline>
-                    <path d="m19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"></path>
-                    <line x1="10" y1="11" x2="10" y2="17"></line>
-                    <line x1="14" y1="11" x2="14" y2="17"></line>
-                </svg>
-                Clear All
-            `;
-        }
+                ${message}
+            </div>
+        `;
+
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+            toast.style.transform = 'translateX(0)';
+        }, 100);
+
+        setTimeout(() => {
+            toast.style.transform = 'translateX(100%)';
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.parentNode.removeChild(toast);
+                }
+            }, 300);
+        }, 3000);
     }
 }
 
