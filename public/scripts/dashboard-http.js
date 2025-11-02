@@ -1,50 +1,56 @@
 class DataDashboard {
     constructor() {
-        this.pollingInterval = null;
-        this.pollingRate = 5000;
-        this.dataCount = 0;
-        this.maxItems = 50;
-        this.lastDataCount = 0;
-        this.isFirstFetch = true;
-        this.isFetching = false;
+        // Services
+        this.dataService = new DataService();
+        this.pollingService = new PollingService(() => this.fetchData());
+        this.notificationService = new NotificationService((notification) => {
+            this.uiManager.showNotification(notification);
+        });
 
-        this.notificationInterval = null;
-        this.lastNotificationId = -1;
+        // Managers
+        this.stateManager = new StateManager();
+        this.uiManager = new UIManager();
 
         // Component instances
         this.statsCards = null;
         this.dataDisplay = null;
         this.modal = null;
+        this.formBuilder = null;
 
         // Component loader
         this.componentLoader = new ComponentLoader();
 
-        // Initialize services
-        this.dataService = new DataService();
-        this.notificationService = new NotificationService();
-        this.uiManager = new UIManager();
-
         this.init();
     }
 
+    /**
+     * Initialize the dashboard
+     */
     async init() {
         try {
             await this.loadComponents();
             this.initializeComponents();
-            this.startPolling();
+            this.uiManager.init();
+            this.pollingService.start();
+            this.notificationService.start();
             this.initializeClearButton();
-            this.startNotificationPolling();
         } catch (error) {
             console.error('Failed to initialize dashboard:', error);
         }
     }
 
+    /**
+     * Load all required components
+     */
     async loadComponents() {
         this.componentLoader.register('StatsCards', window.StatsCards);
         this.componentLoader.register('DataDisplay', window.DataDisplay);
         this.componentLoader.register('Modal', window.Modal);
     }
 
+    /**
+     * Initialize all components
+     */
     initializeComponents() {
         const container = document.querySelector('.container');
 
@@ -60,6 +66,21 @@ class DataDashboard {
         this.formBuilder = new FormBuilder();
         this.initializeForm(formSection);
 
+        // Create header actions (counter badges + clear button)
+        const headerActions = this.createHeaderActions();
+        container.appendChild(headerActions);
+
+        this.dataDisplay = this.componentLoader.initComponent('DataDisplay', mainContent,
+            (competitorName, fullAnalysis) => this.showFullAnalysis(competitorName, fullAnalysis)
+        );
+
+        this.modal = this.componentLoader.createComponent('Modal');
+    }
+
+    /**
+     * Create header actions (counter badges + clear button)
+     */
+    createHeaderActions() {
         const headerActions = document.createElement('div');
         headerActions.className = 'header-actions';
         headerActions.style.display = 'none';
@@ -115,15 +136,13 @@ class DataDashboard {
 
         headerActions.appendChild(counterWrapper);
         headerActions.appendChild(clearButton);
-        container.appendChild(headerActions);
 
-        this.dataDisplay = this.componentLoader.initComponent('DataDisplay', mainContent,
-            (competitorName, fullAnalysis) => this.showFullAnalysis(competitorName, fullAnalysis)
-        );
-
-        this.modal = this.componentLoader.createComponent('Modal');
+        return headerActions;
     }
 
+    /**
+     * Initialize the form
+     */
     initializeForm(formSection) {
         formSection.innerHTML = this.formBuilder.build();
 
@@ -134,116 +153,101 @@ class DataDashboard {
         );
     }
 
+    /**
+     * Handle successful form submission
+     */
     handleFormSuccess(data) {
         console.log('Form submitted successfully:', data);
         const formContainer = document.getElementById('formContainer');
         if (formContainer) {
             formContainer.style.display = 'none';
         }
-
-        this.showSuccessMessage('Analysis started! Results will appear shortly.');
+        this.uiManager.showToast('Analysis started! Results will appear shortly.', 'success');
     }
 
+    /**
+     * Handle form submission error
+     */
     handleFormError(error) {
         console.error('Form submission error:', error);
-        this.showErrorMessage('Failed to start analysis. Please try again.');
+        this.uiManager.showToast('Failed to start analysis. Please try again.', 'error');
     }
 
-    startPolling() {
-        this.fetchData();
-
-        this.pollingInterval = setInterval(() => {
-            this.fetchData();
-        }, this.pollingRate);
-
-        console.log(`Started polling at ${this.pollingRate}ms interval`);
-    }
-
+    /**
+     * Fetch data from API
+     */
     async fetchData() {
-        if (this.isFetching) return;
-        this.isFetching = true;
+        if (this.stateManager.isFetchingData()) return;
+        this.stateManager.setFetching(true);
 
         try {
             const result = await this.dataService.fetchData();
 
             if (result.success) {
                 const dataArray = result.data || [];
+                const counts = this.stateManager.getCounts();
 
                 console.log(`API returned ${dataArray.length} items`);
-                console.log(`Last data count: ${this.lastDataCount}`);
-                console.log(`Is first fetch: ${this.isFirstFetch}`);
-                console.log(`Full API response:`, result);
+                console.log(`Last data count: ${counts.lastDataCount}`);
+                console.log(`Is first fetch: ${this.stateManager.isFirstDataFetch()}`);
 
-                if (this.isFirstFetch) {
+                if (this.stateManager.isFirstDataFetch()) {
                     console.log(`First fetch - processing all ${dataArray.length} items`);
 
                     if (dataArray.length > 0 && this.dataDisplay) {
                         this.dataDisplay.clear();
                     }
 
-                    dataArray.forEach((item, index) => {
+                    dataArray.forEach((item) => {
                         this.addDataItem(item);
                     });
 
-                    this.lastDataCount = dataArray.length;
-                    this.isFirstFetch = false;
-
-                    this.updateClearButtonVisibility();
+                    this.stateManager.updateCounts(dataArray.length);
+                    this.stateManager.completeFirstFetch();
+                    this.updateUI();
 
                     console.log(`=== FIRST FETCH COMPLETE ===`);
-                    console.log(`Processed all ${dataArray.length} items`);
                 }
-                else if (dataArray.length > this.lastDataCount) {
-                    const newItems = dataArray.slice(this.lastDataCount);
-                    console.log(`Found ${newItems.length} new items, processing only new items`);
+                else if (dataArray.length > counts.lastDataCount) {
+                    const newItems = dataArray.slice(counts.lastDataCount);
+                    console.log(`Found ${newItems.length} new items`);
 
-                    if (this.lastDataCount === 0 && this.dataDisplay) {
-                        console.log('🚨 FIXING EMPTY STATE: Clearing because lastDataCount is 0');
+                    if (counts.lastDataCount === 0 && this.dataDisplay) {
                         this.dataDisplay.clear();
                     }
 
-                    newItems.forEach((item, index) => {
+                    newItems.forEach((item) => {
                         this.addDataItem(item);
                     });
 
-                    this.lastDataCount = dataArray.length;
-
-                    this.updateClearButtonVisibility();
-
-                    console.log(`=== NEW ITEMS PROCESSING COMPLETE ===`);
-                    console.log(`Processed ${newItems.length} new items, total items: ${dataArray.length}`);
+                    this.stateManager.updateCounts(dataArray.length);
+                    this.updateUI();
                 }
-                else if (dataArray.length < this.lastDataCount) {
-                    console.log(`Data count decreased from ${this.lastDataCount} to ${dataArray.length}, reprocessing all data`);
+                else if (dataArray.length < counts.lastDataCount) {
+                    console.log(`Data count decreased, reprocessing`);
 
                     if (this.dataDisplay) {
                         this.dataDisplay.clear();
                     }
 
-                    dataArray.forEach((item, index) => {
+                    dataArray.forEach((item) => {
                         this.addDataItem(item);
                     });
 
-                    this.lastDataCount = dataArray.length;
-
-                    this.updateClearButtonVisibility();
-
-                    console.log(`=== REPROCESSING COMPLETE ===`);
-                    console.log(`Reprocessed all ${dataArray.length} items`);
+                    this.stateManager.updateCounts(dataArray.length);
+                    this.updateUI();
                 }
-                else {
-                    console.log(`Data count unchanged (${dataArray.length}), no processing needed`);
-                }
-            } else {
-                console.log(`API response not successful or no data:`, result);
             }
         } catch (error) {
             console.error('Error fetching data:', error);
         } finally {
-            this.isFetching = false;
+            this.stateManager.setFetching(false);
         }
     }
 
+    /**
+     * Add data item to display
+     */
     addDataItem(incoming) {
         const dataType = incoming.dataType || 'unknown';
         console.log(`Adding ${dataType} data item:`, incoming);
@@ -252,7 +256,7 @@ class DataDashboard {
             const stats = this.dataDisplay.addDataItem(incoming);
             console.log(`Analysis stats:`, stats);
 
-            this.dataCount++;
+            this.stateManager.incrementDataCount();
 
             if (this.statsCards && stats) {
                 this.statsCards.updateStats(stats.competitorCards, stats.adsCount);
@@ -260,175 +264,85 @@ class DataDashboard {
         }
     }
 
-    async clearAndReprocess() {
-        if (this.dataDisplay) {
-            this.dataDisplay.clear();
-        }
-        this.lastDataCount = 0;
-        await this.fetchData();
-    }
+    /**
+     * Update UI (badges, visibility)
+     */
+    updateUI() {
+        const hasData = this.dataDisplay && this.dataDisplay.dataDisplay.querySelectorAll('.card').length > 0;
 
-    showFullAnalysis(competitorName, fullAnalysis) {
-        if (this.modal) {
-            this.modal.showFullAnalysis(competitorName, fullAnalysis);
-        }
-    }
+        this.uiManager.updateClearButtonVisibility(hasData);
 
-    getComponent(componentName) {
-        switch (componentName) {
-            case 'statsCards':
-                return this.statsCards;
-            case 'dataDisplay':
-                return this.dataDisplay;
-            case 'modal':
-                return this.modal;
-            default:
-                return null;
+        if (hasData && this.dataDisplay) {
+            const stats = this.dataDisplay.getStats();
+            this.uiManager.updateCounterBadges(stats.competitorCards, stats.adsCount);
         }
     }
 
+    /**
+     * Initialize clear data button
+     */
     initializeClearButton() {
         const clearBtn = document.getElementById('clearDataBtn');
         if (clearBtn) {
             clearBtn.addEventListener('click', () => {
                 this.clearAllData();
             });
-
-            console.log('✅ Clear data button initialized and found!');
-            console.log('Button element:', clearBtn);
-            console.log('Button position:', clearBtn.getBoundingClientRect());
-        } else {
-            console.error('❌ Clear data button not found!');
-            console.log('Available elements with IDs:', Array.from(document.querySelectorAll('[id]')).map(el => el.id));
+            console.log('✅ Clear data button initialized');
         }
     }
 
+    /**
+     * Clear all data
+     */
     async clearAllData() {
         const hasData = this.dataDisplay && this.dataDisplay.dataDisplay.querySelectorAll('.card').length > 0;
 
-        if (!hasData) {
-            return;
-        }
+        if (!hasData) return;
 
         const confirmed = await this.uiManager.showClearConfirmation();
-        if (!confirmed) {
-            return;
-        }
+        if (!confirmed) return;
 
         try {
-            const clearBtn = document.getElementById('clearDataBtn');
-            if (clearBtn) {
-                clearBtn.disabled = true;
-                clearBtn.innerHTML = `
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <path d="m9,12 2,2 4,-4"></path>
-                    </svg>
-                    Clearing...
-                `;
-            }
+            this.uiManager.setClearButtonState(true);
 
             await this.dataService.clearData();
-
-            console.log('Data cleared from server');
 
             if (this.dataDisplay) {
                 this.dataDisplay.clear(true);
             }
 
-            this.dataCount = 0;
-            this.lastDataCount = 0;
-            this.isFirstFetch = true;
+            this.stateManager.reset();
 
             if (this.statsCards) {
                 this.statsCards.updateStats(0, 0);
             }
 
-            this.updateClearButtonVisibility();
+            this.updateUI();
 
-            console.log('All data cleared successfully');
-
-            this.showSuccessMessage('All data cleared successfully');
+            this.uiManager.showToast('All data cleared successfully', 'success');
         } catch (error) {
             console.error('Error clearing data:', error);
-            this.showErrorMessage('Error clearing data');
+            this.uiManager.showToast('Failed to clear data from server', 'error');
         } finally {
-            const clearBtn = document.getElementById('clearDataBtn');
-            if (clearBtn) {
-                clearBtn.disabled = false;
-                clearBtn.innerHTML = `
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="3,6 5,6 21,6"></polyline>
-                        <path d="m19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"></path>
-                        <line x1="10" y1="11" x2="10" y2="17"></line>
-                        <line x1="14" y1="11" x2="14" y2="17"></line>
-                    </svg>
-                    Clear All
-                `;
-            }
+            this.uiManager.setClearButtonState(false);
         }
     }
 
-    startNotificationPolling() {
-        this.fetchNotifications();
-
-        this.notificationInterval = setInterval(() => {
-            this.fetchNotifications();
-        }, 2000);
-
-        console.log('Started notification polling');
-    }
-
-    async fetchNotifications() {
-        try {
-            const result = await this.notificationService.fetchNotifications(this.lastNotificationId);
-
-            if (result.success && result.notifications && result.notifications.length > 0) {
-                console.log(`Received ${result.notifications.length} new notifications`);
-
-                result.notifications.forEach(notification => {
-                    this.showNotification(notification);
-                });
-
-                if (result.latestId !== undefined) {
-                    this.lastNotificationId = result.latestId;
-                }
-            }
-        } catch (error) {
-            console.error('Error fetching notifications:', error);
+    /**
+     * Show full analysis modal
+     */
+    showFullAnalysis(competitorName, fullAnalysis) {
+        if (this.modal) {
+            this.modal.showFullAnalysis(competitorName, fullAnalysis);
         }
     }
 
-    showNotification(notification) {
-        this.uiManager.showNotification(notification);
-    }
-
-    updateClearButtonVisibility() {
-        this.uiManager.updateClearButtonVisibility(this.dataDisplay);
-    }
-
-    updateCounterBadges() {
-        this.uiManager.updateCounterBadges(this.dataDisplay);
-    }
-
-    showSuccessMessage(message) {
-        this.uiManager.showToast(message, 'success');
-    }
-
-    showErrorMessage(message) {
-        this.uiManager.showToast(message, 'error');
-    }
-
+    /**
+     * Destroy and clean up
+     */
     destroy() {
-        if (this.pollingInterval) {
-            clearInterval(this.pollingInterval);
-            this.pollingInterval = null;
-        }
-
-        if (this.notificationInterval) {
-            clearInterval(this.notificationInterval);
-            this.notificationInterval = null;
-        }
+        this.pollingService.stop();
+        this.notificationService.stop();
 
         if (this.modal && this.modal.isOpen()) {
             this.modal.closeModal();
@@ -440,6 +354,7 @@ class DataDashboard {
     }
 }
 
+// Initialize dashboard
 let dashboardInstance = null;
 
 document.addEventListener('DOMContentLoaded', () => {
