@@ -25,13 +25,20 @@ class UIManager {
      * Create loading overlay element
      */
     createLoadingOverlay() {
-        // Check if one already exists in the DOM (from HTML)
-        let existingOverlay = document.getElementById('loadingOverlay');
+        // Find the main-content container
+        const mainContent = document.querySelector('.main-content');
+        if (!mainContent) {
+            console.error('❌ .main-content container not found!');
+            return;
+        }
+
+        // Check if loading overlay already exists in main-content
+        let existingOverlay = mainContent.querySelector('#loadingOverlay');
         
         if (existingOverlay) {
-            // Use the existing overlay from HTML
+            // Use the existing overlay
             this.loadingOverlay = existingOverlay;
-            console.log('✅ Using existing loading overlay from HTML');
+            console.log('✅ Using existing loading overlay from main-content');
             
             // Make sure it has content
             if (!existingOverlay.querySelector('.loader-container')) {
@@ -75,8 +82,8 @@ class UIManager {
                 <div class="subtitle">Analyzing data</div>
             </div>
         `;
-        document.body.appendChild(this.loadingOverlay);
-        console.log('✅ Loading overlay created dynamically');
+        mainContent.appendChild(this.loadingOverlay);
+        console.log('✅ Loading overlay created and appended to main-content');
     }
 
     /**

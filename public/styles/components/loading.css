@@ -1,6 +1,6 @@
-/* Loading overlay */
+/* Loading overlay - confined to main-content container */
 .loading-overlay {
-    position: fixed;
+    position: absolute;
     top: 0;
     left: 0;
     width: 100%;
@@ -9,10 +9,11 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 100002;
+    z-index: 10;
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.3s ease, visibility 0.3s ease;
+    border-radius: 12px;
 }
 
 .loading-overlay.active {
