@@ -9,6 +9,7 @@ class NotificationService {
         this.pollingRate = 2000; // Poll every 2 seconds
         this.lastNotificationId = -1;
         this.onNotificationReceived = onNotificationReceived;
+        this.isInitialFetch = true; // Track initial fetch to avoid triggering on old notifications
     }
 
     /**
@@ -53,17 +54,31 @@ class NotificationService {
             const result = await response.json();
 
             if (result.success && result.notifications && result.notifications.length > 0) {
-                console.log(`Received ${result.notifications.length} new notifications`);
-
-                result.notifications.forEach(notification => {
-                    if (this.onNotificationReceived) {
-                        this.onNotificationReceived(notification);
+                // On initial fetch, just record the latest ID without triggering callbacks
+                if (this.isInitialFetch) {
+                    console.log(`Initial fetch: Found ${result.notifications.length} existing notifications (skipping callbacks)`);
+                    if (result.latestId !== undefined) {
+                        this.lastNotificationId = result.latestId;
                     }
-                });
+                    this.isInitialFetch = false;
+                } else {
+                    // Only trigger callbacks for truly new notifications after initial fetch
+                    console.log(`Received ${result.notifications.length} new notifications`);
 
-                if (result.latestId !== undefined) {
-                    this.lastNotificationId = result.latestId;
+                    result.notifications.forEach(notification => {
+                        if (this.onNotificationReceived) {
+                            this.onNotificationReceived(notification);
+                        }
+                    });
+
+                    if (result.latestId !== undefined) {
+                        this.lastNotificationId = result.latestId;
+                    }
                 }
+            } else if (this.isInitialFetch) {
+                // No notifications on initial fetch - still mark as initialized
+                console.log('Initial fetch: No existing notifications');
+                this.isInitialFetch = false;
             }
         } catch (error) {
             console.error('Error fetching notifications:', error);
@@ -75,6 +90,7 @@ class NotificationService {
      */
     reset() {
         this.lastNotificationId = -1;
+        this.isInitialFetch = true;
     }
 }
 
