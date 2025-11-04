@@ -6,7 +6,7 @@
     align-items: flex-start;
     justify-content: flex-start;
     width: 100%;
-    max-width: 520px;
+    max-width: none;
     margin: 0;
     padding: 28px 15px;
 }
@@ -21,9 +21,9 @@
     padding: 10px 15px 0 15px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.04);
     position: relative;
-    width: 280px;
-    min-width: 280px;
-    max-width: 280px;
+    width: 320px;
+    min-width: 320px;
+    max-width: 320px;
     transition: all 0.2s ease;
 }
 
@@ -411,8 +411,8 @@
     display: flex;
     flex-direction: column;
     gap: 20px;
-    width: 280px;
-    min-width: 280px;
+    width: 320px;
+    min-width: 320px;
     flex-shrink: 0;
 }
 
