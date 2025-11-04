@@ -1,12 +1,12 @@
 /* Card Grid */
 .card-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(168px, 270px));
+    display: flex;
+    flex-wrap: wrap;
     gap: 20px;
-    align-items: start;
-    justify-content: start;
+    align-items: flex-start;
+    justify-content: flex-start;
     width: 100%;
-    max-width: 492px;
+    max-width: 520px;
     margin: 0;
     padding: 28px 15px;
 }
@@ -410,13 +410,8 @@
     display: flex;
     flex-direction: column;
     gap: 20px;
-}
-
-.card-grid {
-    display: flex;
-    gap: 20px;
-    align-items: flex-start;
-    max-width: 504px;  /* ADD THIS - constrains total width */
+    width: 240px;  /* Fixed width so all cards are the same size */
+    flex-shrink: 0; /* Prevent shrinking */
 }
 
 /* Item icons with simplified selectors */
