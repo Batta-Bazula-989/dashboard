@@ -13,10 +13,8 @@ app.use(express.static('public'));
 // In-memory data storage (persists within Railway instance)
 let recentData = [];
 let notifications = []; // ✅ ADD: Store notifications
-let errors = []; // Error storage
 const maxDataSize = 100;
 const maxNotifications = 50; // ✅ ADD: Limit notifications
-const maxErrors = 100; // Limit stored errors
 
 // API Routes
 app.get('/api/data', (req, res) => {
@@ -176,71 +174,6 @@ app.delete('/api/notifications', (req, res) => {
   }
 });
 
-// Error endpoints
-app.post('/api/error', (req, res) => {
-  try {
-    const { message, details } = req.body;
-
-    const errorEntry = {
-      id: errors.length,
-      type: 'error',
-      message: message || 'An error occurred',
-      details: details || {},
-      timestamp: new Date().toISOString()
-    };
-
-    errors.push(errorEntry);
-
-    // Keep only last N errors
-    if (errors.length > maxErrors) {
-      errors.shift();
-    }
-
-    console.log(`ERROR: ${message}`);
-
-    res.json({
-      success: true,
-      error: errorEntry
-    });
-  } catch (error) {
-    console.error('POST /api/error:', error);
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
-  }
-});
-
-app.get('/api/errors', (req, res) => {
-  try {
-    const { since } = req.query;
-
-    let filteredErrors = errors;
-
-    // Filter by ID (for polling - only return errors newer than since)
-    if (since) {
-      const sinceId = parseInt(since);
-      filteredErrors = errors.filter(e => e.id > sinceId);
-    }
-
-    console.log(`GET /api/errors - returning ${filteredErrors.length} errors`);
-
-    res.json({
-      success: true,
-      errors: filteredErrors,
-      count: filteredErrors.length,
-      latestId: errors.length > 0 ? errors[errors.length - 1].id : -1
-    });
-  } catch (error) {
-    console.error('GET /api/errors error:', error);
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
-  }
-});
-
-
 // Main route
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
@@ -253,7 +186,6 @@ app.get('/health', (req, res) => {
     timestamp: new Date().toISOString(),
     dataCount: recentData.length,
     notificationCount: notifications.length,
-    errorCount: errors.length,
     environment: process.env.NODE_ENV || 'development'
   });
 });

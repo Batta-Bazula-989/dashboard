@@ -8,13 +8,6 @@ class DataDashboard {
             // Show loading animation when notification arrives
             this.stateManager.showWorkflowLoading();
         });
-        this.errorService = new ErrorService((error) => {
-            // Display error in UI using the same notification system
-            this.uiManager.showNotification({
-                type: 'error',
-                message: error.message
-            });
-        });
 
         // Managers
         this.stateManager = new StateManager();
@@ -44,7 +37,6 @@ class DataDashboard {
             this.stateManager.setUIManager(this.uiManager);
             this.pollingService.start();
             this.notificationService.start();
-            this.errorService.start();
             this.initializeClearButton();
         } catch (error) {
             console.error('Failed to initialize dashboard:', error);
@@ -359,7 +351,6 @@ class DataDashboard {
     destroy() {
         this.pollingService.stop();
         this.notificationService.stop();
-        this.errorService.stop();
 
         if (this.modal && this.modal.isOpen()) {
             this.modal.closeModal();
