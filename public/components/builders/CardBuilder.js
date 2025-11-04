@@ -188,15 +188,28 @@ buildPlatformBadges(platforms) {
     }
 
     buildVideoThumbnail(video) {
-        const img = document.createElement('img');
-        img.className = 'video-thumb';
-        img.src = video.video_preview_image_url;
-        img.alt = 'Video preview';
-        img.onclick = () => {
-            const url = video.video_sd_url || video.video_preview_image_url;
-            window.open(url, '_blank');
-        };
-        return img;
+        const videoElement = document.createElement('video');
+        videoElement.className = 'video-thumb';
+        videoElement.controls = true;
+        videoElement.preload = 'metadata';
+        
+        // Set poster image (thumbnail)
+        if (video.video_preview_image_url) {
+            videoElement.poster = video.video_preview_image_url;
+        }
+        
+        // Add video source
+        const source = document.createElement('source');
+        source.src = video.video_sd_url || video.video_hd_url || video.video_preview_image_url;
+        source.type = 'video/mp4';
+        
+        videoElement.appendChild(source);
+        
+        // Fallback text
+        const fallback = document.createTextNode('Your browser doesn\'t support video playback.');
+        videoElement.appendChild(fallback);
+        
+        return videoElement;
     }
 }
 
