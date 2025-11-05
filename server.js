@@ -12,9 +12,9 @@ app.use(express.static('public'));
 
 // In-memory data storage (persists within Railway instance)
 let recentData = [];
-let notifications = []; // ✅ ADD: Store notifications
+let notifications = [];
 const maxDataSize = 100;
-const maxNotifications = 50; // ✅ ADD: Limit notifications
+const maxNotifications = 50;
 
 // API Routes
 app.get('/api/data', (req, res) => {
@@ -90,7 +90,7 @@ app.delete('/api/data', (req, res) => {
   }
 });
 
-// ✅ ADD: Notification endpoints
+// Notification endpoints
 app.post('/api/notification', (req, res) => {
   try {
     const { type, message, competitor_name, metadata } = req.body;
@@ -174,6 +174,40 @@ app.delete('/api/notifications', (req, res) => {
   }
 });
 
+// ✅ NEW: Dedicated error endpoint
+app.get('/api/errors', (req, res) => {
+  try {
+    const { since } = req.query;
+
+    // Filter only error notifications
+    let errorNotifications = notifications.filter(n =>
+      n.type.includes('error') ||
+      n.type === 'ai_credits' ||
+      n.type === 'rate_limit' ||
+      n.type === 'timeout'
+    );
+
+    // Optionally filter by ID (for polling)
+    if (since) {
+      const sinceId = parseInt(since);
+      errorNotifications = errorNotifications.filter(n => n.id > sinceId);
+    }
+
+    res.json({
+      success: true,
+      errors: errorNotifications,
+      count: errorNotifications.length,
+      latestId: notifications.length > 0 ? notifications[notifications.length - 1].id : -1
+    });
+  } catch (error) {
+    console.error('GET /api/errors error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
 // Main route
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
@@ -186,6 +220,12 @@ app.get('/health', (req, res) => {
     timestamp: new Date().toISOString(),
     dataCount: recentData.length,
     notificationCount: notifications.length,
+    errorCount: notifications.filter(n =>
+      n.type.includes('error') ||
+      n.type === 'ai_credits' ||
+      n.type === 'rate_limit' ||
+      n.type === 'timeout'
+    ).length,
     environment: process.env.NODE_ENV || 'development'
   });
 });

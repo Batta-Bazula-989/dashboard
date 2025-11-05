@@ -1,47 +1,54 @@
 class DataDashboard {
-    constructor() {
-        // Services
-        this.dataService = new DataService();
-        this.pollingService = new PollingService(() => this.fetchData());
-        this.notificationService = new NotificationService((notification) => {
-            this.uiManager.showNotification(notification);
-            // Show loading animation when notification arrives
-            this.stateManager.showWorkflowLoading();
-        });
+constructor() {
+    // Services
+    this.dataService = new DataService();
+    this.pollingService = new PollingService(() => this.fetchData());
+    this.notificationService = new NotificationService((notification) => {
+        this.uiManager.showNotification(notification);
+        // Show loading animation when notification arrives
+        this.stateManager.showWorkflowLoading();
+    });
 
-        // Managers
-        this.stateManager = new StateManager();
-        this.uiManager = new UIManager();
+    // Error Service
+    this.errorService = new ErrorService((error) => {
+        console.log('🚨 ERROR received:', error);
+        this.uiManager.showNotification(error);
+    });
 
-        // Component instances
-        this.statsCards = null;
-        this.dataDisplay = null;
-        this.modal = null;
-        this.formBuilder = null;
+    // Managers
+    this.stateManager = new StateManager();
+    this.uiManager = new UIManager();
 
-        // Component loader
-        this.componentLoader = new ComponentLoader();
+    // Component instances
+    this.statsCards = null;
+    this.dataDisplay = null;
+    this.modal = null;
+    this.formBuilder = null;
 
-        this.init();
-    }
+    // Component loader
+    this.componentLoader = new ComponentLoader();
+
+    this.init();
+}
 
     /**
      * Initialize the dashboard
      */
-    async init() {
-        try {
-            await this.loadComponents();
-            this.initializeComponents();
-            this.uiManager.init();
-            // Connect StateManager to UIManager for loading states
-            this.stateManager.setUIManager(this.uiManager);
-            this.pollingService.start();
-            this.notificationService.start();
-            this.initializeClearButton();
-        } catch (error) {
-            console.error('Failed to initialize dashboard:', error);
-        }
-    }
+   async init() {
+       try {
+           await this.loadComponents();
+           this.initializeComponents();
+           this.uiManager.init();
+           // Connect StateManager to UIManager for loading states
+           this.stateManager.setUIManager(this.uiManager);
+           this.pollingService.start();
+           this.notificationService.start();
+           this.errorService.start(); // ADD THIS LINE
+           this.initializeClearButton();
+       } catch (error) {
+           console.error('Failed to initialize dashboard:', error);
+       }
+   }
 
     /**
      * Load all required components
@@ -348,18 +355,19 @@ class DataDashboard {
     /**
      * Destroy and clean up
      */
-    destroy() {
-        this.pollingService.stop();
-        this.notificationService.stop();
+ destroy() {
+     this.pollingService.stop();
+     this.notificationService.stop();
+     this.errorService.stop(); // ADD THIS LINE
 
-        if (this.modal && this.modal.isOpen()) {
-            this.modal.closeModal();
-        }
+     if (this.modal && this.modal.isOpen()) {
+         this.modal.closeModal();
+     }
 
-        this.statsCards = null;
-        this.dataDisplay = null;
-        this.modal = null;
-    }
+     this.statsCards = null;
+     this.dataDisplay = null;
+     this.modal = null;
+ }
 }
 
 // Initialize dashboard

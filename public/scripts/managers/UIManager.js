@@ -108,60 +108,63 @@ class UIManager {
         }
     }
 
-    /**
-     * Show notification toast
-     */
-    showNotification(notification) {
-        const { type, message } = notification;
+showNotification(notification) {
+    const { type, message } = notification;
 
-        let icon = '';
-        let color = '';
-        let bgColor = '';
+    let icon = '';
+    let color = '';
+    let bgColor = '';
 
-        switch(type) {
-            case 'analysis_started':
-                icon = '🚀';
-                color = '#3b82f6';
-                bgColor = '#eff6ff';
-                break;
-            case 'text_analysis_starting':
-                icon = '📝';
-                color = '#8b5cf6';
-                bgColor = '#f5f3ff';
-                break;
-            case 'text_analysis_complete':
-                icon = '✅';
-                color = '#10b981';
-                bgColor = '#f0fdf4';
-                break;
-            case 'video_analysis_starting':
-                icon = '🎥';
-                color = '#f59e0b';
-                bgColor = '#fffbeb';
-                break;
-            case 'video_analysis_complete':
-                icon = '✅';
-                color = '#10b981';
-                bgColor = '#f0fdf4';
-                break;
-            case 'all_complete':
-                icon = '🎉';
-                color = '#10b981';
-                bgColor = '#f0fdf4';
-                break;
-            case 'error':
-                icon = '❌';
-                color = '#ef4444';
-                bgColor = '#fef2f2';
-                break;
-            default:
-                icon = 'ℹ️';
-                color = '#6b7280';
-                bgColor = '#f9fafb';
-        }
-
-        this.showProgressToast(message, icon, color, bgColor);
+    switch(type) {
+        case 'analysis_started':
+            icon = '🚀';
+            color = '#3b82f6';
+            bgColor = '#eff6ff';
+            break;
+        case 'text_analysis_starting':
+            icon = '📝';
+            color = '#8b5cf6';
+            bgColor = '#f5f3ff';
+            break;
+        case 'text_analysis_complete':
+            icon = '✅';
+            color = '#10b981';
+            bgColor = '#f0fdf4';
+            break;
+        case 'video_analysis_starting':
+            icon = '🎥';
+            color = '#f59e0b';
+            bgColor = '#fffbeb';
+            break;
+        case 'video_analysis_complete':
+            icon = '✅';
+            color = '#10b981';
+            bgColor = '#f0fdf4';
+            break;
+        case 'all_complete':
+            icon = '🎉';
+            color = '#10b981';
+            bgColor = '#f0fdf4';
+            break;
+        // ADD THESE CASES:
+        case 'error':
+        case 'n8n_error':
+        case 'api_error':
+        case 'ai_credits':
+        case 'rate_limit':
+        case 'timeout':
+            icon = '❌';
+            color = '#ef4444';
+            bgColor = '#fef2f2';
+            break;
+        default:
+            icon = 'ℹ️';
+            color = '#6b7280';
+            bgColor = '#f9fafb';
     }
+
+    this.showProgressToast(message, icon, color, bgColor);
+}
 
     /**
      * Show progress toast notification
