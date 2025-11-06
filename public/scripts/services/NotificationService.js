@@ -62,14 +62,21 @@ class NotificationService {
                     }
                     this.isInitialFetch = false;
                 } else {
-                    // Only trigger callbacks for truly new notifications after initial fetch
-                    console.log(`Received ${result.notifications.length} new notifications`);
-
-                    result.notifications.forEach(notification => {
-                        if (this.onNotificationReceived) {
-                            this.onNotificationReceived(notification);
-                        }
+                    // Filter out error notifications (handled by ErrorService)
+                    const nonErrorNotifications = result.notifications.filter(notification => {
+                        const errorTypes = ['error', 'n8n_error', 'api_error', 'ai_credits', 'rate_limit', 'timeout'];
+                        return !errorTypes.includes(notification.type);
                     });
+
+                    if (nonErrorNotifications.length > 0) {
+                        console.log(`Received ${nonErrorNotifications.length} new notifications (${result.notifications.length - nonErrorNotifications.length} errors filtered out)`);
+
+                        nonErrorNotifications.forEach(notification => {
+                            if (this.onNotificationReceived) {
+                                this.onNotificationReceived(notification);
+                            }
+                        });
+                    }
 
                     if (result.latestId !== undefined) {
                         this.lastNotificationId = result.latestId;
