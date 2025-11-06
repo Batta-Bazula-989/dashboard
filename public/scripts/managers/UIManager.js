@@ -202,10 +202,12 @@ showNotification(notification) {
             toast.classList.add('show');
         });
 
-        // Auto-hide after 15 seconds
-        setTimeout(() => {
-            this.hideToast(toast);
-        }, 15000);
+        // Auto-hide after 15 seconds - but NOT for error notifications
+        if (type !== 'error') {
+            setTimeout(() => {
+                this.hideToast(toast);
+            }, 15000);
+        }
     }
 
     /**
