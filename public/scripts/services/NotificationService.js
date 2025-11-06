@@ -62,14 +62,12 @@ class NotificationService {
                     }
                     this.isInitialFetch = false;
                 } else {
-                    // Filter out error notifications (handled by ErrorService)
-                    const nonErrorNotifications = result.notifications.filter(notification => {
-                        const errorTypes = ['error', 'n8n_error', 'api_error', 'ai_credits', 'rate_limit', 'timeout'];
-                        return !errorTypes.includes(notification.type);
-                    });
+                    // Filter out error notifications - they are handled by ErrorService
+                    const errorTypes = ['error', 'n8n_error', 'api_error', 'ai_credits', 'rate_limit', 'timeout'];
+                    const nonErrorNotifications = result.notifications.filter(n => !errorTypes.includes(n.type));
 
                     if (nonErrorNotifications.length > 0) {
-                        console.log(`Received ${nonErrorNotifications.length} new notifications (${result.notifications.length - nonErrorNotifications.length} errors filtered out)`);
+                        console.log(`Received ${nonErrorNotifications.length} new notifications`);
 
                         nonErrorNotifications.forEach(notification => {
                             if (this.onNotificationReceived) {

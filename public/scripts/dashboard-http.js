@@ -8,11 +8,11 @@ constructor() {
         // Show loading animation when notification arrives
         this.stateManager.showWorkflowLoading();
     });
-
+    
     // Error Service
     this.errorService = new ErrorService((error) => {
         console.log('🚨 ERROR received:', error);
-        this.uiManager.showNotification(error);
+        this.uiManager.showErrorNotification(error);
     });
 
     // Managers
@@ -43,7 +43,7 @@ constructor() {
            this.stateManager.setUIManager(this.uiManager);
            this.pollingService.start();
            this.notificationService.start();
-           this.errorService.start(); // ADD THIS LINE
+           this.errorService.start();
            this.initializeClearButton();
        } catch (error) {
            console.error('Failed to initialize dashboard:', error);
@@ -358,7 +358,7 @@ constructor() {
  destroy() {
      this.pollingService.stop();
      this.notificationService.stop();
-     this.errorService.stop(); // ADD THIS LINE
+     this.errorService.stop();
 
      if (this.modal && this.modal.isOpen()) {
          this.modal.closeModal();

@@ -227,6 +227,17 @@ showNotification(notification) {
     }
 
     /**
+     * Show error notification (separate method for ErrorService)
+     */
+    showErrorNotification(error) {
+        const { type, message } = error;
+        const title = 'Error Occurred';
+        const iconSvg = this.getAlertIcon();
+        
+        this.showModernToast(title, message, 'error', iconSvg);
+    }
+
+    /**
      * Show simple toast notification
      */
     showToast(message, type = 'success') {
