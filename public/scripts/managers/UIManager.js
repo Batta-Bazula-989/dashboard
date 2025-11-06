@@ -111,178 +111,177 @@ class UIManager {
 showNotification(notification) {
     const { type, message } = notification;
 
-    let icon = '';
-    let color = '';
-    let bgColor = '';
+    let notificationType = 'info';
+    let title = '';
+    let iconSvg = '';
 
     switch(type) {
         case 'analysis_started':
-            icon = '🚀';
-            color = '#3b82f6';
-            bgColor = '#eff6ff';
+            notificationType = 'info';
+            title = 'Analysis Started';
+            iconSvg = this.getClockIcon();
             break;
         case 'text_analysis_starting':
-            icon = '📝';
-            color = '#8b5cf6';
-            bgColor = '#f5f3ff';
+            notificationType = 'info';
+            title = 'Text Analysis Starting';
+            iconSvg = this.getClockIcon();
             break;
         case 'text_analysis_complete':
-            icon = '✅';
-            color = '#10b981';
-            bgColor = '#f0fdf4';
+            notificationType = 'success';
+            title = 'Text Analysis Complete';
+            iconSvg = this.getCheckIcon();
             break;
         case 'video_analysis_starting':
-            icon = '🎥';
-            color = '#f59e0b';
-            bgColor = '#fffbeb';
+            notificationType = 'warning';
+            title = 'Video Analysis Starting';
+            iconSvg = this.getClockIcon();
             break;
         case 'video_analysis_complete':
-            icon = '✅';
-            color = '#10b981';
-            bgColor = '#f0fdf4';
+            notificationType = 'success';
+            title = 'Video Analysis Complete';
+            iconSvg = this.getCheckIcon();
             break;
         case 'all_complete':
-            icon = '🎉';
-            color = '#10b981';
-            bgColor = '#f0fdf4';
+            notificationType = 'success';
+            title = 'All Analysis Complete';
+            iconSvg = this.getCheckIcon();
             break;
-        // ADD THESE CASES:
         case 'error':
         case 'n8n_error':
         case 'api_error':
         case 'ai_credits':
         case 'rate_limit':
         case 'timeout':
-            icon = '❌';
-            color = '#ef4444';
-            bgColor = '#fef2f2';
+            notificationType = 'error';
+            title = 'Error Occurred';
+            iconSvg = this.getAlertIcon();
             break;
         default:
-            icon = 'ℹ️';
-            color = '#6b7280';
-            bgColor = '#f9fafb';
+            notificationType = 'info';
+            title = 'Notification';
+            iconSvg = this.getInfoIcon();
     }
 
-    this.showProgressToast(message, icon, color, bgColor);
+    this.showModernToast(title, message, notificationType, iconSvg);
 }
 
     /**
-     * Show progress toast notification
+     * Show modern toast notification
      */
-    showProgressToast(message, icon, color, bgColor) {
+    showModernToast(title, message, type = 'info', iconSvg = '') {
         const toast = document.createElement('div');
-        toast.style.cssText = `
-            position: fixed;
-            top: 80px;
-            right: 20px;
-            z-index: 100001;
-            background: ${bgColor};
-            color: #374151;
-            padding: 14px 18px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 500;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            border-left: 4px solid ${color};
-            transform: translateX(400px);
-            transition: transform 0.3s ease;
-            max-width: 350px;
-            min-width: 280px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        `;
-
+        toast.className = 'notification-toast';
+        
         toast.innerHTML = `
-            <span style="font-size: 22px; line-height: 1;">${icon}</span>
-            <span style="flex: 1; line-height: 1.4;">${message}</span>
-            <button style="
-                background: none;
-                border: none;
-                color: #9ca3af;
-                font-size: 20px;
-                cursor: pointer;
-                padding: 0;
-                margin: 0;
-                line-height: 1;
-                width: 24px;
-                height: 24px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                transition: color 0.2s ease;
-            "
-            onmouseover="this.style.color='#374151'"
-            onmouseout="this.style.color='#9ca3af'"
-            onclick="this.closest('div').style.transform='translateX(400px)'; setTimeout(() => this.closest('div').remove(), 300);">
-                ✕
+            <div class="notification-accent ${type}"></div>
+            <div class="notification-icon ${type}">
+                ${iconSvg}
+            </div>
+            <div class="notification-content">
+                <p class="notification-title">${title}</p>
+                <p class="notification-message">${message}</p>
+            </div>
+            <button class="notification-close" aria-label="Close notification">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
             </button>
         `;
 
         document.body.appendChild(toast);
 
-        setTimeout(() => {
-            toast.style.transform = 'translateX(0)';
-        }, 100);
+        // Add close button functionality
+        const closeBtn = toast.querySelector('.notification-close');
+        closeBtn.addEventListener('click', () => {
+            this.hideToast(toast);
+        });
 
+        // Show animation
+        requestAnimationFrame(() => {
+            toast.classList.add('show');
+        });
+
+        // Auto-hide after 15 seconds
         setTimeout(() => {
-            toast.style.transform = 'translateX(400px)';
-            setTimeout(() => {
-                if (toast.parentNode) {
-                    toast.parentNode.removeChild(toast);
-                }
-            }, 300);
+            this.hideToast(toast);
         }, 15000);
+    }
+
+    /**
+     * Hide and remove toast
+     */
+    hideToast(toast) {
+        if (!toast || !toast.parentNode) return;
+        
+        toast.classList.remove('show');
+        toast.classList.add('hide');
+        
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.parentNode.removeChild(toast);
+            }
+        }, 300);
     }
 
     /**
      * Show simple toast notification
      */
     showToast(message, type = 'success') {
-        const toast = document.createElement('div');
-        toast.style.cssText = `
-            position: fixed;
-            top: 80px;
-            right: 20px;
-            z-index: 100001;
-            background: ${type === 'success' ? '#10b981' : '#ef4444'};
-            color: white;
-            padding: 12px 20px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            transform: translateX(100%);
-            transition: transform 0.3s ease;
-            max-width: 300px;
+        const notificationType = type === 'success' ? 'success' : 'error';
+        const title = type === 'success' ? 'Success' : 'Error';
+        const iconSvg = type === 'success' ? this.getCheckIcon() : this.getAlertIcon();
+        
+        this.showModernToast(title, message, notificationType, iconSvg);
+    }
+
+    /**
+     * Get clock icon SVG
+     */
+    getClockIcon() {
+        return `
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
         `;
+    }
 
-        toast.innerHTML = `
-            <div style="display: flex; align-items: center; gap: 8px;">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    ${type === 'success'
-                        ? '<path d="m9,12 2,2 4,-4"></path><circle cx="12" cy="12" r="10"></circle>'
-                        : '<circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line>'
-                    }
-                </svg>
-                ${message}
-            </div>
+    /**
+     * Get check icon SVG
+     */
+    getCheckIcon() {
+        return `
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
         `;
+    }
 
-        document.body.appendChild(toast);
+    /**
+     * Get alert/error icon SVG
+     */
+    getAlertIcon() {
+        return `
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+        `;
+    }
 
-        setTimeout(() => {
-            toast.style.transform = 'translateX(0)';
-        }, 100);
-
-        setTimeout(() => {
-            toast.style.transform = 'translateX(100%)';
-            setTimeout(() => {
-                if (toast.parentNode) {
-                    toast.parentNode.removeChild(toast);
-                }
-            }, 300);
-        }, 3000);
+    /**
+     * Get info icon SVG
+     */
+    getInfoIcon() {
+        return `
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+        `;
     }
 
     /**

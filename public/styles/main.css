@@ -6,6 +6,7 @@
 @import './components/form-styles.css';
 @import './components/counter-badges.css';
 @import './components/loading.css';
+@import './components/notifications.css';
 
 /* Table responsive */
 .table-responsive {
@@ -66,27 +67,6 @@
     color: #1e293b;
     white-space: pre-wrap;
     word-break: break-word;
-}
-
-/* Toast notifications */
-.toast {
-    position: fixed;
-    top: 80px;
-    right: 20px;
-    z-index: 100001;
-    background: #10b981;
-    color: white;
-    padding: 12px 20px;
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-lg);
-    transform: translateX(100%);
-    transition: transform 0.3s ease;
-    font-weight: 500;
-    max-width: 300px;
-}
-
-.toast.error {
-    background: #ef4444;
 }
 
 /* Responsive adjustments */
