@@ -12,7 +12,21 @@ constructor() {
     // Error Service
     this.errorService = new ErrorService((error) => {
         console.log('🚨 ERROR received:', error);
-        this.uiManager.showErrorNotification(error);
+
+        if (this.stateManager) {
+            this.stateManager.setFetching(false);
+            this.stateManager.hideWorkflowLoading(true);
+        }
+
+        if (this.dataDisplay && typeof this.dataDisplay.hasData === 'function' && !this.dataDisplay.hasData()) {
+            this.dataDisplay.clear(true);
+        } else if (this.stateManager) {
+            this.stateManager.showEmptyState();
+        }
+
+        if (this.uiManager) {
+            this.uiManager.showErrorNotification(error);
+        }
     });
 
     // Managers
@@ -252,8 +266,22 @@ constructor() {
             }
         } catch (error) {
             console.error('Error fetching data:', error);
+
+            if (this.stateManager) {
+                this.stateManager.hideWorkflowLoading(true);
+            }
+
+            if (this.dataDisplay && typeof this.dataDisplay.hasData === 'function') {
+                if (!this.dataDisplay.hasData()) {
+                    this.dataDisplay.clear(true);
+                }
+            } else if (this.stateManager) {
+                this.stateManager.showEmptyState();
+            }
         } finally {
-            this.stateManager.setFetching(false);
+            if (this.stateManager) {
+                this.stateManager.setFetching(false);
+            }
         }
     }
 

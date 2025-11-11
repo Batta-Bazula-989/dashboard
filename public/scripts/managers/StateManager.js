@@ -82,14 +82,41 @@ class StateManager {
     /**
      * Hide workflow loading
      */
-    hideWorkflowLoading() {
-        if (this.uiManager) {
-            // Add minimum display time to prevent flash
-            setTimeout(() => {
-                this.uiManager.hideLoading();
-                console.log('✅ Workflow loading hidden');
-            }, 1000); // Show for at least 1 second
+    hideWorkflowLoading(force = false) {
+        if (!this.uiManager) {
+            return;
         }
+
+        const hide = () => {
+            this.uiManager.hideLoading();
+            console.log('✅ Workflow loading hidden');
+        };
+
+        if (force) {
+            hide();
+            return;
+        }
+
+        // Add minimum display time to prevent flash
+        setTimeout(hide, 1000); // Show for at least 1 second
+    }
+
+    /**
+     * Show empty state if no cards are present
+     */
+    showEmptyState() {
+        const emptyState = document.querySelector('.empty-state');
+        if (!emptyState) {
+            return;
+        }
+
+        const hasCards = document.querySelector('.data-display-content .card');
+        if (hasCards) {
+            return;
+        }
+
+        emptyState.style.display = '';
+        console.log('✨ Empty state shown');
     }
 
     /**
