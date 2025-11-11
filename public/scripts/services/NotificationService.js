@@ -5,23 +5,25 @@
 class NotificationService {
     constructor(onNotificationReceived) {
         this.baseUrl = '/api/notifications';
-        this.pollingInterval = null;
+        this.pollingTimer = null;
         this.pollingRate = 2000; // Poll every 2 seconds
         this.lastNotificationId = -1;
         this.onNotificationReceived = onNotificationReceived;
         this.isInitialFetch = true; // Track initial fetch to avoid triggering on old notifications
+        this.isFetching = false;
+        this.isPolling = false;
     }
 
     /**
      * Start polling for notifications
      */
     start() {
+        if (this.isPolling) {
+            return;
+        }
+
+        this.isPolling = true;
         this.fetchNotifications();
-
-        this.pollingInterval = setInterval(() => {
-            this.fetchNotifications();
-        }, this.pollingRate);
-
         console.log('Started notification polling');
     }
 
@@ -29,18 +31,32 @@ class NotificationService {
      * Stop polling for notifications
      */
     stop() {
-        if (this.pollingInterval) {
-            clearInterval(this.pollingInterval);
-            this.pollingInterval = null;
-            console.log('Stopped notification polling');
+        if (!this.isPolling) {
+            return;
         }
+
+        this.isPolling = false;
+
+        if (this.pollingTimer) {
+            clearTimeout(this.pollingTimer);
+            this.pollingTimer = null;
+        }
+
+        console.log('Stopped notification polling');
     }
 
     /**
      * Fetch new notifications from server
      */
     async fetchNotifications() {
+        if (this.isFetching) {
+            console.log('⏳ Notification fetch skipped - request in progress');
+            return;
+        }
+
         try {
+            this.isFetching = true;
+
             const url = this.lastNotificationId >= 0
                 ? `${this.baseUrl}?since=${this.lastNotificationId}`
                 : this.baseUrl;
@@ -87,7 +103,31 @@ class NotificationService {
             }
         } catch (error) {
             console.error('Error fetching notifications:', error);
+        } finally {
+            this.isFetching = false;
+
+            if (this.isPolling) {
+                this.scheduleNextFetch();
+            }
         }
+    }
+
+    /**
+     * Schedule next poll after current fetch completes
+     */
+    scheduleNextFetch() {
+        if (this.pollingTimer) {
+            clearTimeout(this.pollingTimer);
+            this.pollingTimer = null;
+        }
+
+        this.pollingTimer = setTimeout(() => {
+            this.pollingTimer = null;
+
+            if (this.isPolling) {
+                this.fetchNotifications();
+            }
+        }, this.pollingRate);
     }
 
     /**
@@ -96,6 +136,14 @@ class NotificationService {
     reset() {
         this.lastNotificationId = -1;
         this.isInitialFetch = true;
+        this.isFetching = false;
+
+        if (this.pollingTimer) {
+            clearTimeout(this.pollingTimer);
+            this.pollingTimer = null;
+        }
+
+        this.isPolling = false;
     }
 }
 
