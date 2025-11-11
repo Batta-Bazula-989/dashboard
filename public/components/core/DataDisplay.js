@@ -260,6 +260,25 @@ addVideoAnalysis(videoData) {
            // Clear only the content area
            const contentArea = this.dataDisplay.querySelector('.data-display-content');
            if (contentArea) {
+               // Ensure any playing videos are fully released
+               const videos = contentArea.querySelectorAll('video');
+               videos.forEach(video => {
+                   try {
+                       video.pause();
+                       video.removeAttribute('src');
+
+                       // Remove any sources to release references
+                       while (video.firstChild) {
+                           video.removeChild(video.firstChild);
+                       }
+
+                       // Force the browser to reset the element
+                       video.load();
+                   } catch (releaseError) {
+                       console.warn('Failed to release video resources:', releaseError);
+                   }
+               });
+
                contentArea.innerHTML = '';
                contentArea.classList.remove('has-data');
            }

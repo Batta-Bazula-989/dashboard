@@ -352,6 +352,24 @@ constructor() {
         const confirmed = await this.uiManager.showClearConfirmation();
         if (!confirmed) return;
 
+        const resumeServices = [];
+
+        // Temporarily stop polling services to prevent data repopulation mid-clear
+        if (this.pollingService && this.pollingService.pollingInterval) {
+            this.pollingService.stop();
+            resumeServices.push(() => this.pollingService.start());
+        }
+
+        if (this.notificationService && this.notificationService.pollingInterval) {
+            this.notificationService.stop();
+            resumeServices.push(() => this.notificationService.start());
+        }
+
+        if (this.errorService && this.errorService.isPolling) {
+            this.errorService.stop();
+            resumeServices.push(() => this.errorService.start());
+        }
+
         try {
             this.uiManager.setClearButtonState(true);
 
@@ -374,6 +392,14 @@ constructor() {
             console.error('Error clearing data:', error);
             this.uiManager.showToast('Failed to clear data from server', 'error');
         } finally {
+            resumeServices.forEach((resume) => {
+                try {
+                    resume();
+                } catch (resumeError) {
+                    console.error('Failed to resume service after clearing:', resumeError);
+                }
+            });
+
             this.uiManager.setClearButtonState(false);
         }
     }
