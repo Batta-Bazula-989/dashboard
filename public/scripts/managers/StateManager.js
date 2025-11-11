@@ -9,6 +9,7 @@ class StateManager {
         this.isFirstFetch = true;
         this.isFetching = false;
         this.uiManager = uiManager;
+        this.isWorkflowSuppressed = false;
     }
 
     /**
@@ -66,6 +67,11 @@ class StateManager {
      * Show loading for workflow (manual trigger)
      */
     showWorkflowLoading() {
+        if (this.isWorkflowSuppressed) {
+            console.log('⚠️ Workflow loading suppressed - ignoring show request');
+            return;
+        }
+
         if (this.uiManager) {
             this.uiManager.showLoading();
             console.log('🔄 Workflow loading shown');
@@ -76,6 +82,29 @@ class StateManager {
         if (emptyState) {
             emptyState.style.display = 'none';
             console.log('🚫 Empty state hidden');
+        }
+    }
+
+    /**
+     * Prevent workflow loading from showing
+     */
+    suppressWorkflowLoading(reason = '') {
+        if (!this.isWorkflowSuppressed) {
+            this.isWorkflowSuppressed = true;
+            console.log(`🚫 Workflow loading suppressed${reason ? `: ${reason}` : ''}`);
+        }
+
+        this.hideWorkflowLoading(true);
+        this.showEmptyState();
+    }
+
+    /**
+     * Allow workflow loading to show again
+     */
+    allowWorkflowLoading() {
+        if (this.isWorkflowSuppressed) {
+            this.isWorkflowSuppressed = false;
+            console.log('✅ Workflow loading suppression cleared');
         }
     }
 
@@ -127,6 +156,7 @@ class StateManager {
         this.lastDataCount = 0;
         this.isFirstFetch = true;
         this.isFetching = false;
+        this.isWorkflowSuppressed = false;
     }
 
     /**

@@ -15,7 +15,7 @@ constructor() {
 
         if (this.stateManager) {
             this.stateManager.setFetching(false);
-            this.stateManager.hideWorkflowLoading(true);
+            this.stateManager.suppressWorkflowLoading('error received');
         }
 
         if (this.dataDisplay && typeof this.dataDisplay.hasData === 'function' && !this.dataDisplay.hasData()) {
@@ -187,6 +187,10 @@ constructor() {
         if (formContainer) {
             formContainer.style.display = 'none';
         }
+
+        if (this.stateManager) {
+            this.stateManager.allowWorkflowLoading();
+        }
         
         this.uiManager.showToast('Analysis started! Results will appear shortly.', 'success');
     }
@@ -268,7 +272,7 @@ constructor() {
             console.error('Error fetching data:', error);
 
             if (this.stateManager) {
-                this.stateManager.hideWorkflowLoading(true);
+                this.stateManager.suppressWorkflowLoading('data fetch error');
             }
 
             if (this.dataDisplay && typeof this.dataDisplay.hasData === 'function') {
@@ -293,6 +297,9 @@ constructor() {
         console.log(`Adding ${dataType} data item:`, incoming);
 
         // Hide loading animation when first data arrives
+        if (this.stateManager) {
+            this.stateManager.allowWorkflowLoading();
+        }
         this.stateManager.hideWorkflowLoading();
 
         if (this.dataDisplay) {
