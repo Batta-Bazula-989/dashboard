@@ -5,25 +5,27 @@
 class ErrorService {
     constructor(onErrorReceived) {
         this.baseUrl = '/api/errors'; // Dedicated error endpoint
-        this.pollingInterval = null;
+        this.pollingTimer = null;
         this.pollingRate = 3000; // Poll every 3 seconds
         this.lastErrorId = -1;
         this.onErrorReceived = onErrorReceived;
         this.isInitialFetch = true;
         this.errorHistory = [];
         this.maxHistory = 100;
+        this.isFetching = false;
+        this.isPolling = false;
     }
 
     /**
      * Start polling for errors
      */
     start() {
+        if (this.isPolling) {
+            return;
+        }
+
+        this.isPolling = true;
         this.fetchErrors();
-
-        this.pollingInterval = setInterval(() => {
-            this.fetchErrors();
-        }, this.pollingRate);
-
         console.log('✅ Started error polling (every 3s)');
     }
 
@@ -31,18 +33,32 @@ class ErrorService {
      * Stop polling for errors
      */
     stop() {
-        if (this.pollingInterval) {
-            clearInterval(this.pollingInterval);
-            this.pollingInterval = null;
-            console.log('⏹️ Stopped error polling');
+        if (!this.isPolling) {
+            return;
         }
+
+        this.isPolling = false;
+
+        if (this.pollingTimer) {
+            clearTimeout(this.pollingTimer);
+            this.pollingTimer = null;
+        }
+
+        console.log('⏹️ Stopped error polling');
     }
 
     /**
      * Fetch new errors from server
      */
     async fetchErrors() {
+        if (this.isFetching) {
+            console.log('⏳ Error fetch skipped - request in progress');
+            return;
+        }
+
         try {
+            this.isFetching = true;
+
             const url = this.lastErrorId >= 0
                 ? `${this.baseUrl}?since=${this.lastErrorId}`
                 : this.baseUrl;
@@ -90,7 +106,30 @@ class ErrorService {
             }
         } catch (error) {
             console.error('❌ Error fetching errors:', error);
+        } finally {
+            this.isFetching = false;
+
+            if (this.isPolling) {
+                this.scheduleNextFetch();
+            }
         }
+    }
+
+    /**
+     * Schedule the next poll
+     */
+    scheduleNextFetch() {
+        if (this.pollingTimer) {
+            clearTimeout(this.pollingTimer);
+            this.pollingTimer = null;
+        }
+
+        this.pollingTimer = setTimeout(() => {
+            this.pollingTimer = null;
+            if (this.isPolling) {
+                this.fetchErrors();
+            }
+        }, this.pollingRate);
     }
 
     /**
@@ -162,6 +201,12 @@ class ErrorService {
         this.lastErrorId = -1;
         this.isInitialFetch = true;
         this.errorHistory = [];
+        this.isFetching = false;
+        if (this.pollingTimer) {
+            clearTimeout(this.pollingTimer);
+            this.pollingTimer = null;
+        }
+        this.isPolling = false;
         console.log('🔄 Error service reset');
     }
 }
