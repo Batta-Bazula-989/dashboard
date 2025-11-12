@@ -70,28 +70,31 @@ class AnalysisSections {
         let html = '';
 
         if (analysis.copywriting?.offer_clarity) {
+            const score = Sanitizer.escapeHTML(String(analysis.copywriting.offer_clarity.score));
             html += `
                 <div class="metric-row">
                     <span class="metric-label">Ясність оффера:</span>
-                    <span class="metric-value">${analysis.copywriting.offer_clarity.score}/10</span>
+                    <span class="metric-value">${score}/10</span>
                 </div>
             `;
         }
 
         if (analysis.marketing?.offer_type) {
+            const offerType = Sanitizer.escapeHTML(String(analysis.marketing.offer_type));
             html += `
                 <div class="metric-row">
                     <span class="metric-label">Тип оффера:</span>
-                    <span class="metric-value">${analysis.marketing.offer_type}</span>
+                    <span class="metric-value">${offerType}</span>
                 </div>
             `;
         }
 
         if (analysis.sales?.value_proposition) {
+            const score = Sanitizer.escapeHTML(String(analysis.sales.value_proposition.score));
             html += `
                 <div class="metric-row">
                     <span class="metric-label">Value proposition:</span>
-                    <span class="metric-value">${analysis.sales.value_proposition.score}/10</span>
+                    <span class="metric-value">${score}/10</span>
                 </div>
             `;
         }
