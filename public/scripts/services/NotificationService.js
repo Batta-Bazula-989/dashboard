@@ -2,53 +2,15 @@
  * NotificationService
  * Handles notification polling and fetching
  */
-class NotificationService {
+class NotificationService extends BasePollingService {
     constructor(onNotificationReceived) {
-        this.baseUrl = '/api/notifications';
-        this.pollingTimer = null;
-        this.pollingRate = 2000; // Poll every 2 seconds
-        this.lastNotificationId = -1;
-        this.onNotificationReceived = onNotificationReceived;
-        this.isInitialFetch = true; // Track initial fetch to avoid triggering on old notifications
-        this.isFetching = false;
-        this.isPolling = false;
-    }
-
-    /**
-     * Start polling for notifications
-     */
-    start() {
-        if (this.isPolling) {
-            return;
-        }
-
-        this.isPolling = true;
-        this.fetchNotifications();
-        console.log('Started notification polling');
-    }
-
-    /**
-     * Stop polling for notifications
-     */
-    stop() {
-        if (!this.isPolling) {
-            return;
-        }
-
-        this.isPolling = false;
-
-        if (this.pollingTimer) {
-            clearTimeout(this.pollingTimer);
-            this.pollingTimer = null;
-        }
-
-        console.log('Stopped notification polling');
+        super('/api/notifications', 2000, onNotificationReceived);
     }
 
     /**
      * Fetch new notifications from server
      */
-    async fetchNotifications() {
+    async fetchData() {
         if (this.isFetching) {
             console.log('⏳ Notification fetch skipped - request in progress');
             return;
@@ -57,10 +19,7 @@ class NotificationService {
         try {
             this.isFetching = true;
 
-            const url = this.lastNotificationId >= 0
-                ? `${this.baseUrl}?since=${this.lastNotificationId}`
-                : this.baseUrl;
-
+            const url = this.buildUrl();
             const response = await fetch(url);
 
             if (!response.ok) {
@@ -74,7 +33,7 @@ class NotificationService {
                 if (this.isInitialFetch) {
                     console.log(`Initial fetch: Found ${result.notifications.length} existing notifications (skipping callbacks)`);
                     if (result.latestId !== undefined) {
-                        this.lastNotificationId = result.latestId;
+                        this.lastId = result.latestId;
                     }
                     this.isInitialFetch = false;
                 } else {
@@ -86,14 +45,14 @@ class NotificationService {
                         console.log(`Received ${nonErrorNotifications.length} new notifications`);
 
                         nonErrorNotifications.forEach(notification => {
-                            if (this.onNotificationReceived) {
-                                this.onNotificationReceived(notification);
+                            if (this.onDataReceived) {
+                                this.onDataReceived(notification);
                             }
                         });
                     }
 
                     if (result.latestId !== undefined) {
-                        this.lastNotificationId = result.latestId;
+                        this.lastId = result.latestId;
                     }
                 }
             } else if (this.isInitialFetch) {
@@ -110,40 +69,6 @@ class NotificationService {
                 this.scheduleNextFetch();
             }
         }
-    }
-
-    /**
-     * Schedule next poll after current fetch completes
-     */
-    scheduleNextFetch() {
-        if (this.pollingTimer) {
-            clearTimeout(this.pollingTimer);
-            this.pollingTimer = null;
-        }
-
-        this.pollingTimer = setTimeout(() => {
-            this.pollingTimer = null;
-
-            if (this.isPolling) {
-                this.fetchNotifications();
-            }
-        }, this.pollingRate);
-    }
-
-    /**
-     * Reset notification state
-     */
-    reset() {
-        this.lastNotificationId = -1;
-        this.isInitialFetch = true;
-        this.isFetching = false;
-
-        if (this.pollingTimer) {
-            clearTimeout(this.pollingTimer);
-            this.pollingTimer = null;
-        }
-
-        this.isPolling = false;
     }
 }
 

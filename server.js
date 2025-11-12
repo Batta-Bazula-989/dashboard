@@ -13,8 +13,27 @@ app.use(express.static('public'));
 // In-memory data storage (persists within Railway instance)
 let recentData = [];
 let notifications = [];
+let notificationIdCounter = 0;
 const maxDataSize = 100;
 const maxNotifications = 50;
+
+// Helper functions
+function isErrorNotification(notification) {
+  return (
+    notification.type.includes('error') ||
+    notification.type === 'ai_credits' ||
+    notification.type === 'rate_limit' ||
+    notification.type === 'timeout'
+  );
+}
+
+function filterBySince(items, sinceId) {
+  if (sinceId === undefined || sinceId === null) {
+    return items;
+  }
+  const id = parseInt(sinceId);
+  return items.filter(item => item.id > id);
+}
 
 // API Routes
 app.get('/api/data', (req, res) => {
@@ -96,7 +115,7 @@ app.post('/api/notification', (req, res) => {
     const { type, message, competitor_name, metadata } = req.body;
 
     const notification = {
-      id: notifications.length,
+      id: notificationIdCounter++,
       type,
       message,
       competitor_name,
@@ -129,14 +148,7 @@ app.post('/api/notification', (req, res) => {
 app.get('/api/notifications', (req, res) => {
   try {
     const { since } = req.query;
-
-    let filteredNotifications = notifications;
-
-    // Optionally filter by ID (for polling)
-    if (since) {
-      const sinceId = parseInt(since);
-      filteredNotifications = notifications.filter(n => n.id > sinceId);
-    }
+    const filteredNotifications = filterBySince(notifications, since);
 
     res.json({
       success: true,
@@ -157,6 +169,7 @@ app.delete('/api/notifications', (req, res) => {
   try {
     const previousCount = notifications.length;
     notifications = [];
+    notificationIdCounter = 0;
 
     console.log(`DELETE /api/notifications - cleared ${previousCount} notifications`);
 
@@ -180,23 +193,13 @@ app.get('/api/errors', (req, res) => {
     const { since } = req.query;
 
     // Filter only error notifications
-    let errorNotifications = notifications.filter(n =>
-      n.type.includes('error') ||
-      n.type === 'ai_credits' ||
-      n.type === 'rate_limit' ||
-      n.type === 'timeout'
-    );
-
-    // Optionally filter by ID (for polling)
-    if (since) {
-      const sinceId = parseInt(since);
-      errorNotifications = errorNotifications.filter(n => n.id > sinceId);
-    }
+    const errorNotifications = notifications.filter(isErrorNotification);
+    const filteredErrors = filterBySince(errorNotifications, since);
 
     res.json({
       success: true,
-      errors: errorNotifications,
-      count: errorNotifications.length,
+      errors: filteredErrors,
+      count: filteredErrors.length,
       latestId: notifications.length > 0 ? notifications[notifications.length - 1].id : -1
     });
   } catch (error) {
@@ -220,12 +223,7 @@ app.get('/health', (req, res) => {
     timestamp: new Date().toISOString(),
     dataCount: recentData.length,
     notificationCount: notifications.length,
-    errorCount: notifications.filter(n =>
-      n.type.includes('error') ||
-      n.type === 'ai_credits' ||
-      n.type === 'rate_limit' ||
-      n.type === 'timeout'
-    ).length,
+    errorCount: notifications.filter(isErrorNotification).length,
     environment: process.env.NODE_ENV || 'development'
   });
 });

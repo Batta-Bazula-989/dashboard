@@ -2,55 +2,17 @@
  * ErrorService
  * Handles error polling, logging, and management
  */
-class ErrorService {
+class ErrorService extends BasePollingService {
     constructor(onErrorReceived) {
-        this.baseUrl = '/api/errors'; // Dedicated error endpoint
-        this.pollingTimer = null;
-        this.pollingRate = 3000; // Poll every 3 seconds
-        this.lastErrorId = -1;
-        this.onErrorReceived = onErrorReceived;
-        this.isInitialFetch = true;
+        super('/api/errors', 3000, onErrorReceived);
         this.errorHistory = [];
         this.maxHistory = 100;
-        this.isFetching = false;
-        this.isPolling = false;
-    }
-
-    /**
-     * Start polling for errors
-     */
-    start() {
-        if (this.isPolling) {
-            return;
-        }
-
-        this.isPolling = true;
-        this.fetchErrors();
-        console.log('✅ Started error polling (every 3s)');
-    }
-
-    /**
-     * Stop polling for errors
-     */
-    stop() {
-        if (!this.isPolling) {
-            return;
-        }
-
-        this.isPolling = false;
-
-        if (this.pollingTimer) {
-            clearTimeout(this.pollingTimer);
-            this.pollingTimer = null;
-        }
-
-        console.log('⏹️ Stopped error polling');
     }
 
     /**
      * Fetch new errors from server
      */
-    async fetchErrors() {
+    async fetchData() {
         if (this.isFetching) {
             console.log('⏳ Error fetch skipped - request in progress');
             return;
@@ -59,10 +21,7 @@ class ErrorService {
         try {
             this.isFetching = true;
 
-            const url = this.lastErrorId >= 0
-                ? `${this.baseUrl}?since=${this.lastErrorId}`
-                : this.baseUrl;
-
+            const url = this.buildUrl();
             const response = await fetch(url);
 
             if (!response.ok) {
@@ -75,7 +34,7 @@ class ErrorService {
                 if (this.isInitialFetch) {
                     console.log(`📋 Initial fetch: Found ${result.errors.length} existing errors (skipping callbacks)`);
                     if (result.latestId !== undefined) {
-                        this.lastErrorId = result.latestId;
+                        this.lastId = result.latestId;
                     }
                     // Store in history but don't trigger UI
                     this.errorHistory.push(...result.errors);
@@ -89,15 +48,15 @@ class ErrorService {
                         this.errorHistory.push(error);
 
                         // Trigger callback
-                        if (this.onErrorReceived) {
-                            this.onErrorReceived(error);
+                        if (this.onDataReceived) {
+                            this.onDataReceived(error);
                         }
                     });
 
                     this.trimHistory();
 
                     if (result.latestId !== undefined) {
-                        this.lastErrorId = result.latestId;
+                        this.lastId = result.latestId;
                     }
                 }
             } else if (this.isInitialFetch) {
@@ -113,23 +72,6 @@ class ErrorService {
                 this.scheduleNextFetch();
             }
         }
-    }
-
-    /**
-     * Schedule the next poll
-     */
-    scheduleNextFetch() {
-        if (this.pollingTimer) {
-            clearTimeout(this.pollingTimer);
-            this.pollingTimer = null;
-        }
-
-        this.pollingTimer = setTimeout(() => {
-            this.pollingTimer = null;
-            if (this.isPolling) {
-                this.fetchErrors();
-            }
-        }, this.pollingRate);
     }
 
     /**
@@ -198,15 +140,8 @@ class ErrorService {
      * Reset error state
      */
     reset() {
-        this.lastErrorId = -1;
-        this.isInitialFetch = true;
+        super.reset();
         this.errorHistory = [];
-        this.isFetching = false;
-        if (this.pollingTimer) {
-            clearTimeout(this.pollingTimer);
-            this.pollingTimer = null;
-        }
-        this.isPolling = false;
         console.log('🔄 Error service reset');
     }
 }
