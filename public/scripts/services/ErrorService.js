@@ -7,6 +7,8 @@ class ErrorService extends BasePollingService {
         super('/api/errors', 3000, onErrorReceived);
         this.errorHistory = [];
         this.maxHistory = 100;
+        this.lastFetchErrorNotification = 0;
+        this.fetchErrorNotificationThrottle = 30000; // 30 seconds
     }
 
     /**
@@ -65,6 +67,32 @@ class ErrorService extends BasePollingService {
             }
         } catch (error) {
             console.error('❌ Error fetching errors:', error);
+            
+            // Show notification when fetch fails (but not on initial fetch and with throttling)
+            if (!this.isInitialFetch && this.onDataReceived) {
+                const now = Date.now();
+                const timeSinceLastNotification = now - this.lastFetchErrorNotification;
+                
+                // Only show notification if enough time has passed since last one
+                if (timeSinceLastNotification >= this.fetchErrorNotificationThrottle) {
+                    const statusCode = error.message.includes('status:') 
+                        ? error.message.match(/status: (\d+)/)?.[1] || '500'
+                        : '500';
+                    
+                    const syntheticError = {
+                        type: 'api_error',
+                        message: `Failed to fetch errors from server (HTTP ${statusCode}). The error monitoring service may be unavailable.`,
+                        timestamp: new Date().toISOString(),
+                        metadata: {
+                            source: 'ErrorService',
+                            originalError: error.message
+                        }
+                    };
+                    
+                    this.onDataReceived(syntheticError);
+                    this.lastFetchErrorNotification = now;
+                }
+            }
         } finally {
             this.isFetching = false;
 
@@ -142,6 +170,7 @@ class ErrorService extends BasePollingService {
     reset() {
         super.reset();
         this.errorHistory = [];
+        this.lastFetchErrorNotification = 0;
         console.log('🔄 Error service reset');
     }
 }
