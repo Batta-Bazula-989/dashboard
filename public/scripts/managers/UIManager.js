@@ -230,11 +230,21 @@ showNotification(notification) {
      * Show error notification (separate method for ErrorService)
      */
     showErrorNotification(error) {
-        const { type, message } = error;
+        console.log('🎯 UIManager.showErrorNotification called with:', error);
+        
+        if (!error) {
+            console.error('❌ showErrorNotification called with null/undefined error');
+            return;
+        }
+        
+        const type = error.type || 'api_error';
+        const message = error.message || 'An unknown error occurred';
         const title = 'Error Occurred';
         const iconSvg = this.getAlertIcon();
         
+        console.log(`📨 Showing error toast: "${message}"`);
         this.showModernToast(title, message, 'error', iconSvg);
+        console.log('✅ Error toast should now be visible');
     }
 
     /**

@@ -13,19 +13,27 @@ constructor() {
     this.errorService = new ErrorService((error) => {
         console.log('🚨 ERROR received:', error);
 
-        if (this.stateManager) {
-            this.stateManager.setFetching(false);
-            this.stateManager.suppressWorkflowLoading('error received');
-        }
+        try {
+            if (this.stateManager) {
+                this.stateManager.setFetching(false);
+                this.stateManager.suppressWorkflowLoading('error received');
+            }
 
-        if (this.dataDisplay && typeof this.dataDisplay.hasData === 'function' && !this.dataDisplay.hasData()) {
-            this.dataDisplay.clear(true);
-        } else if (this.stateManager) {
-            this.stateManager.showEmptyState();
-        }
+            if (this.dataDisplay && typeof this.dataDisplay.hasData === 'function' && !this.dataDisplay.hasData()) {
+                this.dataDisplay.clear(true);
+            } else if (this.stateManager) {
+                this.stateManager.showEmptyState();
+            }
 
-        if (this.uiManager) {
-            this.uiManager.showErrorNotification(error);
+            if (this.uiManager) {
+                console.log('📢 Calling uiManager.showErrorNotification with:', error);
+                this.uiManager.showErrorNotification(error);
+                console.log('✅ uiManager.showErrorNotification called');
+            } else {
+                console.error('❌ uiManager is not available when error callback is triggered!');
+            }
+        } catch (callbackError) {
+            console.error('❌ Error in errorService callback:', callbackError);
         }
     });
 

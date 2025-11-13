@@ -19,8 +19,11 @@ const maxNotifications = 50;
 
 // Helper functions
 function isErrorNotification(notification) {
+  if (!notification || !notification.type) {
+    return false;
+  }
   return (
-    notification.type.includes('error') ||
+    (typeof notification.type === 'string' && notification.type.includes('error')) ||
     notification.type === 'ai_credits' ||
     notification.type === 'rate_limit' ||
     notification.type === 'timeout'
@@ -192,8 +195,22 @@ app.get('/api/errors', (req, res) => {
   try {
     const { since } = req.query;
 
-    // Filter only error notifications
-    const errorNotifications = notifications.filter(isErrorNotification);
+    // Ensure notifications array exists and is an array
+    if (!Array.isArray(notifications)) {
+      console.error('⚠️ notifications is not an array, resetting...');
+      notifications = [];
+    }
+
+    // Filter only error notifications with safe error handling
+    let errorNotifications = [];
+    try {
+      errorNotifications = notifications.filter(isErrorNotification);
+    } catch (filterError) {
+      console.error('Error filtering notifications:', filterError);
+      // If filtering fails, return empty array instead of crashing
+      errorNotifications = [];
+    }
+
     const filteredErrors = filterBySince(errorNotifications, since);
 
     res.json({
@@ -204,6 +221,7 @@ app.get('/api/errors', (req, res) => {
     });
   } catch (error) {
     console.error('GET /api/errors error:', error);
+    console.error('Error stack:', error.stack);
     res.status(500).json({
       success: false,
       error: error.message

@@ -27,7 +27,17 @@ class ErrorService extends BasePollingService {
             const response = await fetch(url);
 
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                // Try to get error details from response if available
+                let errorMessage = `HTTP error! status: ${response.status}`;
+                try {
+                    const errorData = await response.clone().json();
+                    if (errorData.error) {
+                        errorMessage += ` - ${errorData.error}`;
+                    }
+                } catch (e) {
+                    // Response is not JSON, use default message
+                }
+                throw new Error(errorMessage);
             }
 
             const result = await response.json();
@@ -68,8 +78,15 @@ class ErrorService extends BasePollingService {
         } catch (error) {
             console.error('❌ Error fetching errors:', error);
             
+            // Mark initial fetch as complete even if it failed, so subsequent errors can be shown
+            const wasInitialFetch = this.isInitialFetch;
+            if (this.isInitialFetch) {
+                this.isInitialFetch = false;
+                console.log('⚠️ Initial fetch failed - marking as complete to allow future error notifications');
+            }
+            
             // Show notification when fetch fails (but not on initial fetch and with throttling)
-            if (!this.isInitialFetch && this.onDataReceived) {
+            if (!wasInitialFetch && this.onDataReceived) {
                 const now = Date.now();
                 const timeSinceLastNotification = now - this.lastFetchErrorNotification;
                 
@@ -89,8 +106,10 @@ class ErrorService extends BasePollingService {
                         }
                     };
                     
+                    console.log('🔔 Triggering error notification callback:', syntheticError);
                     this.onDataReceived(syntheticError);
                     this.lastFetchErrorNotification = now;
+                    console.log('✅ Error notification callback triggered');
                 }
             }
         } finally {
