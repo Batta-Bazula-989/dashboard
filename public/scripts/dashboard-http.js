@@ -196,8 +196,16 @@ constructor() {
             formContainer.style.display = 'none';
         }
 
+        // Dismiss all error notifications when starting new analysis
+        if (this.uiManager) {
+            this.uiManager.dismissAllErrorNotifications();
+        }
+
         if (this.stateManager) {
+            // Clear suppression flag to allow loading state
             this.stateManager.allowWorkflowLoading();
+            // Show loading state immediately
+            this.stateManager.showWorkflowLoading();
         }
         
         this.uiManager.showToast('Analysis started! Results will appear shortly.', 'success');

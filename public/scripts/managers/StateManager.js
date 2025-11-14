@@ -72,16 +72,16 @@ class StateManager {
             return;
         }
 
-        if (this.uiManager) {
-            this.uiManager.showLoading();
-            console.log('🔄 Workflow loading shown');
-        }
-        
-        // Hide empty state when loading shows
+        // Hide/remove empty state first when loading shows
         const emptyState = document.querySelector('.empty-state');
         if (emptyState) {
             emptyState.style.display = 'none';
             console.log('🚫 Empty state hidden');
+        }
+
+        if (this.uiManager) {
+            this.uiManager.showLoading();
+            console.log('🔄 Workflow loading shown');
         }
     }
 

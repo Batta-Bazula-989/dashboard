@@ -227,6 +227,21 @@ showNotification(notification) {
     }
 
     /**
+     * Dismiss all error notifications
+     */
+    dismissAllErrorNotifications() {
+        const errorToasts = document.querySelectorAll('.notification-toast .notification-accent.error');
+        console.log(`🔔 Dismissing ${errorToasts.length} error notification(s)`);
+        
+        errorToasts.forEach(accent => {
+            const toast = accent.closest('.notification-toast');
+            if (toast) {
+                this.hideToast(toast);
+            }
+        });
+    }
+
+    /**
      * Show error notification (separate method for ErrorService)
      */
     showErrorNotification(error) {
