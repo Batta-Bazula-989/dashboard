@@ -4,6 +4,21 @@ constructor() {
     this.dataService = new DataService();
     this.pollingService = new PollingService(() => this.fetchData());
     this.notificationService = new NotificationService((notification) => {
+        // When first notification arrives, dismiss error notifications and show loading
+        const hasErrorNotifications = document.querySelectorAll('.notification-toast .notification-accent.error').length > 0;
+        
+        if (hasErrorNotifications) {
+            console.log('🔔 First notification received - dismissing error notifications and showing loading state');
+            // Dismiss all error notifications
+            if (this.uiManager) {
+                this.uiManager.dismissAllErrorNotifications();
+            }
+            // Clear suppression flag to allow loading state
+            if (this.stateManager) {
+                this.stateManager.allowWorkflowLoading();
+            }
+        }
+        
         this.uiManager.showNotification(notification);
         // Show loading animation when notification arrives
         this.stateManager.showWorkflowLoading();
@@ -196,16 +211,9 @@ constructor() {
             formContainer.style.display = 'none';
         }
 
-        // Dismiss all error notifications when starting new analysis
-        if (this.uiManager) {
-            this.uiManager.dismissAllErrorNotifications();
-        }
-
+        // Clear suppression flag to allow loading state when first notification arrives
         if (this.stateManager) {
-            // Clear suppression flag to allow loading state
             this.stateManager.allowWorkflowLoading();
-            // Show loading state immediately
-            this.stateManager.showWorkflowLoading();
         }
         
         this.uiManager.showToast('Analysis started! Results will appear shortly.', 'success');
