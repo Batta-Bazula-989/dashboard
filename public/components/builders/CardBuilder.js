@@ -18,9 +18,13 @@ class CardBuilder {
             card.appendChild(this.buildAdText(entry.ad_data.ad_text));
         }
 
-        // Priority: video first, then image carousel, then single image
+        // Priority: video first, then cards carousel, then images carousel, then single card/image
         if (entry.ad_data?.videos?.[0]?.video_preview_image_url) {
             card.appendChild(this.buildVideoThumbnail(entry.ad_data.videos[0]));
+        } else if (entry.ad_data?.cards && entry.ad_data.cards.length > 1) {
+            card.appendChild(this.buildCardsCarousel(entry.ad_data.cards));
+        } else if (entry.ad_data?.cards?.[0]) {
+            card.appendChild(this.buildSingleCard(entry.ad_data.cards[0]));
         } else if (entry.ad_data?.images && entry.ad_data.images.length > 1) {
             card.appendChild(this.buildImageCarousel(entry.ad_data.images));
         } else if (entry.ad_data?.images?.[0]) {
@@ -333,6 +337,190 @@ buildPlatformBadges(platforms) {
         
         imgContainer.appendChild(img);
         return imgContainer;
+    }
+
+    buildCardsCarousel(cards) {
+        const carouselContainer = document.createElement('div');
+        carouselContainer.className = 'image-carousel-container';
+        
+        const carousel = document.createElement('div');
+        carousel.className = 'image-carousel';
+        
+        const imageWrapper = document.createElement('div');
+        imageWrapper.className = 'carousel-images';
+        
+        cards.forEach((card, index) => {
+            const cardItem = document.createElement('div');
+            cardItem.className = 'carousel-card-item';
+            
+            // Create link if link_url exists
+            const hasLink = card.link_url && card.link_url.trim() !== '' && card.link_url !== 'empty';
+            const wrapper = hasLink ? document.createElement('a') : document.createElement('div');
+            
+            if (hasLink) {
+                wrapper.href = card.link_url;
+                wrapper.target = '_blank';
+                wrapper.rel = 'noopener noreferrer';
+                wrapper.className = 'carousel-card-link';
+            }
+            
+            const img = document.createElement('img');
+            img.className = 'carousel-image';
+            img.src = card.resized_image_url || card.original_image_url || '';
+            img.alt = card.title || card.body || `Card ${index + 1}`;
+            img.loading = 'lazy';
+            
+            // Show first image by default
+            if (index === 0) {
+                img.classList.add('active');
+                cardItem.classList.add('active');
+            } else {
+                img.style.display = 'none';
+                cardItem.style.display = 'none';
+            }
+            
+            wrapper.appendChild(img);
+            cardItem.appendChild(wrapper);
+            imageWrapper.appendChild(cardItem);
+        });
+        
+        carousel.appendChild(imageWrapper);
+        
+        // Navigation buttons (only show if more than 1 card)
+        if (cards.length > 1) {
+            const prevBtn = document.createElement('button');
+            prevBtn.className = 'carousel-btn carousel-btn-prev';
+            prevBtn.innerHTML = '‹';
+            prevBtn.setAttribute('aria-label', 'Previous card');
+            
+            const nextBtn = document.createElement('button');
+            nextBtn.className = 'carousel-btn carousel-btn-next';
+            nextBtn.innerHTML = '›';
+            nextBtn.setAttribute('aria-label', 'Next card');
+            
+            // Indicators
+            const indicators = document.createElement('div');
+            indicators.className = 'carousel-indicators';
+            
+            cards.forEach((_, index) => {
+                const indicator = document.createElement('button');
+                indicator.className = 'carousel-indicator';
+                if (index === 0) indicator.classList.add('active');
+                indicator.setAttribute('aria-label', `Go to card ${index + 1}`);
+                indicator.addEventListener('click', () => this.goToCard(carousel, index));
+                indicators.appendChild(indicator);
+            });
+            
+            carousel.appendChild(prevBtn);
+            carousel.appendChild(nextBtn);
+            carousel.appendChild(indicators);
+            
+            // Store current index on carousel element
+            carousel.dataset.currentIndex = '0';
+            
+            // Navigation handlers
+            const self = this;
+            prevBtn.addEventListener('click', () => {
+                const currentIndex = parseInt(carousel.dataset.currentIndex || '0');
+                const newIndex = (currentIndex - 1 + cards.length) % cards.length;
+                carousel.dataset.currentIndex = newIndex.toString();
+                self.goToCard(carousel, newIndex);
+            });
+            
+            nextBtn.addEventListener('click', () => {
+                const currentIndex = parseInt(carousel.dataset.currentIndex || '0');
+                const newIndex = (currentIndex + 1) % cards.length;
+                carousel.dataset.currentIndex = newIndex.toString();
+                self.goToCard(carousel, newIndex);
+            });
+            
+            // Touch/swipe support
+            let touchStartX = 0;
+            let touchEndX = 0;
+            
+            carousel.addEventListener('touchstart', (e) => {
+                touchStartX = e.changedTouches[0].screenX;
+            }, { passive: true });
+            
+            carousel.addEventListener('touchend', (e) => {
+                touchEndX = e.changedTouches[0].screenX;
+                const currentIndex = parseInt(carousel.dataset.currentIndex || '0');
+                self.handleSwipe(carousel, touchStartX, touchEndX, cards.length, () => {
+                    const newIndex = (currentIndex - 1 + cards.length) % cards.length;
+                    carousel.dataset.currentIndex = newIndex.toString();
+                    self.goToCard(carousel, newIndex);
+                }, () => {
+                    const newIndex = (currentIndex + 1) % cards.length;
+                    carousel.dataset.currentIndex = newIndex.toString();
+                    self.goToCard(carousel, newIndex);
+                });
+            }, { passive: true });
+        }
+        
+        carouselContainer.appendChild(carousel);
+        return carouselContainer;
+    }
+
+    buildSingleCard(card) {
+        const cardContainer = document.createElement('div');
+        cardContainer.className = 'single-image-container';
+        
+        // Create link if link_url exists
+        const hasLink = card.link_url && card.link_url.trim() !== '' && card.link_url !== 'empty';
+        const wrapper = hasLink ? document.createElement('a') : document.createElement('div');
+        
+        if (hasLink) {
+            wrapper.href = card.link_url;
+            wrapper.target = '_blank';
+            wrapper.rel = 'noopener noreferrer';
+            wrapper.className = 'single-card-link';
+        }
+        
+        const img = document.createElement('img');
+        img.className = 'single-image';
+        img.src = card.resized_image_url || card.original_image_url || '';
+        img.alt = card.title || card.body || 'Ad card';
+        img.loading = 'lazy';
+        
+        wrapper.appendChild(img);
+        cardContainer.appendChild(wrapper);
+        return cardContainer;
+    }
+
+    goToCard(carousel, index) {
+        const cardItems = carousel.querySelectorAll('.carousel-card-item');
+        const indicators = carousel.querySelectorAll('.carousel-indicator');
+        
+        // Update current index
+        carousel.dataset.currentIndex = index.toString();
+        
+        cardItems.forEach((item, i) => {
+            if (i === index) {
+                item.style.display = 'block';
+                item.classList.add('active');
+                const img = item.querySelector('.carousel-image');
+                if (img) {
+                    img.style.display = 'block';
+                    img.classList.add('active');
+                }
+            } else {
+                item.style.display = 'none';
+                item.classList.remove('active');
+                const img = item.querySelector('.carousel-image');
+                if (img) {
+                    img.style.display = 'none';
+                    img.classList.remove('active');
+                }
+            }
+        });
+        
+        indicators.forEach((indicator, i) => {
+            if (i === index) {
+                indicator.classList.add('active');
+            } else {
+                indicator.classList.remove('active');
+            }
+        });
     }
 
     goToImage(carousel, index) {

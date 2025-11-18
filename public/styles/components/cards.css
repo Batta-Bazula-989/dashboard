@@ -349,6 +349,49 @@
     border-radius: 0;
 }
 
+/* Card Carousel Items */
+.carousel-card-item {
+    position: relative;
+    width: 100%;
+    display: block;
+}
+
+.carousel-card-link {
+    display: block;
+    width: 100%;
+    cursor: pointer;
+    text-decoration: none;
+    transition: opacity 0.2s ease;
+}
+
+.carousel-card-link:hover {
+    opacity: 0.9;
+}
+
+.carousel-card-link img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.single-card-link {
+    display: block;
+    width: 100%;
+    cursor: pointer;
+    text-decoration: none;
+    transition: opacity 0.2s ease;
+}
+
+.single-card-link:hover {
+    opacity: 0.9;
+}
+
+.single-card-link img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
 .ai-preview {
     background: #f8fdff;
     border: none;

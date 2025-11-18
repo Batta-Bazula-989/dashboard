@@ -14,7 +14,8 @@ class DataProcessor {
                 page_profile_picture_url: item.ad_data?.page_profile_picture_url || '',
                 ad_text: item.ad_data?.ad_text || '',
                 videos: item.ad_data?.videos || [],
-                images: item.ad_data?.images || []
+                images: item.ad_data?.images || [],
+                cards: item.ad_data?.cards || []
             }
         };
     }
