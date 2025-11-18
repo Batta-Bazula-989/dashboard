@@ -513,6 +513,35 @@
     letter-spacing: 0.5px;
 }
 
+/* Carousel Analysis Section within Cards */
+.carousel-analysis-section {
+    background: #f8fdff;
+    border: none;
+    border-radius: 0;
+    padding: 6px;
+    margin: 0 -15px 0 -15px;
+    width: calc(100% + 30px);
+}
+
+.carousel-analysis-section .analysis-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 7px;
+    position: relative;
+}
+
+.carousel-analysis-section .analysis-badge {
+    background: #ABC8C7;
+    color: white;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
 .card-body {
     padding: var(--spacing-md);
     flex: 1;

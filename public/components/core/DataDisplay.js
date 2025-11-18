@@ -133,6 +133,9 @@ class DataDisplay {
             if (processed.content_type === 'video') {
                 console.log('Adding video analysis to existing cards');
                 this.addVideoAnalysis(processed);
+            } else if (this.hasCarouselData(processed)) {
+                console.log('Adding carousel analysis to existing cards');
+                this.addCarouselAnalysis(processed);
             } else {
                 console.log('Adding text card');
                 this.addTextCard(processed);
@@ -185,6 +188,43 @@ class DataDisplay {
       }
   }
 
+    hasCarouselData(processed) {
+        // Check if this is carousel analysis data
+        const hasAnalysis = processed.ai_analysis && Object.keys(processed.ai_analysis).length > 0;
+        const hasNoVideos = !processed.ad_data?.videos || processed.ad_data.videos.length === 0;
+        
+        if (!hasAnalysis || !hasNoVideos) return false;
+        
+        // Check if it has images or cards arrays in ad_data
+        const hasImages = processed.ad_data?.images && Array.isArray(processed.ad_data.images) && processed.ad_data.images.length > 0;
+        const hasCards = processed.ad_data?.cards && Array.isArray(processed.ad_data.cards) && processed.ad_data.cards.length > 0;
+        
+        // If it has images/cards arrays, it's definitely carousel
+        if (hasImages || hasCards) return true;
+        
+        // If it only has ai_analysis (follow-up analysis), check if we can match it to existing card with carousel
+        // This handles the case where analysis response doesn't include images array
+        if (hasAnalysis && processed.competitor_name && this.dataDisplay) {
+            const matchText = processed.body || processed.ad_data?.ad_text || '';
+            const existingCards = CardMatcher.findAll(
+                this.dataDisplay,
+                processed.competitor_name,
+                matchText
+            );
+            
+            // Check if any matched card has carousel (images or cards)
+            for (let card of existingCards) {
+                const hasImageCarousel = card.querySelector('.image-carousel-container');
+                const hasCardCarousel = card.querySelector('.carousel-card-item');
+                if (hasImageCarousel || hasCardCarousel) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
+    }
+
 addVideoAnalysis(videoData) {
     console.log('=== ADDING VIDEO ANALYSIS ===');
     console.log('Video data:', videoData);
@@ -210,6 +250,44 @@ addVideoAnalysis(videoData) {
         console.log(`Adding video analysis to card ${index + 1}`);
         const section = AnalysisSections.createVideoAnalysis(
             videoData,
+            this.onShowFullAnalysis
+        );
+        const divider = document.createElement('div');
+        divider.className = 'section-divider';
+        card.appendChild(divider);
+        card.appendChild(section);
+    });
+}
+
+addCarouselAnalysis(carouselData) {
+    console.log('=== ADDING CAROUSEL ANALYSIS ===');
+    console.log('Carousel data:', carouselData);
+    console.log('Looking for competitor:', carouselData.competitor_name);
+    console.log('Looking for body:', carouselData.body);
+    console.log('Content type:', carouselData.content_type);
+
+    // Use ad_text from ad_data if body is not available
+    const matchText = carouselData.body || carouselData.ad_data?.ad_text || '';
+
+    const existingCards = CardMatcher.findAll(
+        this.dataDisplay,
+        carouselData.competitor_name,
+        matchText
+    );
+
+    console.log('Found existing cards:', existingCards.length);
+
+    existingCards.forEach((card, index) => {
+        // Check if this card already has carousel analysis section
+        const hasCarouselAnalysis = card.querySelector('.carousel-analysis-section');
+        if (hasCarouselAnalysis) {
+            console.log(`Card ${index + 1} already has carousel analysis, skipping`);
+            return;
+        }
+
+        console.log(`Adding carousel analysis to card ${index + 1}`);
+        const section = AnalysisSections.createCarouselAnalysis(
+            carouselData,
             this.onShowFullAnalysis
         );
         const divider = document.createElement('div');

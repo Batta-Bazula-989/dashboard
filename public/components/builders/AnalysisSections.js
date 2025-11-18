@@ -62,6 +62,39 @@ class AnalysisSections {
         return section;
     }
 
+    static createCarouselAnalysis(carouselData, onShowFullAnalysis) {
+        const section = document.createElement('div');
+        section.className = 'carousel-analysis-section';
+
+        // Header with CAROUSEL badge
+        const header = document.createElement('div');
+        header.className = 'analysis-header';
+
+        const badge = document.createElement('div');
+        badge.className = 'analysis-badge';
+        badge.textContent = 'CAROUSEL';
+        header.appendChild(badge);
+
+        const btn = document.createElement('button');
+        btn.className = 'full-analysis-btn';
+        btn.innerHTML = '⋯';
+        btn.onclick = () => onShowFullAnalysis(
+            `${carouselData.competitor_name} - Carousel Analysis`,
+            carouselData
+        );
+        header.appendChild(btn);
+
+        section.appendChild(header);
+
+        // Content with metrics
+        const content = document.createElement('div');
+        content.className = 'ai-preview-content';
+        content.innerHTML = this.buildMetrics(carouselData.ai_analysis);
+        section.appendChild(content);
+
+        return section;
+    }
+
     static buildMetrics(analysis) {
         if (!analysis || typeof analysis !== 'object') {
             return 'Аналіз доступний';
