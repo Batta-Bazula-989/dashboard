@@ -189,7 +189,9 @@ class DataDisplay {
   }
 
     hasCarouselData(processed) {
-        // Check if this is carousel analysis data
+        // This function should ONLY return true for FOLLOW-UP analysis (not original data)
+        // Original data with cards/images should go through addTextCard() to create the card first
+        
         const hasAnalysis = processed.ai_analysis && Object.keys(processed.ai_analysis).length > 0;
         const hasNoVideos = !processed.ad_data?.videos || processed.ad_data.videos.length === 0;
         
@@ -199,8 +201,9 @@ class DataDisplay {
         const hasImages = processed.ad_data?.images && Array.isArray(processed.ad_data.images) && processed.ad_data.images.length > 0;
         const hasCards = processed.ad_data?.cards && Array.isArray(processed.ad_data.cards) && processed.ad_data.cards.length > 0;
         
-        // If it has images/cards arrays, it's definitely carousel
-        if (hasImages || hasCards) return true;
+        // If it has images/cards arrays, this is ORIGINAL data - should create card via addTextCard()
+        // Return FALSE so it goes through addTextCard() instead
+        if (hasImages || hasCards) return false;
         
         // If it only has ai_analysis (follow-up analysis), check if we can match it to existing card with carousel
         // This handles the case where analysis response doesn't include images array
@@ -217,7 +220,7 @@ class DataDisplay {
                 const hasImageCarousel = card.querySelector('.image-carousel-container');
                 const hasCardCarousel = card.querySelector('.carousel-card-item');
                 if (hasImageCarousel || hasCardCarousel) {
-                    return true;
+                    return true; // This is follow-up analysis for an existing carousel card
                 }
             }
         }
