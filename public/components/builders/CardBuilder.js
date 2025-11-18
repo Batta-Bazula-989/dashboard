@@ -18,8 +18,13 @@ class CardBuilder {
             card.appendChild(this.buildAdText(entry.ad_data.ad_text));
         }
 
+        // Priority: video first, then image carousel, then single image
         if (entry.ad_data?.videos?.[0]?.video_preview_image_url) {
             card.appendChild(this.buildVideoThumbnail(entry.ad_data.videos[0]));
+        } else if (entry.ad_data?.images && entry.ad_data.images.length > 1) {
+            card.appendChild(this.buildImageCarousel(entry.ad_data.images));
+        } else if (entry.ad_data?.images?.[0]) {
+            card.appendChild(this.buildSingleImage(entry.ad_data.images[0]));
         }
 
         if (entry.ai_analysis) {
@@ -210,6 +215,165 @@ buildPlatformBadges(platforms) {
         videoElement.appendChild(fallback);
         
         return videoElement;
+    }
+
+    buildImageCarousel(images) {
+        const carouselContainer = document.createElement('div');
+        carouselContainer.className = 'image-carousel-container';
+        
+        const carousel = document.createElement('div');
+        carousel.className = 'image-carousel';
+        
+        const imageWrapper = document.createElement('div');
+        imageWrapper.className = 'carousel-images';
+        
+        images.forEach((image, index) => {
+            const img = document.createElement('img');
+            img.className = 'carousel-image';
+            img.src = image.resized_image_url || image.original_image_url || '';
+            img.alt = `Image ${index + 1}`;
+            img.loading = 'lazy';
+            
+            // Show first image by default
+            if (index === 0) {
+                img.classList.add('active');
+            } else {
+                img.style.display = 'none';
+            }
+            
+            imageWrapper.appendChild(img);
+        });
+        
+        carousel.appendChild(imageWrapper);
+        
+        // Navigation buttons (only show if more than 1 image)
+        if (images.length > 1) {
+            const prevBtn = document.createElement('button');
+            prevBtn.className = 'carousel-btn carousel-btn-prev';
+            prevBtn.innerHTML = '‹';
+            prevBtn.setAttribute('aria-label', 'Previous image');
+            
+            const nextBtn = document.createElement('button');
+            nextBtn.className = 'carousel-btn carousel-btn-next';
+            nextBtn.innerHTML = '›';
+            nextBtn.setAttribute('aria-label', 'Next image');
+            
+            // Indicators
+            const indicators = document.createElement('div');
+            indicators.className = 'carousel-indicators';
+            
+            images.forEach((_, index) => {
+                const indicator = document.createElement('button');
+                indicator.className = 'carousel-indicator';
+                if (index === 0) indicator.classList.add('active');
+                indicator.setAttribute('aria-label', `Go to image ${index + 1}`);
+                indicator.addEventListener('click', () => this.goToImage(carousel, index));
+                indicators.appendChild(indicator);
+            });
+            
+            carousel.appendChild(prevBtn);
+            carousel.appendChild(nextBtn);
+            carousel.appendChild(indicators);
+            
+            // Store current index on carousel element
+            carousel.dataset.currentIndex = '0';
+            
+            // Navigation handlers
+            const self = this;
+            prevBtn.addEventListener('click', () => {
+                const currentIndex = parseInt(carousel.dataset.currentIndex || '0');
+                const newIndex = (currentIndex - 1 + images.length) % images.length;
+                carousel.dataset.currentIndex = newIndex.toString();
+                self.goToImage(carousel, newIndex);
+            });
+            
+            nextBtn.addEventListener('click', () => {
+                const currentIndex = parseInt(carousel.dataset.currentIndex || '0');
+                const newIndex = (currentIndex + 1) % images.length;
+                carousel.dataset.currentIndex = newIndex.toString();
+                self.goToImage(carousel, newIndex);
+            });
+            
+            // Touch/swipe support
+            let touchStartX = 0;
+            let touchEndX = 0;
+            
+            carousel.addEventListener('touchstart', (e) => {
+                touchStartX = e.changedTouches[0].screenX;
+            }, { passive: true });
+            
+            carousel.addEventListener('touchend', (e) => {
+                touchEndX = e.changedTouches[0].screenX;
+                const currentIndex = parseInt(carousel.dataset.currentIndex || '0');
+                self.handleSwipe(carousel, touchStartX, touchEndX, images.length, () => {
+                    const newIndex = (currentIndex - 1 + images.length) % images.length;
+                    carousel.dataset.currentIndex = newIndex.toString();
+                    self.goToImage(carousel, newIndex);
+                }, () => {
+                    const newIndex = (currentIndex + 1) % images.length;
+                    carousel.dataset.currentIndex = newIndex.toString();
+                    self.goToImage(carousel, newIndex);
+                });
+            }, { passive: true });
+        }
+        
+        carouselContainer.appendChild(carousel);
+        return carouselContainer;
+    }
+
+    buildSingleImage(image) {
+        const imgContainer = document.createElement('div');
+        imgContainer.className = 'single-image-container';
+        
+        const img = document.createElement('img');
+        img.className = 'single-image';
+        img.src = image.resized_image_url || image.original_image_url || '';
+        img.alt = 'Ad image';
+        img.loading = 'lazy';
+        
+        imgContainer.appendChild(img);
+        return imgContainer;
+    }
+
+    goToImage(carousel, index) {
+        const images = carousel.querySelectorAll('.carousel-image');
+        const indicators = carousel.querySelectorAll('.carousel-indicator');
+        
+        // Update current index
+        carousel.dataset.currentIndex = index.toString();
+        
+        images.forEach((img, i) => {
+            if (i === index) {
+                img.style.display = 'block';
+                img.classList.add('active');
+            } else {
+                img.style.display = 'none';
+                img.classList.remove('active');
+            }
+        });
+        
+        indicators.forEach((indicator, i) => {
+            if (i === index) {
+                indicator.classList.add('active');
+            } else {
+                indicator.classList.remove('active');
+            }
+        });
+    }
+
+    handleSwipe(carousel, startX, endX, totalImages, onPrev, onNext) {
+        const swipeThreshold = 50;
+        const diff = startX - endX;
+        
+        if (Math.abs(diff) > swipeThreshold) {
+            if (diff > 0) {
+                // Swipe left - next image
+                onNext();
+            } else {
+                // Swipe right - previous image
+                onPrev();
+            }
+        }
     }
 }
 

@@ -13,7 +13,8 @@ class DataProcessor {
                 page_profile_uri: item.ad_data?.page_profile_uri || '#',
                 page_profile_picture_url: item.ad_data?.page_profile_picture_url || '',
                 ad_text: item.ad_data?.ad_text || '',
-                videos: item.ad_data?.videos || []
+                videos: item.ad_data?.videos || [],
+                images: item.ad_data?.images || []
             }
         };
     }
