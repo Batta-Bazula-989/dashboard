@@ -192,6 +192,11 @@ class DataDisplay {
         // This function should ONLY return true for FOLLOW-UP analysis (not original data)
         // Original data with cards/images should go through addTextCard() to create the card first
         
+        // If content_type is explicitly 'carousel', this is follow-up carousel analysis
+        if (processed.content_type === 'carousel') {
+            return true;
+        }
+        
         const hasAnalysis = processed.ai_analysis && Object.keys(processed.ai_analysis).length > 0;
         const hasNoVideos = !processed.ad_data?.videos || processed.ad_data.videos.length === 0;
         
@@ -206,14 +211,24 @@ class DataDisplay {
         if (hasImages || hasCards) return false;
         
         // If it only has ai_analysis (follow-up analysis), check if we can match it to existing card with carousel
-        // This handles the case where analysis response doesn't include images array
+        // Try matching by competitor name and checking if existing cards have carousels
         if (hasAnalysis && processed.competitor_name && this.dataDisplay) {
+            // First try with text matching
             const matchText = processed.body || processed.ad_data?.ad_text || '';
-            const existingCards = CardMatcher.findAll(
+            let existingCards = CardMatcher.findAll(
                 this.dataDisplay,
                 processed.competitor_name,
                 matchText
             );
+            
+            // If no match with text, try matching by name only to find cards with carousels
+            if (existingCards.length === 0 && matchText) {
+                existingCards = CardMatcher.findAll(
+                    this.dataDisplay,
+                    processed.competitor_name,
+                    null // Match by name only
+                );
+            }
             
             // Check if any matched card has carousel (images or cards)
             for (let card of existingCards) {
@@ -272,13 +287,38 @@ addCarouselAnalysis(carouselData) {
     // Use ad_text from ad_data if body is not available
     const matchText = carouselData.body || carouselData.ad_data?.ad_text || '';
 
-    const existingCards = CardMatcher.findAll(
+    // First try matching by name + text
+    let existingCards = CardMatcher.findAll(
         this.dataDisplay,
         carouselData.competitor_name,
         matchText
     );
 
-    console.log('Found existing cards:', existingCards.length);
+    console.log('Found existing cards (with text match):', existingCards.length);
+
+    // If no match with text, try matching by name only and filter for cards with carousels
+    if (existingCards.length === 0) {
+        console.log('No match with text, trying name-only match...');
+        const allCardsForCompetitor = CardMatcher.findAll(
+            this.dataDisplay,
+            carouselData.competitor_name,
+            null // Match by name only
+        );
+        
+        // Filter to only cards that have carousels
+        existingCards = Array.from(allCardsForCompetitor).filter(card => {
+            const hasImageCarousel = card.querySelector('.image-carousel-container');
+            const hasCardCarousel = card.querySelector('.carousel-card-item');
+            return hasImageCarousel || hasCardCarousel;
+        });
+        
+        console.log('Found existing cards (name-only with carousel):', existingCards.length);
+    }
+
+    if (existingCards.length === 0) {
+        console.warn('⚠️ No existing cards with carousels found for carousel analysis. Cannot add carousel analysis section.');
+        return;
+    }
 
     existingCards.forEach((card, index) => {
         // Check if this card already has carousel analysis section
