@@ -82,6 +82,11 @@ class Modal {
 
 
     formatJsonAnalysis(analysis) {
+        // Check if carousel analysis format (has technical, text_and_visual, characters, sequence, visual_analysis)
+        if (analysis.technical && (analysis.text_and_visual || analysis.characters || analysis.sequence || analysis.visual_analysis)) {
+            return this.formatCarouselAnalysis(analysis);
+        }
+        
         // Check if video analysis format
         if (analysis.technical || analysis.visual_and_editing || analysis.people_and_product) {
             return this.formatVideoAnalysis(analysis);
@@ -222,6 +227,132 @@ class Modal {
         return formatted;
     }
 
+    formatCarouselAnalysis(analysis) {
+        let formatted = '';
+
+        if (analysis.technical) {
+            formatted += this.formatVideoSection('ТЕХНІЧНІ ХАРАКТЕРИСТИКИ', analysis.technical, [
+                { key: 'card_count', label: 'Кількість карток' },
+                { key: 'aspect_ratio', label: 'Співвідношення сторін' },
+                { key: 'quality', label: 'Якість' },
+                { key: 'focus', label: 'Фокус' },
+                { key: 'originality', label: 'Оригінальність' }
+            ]);
+        }
+
+        if (analysis.text_and_visual) {
+            formatted += this.formatVideoSection('ТЕКСТ ТА ВІЗУАЛ', analysis.text_and_visual, [
+                { key: 'text_presence', label: 'Наявність тексту' },
+                { key: 'layout', label: 'Макет' },
+                { key: 'consistency', label: 'Консистентність' }
+            ]);
+        }
+
+        if (analysis.characters) {
+            formatted += this.formatVideoSection('ПЕРСОНАЖІ', analysis.characters, [
+                { key: 'people', label: 'Люди' },
+                { key: 'product', label: 'Продукт' },
+                { key: 'balance', label: 'Баланс' }
+            ]);
+        }
+
+        if (analysis.sequence) {
+            formatted += this.formatVideoSection('ПОСЛІДОВНІСТЬ', analysis.sequence, [
+                { key: 'logic', label: 'Логіка' },
+                { key: 'first_slide', label: 'Перший слайд' },
+                { key: 'progression', label: 'Прогресія' }
+            ]);
+        }
+
+        if (analysis.visual_analysis) {
+            formatted += this.formatVideoSection('ВІЗУАЛЬНИЙ АНАЛІЗ', analysis.visual_analysis, [
+                { key: 'colors', label: 'Кольори' },
+                { key: 'symbols', label: 'Символи' },
+                { key: 'composition', label: 'Композиція' },
+                { key: 'branding', label: 'Брендинг' }
+            ]);
+        }
+
+        if (analysis.marketing) {
+            formatted += this.formatVideoSection('МАРКЕТИНГ', analysis.marketing, [
+                { key: 'offer_type', label: 'Тип оффера' },
+                { key: 'funnel_stage', label: 'Стадія воронки' },
+                { key: 'hooks', label: 'Хуки' },
+                { key: 'usp', label: 'УТП' },
+                { key: 'archetype', label: 'Архетип' }
+            ]);
+        }
+
+        if (analysis.sales) {
+            formatted += this.formatVideoSection('ПРОДАЖІ', analysis.sales, [
+                { key: 'value_proposition', label: 'Value proposition' },
+                { key: 'cta', label: 'CTA' },
+                { key: 'pricing', label: 'Ціноутворення' }
+            ]);
+        }
+
+        if (analysis.metrics) {
+            formatted += this.formatVideoSection('МЕТРИКИ', analysis.metrics, [
+                { key: 'rotation', label: 'Ротація' },
+                { key: 'novelty', label: 'Новизна' },
+                { key: 'fatigue_risk', label: 'Ризик втоми' }
+            ]);
+        }
+
+        if (analysis.recommendations) {
+            formatted += this.formatCarouselRecommendations(analysis.recommendations);
+        }
+
+        return formatted;
+    }
+
+    formatCarouselRecommendations(recommendations) {
+        let formatted = `
+            <div class="clean-section">
+                <div class="section-pill">РЕКОМЕНДАЦІЇ</div>
+                <div class="clean-cards">
+        `;
+
+        if (recommendations.must_have && Array.isArray(recommendations.must_have)) {
+            formatted += `
+                <div class="clean-card">
+                    <div class="clean-content">
+                        <div class="clean-title">Must have</div>
+                        <div class="clean-description">${recommendations.must_have.map(item => Sanitizer.escapeHTML(String(item))).join(', ')}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        if (recommendations.nice_to_have && Array.isArray(recommendations.nice_to_have)) {
+            formatted += `
+                <div class="clean-card">
+                    <div class="clean-content">
+                        <div class="clean-title">Nice to have</div>
+                        <div class="clean-description">${recommendations.nice_to_have.map(item => Sanitizer.escapeHTML(String(item))).join(', ')}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        if (recommendations.fatigue_lever && Array.isArray(recommendations.fatigue_lever)) {
+            formatted += `
+                <div class="clean-card">
+                    <div class="clean-content">
+                        <div class="clean-title">Fatigue lever</div>
+                        <div class="clean-description">${recommendations.fatigue_lever.map(item => Sanitizer.escapeHTML(String(item))).join(', ')}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        formatted += `
+                </div>
+            </div>
+        `;
+
+        return formatted;
+    }
 
     formatVideoSection(title, data, fields) {
         let formatted = `

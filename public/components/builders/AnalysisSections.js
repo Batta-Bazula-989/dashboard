@@ -86,10 +86,10 @@ class AnalysisSections {
 
         section.appendChild(header);
 
-        // Content with metrics
+        // Content with metrics - use carousel-specific builder
         const content = document.createElement('div');
         content.className = 'ai-preview-content';
-        content.innerHTML = this.buildMetrics(carouselData.ai_analysis);
+        content.innerHTML = this.buildCarouselMetrics(carouselData.ai_analysis);
         section.appendChild(content);
 
         return section;
@@ -128,6 +128,90 @@ class AnalysisSections {
                 <div class="metric-row">
                     <span class="metric-label">Value proposition:</span>
                     <span class="metric-value">${score}/10</span>
+                </div>
+            `;
+        }
+
+        return html || 'Аналіз доступний';
+    }
+
+    static buildCarouselMetrics(analysis) {
+        if (!analysis || typeof analysis !== 'object') {
+            return 'Аналіз доступний';
+        }
+
+        let html = '';
+
+        // Marketing section - offer_type
+        if (analysis.marketing?.offer_type) {
+            const offerType = Sanitizer.escapeHTML(String(analysis.marketing.offer_type));
+            html += `
+                <div class="metric-row">
+                    <span class="metric-label">Тип оффера:</span>
+                    <span class="metric-value">${offerType}</span>
+                </div>
+            `;
+        }
+
+        // Sales section - value_proposition (can be string or object with score)
+        if (analysis.sales?.value_proposition) {
+            let valueProp = analysis.sales.value_proposition;
+            if (typeof valueProp === 'object' && valueProp.score !== undefined) {
+                valueProp = `${valueProp.score}/10`;
+            } else if (typeof valueProp === 'string') {
+                valueProp = valueProp;
+            } else {
+                valueProp = String(valueProp);
+            }
+            const escapedValueProp = Sanitizer.escapeHTML(valueProp);
+            html += `
+                <div class="metric-row">
+                    <span class="metric-label">Value proposition:</span>
+                    <span class="metric-value">${escapedValueProp}</span>
+                </div>
+            `;
+        }
+
+        // Technical section - quality
+        if (analysis.technical?.quality) {
+            const quality = Sanitizer.escapeHTML(String(analysis.technical.quality));
+            html += `
+                <div class="metric-row">
+                    <span class="metric-label">Якість:</span>
+                    <span class="metric-value">${quality}</span>
+                </div>
+            `;
+        }
+
+        // Marketing section - funnel_stage
+        if (analysis.marketing?.funnel_stage) {
+            const funnelStage = Sanitizer.escapeHTML(String(analysis.marketing.funnel_stage));
+            html += `
+                <div class="metric-row">
+                    <span class="metric-label">Стадія воронки:</span>
+                    <span class="metric-value">${funnelStage}</span>
+                </div>
+            `;
+        }
+
+        // Sales section - cta
+        if (analysis.sales?.cta) {
+            const cta = Sanitizer.escapeHTML(String(analysis.sales.cta));
+            html += `
+                <div class="metric-row">
+                    <span class="metric-label">CTA:</span>
+                    <span class="metric-value">${cta}</span>
+                </div>
+            `;
+        }
+
+        // Metrics section - novelty
+        if (analysis.metrics?.novelty) {
+            const novelty = Sanitizer.escapeHTML(String(analysis.metrics.novelty));
+            html += `
+                <div class="metric-row">
+                    <span class="metric-label">Novelty:</span>
+                    <span class="metric-value">${novelty}</span>
                 </div>
             `;
         }
