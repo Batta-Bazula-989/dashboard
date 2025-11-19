@@ -133,6 +133,10 @@ class DataDisplay {
             if (processed.content_type === 'video') {
                 console.log('Adding video analysis to existing cards');
                 this.addVideoAnalysis(processed);
+            } else if (processed.content_type === 'carousel') {
+                // For carousel content, ONLY add analysis to existing cards - NEVER create new cards
+                console.log('Processing carousel - will only add analysis to existing cards with matching body');
+                this.addCarouselAnalysis(processed);
             } else if (this.hasCarouselData(processed)) {
                 console.log('Adding carousel analysis to existing cards');
                 this.addCarouselAnalysis(processed);
@@ -284,39 +288,33 @@ addCarouselAnalysis(carouselData) {
     console.log('Looking for body:', carouselData.body);
     console.log('Content type:', carouselData.content_type);
 
-    // Use ad_text from ad_data if body is not available
+    // Only add analysis if ai_analysis is available
+    if (!carouselData.ai_analysis || Object.keys(carouselData.ai_analysis).length === 0) {
+        console.log('⚠️ No ai_analysis available in carousel data. Skipping.');
+        return;
+    }
+
+    // Match by body field - this is the primary matching criteria
     const matchText = carouselData.body || carouselData.ad_data?.ad_text || '';
 
-    // First try matching by name + text
+    if (!matchText) {
+        console.warn('⚠️ No body or ad_text found in carousel data. Cannot match to existing card.');
+        return;
+    }
+
+    // Match by competitor name + body text
     let existingCards = CardMatcher.findAll(
         this.dataDisplay,
         carouselData.competitor_name,
         matchText
     );
 
-    console.log('Found existing cards (with text match):', existingCards.length);
+    console.log('Found existing cards (with body match):', existingCards.length);
 
-    // If no match with text, try matching by name only and filter for cards with carousels
+    // If no match found, skip - do NOT create a new card
     if (existingCards.length === 0) {
-        console.log('No match with text, trying name-only match...');
-        const allCardsForCompetitor = CardMatcher.findAll(
-            this.dataDisplay,
-            carouselData.competitor_name,
-            null // Match by name only
-        );
-        
-        // Filter to only cards that have carousels
-        existingCards = Array.from(allCardsForCompetitor).filter(card => {
-            const hasImageCarousel = card.querySelector('.image-carousel-container');
-            const hasCardCarousel = card.querySelector('.carousel-card-item');
-            return hasImageCarousel || hasCardCarousel;
-        });
-        
-        console.log('Found existing cards (name-only with carousel):', existingCards.length);
-    }
-
-    if (existingCards.length === 0) {
-        console.warn('⚠️ No existing cards with carousels found for carousel analysis. Cannot add carousel analysis section.');
+        console.log('⚠️ No existing card found with matching body. Skipping carousel analysis (will not create new card).');
+        console.log('Body text being searched:', matchText.substring(0, 100));
         return;
     }
 
@@ -333,10 +331,25 @@ addCarouselAnalysis(carouselData) {
             carouselData,
             this.onShowFullAnalysis
         );
-        const divider = document.createElement('div');
-        divider.className = 'section-divider';
-        card.appendChild(divider);
-        card.appendChild(section);
+        
+        // Find the text analysis section to insert after it
+        const textAnalysisSection = card.querySelector('.ai-preview');
+        
+        if (textAnalysisSection) {
+            // Insert after text analysis section
+            const divider = document.createElement('div');
+            divider.className = 'section-divider';
+            // Insert divider and section right after text analysis
+            textAnalysisSection.insertAdjacentElement('afterend', divider);
+            divider.insertAdjacentElement('afterend', section);
+        } else {
+            // If no text analysis section, append at the end (shouldn't happen normally)
+            console.warn('No text analysis section found, appending carousel analysis at end');
+            const divider = document.createElement('div');
+            divider.className = 'section-divider';
+            card.appendChild(divider);
+            card.appendChild(section);
+        }
     });
 }
 

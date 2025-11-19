@@ -10,6 +10,7 @@ class CardMatcher {
             if (!link?.textContent) continue;
 
             const existingName = link.textContent.trim();
+            // Get text from .ad-text element (which now contains body or ad_text)
             const existingAdText = adTextEl?.textContent.trim() || '';
 
             const nameMatches = this.namesMatch(existingName, competitorName);

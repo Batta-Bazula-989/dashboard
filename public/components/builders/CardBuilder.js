@@ -14,8 +14,10 @@ class CardBuilder {
         card.appendChild(this.buildHeader(entry));
         card.appendChild(this.buildDivider());
 
-        if (entry.ad_data?.ad_text) {
-            card.appendChild(this.buildAdText(entry.ad_data.ad_text));
+        // Store body or ad_text for matching - prefer ad_text, fallback to body
+        const textToDisplay = entry.ad_data?.ad_text || entry.body || '';
+        if (textToDisplay) {
+            card.appendChild(this.buildAdText(textToDisplay));
         }
 
         // Priority: video first, then cards carousel, then images carousel, then single card/image
