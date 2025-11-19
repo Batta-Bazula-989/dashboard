@@ -4,7 +4,7 @@ class DataDisplay {
         this.onShowFullAnalysis = null;
         this.cardBuilder = null;
     }
- // ---
+
     init(container, onShowFullAnalysis = null) {
         this.onShowFullAnalysis = onShowFullAnalysis;
         this.cardBuilder = new CardBuilder(onShowFullAnalysis);
