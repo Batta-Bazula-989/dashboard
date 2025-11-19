@@ -42,7 +42,6 @@ class Modal {
         document.addEventListener('keydown', this.escapeHandler);
     }
 
-
     formatSectionContent(content) {
         if (typeof content === 'object' && content.copywriting) {
             return this.formatJsonAnalysis(content);
@@ -79,7 +78,6 @@ class Modal {
             </div>
         </div>`;
     }
-
 
     formatJsonAnalysis(analysis) {
         // Check if carousel analysis format (has technical, text_and_visual, characters, sequence, visual_analysis)
@@ -150,7 +148,6 @@ class Modal {
 
         return formatted;
     }
-
 
     formatVideoAnalysis(analysis) {
         let formatted = '';
@@ -387,7 +384,6 @@ class Modal {
 
         return formatted;
     }
-
 
     formatJsonSection(title, data, fields) {
         let formatted = `
