@@ -45,7 +45,6 @@ class DataService {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
-            console.log('Data cleared from server');
             return true;
         } catch (error) {
             console.error('Error clearing data:', error);

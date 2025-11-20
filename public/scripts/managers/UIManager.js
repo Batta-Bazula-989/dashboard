@@ -38,7 +38,6 @@ class UIManager {
         if (existingOverlay) {
             // Use the existing overlay
             this.loadingOverlay = existingOverlay;
-            console.log('✅ Using existing loading overlay from main-content');
             
             // Make sure it has content
             if (!existingOverlay.querySelector('.loader-container')) {
@@ -55,7 +54,6 @@ class UIManager {
                         <div class="subtitle">Analyzing data</div>
                     </div>
                 `;
-                console.log('✅ Populated empty loading overlay with content');
             }
             
             // Remove the active class so it starts hidden
@@ -83,7 +81,6 @@ class UIManager {
             </div>
         `;
         mainContent.appendChild(this.loadingOverlay);
-        console.log('✅ Loading overlay created and appended to main-content');
     }
 
     /**
@@ -92,7 +89,6 @@ class UIManager {
     showLoading() {
         if (this.loadingOverlay) {
             this.loadingOverlay.classList.add('active');
-            console.log('🔄 Loading animation shown');
         } else {
             console.error('❌ Loading overlay not found!');
         }
@@ -104,7 +100,6 @@ class UIManager {
     hideLoading() {
         if (this.loadingOverlay) {
             this.loadingOverlay.classList.remove('active');
-            console.log('✅ Loading animation hidden');
         }
     }
 
@@ -231,7 +226,6 @@ showNotification(notification) {
      */
     dismissAllErrorNotifications() {
         const errorToasts = document.querySelectorAll('.notification-toast .notification-accent.error');
-        console.log(`🔔 Dismissing ${errorToasts.length} error notification(s)`);
         
         errorToasts.forEach(accent => {
             const toast = accent.closest('.notification-toast');
@@ -245,8 +239,6 @@ showNotification(notification) {
      * Show error notification (separate method for ErrorService)
      */
     showErrorNotification(error) {
-        console.log('🎯 UIManager.showErrorNotification called with:', error);
-        
         if (!error) {
             console.error('❌ showErrorNotification called with null/undefined error');
             return;
@@ -257,9 +249,7 @@ showNotification(notification) {
         const title = 'Error Occurred';
         const iconSvg = this.getAlertIcon();
         
-        console.log(`📨 Showing error toast: "${message}"`);
         this.showModernToast(title, message, 'error', iconSvg);
-        console.log('✅ Error toast should now be visible');
     }
 
     /**

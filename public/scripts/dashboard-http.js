@@ -8,7 +8,6 @@ constructor() {
         const hasErrorNotifications = document.querySelectorAll('.notification-toast .notification-accent.error').length > 0;
         
         if (hasErrorNotifications) {
-            console.log('🔔 First notification received - dismissing error notifications and showing loading state');
             // Dismiss all error notifications
             if (this.uiManager) {
                 this.uiManager.dismissAllErrorNotifications();
@@ -24,10 +23,11 @@ constructor() {
         this.stateManager.showWorkflowLoading();
     });
     
+    // Throttle updateUI to prevent rapid-fire updates
+    this._updateUITimeout = null;
+    
     // Error Service
     this.errorService = new ErrorService((error) => {
-        console.log('🚨 ERROR received:', error);
-
         try {
             if (this.stateManager) {
                 this.stateManager.setFetching(false);
@@ -41,9 +41,7 @@ constructor() {
             }
 
             if (this.uiManager) {
-                console.log('📢 Calling uiManager.showErrorNotification with:', error);
                 this.uiManager.showErrorNotification(error);
-                console.log('✅ uiManager.showErrorNotification called');
             } else {
                 console.error('❌ uiManager is not available when error callback is triggered!');
             }
@@ -205,7 +203,6 @@ constructor() {
      * Handle successful form submission
      */
     handleFormSuccess(data) {
-        console.log('Form submitted successfully:', data);
         const formContainer = document.getElementById('formContainer');
         if (formContainer) {
             formContainer.style.display = 'none';
@@ -241,13 +238,7 @@ constructor() {
                 const dataArray = result.data || [];
                 const counts = this.stateManager.getCounts();
 
-                console.log(`API returned ${dataArray.length} items`);
-                console.log(`Last data count: ${counts.lastDataCount}`);
-                console.log(`Is first fetch: ${this.stateManager.isFirstDataFetch()}`);
-
                 if (this.stateManager.isFirstDataFetch()) {
-                    console.log(`First fetch - processing all ${dataArray.length} items`);
-
                     if (dataArray.length > 0 && this.dataDisplay) {
                         this.dataDisplay.clear();
                     }
@@ -274,12 +265,9 @@ constructor() {
                             }
                         }
                     }
-
-                    console.log(`=== FIRST FETCH COMPLETE ===`);
                 }
                 else if (dataArray.length > counts.lastDataCount) {
                     const newItems = dataArray.slice(counts.lastDataCount);
-                    console.log(`Found ${newItems.length} new items`);
 
                     if (counts.lastDataCount === 0 && this.dataDisplay) {
                         this.dataDisplay.clear();
@@ -293,8 +281,6 @@ constructor() {
                     this.updateUI();
                 }
                 else if (dataArray.length < counts.lastDataCount) {
-                    console.log(`Data count decreased, reprocessing`);
-
                     if (this.dataDisplay) {
                         this.dataDisplay.clear();
                     }
@@ -346,9 +332,6 @@ constructor() {
      * Add data item to display
      */
     addDataItem(incoming) {
-        const dataType = incoming.dataType || 'unknown';
-        console.log(`Adding ${dataType} data item:`, incoming);
-
         // Hide loading animation when first data arrives
         if (this.stateManager) {
             this.stateManager.allowWorkflowLoading();
@@ -357,7 +340,6 @@ constructor() {
 
         if (this.dataDisplay) {
             const stats = this.dataDisplay.addDataItem(incoming);
-            console.log(`Analysis stats:`, stats);
 
             this.stateManager.incrementDataCount();
 
@@ -368,17 +350,27 @@ constructor() {
     }
 
     /**
-     * Update UI (badges, visibility)
+     * Update UI (badges, visibility) - throttled to prevent rapid updates
      */
     updateUI() {
-        const hasData = this.dataDisplay && this.dataDisplay.dataDisplay.querySelectorAll('.card').length > 0;
-
-        this.uiManager.updateClearButtonVisibility(hasData);
-
-        if (hasData && this.dataDisplay) {
-            const stats = this.dataDisplay.getStats();
-            this.uiManager.updateCounterBadges(stats.competitorCards, stats.adsCount);
+        // Clear existing timeout if any
+        if (this._updateUITimeout) {
+            clearTimeout(this._updateUITimeout);
         }
+
+        // Throttle UI updates to max once per 100ms
+        this._updateUITimeout = setTimeout(() => {
+            const hasData = this.dataDisplay && this.dataDisplay.dataDisplay.querySelectorAll('.card').length > 0;
+
+            this.uiManager.updateClearButtonVisibility(hasData);
+
+            if (hasData && this.dataDisplay) {
+                const stats = this.dataDisplay.getStats();
+                this.uiManager.updateCounterBadges(stats.competitorCards, stats.adsCount);
+            }
+            
+            this._updateUITimeout = null;
+        }, 100);
     }
 
     /**
@@ -390,7 +382,6 @@ constructor() {
             clearBtn.addEventListener('click', () => {
                 this.clearAllData();
             });
-            console.log('✅ Clear data button initialized');
         }
     }
 

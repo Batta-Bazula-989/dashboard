@@ -24,8 +24,6 @@ class PollingService {
                 this.onPoll();
             }
         }, this.pollingRate);
-
-        console.log(`Started data polling at ${this.pollingRate}ms interval`);
     }
 
     /**
@@ -35,7 +33,6 @@ class PollingService {
         if (this.pollingInterval) {
             clearInterval(this.pollingInterval);
             this.pollingInterval = null;
-            console.log('Stopped data polling');
         }
     }
 

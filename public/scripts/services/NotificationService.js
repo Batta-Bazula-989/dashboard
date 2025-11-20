@@ -12,7 +12,6 @@ class NotificationService extends BasePollingService {
      */
     async fetchData() {
         if (this.isFetching) {
-            console.log('⏳ Notification fetch skipped - request in progress');
             return;
         }
 
@@ -31,7 +30,6 @@ class NotificationService extends BasePollingService {
             if (result.success && result.notifications && result.notifications.length > 0) {
                 // On initial fetch, just record the latest ID without triggering callbacks
                 if (this.isInitialFetch) {
-                    console.log(`Initial fetch: Found ${result.notifications.length} existing notifications (skipping callbacks)`);
                     if (result.latestId !== undefined) {
                         this.lastId = result.latestId;
                     }
@@ -42,8 +40,6 @@ class NotificationService extends BasePollingService {
                     const nonErrorNotifications = result.notifications.filter(n => !errorTypes.includes(n.type));
 
                     if (nonErrorNotifications.length > 0) {
-                        console.log(`Received ${nonErrorNotifications.length} new notifications`);
-
                         nonErrorNotifications.forEach(notification => {
                             if (this.onDataReceived) {
                                 this.onDataReceived(notification);
@@ -57,7 +53,6 @@ class NotificationService extends BasePollingService {
                 }
             } else if (this.isInitialFetch) {
                 // No notifications on initial fetch - still mark as initialized
-                console.log('Initial fetch: No existing notifications');
                 this.isInitialFetch = false;
             }
         } catch (error) {

@@ -3,6 +3,8 @@ class DataDisplay {
         this.dataDisplay = null;
         this.onShowFullAnalysis = null;
         this.cardBuilder = null;
+        this._statsCache = null;
+        this._statsCacheValid = false;
     }
 
     init(container, onShowFullAnalysis = null) {
@@ -75,8 +77,6 @@ class DataDisplay {
      * Show loading state - replaces empty state with loading animation
      */
     showLoading() {
-        console.log('=== SHOWING LOADING STATE ===');
-
         // Remove empty state if it exists
         const emptyState = this.dataDisplay.querySelector('.empty-state');
         if (emptyState) {
@@ -114,7 +114,6 @@ class DataDisplay {
      * Hide loading state
      */
     hideLoading() {
-        console.log('=== HIDING LOADING STATE ===');
         const loadingState = this.dataDisplay.querySelector('.loading-state');
         if (loadingState) {
             loadingState.remove();
@@ -134,21 +133,14 @@ class DataDisplay {
 
             hasProcessedItems = true;
 
-            console.log('Processed item:', processed);
-            console.log('Content type:', processed.content_type);
-
             if (processed.content_type === 'video') {
-                console.log('Adding video analysis to existing cards');
                 this.addVideoAnalysis(processed);
             } else if (processed.content_type === 'carousel') {
                 // For carousel content, ONLY add analysis to existing cards - NEVER create new cards
-                console.log('Processing carousel - will only add analysis to existing cards with matching body');
                 this.addCarouselAnalysis(processed);
             } else if (this.hasCarouselData(processed)) {
-                console.log('Adding carousel analysis to existing cards');
                 this.addCarouselAnalysis(processed);
             } else {
-                console.log('Adding text card');
                 this.addTextCard(processed);
                 renderedCount++;
             }
@@ -160,12 +152,12 @@ class DataDisplay {
 
             // Remove empty state when any data is added (text cards or video analysis)
             const emptyState = this.dataDisplay.querySelector('.empty-state');
-            console.log('Empty state found:', !!emptyState);
             if (emptyState) {
-                console.log('Removing empty state element');
                 emptyState.remove();
-                console.log('Empty state removed');
             }
+            
+            // Invalidate stats cache when data changes
+            this._statsCacheValid = false;
         }
 
         return this.getStats();
@@ -194,9 +186,11 @@ class DataDisplay {
       // ALWAYS remove empty state when adding a card
       const emptyState = this.dataDisplay.querySelector('.empty-state');
       if (emptyState) {
-          console.log('🚨 REMOVING EMPTY STATE FROM addTextCard');
           emptyState.remove();
       }
+      
+      // Invalidate stats cache when card is added
+      this._statsCacheValid = false;
   }
 
     hasCarouselData(processed) {
@@ -255,28 +249,19 @@ class DataDisplay {
     }
 
 addVideoAnalysis(videoData) {
-    console.log('=== ADDING VIDEO ANALYSIS ===');
-    console.log('Video data:', videoData);
-    console.log('Looking for competitor:', videoData.competitor_name);
-    console.log('Looking for body:', videoData.body);
-
     const existingCards = CardMatcher.findAll(
         this.dataDisplay,
         videoData.competitor_name,
         videoData.body
     );
 
-    console.log('Found existing cards:', existingCards.length);
-
-    existingCards.forEach((card, index) => {
+    existingCards.forEach((card) => {
         // ✅ Check if this card already has video analysis section
         const hasVideoAnalysis = card.querySelector('.video-analysis-section');
         if (hasVideoAnalysis) {
-            console.log(`Card ${index + 1} already has video analysis, skipping`);
             return;
         }
 
-        console.log(`Adding video analysis to card ${index + 1}`);
         const section = AnalysisSections.createVideoAnalysis(
             videoData,
             this.onShowFullAnalysis
@@ -286,18 +271,14 @@ addVideoAnalysis(videoData) {
         card.appendChild(divider);
         card.appendChild(section);
     });
+    
+    // Invalidate stats cache when analysis is added
+    this._statsCacheValid = false;
 }
 
 addCarouselAnalysis(carouselData) {
-    console.log('=== ADDING CAROUSEL ANALYSIS ===');
-    console.log('Carousel data:', carouselData);
-    console.log('Looking for competitor:', carouselData.competitor_name);
-    console.log('Looking for body:', carouselData.body);
-    console.log('Content type:', carouselData.content_type);
-
     // Only add analysis if ai_analysis is available
     if (!carouselData.ai_analysis || Object.keys(carouselData.ai_analysis).length === 0) {
-        console.log('⚠️ No ai_analysis available in carousel data. Skipping.');
         return;
     }
 
@@ -316,24 +297,18 @@ addCarouselAnalysis(carouselData) {
         matchText
     );
 
-    console.log('Found existing cards (with body match):', existingCards.length);
-
     // If no match found, skip - do NOT create a new card
     if (existingCards.length === 0) {
-        console.log('⚠️ No existing card found with matching body. Skipping carousel analysis (will not create new card).');
-        console.log('Body text being searched:', matchText.substring(0, 100));
         return;
     }
 
-    existingCards.forEach((card, index) => {
+    existingCards.forEach((card) => {
         // Check if this card already has carousel analysis section
         const hasCarouselAnalysis = card.querySelector('.carousel-analysis-section');
         if (hasCarouselAnalysis) {
-            console.log(`Card ${index + 1} already has carousel analysis, skipping`);
             return;
         }
 
-        console.log(`Adding carousel analysis to card ${index + 1}`);
         const section = AnalysisSections.createCarouselAnalysis(
             carouselData,
             this.onShowFullAnalysis
@@ -358,6 +333,9 @@ addCarouselAnalysis(carouselData) {
             card.appendChild(section);
         }
     });
+    
+    // Invalidate stats cache when analysis is added
+    this._statsCacheValid = false;
 }
 
     getOrCreateGrid() {
@@ -374,6 +352,12 @@ addCarouselAnalysis(carouselData) {
     }
 
     getStats() {
+        // Return cached stats if valid
+        if (this._statsCacheValid && this._statsCache !== null) {
+            return this._statsCache;
+        }
+
+        // Calculate stats
         const cards = this.dataDisplay.querySelectorAll('.card');
         const names = new Set();
 
@@ -384,10 +368,16 @@ addCarouselAnalysis(carouselData) {
             }
         });
 
-        return {
+        const stats = {
             competitorCards: names.size,
             adsCount: cards.length
         };
+
+        // Cache the result
+        this._statsCache = stats;
+        this._statsCacheValid = true;
+
+        return stats;
     }
 
    /**
@@ -395,8 +385,6 @@ addCarouselAnalysis(carouselData) {
     * @param {boolean} showEmptyState - Whether to show the empty state after clearing
     */
    clear(showEmptyState = false) {
-       console.log('=== CLEAR() CALLED ===');
-       console.log('showEmptyState:', showEmptyState);
        if (this.dataDisplay) {
            // Clear only the content area
            const contentArea = this.dataDisplay.querySelector('.data-display-content');
@@ -429,11 +417,9 @@ addCarouselAnalysis(carouselData) {
 
            // Handle empty state based on parameter
            const emptyState = this.dataDisplay.querySelector('.empty-state');
-           console.log('Empty state found:', !!emptyState);
            if (showEmptyState) {
                // Show empty state if it doesn't exist
                if (!emptyState) {
-                   console.log('Creating empty state');
                    this.dataDisplay.insertAdjacentHTML('afterbegin', this.getEmptyStateTemplate());
                } else {
                    emptyState.style.display = '';
@@ -441,10 +427,13 @@ addCarouselAnalysis(carouselData) {
            } else {
                // Remove the empty state if it exists
                if (emptyState) {
-                   console.log('Removing empty state in clear()');
                    emptyState.remove();
                }
            }
+           
+           // Invalidate stats cache when data is cleared
+           this._statsCacheValid = false;
+           this._statsCache = null;
        }
    }
 

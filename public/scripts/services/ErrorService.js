@@ -16,7 +16,6 @@ class ErrorService extends BasePollingService {
      */
     async fetchData() {
         if (this.isFetching) {
-            console.log('⏳ Error fetch skipped - request in progress');
             return;
         }
 
@@ -44,7 +43,6 @@ class ErrorService extends BasePollingService {
 
             if (result.success && result.errors && result.errors.length > 0) {
                 if (this.isInitialFetch) {
-                    console.log(`📋 Initial fetch: Found ${result.errors.length} existing errors (skipping callbacks)`);
                     if (result.latestId !== undefined) {
                         this.lastId = result.latestId;
                     }
@@ -53,8 +51,6 @@ class ErrorService extends BasePollingService {
                     this.trimHistory();
                     this.isInitialFetch = false;
                 } else {
-                    console.log(`🚨 Received ${result.errors.length} new errors`);
-
                     result.errors.forEach(error => {
                         // Add to history
                         this.errorHistory.push(error);
@@ -72,7 +68,6 @@ class ErrorService extends BasePollingService {
                     }
                 }
             } else if (this.isInitialFetch) {
-                console.log('✅ Initial fetch: No existing errors');
                 this.isInitialFetch = false;
             }
         } catch (error) {
@@ -82,7 +77,6 @@ class ErrorService extends BasePollingService {
             const wasInitialFetch = this.isInitialFetch;
             if (this.isInitialFetch) {
                 this.isInitialFetch = false;
-                console.log('⚠️ Initial fetch failed - marking as complete to allow future error notifications');
             }
             
             // Show notification when fetch fails (but not on initial fetch and with throttling)
@@ -106,10 +100,8 @@ class ErrorService extends BasePollingService {
                         }
                     };
                     
-                    console.log('🔔 Triggering error notification callback:', syntheticError);
                     this.onDataReceived(syntheticError);
                     this.lastFetchErrorNotification = now;
-                    console.log('✅ Error notification callback triggered');
                 }
             }
         } finally {
@@ -149,7 +141,6 @@ class ErrorService extends BasePollingService {
      */
     clearHistory() {
         this.errorHistory = [];
-        console.log('🗑️ Error history cleared');
     }
 
     /**
@@ -190,7 +181,6 @@ class ErrorService extends BasePollingService {
         super.reset();
         this.errorHistory = [];
         this.lastFetchErrorNotification = 0;
-        console.log('🔄 Error service reset');
     }
 }
 

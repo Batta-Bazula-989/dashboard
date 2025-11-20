@@ -68,7 +68,6 @@ class StateManager {
      */
     showWorkflowLoading() {
         if (this.isWorkflowSuppressed) {
-            console.log('⚠️ Workflow loading suppressed - ignoring show request');
             return;
         }
 
@@ -76,12 +75,10 @@ class StateManager {
         const emptyState = document.querySelector('.empty-state');
         if (emptyState) {
             emptyState.style.display = 'none';
-            console.log('🚫 Empty state hidden');
         }
 
         if (this.uiManager) {
             this.uiManager.showLoading();
-            console.log('🔄 Workflow loading shown');
         }
     }
 
@@ -91,7 +88,6 @@ class StateManager {
     suppressWorkflowLoading(reason = '') {
         if (!this.isWorkflowSuppressed) {
             this.isWorkflowSuppressed = true;
-            console.log(`🚫 Workflow loading suppressed${reason ? `: ${reason}` : ''}`);
         }
 
         this.hideWorkflowLoading(true);
@@ -104,7 +100,6 @@ class StateManager {
     allowWorkflowLoading() {
         if (this.isWorkflowSuppressed) {
             this.isWorkflowSuppressed = false;
-            console.log('✅ Workflow loading suppression cleared');
         }
     }
 
@@ -118,7 +113,6 @@ class StateManager {
 
         const hide = () => {
             this.uiManager.hideLoading();
-            console.log('✅ Workflow loading hidden');
         };
 
         if (force) {
@@ -145,7 +139,6 @@ class StateManager {
         }
 
         emptyState.style.display = '';
-        console.log('✨ Empty state shown');
     }
 
     /**

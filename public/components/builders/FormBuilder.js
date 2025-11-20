@@ -253,7 +253,6 @@ class FormBuilder {
             });
 
             if (response.ok) {
-                console.log('Form submitted successfully:', submission);
                 this.resetForm(container);
                 if (onSuccess) onSuccess(`Successfully submitted ${competitorValue} for analysis`);
             } else {

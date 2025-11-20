@@ -24,7 +24,6 @@ class BasePollingService {
 
         this.isPolling = true;
         this.fetchData();
-        console.log(`Started polling ${this.baseUrl} (every ${this.pollingRate}ms)`);
     }
 
     /**
@@ -41,8 +40,6 @@ class BasePollingService {
             clearTimeout(this.pollingTimer);
             this.pollingTimer = null;
         }
-
-        console.log(`Stopped polling ${this.baseUrl}`);
     }
 
     /**
