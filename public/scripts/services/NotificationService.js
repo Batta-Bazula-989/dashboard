@@ -19,9 +19,15 @@ class NotificationService extends BasePollingService {
             this.isFetching = true;
 
             const url = this.buildUrl();
-            const response = await fetch(url);
+            const response = await fetch(url, {
+                headers: this.getHeaders()
+            });
 
             if (!response.ok) {
+                if (response.status === 401 || response.status === 403) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.error || 'Authentication failed. Please check your API key.');
+                }
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 

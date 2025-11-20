@@ -23,7 +23,9 @@ class ErrorService extends BasePollingService {
             this.isFetching = true;
 
             const url = this.buildUrl();
-            const response = await fetch(url);
+            const response = await fetch(url, {
+                headers: this.getHeaders()
+            });
 
             if (!response.ok) {
                 // Try to get error details from response if available
@@ -31,10 +33,17 @@ class ErrorService extends BasePollingService {
                 try {
                     const errorData = await response.clone().json();
                     if (errorData.error) {
-                        errorMessage += ` - ${errorData.error}`;
+                        errorMessage = errorData.error;
+                    }
+                    // Handle authentication errors specifically
+                    if (response.status === 401 || response.status === 403) {
+                        errorMessage = errorData.error || 'Authentication failed. Please check your API key.';
                     }
                 } catch (e) {
                     // Response is not JSON, use default message
+                    if (response.status === 401 || response.status === 403) {
+                        errorMessage = 'Authentication failed. Please check your API key.';
+                    }
                 }
                 throw new Error(errorMessage);
             }

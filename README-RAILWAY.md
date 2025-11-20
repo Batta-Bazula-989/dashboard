@@ -21,6 +21,7 @@
 
 ## 📊 Features
 
+- ✅ **API Key Authentication** - Secure all API endpoints with API key authentication
 - ✅ **Persistent Data Storage** - Data stays in memory within Railway instance
 - ✅ **Real-time Updates** - HTTP polling every 2 seconds
 - ✅ **Multi-tenant Ready** - Deploy multiple instances for different customers
@@ -29,14 +30,43 @@
 
 ## 🔧 Configuration
 
-### Environment Variables (Optional)
+### Environment Variables
+
+#### Required for Production:
+- `API_KEY` or `DASHBOARD_API_KEY` - **REQUIRED** API key for authentication. Generate a strong random key (e.g., `openssl rand -hex 32`)
+  - ⚠️ **Without this, all API endpoints are publicly accessible!**
+  - The frontend will automatically receive this key via the HTML page
+  - For n8n webhooks, include this key in the `X-API-Key` header
+
+#### Optional:
 - `PORT` - Server port (Railway sets this automatically)
 - `NODE_ENV` - Environment (production/development)
 
+### Setting API Key in Railway:
+1. Go to your Railway project dashboard
+2. Click on your service
+3. Go to "Variables" tab
+4. Add new variable: `API_KEY` = `your-generated-api-key-here`
+5. Redeploy your service
+
 ### API Endpoints
-- `GET /api/data` - Retrieve all stored data
-- `POST /api/data` - Store new data from n8n
-- `GET /health` - Health check endpoint
+
+All `/api/*` endpoints require authentication via API key:
+
+**Authentication Methods:**
+- Header: `X-API-Key: your-api-key`
+- Header: `Authorization: Bearer your-api-key`
+- Query parameter: `?api_key=your-api-key` (less secure, not recommended)
+
+**Endpoints:**
+- `GET /api/data` - Retrieve all stored data (requires auth)
+- `POST /api/data` - Store new data from n8n (requires auth)
+- `DELETE /api/data` - Clear all data (requires auth)
+- `GET /api/notifications` - Get notifications (requires auth)
+- `POST /api/notification` - Create notification (requires auth)
+- `GET /api/errors` - Get error notifications (requires auth)
+- `GET /health` - Health check endpoint (no auth required)
+- `GET /` - Main dashboard page (no auth required, but API calls from page require auth)
 
 ## 🎯 Multi-Tenant Setup
 
@@ -52,7 +82,19 @@
 - **Send data to**: `https://your-dashboard.railway.app/api/data`
 - **Method**: POST
 - **Content-Type**: application/json
+- **Headers**: 
+  - `X-API-Key: your-api-key` (required if API_KEY is set)
 - **Body**: Your data object
+
+**Example n8n HTTP Request Node:**
+```
+URL: https://your-dashboard.railway.app/api/data
+Method: POST
+Headers:
+  Content-Type: application/json
+  X-API-Key: {{ $env.API_KEY }}
+Body: {{ $json }}
+```
 
 ## 💰 Pricing
 

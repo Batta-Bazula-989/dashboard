@@ -2,12 +2,47 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 
 const app = express();
 
+// Authentication Configuration
+const API_KEY = process.env.API_KEY || process.env.DASHBOARD_API_KEY;
+if (!API_KEY) {
+  console.warn('⚠️  WARNING: No API_KEY environment variable set. Authentication is disabled.');
+  console.warn('⚠️  Set API_KEY or DASHBOARD_API_KEY environment variable for production use.');
+}
+
+// Authentication Middleware
+function authenticate(req, res, next) {
+  // Skip authentication if no API key is configured (development mode)
+  if (!API_KEY) {
+    return next();
+  }
+
+  // Get API key from header (preferred) or query parameter
+  const providedKey = req.headers['x-api-key'] || req.headers['authorization']?.replace('Bearer ', '') || req.query.api_key;
+
+  if (!providedKey) {
+    return res.status(401).json({
+      success: false,
+      error: 'Authentication required. Please provide an API key via X-API-Key header or Authorization Bearer token.'
+    });
+  }
+
+  if (providedKey !== API_KEY) {
+    return res.status(403).json({
+      success: false,
+      error: 'Invalid API key. Access denied.'
+    });
+  }
+
+  next();
+}
+
 // Middleware
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '10mb' })); // Add size limit
 app.use(express.static('public'));
 
 // In-memory data storage (persists within Railway instance)
@@ -38,8 +73,8 @@ function filterBySince(items, sinceId) {
   return items.filter(item => item.id > id);
 }
 
-// API Routes
-app.get('/api/data', (req, res) => {
+// API Routes (all protected with authentication)
+app.get('/api/data', authenticate, (req, res) => {
   console.log(`GET /api/data - returning ${recentData.length} items`);
   res.json({
     success: true,
@@ -49,7 +84,7 @@ app.get('/api/data', (req, res) => {
   });
 });
 
-app.post('/api/data', (req, res) => {
+app.post('/api/data', authenticate, (req, res) => {
   try {
     const data = req.body;
     const requestId = req.headers['x-request-id'] || `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -90,7 +125,7 @@ app.post('/api/data', (req, res) => {
   }
 });
 
-app.delete('/api/data', (req, res) => {
+app.delete('/api/data', authenticate, (req, res) => {
   try {
     const previousCount = recentData.length;
     recentData = [];
@@ -113,7 +148,7 @@ app.delete('/api/data', (req, res) => {
 });
 
 // Notification endpoints
-app.post('/api/notification', (req, res) => {
+app.post('/api/notification', authenticate, (req, res) => {
   try {
     const { type, message, competitor_name, metadata } = req.body;
 
@@ -148,7 +183,7 @@ app.post('/api/notification', (req, res) => {
   }
 });
 
-app.get('/api/notifications', (req, res) => {
+app.get('/api/notifications', authenticate, (req, res) => {
   try {
     const { since } = req.query;
     const filteredNotifications = filterBySince(notifications, since);
@@ -168,7 +203,7 @@ app.get('/api/notifications', (req, res) => {
   }
 });
 
-app.delete('/api/notifications', (req, res) => {
+app.delete('/api/notifications', authenticate, (req, res) => {
   try {
     const previousCount = notifications.length;
     notifications = [];
@@ -191,7 +226,7 @@ app.delete('/api/notifications', (req, res) => {
 });
 
 // ✅ NEW: Dedicated error endpoint
-app.get('/api/errors', (req, res) => {
+app.get('/api/errors', authenticate, (req, res) => {
   try {
     const { since } = req.query;
 
@@ -229,9 +264,26 @@ app.get('/api/errors', (req, res) => {
   }
 });
 
-// Main route
+// Main route - inject API key into HTML for frontend
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  const htmlPath = path.join(__dirname, 'public', 'index.html');
+  
+  // Read the HTML file
+  fs.readFile(htmlPath, 'utf8', (err, html) => {
+    if (err) {
+      console.error('Error reading index.html:', err);
+      return res.status(500).send('Internal server error');
+    }
+    
+    // Inject API key as a script tag before closing body tag
+    // Use JSON.stringify to safely escape the API key for JavaScript
+    const apiKeyScript = API_KEY 
+      ? `<script>window.DASHBOARD_API_KEY = ${JSON.stringify(API_KEY)};</script>`
+      : '<script>window.DASHBOARD_API_KEY = null;</script>';
+    
+    const modifiedHtml = html.replace('</body>', `${apiKeyScript}\n</body>`);
+    res.send(modifiedHtml);
+  });
 });
 
 // Health check endpoint
@@ -251,6 +303,10 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🚀 Dashboard server running on port ${PORT}`);
   console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`🔐 Authentication: ${API_KEY ? 'ENABLED' : 'DISABLED (no API_KEY set)'}`);
+  if (API_KEY) {
+    console.log(`🔑 API Key configured: ${API_KEY.substring(0, 8)}...`);
+  }
   console.log(`🌐 Access your dashboard at: http://localhost:${PORT}`);
 });
 

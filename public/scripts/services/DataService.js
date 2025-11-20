@@ -8,6 +8,31 @@ class DataService {
     }
 
     /**
+     * Get API key from window object (injected by server)
+     * @returns {string|null} API key or null if not set
+     */
+    getApiKey() {
+        return window.DASHBOARD_API_KEY || null;
+    }
+
+    /**
+     * Get headers with authentication
+     * @returns {Object} Headers object with API key if available
+     */
+    getHeaders() {
+        const headers = {
+            'Content-Type': 'application/json'
+        };
+        
+        const apiKey = this.getApiKey();
+        if (apiKey) {
+            headers['X-API-Key'] = apiKey;
+        }
+        
+        return headers;
+    }
+
+    /**
      * Fetch data from API
      * @returns {Promise<Object>} API response
      */
@@ -15,12 +40,14 @@ class DataService {
         try {
             const response = await fetch(this.baseUrl, {
                 method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
+                headers: this.getHeaders()
             });
 
             if (!response.ok) {
+                if (response.status === 401 || response.status === 403) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.error || 'Authentication failed. Please check your API key.');
+                }
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
@@ -37,11 +64,22 @@ class DataService {
      */
     async clearData() {
         try {
+            const headers = {};
+            const apiKey = this.getApiKey();
+            if (apiKey) {
+                headers['X-API-Key'] = apiKey;
+            }
+
             const response = await fetch(this.baseUrl, {
-                method: 'DELETE'
+                method: 'DELETE',
+                headers: headers
             });
 
             if (!response.ok) {
+                if (response.status === 401 || response.status === 403) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.error || 'Authentication failed. Please check your API key.');
+                }
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 

@@ -15,6 +15,27 @@ class BasePollingService {
     }
 
     /**
+     * Get API key from window object (injected by server)
+     * @returns {string|null} API key or null if not set
+     */
+    getApiKey() {
+        return window.DASHBOARD_API_KEY || null;
+    }
+
+    /**
+     * Get headers with authentication
+     * @returns {Object} Headers object with API key if available
+     */
+    getHeaders() {
+        const headers = {};
+        const apiKey = this.getApiKey();
+        if (apiKey) {
+            headers['X-API-Key'] = apiKey;
+        }
+        return headers;
+    }
+
+    /**
      * Start polling
      */
     start() {
