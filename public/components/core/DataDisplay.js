@@ -5,11 +5,9 @@ class DataDisplay {
         this.cardBuilder = null;
         this._statsCache = null;
         this._statsCacheValid = false;
-        // Cached DOM elements
         this._emptyState = null;
         this._contentArea = null;
         this._grid = null;
-        // Card index for fast lookups
         this._cardCount = 0;
         this._competitorNames = new Set();
     }

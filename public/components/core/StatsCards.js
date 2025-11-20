@@ -4,19 +4,13 @@ class StatsCards {
         this.adsCount = null;
     }
 
-    /**
-     * Initialize the stats cards component
-     * @param {HTMLElement} container - The container element to render into
-     */
+
     init(container) {
         this.render(container);
         this.bindElements();
     }
 
-    /**
-     * Render the stats cards HTML
-     * @param {HTMLElement} container - The container element
-     */
+
     render(container) {
         const statsCardsHTML = `
             <div class="stats-container">
@@ -63,7 +57,6 @@ class StatsCards {
             </div>
         `;
 
-        // Parse HTML safely using DOMParser
         const parser = new DOMParser();
         const doc = parser.parseFromString(statsCardsHTML, 'text/html');
         const fragment = document.createDocumentFragment();
@@ -73,54 +66,39 @@ class StatsCards {
         container.appendChild(fragment);
     }
 
-    /**
-     * Bind DOM elements to component properties
-     */
+
     bindElements() {
         this.competitorCount = document.getElementById('competitorCount');
         this.adsCount = document.getElementById('adsCount');
     }
 
-    /**
-     * Update competitor count
-     * @param {number} count - Number of advertisers
-     */
+
     updateCompetitorCount(count) {
         if (this.competitorCount) {
             this.competitorCount.textContent = count;
         }
     }
 
-    /**
-     * Update ads count
-     * @param {number} count - Number of ads
-     */
+
     updateAdsCount(count) {
         if (this.adsCount) {
             this.adsCount.textContent = count;
         }
     }
 
-    /**
-     * Update both stats at once
-     * @param {number} competitorCount - Number of advertisers
-     * @param {number} adsCount - Number of ads
-     */
+
     updateStats(competitorCount, adsCount) {
         this.updateCompetitorCount(competitorCount);
         this.updateAdsCount(adsCount);
     }
 
-    /**
-     * Get the stats container element
-     * @returns {HTMLElement|null}
-     */
+
     getElement() {
         return document.querySelector('.stats-container');
     }
 }
 
-// Export for use in other modules
+
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = StatsCards;
 } else {
