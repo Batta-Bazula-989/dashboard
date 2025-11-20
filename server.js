@@ -131,6 +131,11 @@ function authenticate(req, res, next) {
 
 // HTTPS enforcement middleware (only in production)
 function enforceHTTPS(req, res, next) {
+  // Skip HTTPS enforcement for health check endpoint (Railway internal healthchecks use HTTP)
+  if (req.path === '/health') {
+    return next();
+  }
+
   // Only enforce HTTPS in production and if not already HTTPS
   if (process.env.NODE_ENV === 'production' && req.header('x-forwarded-proto') !== 'https') {
     return res.redirect(301, `https://${req.hostname}${req.url}`);
