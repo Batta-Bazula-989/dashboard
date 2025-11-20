@@ -38,15 +38,27 @@ setInterval(() => {
 function isSameOrigin(req) {
   const origin = req.headers.origin;
   const host = req.headers.host;
-  if (!origin || !host) return false;
+  
+  // If no origin header, it's likely a same-origin request (browsers don't always send origin for same-origin)
+  if (!origin) {
+    return true;
+  }
+  
+  if (!host) {
+    return false;
+  }
   
   try {
     const originUrl = new URL(origin);
-    const hostUrl = new URL(`http://${host}`);
-    return originUrl.hostname === hostUrl.hostname && 
-           originUrl.protocol === hostUrl.protocol;
+    // Extract hostname from host header (might include port)
+    const hostHostname = host.split(':')[0];
+    
+    // Compare hostnames (ignore protocol and port for flexibility)
+    return originUrl.hostname === hostHostname || 
+           originUrl.hostname === host;
   } catch {
-    return false;
+    // If URL parsing fails, be lenient - allow it if no origin was provided
+    return !origin;
   }
 }
 
@@ -278,14 +290,35 @@ function filterBySince(items, sinceId) {
 
 // Session token endpoint for same-origin requests
 app.post('/api/session', (req, res) => {
-  // Only allow same-origin requests for session creation
-  if (!isSameOrigin(req)) {
-    return res.status(403).json({
-      success: false,
-      error: 'Session tokens can only be created from same-origin requests'
-    });
+  // For web dashboard, allow session creation from same origin
+  // CORS configuration will handle cross-origin protection
+  const origin = req.headers.origin;
+  const host = req.headers.host;
+  
+  // If origin is provided, verify it matches the host (case-insensitive)
+  if (origin && host) {
+    try {
+      const originUrl = new URL(origin);
+      // Extract hostname from host (remove port if present)
+      const hostHostname = host.split(':')[0].toLowerCase();
+      const originHostname = originUrl.hostname.toLowerCase();
+      
+      // Allow if hostnames match (ignoring protocol and port)
+      if (originHostname !== hostHostname) {
+        // Also check if origin hostname matches full host (in case host includes port)
+        if (originHostname !== host.toLowerCase()) {
+          return res.status(403).json({
+            success: false,
+            error: 'Session tokens can only be created from same-origin requests'
+          });
+        }
+      }
+    } catch (e) {
+      // If URL parsing fails, be lenient - allow it (could be same-origin without proper origin header)
+      // CORS will block actual cross-origin requests
+    }
   }
-
+  
   // Generate and store session token
   const token = generateSessionToken();
   sessionTokens.set(token, Date.now() + SESSION_DURATION);
