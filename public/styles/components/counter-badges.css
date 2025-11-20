@@ -20,6 +20,10 @@
     transition: all 0.2s ease;
     min-width: 168px;
     height: 58px;
+    /* Pixelated font effect */
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
 }
 
 .counter-badges-wrapper {
@@ -31,36 +35,43 @@
 /* Clear button in header-actions - override ALL selectors including ID, restore original size but align horizontally */
 .header-actions .clear-data-btn,
 .header-actions #clearDataBtn {
-    padding: 8px 8px !important;
-    height: 32px !important;
-    border: 1px solid #fecaca !important;
+    padding: 8px 12px !important;
+    height: auto !important;
+    border: none !important;
     border-radius: 6px !important;
     font-size: 12px !important;
     font-weight: 600 !important;
     cursor: pointer !important;
     display: flex !important;
     align-items: center !important;
-    gap: 4px !important;
+    gap: 6px !important;
     transition: all 0.2s ease !important;
     white-space: nowrap !important;
-    min-width: 85px !important;
-    max-width: 85px !important;
+    min-width: auto !important;
+    max-width: none !important;
     justify-content: center !important;
     box-sizing: border-box !important;
-    background: #fee2e2 !important;
-    color: #dc2626 !important;
+    background: #ef4444 !important;
+    color: white !important;
     align-self: center !important;
     margin: 0 !important;
     flex-shrink: 0 !important;
-    box-shadow: none !important;
-    transform: translateY(-13px) !important;  /* Add this to move it up */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15) !important;
+    transform: translateY(-13px) !important;
+    /* Pixelated font effect */
+    font-family: 'Courier New', monospace;
+    text-rendering: optimizeSpeed;
+    -webkit-font-smoothing: none;
+    -moz-osx-font-smoothing: unset;
+    font-smooth: never;
+    text-transform: uppercase;
 }
 
 .header-actions .clear-data-btn:hover:not(:disabled),
 .header-actions #clearDataBtn:hover:not(:disabled) {
-    background: #fecaca;
-    border-color: #fca5a5;
-    transform: translateY(-1px);
+    background: #dc2626 !important;
+    transform: translateY(-13px) translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2) !important;
 }
 
 .header-actions .clear-data-btn:disabled,
@@ -72,11 +83,13 @@
 
 .header-actions .clear-data-btn svg,
 .header-actions #clearDataBtn svg {
-    width: 12px !important;
-    height: 12px !important;
-    stroke: #dc2626 !important;
-    color: #dc2626 !important;
+    width: 14px !important;
+    height: 14px !important;
+    stroke: white !important;
+    color: white !important;
+    fill: white !important;
     flex-shrink: 0 !important;
+    stroke-width: 2.5 !important;
 }
 
 .counter-badge:hover {
@@ -87,11 +100,16 @@
 .counter-icon {
     width: 46px;
     height: 46px;
-    border-radius: 8px;
+    border-radius: 4px;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    border: 1px solid rgba(124, 58, 237, 0.3);
+    /* Pixelated rendering for icons */
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
 }
 
 .counter-content {
@@ -105,23 +123,35 @@
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.7px;
-    color: #475569;
+    color: #7c3aed;
     line-height: 1.2;
+    /* Pixelated font effect */
+    font-family: 'Courier New', monospace;
+    text-rendering: optimizeSpeed;
+    -webkit-font-smoothing: none;
+    -moz-osx-font-smoothing: unset;
+    font-smooth: never;
 }
 
 .counter-number {
     font-size: 23.2px;
     font-weight: 700;
-    color: #0f172a;
+    color: #7c3aed;
     line-height: 1;
+    /* Pixelated font effect */
+    font-family: 'Courier New', monospace;
+    text-rendering: optimizeSpeed;
+    -webkit-font-smoothing: none;
+    -moz-osx-font-smoothing: unset;
+    font-smooth: never;
 }
 
 #competitorCounter {
-    background: #fef7f0;
+    background: #fce7f3;
 }
 
 #adsCounter {
-    background: #faf5ff;
+    background: #e9d5ff;
 }
 
 @media (max-width: 1024px) {
