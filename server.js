@@ -161,9 +161,8 @@ function securityHeaders(req, res, next) {
   if (process.env.NODE_ENV === 'production') {
     res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
   }
-  // Content Security Policy - removed unsafe-inline for better security
-  // Note: Inline styles/scripts should be moved to separate files or use nonces
-  res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self';");
+  // Content Security Policy (kept permissive for compatibility)
+  res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self';");
   // Permissions Policy (restrict certain browser features)
   res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
   next();
