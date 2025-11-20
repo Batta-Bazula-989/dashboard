@@ -40,9 +40,46 @@ function authenticate(req, res, next) {
   next();
 }
 
+// Security Headers Middleware
+function securityHeaders(req, res, next) {
+  // Prevent clickjacking
+  res.setHeader('X-Frame-Options', 'DENY');
+  // Prevent MIME type sniffing
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  // Enable XSS protection (legacy browsers)
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  // Control referrer information
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  // Prevent DNS prefetching
+  res.setHeader('X-DNS-Prefetch-Control', 'off');
+  // Disable powered-by header
+  res.removeHeader('X-Powered-By');
+  // Content Security Policy (basic - can be customized)
+  res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self';");
+  // Permissions Policy (restrict certain browser features)
+  res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
+  next();
+}
+
 // Middleware
+app.use(securityHeaders);
 app.use(cors());
 app.use(express.json({ limit: '10mb' })); // Add size limit
+
+// Request timeout middleware (30 seconds)
+const REQUEST_TIMEOUT = 30000; // 30 seconds
+app.use((req, res, next) => {
+  req.setTimeout(REQUEST_TIMEOUT, () => {
+    if (!res.headersSent) {
+      res.status(408).json({
+        success: false,
+        error: 'Request timeout'
+      });
+    }
+  });
+  next();
+});
+
 // Note: static files are served AFTER the root route to allow API key injection
 
 // In-memory data storage (persists within Railway instance)
@@ -69,7 +106,15 @@ function filterBySince(items, sinceId) {
   if (sinceId === undefined || sinceId === null) {
     return items;
   }
-  const id = parseInt(sinceId);
+  
+  // Validate and parse integer with proper error handling
+  const id = parseInt(sinceId, 10);
+  if (isNaN(id) || !isFinite(id) || id < 0) {
+    // Invalid input - return all items (or could return empty array)
+    // Returning all items is safer for backward compatibility
+    return items;
+  }
+  
   return items.filter(item => item.id > id);
 }
 
