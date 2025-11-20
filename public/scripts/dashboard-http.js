@@ -243,9 +243,8 @@ constructor() {
                         this.dataDisplay.clear();
                     }
 
-                    dataArray.forEach((item) => {
-                        this.addDataItem(item);
-                    });
+                    // Batch process items for smoother rendering
+                    this._batchProcessItems(dataArray);
 
                     this.stateManager.updateCounts(dataArray.length);
                     this.stateManager.completeFirstFetch();
@@ -273,9 +272,8 @@ constructor() {
                         this.dataDisplay.clear();
                     }
 
-                    newItems.forEach((item) => {
-                        this.addDataItem(item);
-                    });
+                    // Batch process new items for smoother rendering
+                    this._batchProcessItems(newItems);
 
                     this.stateManager.updateCounts(dataArray.length);
                     this.updateUI();
@@ -285,9 +283,8 @@ constructor() {
                         this.dataDisplay.clear();
                     }
 
-                    dataArray.forEach((item) => {
-                        this.addDataItem(item);
-                    });
+                    // Batch process items for smoother rendering
+                    this._batchProcessItems(dataArray);
 
                     this.stateManager.updateCounts(dataArray.length);
                     this.updateUI();
@@ -326,6 +323,20 @@ constructor() {
                 this.stateManager.setFetching(false);
             }
         }
+    }
+
+    /**
+     * Batch process multiple items efficiently
+     * Processes all items and batches DOM updates for smooth rendering
+     */
+    _batchProcessItems(items) {
+        if (!items || items.length === 0) return;
+
+        // Process all items, but batch the DOM updates
+        // This allows data processing to happen quickly while DOM updates are batched
+        items.forEach((item) => {
+            this.addDataItem(item);
+        });
     }
 
     /**

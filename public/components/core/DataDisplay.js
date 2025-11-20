@@ -158,6 +158,9 @@ class DataDisplay {
 
         let renderedCount = 0;
         let hasProcessedItems = false;
+        
+        // Batch cards for efficient DOM updates
+        const cardsToAdd = new Map(); // Map of competitorName -> array of cards
 
         items.forEach(item => {
             const processed = DataProcessor.process(item);
@@ -173,13 +176,25 @@ class DataDisplay {
             } else if (this.hasCarouselData(processed)) {
                 this.addCarouselAnalysis(processed);
             } else {
-                this.addTextCard(processed);
+                // Collect cards for batch processing
+                const competitorName = processed.competitor_name;
+                if (!cardsToAdd.has(competitorName)) {
+                    cardsToAdd.set(competitorName, []);
+                }
+                cardsToAdd.get(competitorName).push(processed);
                 renderedCount++;
             }
         });
 
+        // Batch append all cards at once using requestAnimationFrame
+        if (cardsToAdd.size > 0) {
+            requestAnimationFrame(() => {
+                this._batchAddCards(cardsToAdd);
+            });
+        }
+
         if (hasProcessedItems) {
-            // Remove loading state when data arrives
+            // Remove loading state when data arrives (only once)
             this.hideLoading();
 
             // Remove empty state when any data is added (text cards or video analysis)
@@ -196,24 +211,52 @@ class DataDisplay {
         return this.getStats();
     }
 
+    /**
+     * Batch add multiple cards efficiently using DocumentFragment
+     */
+    _batchAddCards(cardsToAdd) {
+        const grid = this.getOrCreateGrid();
+        if (!grid) return;
+
+        // Process each competitor's cards
+        cardsToAdd.forEach((cards, competitorName) => {
+            // Find or create column
+            let column = grid.querySelector(`[data-competitor="${CSS.escape(competitorName)}"]`);
+
+            if (!column) {
+                column = document.createElement('div');
+                column.className = 'competitor-column';
+                column.setAttribute('data-competitor', competitorName);
+                grid.appendChild(column);
+            }
+
+            // Use DocumentFragment to batch append cards
+            const fragment = document.createDocumentFragment();
+            
+            cards.forEach(data => {
+                const card = this.cardBuilder.build(data);
+                fragment.appendChild(card);
+            });
+
+            // Single append operation for all cards
+            column.appendChild(fragment);
+        });
+
+        // Invalidate stats cache after batch
+        this._statsCacheValid = false;
+    }
+
   addTextCard(data) {
-      const grid = this.getOrCreateGrid();
-      const competitorName = data.competitor_name;
-
-      let column = grid.querySelector(`[data-competitor="${CSS.escape(competitorName)}"]`);
-
-      if (!column) {
-          column = document.createElement('div');
-          column.className = 'competitor-column';
-          column.setAttribute('data-competitor', competitorName);
-          grid.appendChild(column);
-      }
-
-      // Add card to the competitor's column
-      const card = this.cardBuilder.build(data);
-      column.appendChild(card);
-
-      // Remove loading state when adding cards
+      // This method is kept for backward compatibility
+      // But now uses batching internally for better performance
+      const cardsToAdd = new Map();
+      cardsToAdd.set(data.competitor_name, [data]);
+      
+      requestAnimationFrame(() => {
+          this._batchAddCards(cardsToAdd);
+      });
+      
+      // Remove loading state when adding cards (only once)
       this.hideLoading();
 
       // ALWAYS remove empty state when adding a card
