@@ -189,30 +189,37 @@ const skipRateLimit = (req) => {
   return false;
 };
 
-const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 200, // Limit each IP to 200 API requests per windowMs (increased for dashboard polling)
-  message: {
-    success: false,
-    error: 'Too many requests from this IP, please try again later.'
-  },
-  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
-  skip: skipRateLimit, // Skip rate limiting for static files
-});
+// Rate limiting temporarily disabled for polling services
+// const apiLimiter = rateLimit({
+//   windowMs: 15 * 60 * 1000, // 15 minutes
+//   max: 200, // Limit each IP to 200 API requests per windowMs (increased for dashboard polling)
+//   message: {
+//     success: false,
+//     error: 'Too many requests from this IP, please try again later.'
+//   },
+//   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+//   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+//   skip: skipRateLimit, // Skip rate limiting for static files
+// });
 
-// Stricter rate limit for POST requests (data submission)
-const postLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 50, // Limit each IP to 50 POST requests per windowMs
-  message: {
-    success: false,
-    error: 'Too many requests from this IP, please try again later.'
-  },
-  standardHeaders: true,
-  legacyHeaders: false,
-  skip: skipRateLimit,
-});
+// No-op middleware (rate limiting disabled)
+const apiLimiter = (req, res, next) => next();
+
+// Rate limiting temporarily disabled for polling services
+// const postLimiter = rateLimit({
+//   windowMs: 15 * 60 * 1000, // 15 minutes
+//   max: 50, // Limit each IP to 50 POST requests per windowMs
+//   message: {
+//     success: false,
+//     error: 'Too many requests from this IP, please try again later.'
+//   },
+//   standardHeaders: true,
+//   legacyHeaders: false,
+//   skip: skipRateLimit,
+// });
+
+// No-op middleware (rate limiting disabled)
+const postLimiter = (req, res, next) => next();
 
 // CORS configuration - restrict to same-origin and configured allowed origins
 const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS 
@@ -378,17 +385,20 @@ function filterBySince(items, sinceId) {
 }
 
 // Session token endpoint for same-origin requests
-// Stricter rate limit for session creation to prevent abuse
-const sessionLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // Allow only 5 session creations per 15 minutes
-  message: {
-    success: false,
-    error: 'Too many session requests from this IP, please try again later.'
-  },
-  standardHeaders: true,
-  legacyHeaders: false,
-});
+// Rate limiting disabled for polling services
+// const sessionLimiter = rateLimit({
+//   windowMs: 15 * 60 * 1000, // 15 minutes
+//   max: 5, // Allow only 5 session creations per 15 minutes
+//   message: {
+//     success: false,
+//     error: 'Too many session requests from this IP, please try again later.'
+//   },
+//   standardHeaders: true,
+//   legacyHeaders: false,
+// });
+
+// No-op middleware (rate limiting disabled)
+const sessionLimiter = (req, res, next) => next();
 
 app.post('/api/session', sessionLimiter, (req, res) => {
   // For web dashboard, allow session creation from same origin
