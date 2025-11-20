@@ -124,31 +124,39 @@
     text-transform: uppercase;
     letter-spacing: 0.5px;
     line-height: 1.2;
+    color: #1e1b4b;
     /* Pixelated font effect */
-    font-family: 'Courier New', monospace;
+    font-family: 'Courier New', 'Courier', monospace;
     text-rendering: optimizeSpeed;
-    -webkit-font-smoothing: none;
-    -moz-osx-font-smoothing: unset;
-    font-smooth: never;
-    /* Gradient effect - lighter purple at top to darker bluish-purple at bottom */
-    background: linear-gradient(to bottom, #a78bfa, #7c3aed);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    -webkit-font-smoothing: none !important;
+    -moz-osx-font-smoothing: unset !important;
+    font-smooth: never !important;
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+    display: block;
+    opacity: 1;
+    visibility: visible;
 }
 
 .counter-number {
     font-size: 32px;
     font-weight: 900;
-    color: #1a1a1a;
+    color: #1e1b4b !important;
     line-height: 1;
     letter-spacing: -0.5px;
     /* Pixelated font effect */
-    font-family: 'Courier New', monospace;
+    font-family: 'Courier New', 'Courier', monospace;
     text-rendering: optimizeSpeed;
-    -webkit-font-smoothing: none;
-    -moz-osx-font-smoothing: unset;
-    font-smooth: never;
+    -webkit-font-smoothing: none !important;
+    -moz-osx-font-smoothing: unset !important;
+    font-smooth: never !important;
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
 }
 
 #competitorCounter {
