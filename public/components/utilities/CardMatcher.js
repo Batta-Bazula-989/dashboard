@@ -1,29 +1,116 @@
 class CardMatcher {
-    static findAll(container, competitorName, adText = null) {
-        const cards = container.querySelectorAll('.card');
-        const matches = [];
+    // Static cache for card indexing
+    static _cardCache = new Map();
+    static _cacheVersion = 0;
+    static _indexedCards = null;
+    static _indexedCardsVersion = 0;
 
-        for (let card of cards) {
+    /**
+     * Build or refresh card index for fast lookups
+     */
+    static _buildIndex(container) {
+        const cards = container.querySelectorAll('.card');
+        const index = {
+            byName: new Map(), // competitorName -> [cards]
+            byNameAndText: new Map(), // "name|text" -> [cards]
+            allCards: Array.from(cards)
+        };
+
+        // Cache DOM queries per card to avoid repeated queries
+        cards.forEach(card => {
             const link = card.querySelector('.name-row a');
             const adTextEl = card.querySelector('.ad-text');
 
-            if (!link?.textContent) continue;
+            if (!link?.textContent) return;
 
-            const existingName = link.textContent.trim();
-            // Get text from .ad-text element (which now contains body or ad_text)
-            const existingAdText = adTextEl?.textContent.trim() || '';
+            const existingName = link.textContent.trim().toLowerCase();
+            const existingAdText = (adTextEl?.textContent.trim() || '').toLowerCase();
 
-            const nameMatches = this.namesMatch(existingName, competitorName);
+            // Index by name only
+            if (!index.byName.has(existingName)) {
+                index.byName.set(existingName, []);
+            }
+            index.byName.get(existingName).push(card);
 
+            // Index by name + text for exact matches
+            if (existingAdText) {
+                const key = `${existingName}|${existingAdText.substring(0, 100)}`;
+                if (!index.byNameAndText.has(key)) {
+                    index.byNameAndText.set(key, []);
+                }
+                index.byNameAndText.get(key).push(card);
+            }
+        });
+
+        return index;
+    }
+
+    /**
+     * Get cached index or build new one
+     */
+    static _getIndex(container) {
+        const cacheKey = container.id || container.className || 'default';
+        
+        // Check if we need to rebuild index
+        const currentCards = container.querySelectorAll('.card');
+        const currentCount = currentCards.length;
+        
+        if (!this._indexedCards || 
+            this._indexedCardsVersion !== this._cacheVersion ||
+            this._indexedCards.allCards.length !== currentCount) {
+            this._indexedCards = this._buildIndex(container);
+            this._indexedCardsVersion = this._cacheVersion;
+        }
+
+        return this._indexedCards;
+    }
+
+    /**
+     * Invalidate cache when cards are added/removed
+     */
+    static invalidateCache() {
+        this._cacheVersion++;
+        this._indexedCards = null;
+    }
+
+    static findAll(container, competitorName, adText = null) {
+        if (!container) return [];
+
+        const normalizedName = competitorName ? competitorName.toLowerCase().trim() : null;
+        const normalizedText = adText ? adText.toLowerCase().trim() : null;
+
+        // Get indexed cards
+        const index = this._getIndex(container);
+        const matches = [];
+
+        if (!normalizedName) {
+            return matches;
+        }
+
+        // Fast lookup: try exact match first (name + text)
+        if (normalizedText && index.byNameAndText) {
+            const exactKey = `${normalizedName}|${normalizedText.substring(0, 100)}`;
+            const exactMatches = index.byNameAndText.get(exactKey);
+            if (exactMatches) {
+                matches.push(...exactMatches);
+            }
+        }
+
+        // If no exact matches or no text provided, match by name only
+        if (matches.length === 0 || !normalizedText) {
+            const nameMatches = index.byName.get(normalizedName);
             if (nameMatches) {
-                if (adText && existingAdText) {
-                    // Only match if BOTH name AND text match
-                    if (this.textsMatch(existingAdText, adText)) {
-                        matches.push(card);
-                    }
+                if (normalizedText) {
+                    // Filter by text match if text provided
+                    nameMatches.forEach(card => {
+                        const adTextEl = card.querySelector('.ad-text');
+                        const existingAdText = (adTextEl?.textContent.trim() || '').toLowerCase();
+                        if (this.textsMatch(existingAdText, normalizedText)) {
+                            matches.push(card);
+                        }
+                    });
                 } else {
-                    // If no adText provided, match by name only
-                    matches.push(card);
+                    matches.push(...nameMatches);
                 }
             }
         }

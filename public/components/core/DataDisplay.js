@@ -9,6 +9,9 @@ class DataDisplay {
         this._emptyState = null;
         this._contentArea = null;
         this._grid = null;
+        // Card index for fast lookups
+        this._cardCount = 0;
+        this._competitorNames = new Set();
     }
 
     init(container, onShowFullAnalysis = null) {
@@ -181,6 +184,7 @@ class DataDisplay {
         // Batch cards for efficient DOM updates
         const cardsToAdd = new Map(); // Map of competitorName -> array of cards
 
+        // Process items and collect for batch rendering
         items.forEach(item => {
             const processed = DataProcessor.process(item);
             if (!processed) return;
@@ -237,6 +241,10 @@ class DataDisplay {
         const grid = this.getOrCreateGrid();
         if (!grid) return;
 
+        // Track new cards and competitors for stats
+        let newCardCount = 0;
+        const newCompetitors = new Set();
+
         // Process each competitor's cards
         cardsToAdd.forEach((cards, competitorName) => {
             // Find or create column
@@ -247,6 +255,7 @@ class DataDisplay {
                 column.className = 'competitor-column';
                 column.setAttribute('data-competitor', competitorName);
                 grid.appendChild(column);
+                newCompetitors.add(competitorName);
             }
 
             // Use DocumentFragment to batch append cards
@@ -254,15 +263,56 @@ class DataDisplay {
             
             cards.forEach(data => {
                 const card = this.cardBuilder.build(data);
+                // Add lazy loading to images
+                this._addLazyLoading(card);
                 fragment.appendChild(card);
+                newCardCount++;
             });
 
             // Single append operation for all cards
             column.appendChild(fragment);
         });
 
+        // Update cached counts incrementally
+        this._cardCount += newCardCount;
+        newCompetitors.forEach(name => this._competitorNames.add(name));
+
+        // Invalidate CardMatcher cache
+        CardMatcher.invalidateCache();
+
         // Invalidate stats cache after batch
         this._statsCacheValid = false;
+    }
+
+    /**
+     * Add lazy loading to images in a card
+     */
+    _addLazyLoading(card) {
+        // Initialize Intersection Observer if not exists
+        if ('IntersectionObserver' in window && !this._imageObserver) {
+            this._imageObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        if (img.dataset.src) {
+                            img.src = img.dataset.src;
+                            img.removeAttribute('data-src');
+                        }
+                        this._imageObserver.unobserve(img);
+                    }
+                });
+            }, {
+                rootMargin: '50px'
+            });
+        }
+
+        // Ensure all images have lazy loading attribute
+        const images = card.querySelectorAll('img');
+        images.forEach(img => {
+            if (!img.hasAttribute('loading')) {
+                img.loading = 'lazy';
+            }
+        });
     }
 
   addTextCard(data) {
@@ -465,7 +515,18 @@ addCarouselAnalysis(carouselData) {
             return this._statsCache;
         }
 
-        // Calculate stats
+        // Use cached counts if available and valid
+        if (this._cardCount > 0 && this._competitorNames.size > 0) {
+            const stats = {
+                competitorCards: this._competitorNames.size,
+                adsCount: this._cardCount
+            };
+            this._statsCache = stats;
+            this._statsCacheValid = true;
+            return stats;
+        }
+
+        // Fallback: calculate stats (only if cache is empty)
         const cards = this.dataDisplay.querySelectorAll('.card');
         const names = new Set();
 
@@ -475,6 +536,10 @@ addCarouselAnalysis(carouselData) {
                 names.add(link.textContent.trim());
             }
         });
+
+        // Update cached counts
+        this._cardCount = cards.length;
+        this._competitorNames = names;
 
         const stats = {
             competitorCards: names.size,
@@ -552,6 +617,13 @@ addCarouselAnalysis(carouselData) {
                    this._emptyState = null;
                }
            }
+           
+           // Reset cached counts
+           this._cardCount = 0;
+           this._competitorNames.clear();
+           
+           // Invalidate CardMatcher cache
+           CardMatcher.invalidateCache();
            
            // Invalidate stats cache when data is cleared
            this._statsCacheValid = false;

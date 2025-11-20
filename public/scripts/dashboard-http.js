@@ -389,16 +389,42 @@ constructor() {
 
     /**
      * Batch process multiple items efficiently
-     * Processes all items and batches DOM updates for smooth rendering
+     * Processes all items asynchronously with requestAnimationFrame batching
      */
     _batchProcessItems(items) {
         if (!items || items.length === 0) return;
 
-        // Process all items, but batch the DOM updates
-        // This allows data processing to happen quickly while DOM updates are batched
-        items.forEach((item) => {
-            this.addDataItem(item);
-        });
+        // Process items in chunks to avoid blocking main thread
+        const CHUNK_SIZE = 10;
+        let index = 0;
+
+        const processChunk = () => {
+            const chunk = items.slice(index, index + CHUNK_SIZE);
+            
+            // Process chunk synchronously
+            chunk.forEach((item) => {
+                this.addDataItem(item);
+            });
+
+            index += CHUNK_SIZE;
+
+            // Continue processing if more items remain
+            if (index < items.length) {
+                // Use requestIdleCallback if available, otherwise requestAnimationFrame
+                if (window.requestIdleCallback) {
+                    requestIdleCallback(processChunk, { timeout: 100 });
+                } else {
+                    requestAnimationFrame(processChunk);
+                }
+            }
+        };
+
+        // Start processing
+        if (window.requestIdleCallback) {
+            requestIdleCallback(processChunk, { timeout: 100 });
+        } else {
+            requestAnimationFrame(processChunk);
+        }
     }
 
     /**
