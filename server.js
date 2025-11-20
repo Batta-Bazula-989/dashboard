@@ -43,7 +43,7 @@ function authenticate(req, res, next) {
 // Middleware
 app.use(cors());
 app.use(express.json({ limit: '10mb' })); // Add size limit
-app.use(express.static('public'));
+// Note: static files are served AFTER the root route to allow API key injection
 
 // In-memory data storage (persists within Railway instance)
 let recentData = [];
@@ -265,6 +265,7 @@ app.get('/api/errors', authenticate, (req, res) => {
 });
 
 // Main route - inject API key into HTML for frontend
+// This MUST be before static middleware to allow API key injection
 app.get('/', (req, res) => {
   const htmlPath = path.join(__dirname, 'public', 'index.html');
   
@@ -285,6 +286,9 @@ app.get('/', (req, res) => {
     res.send(modifiedHtml);
   });
 });
+
+// Serve static files AFTER the root route (so index.html injection works)
+app.use(express.static('public'));
 
 // Health check endpoint
 app.get('/health', (req, res) => {
