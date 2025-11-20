@@ -330,9 +330,8 @@ showNotification(notification) {
         `;
     }
 
-    /**
-     * Get check icon SVG
-     */
+     // Get check icon SVG
+
     getCheckIcon() {
         return `
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -341,9 +340,8 @@ showNotification(notification) {
         `;
     }
 
-    /**
-     * Get alert/error icon SVG
-     */
+     // Get alert/error icon SVG
+
     getAlertIcon() {
         return `
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -354,9 +352,8 @@ showNotification(notification) {
         `;
     }
 
-    /**
-     * Get info icon SVG
-     */
+     // Get info icon SVG
+
     getInfoIcon() {
         return `
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -367,9 +364,8 @@ showNotification(notification) {
         `;
     }
 
-    /**
-     * Show confirmation dialog
-     */
+     // Show confirmation dialog
+
     showClearConfirmation() {
         return new Promise((resolve) => {
             const overlay = document.createElement('div');
@@ -466,9 +462,8 @@ showNotification(notification) {
         });
     }
 
-    /**
-     * Update clear button visibility
-     */
+     // Update clear button visibility
+
     updateClearButtonVisibility(hasData) {
         if (!this.headerActions) return;
 
@@ -479,9 +474,8 @@ showNotification(notification) {
         }
     }
 
-    /**
-     * Update counter badges
-     */
+     // Update counter badges
+
     updateCounterBadges(competitorCount, adsCount) {
         if (this.competitorBadgeCount) {
             this.competitorBadgeCount.textContent = competitorCount || 0;
@@ -492,9 +486,8 @@ showNotification(notification) {
         }
     }
 
-    /**
-     * Set clear button state
-     */
+     // Set clear button state
+
     setClearButtonState(isClearing) {
         const clearBtn = document.getElementById('clearDataBtn');
         if (!clearBtn) return;
