@@ -1,7 +1,3 @@
-/**
- * UIManager
- * Handles all UI operations (toasts, modals, badges, etc.)
- */
 class UIManager {
     constructor() {
         // UI element references
@@ -11,9 +7,6 @@ class UIManager {
         this.loadingOverlay = null;
     }
 
-    /**
-     * Initialize UI element references
-     */
     init() {
         this.headerActions = document.querySelector('.header-actions');
         this.competitorBadgeCount = document.getElementById('competitorBadgeCount');

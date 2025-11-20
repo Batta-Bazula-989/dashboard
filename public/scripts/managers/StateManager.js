@@ -1,7 +1,3 @@
-/**
- * StateManager
- * Manages application state
- */
 class StateManager {
     constructor(uiManager = null) {
         this.dataCount = 0;

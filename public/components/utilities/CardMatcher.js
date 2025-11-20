@@ -1,5 +1,4 @@
 class CardMatcher {
-    // Static cache for card indexing
     static _cardCache = new Map();
     static _cacheVersion = 0;
     static _indexedCards = null;
@@ -122,7 +121,6 @@ class CardMatcher {
     // Optimized: normalize strings once
     static namesMatch(name1, name2) {
         if (!name1 || !name2) return false;
-        // Normalize both strings once
         const n1 = name1.toLowerCase();
         const n2 = name2.toLowerCase();
         return n1 === n2;
