@@ -249,8 +249,7 @@ showNotification(notification) {
 
         document.body.appendChild(toast);
 
-        // Add close button functionality
-        const closeBtn = toast.querySelector('.notification-close');
+        // Add close button functionality (closeBtn already created above)
         closeBtn.addEventListener('click', () => {
             this.hideToast(toast);
         });
