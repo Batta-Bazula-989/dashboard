@@ -140,15 +140,36 @@ function securityHeaders(req, res, next) {
 }
 
 // Rate limiting configuration
+// Skip rate limiting for static files and root route
+const skipRateLimit = (req) => {
+  // Skip for root route
+  if (req.path === '/' || req.path === '/index.html') {
+    return true;
+  }
+  // Skip for static assets (CSS, JS, images, etc.)
+  if (req.path.startsWith('/styles/') || 
+      req.path.startsWith('/scripts/') || 
+      req.path.startsWith('/components/') ||
+      req.path.match(/\.(css|js|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot)$/i)) {
+    return true;
+  }
+  // Skip for health check
+  if (req.path === '/health') {
+    return true;
+  }
+  return false;
+};
+
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
+  max: 200, // Limit each IP to 200 API requests per windowMs (increased for dashboard polling)
   message: {
     success: false,
     error: 'Too many requests from this IP, please try again later.'
   },
   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  skip: skipRateLimit, // Skip rate limiting for static files
 });
 
 // Stricter rate limit for POST requests (data submission)
@@ -161,6 +182,7 @@ const postLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
+  skip: skipRateLimit,
 });
 
 // CORS configuration - only allow same-origin for web requests
@@ -186,7 +208,7 @@ const corsOptions = {
 app.use(securityHeaders);
 app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' })); // Add size limit
-app.use(apiLimiter); // Apply rate limiting to all routes
+// Rate limiting is applied per-route, not globally
 
 // Request timeout middleware (30 seconds)
 const REQUEST_TIMEOUT = 30000; // 30 seconds
@@ -289,7 +311,19 @@ function filterBySince(items, sinceId) {
 }
 
 // Session token endpoint for same-origin requests
-app.post('/api/session', (req, res) => {
+// Use a more lenient rate limit for session creation (needed on page load)
+const sessionLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 20, // Allow 20 session creations per 15 minutes (should be enough for normal use)
+  message: {
+    success: false,
+    error: 'Too many session requests from this IP, please try again later.'
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+app.post('/api/session', sessionLimiter, (req, res) => {
   // For web dashboard, allow session creation from same origin
   // CORS configuration will handle cross-origin protection
   const origin = req.headers.origin;
@@ -331,7 +365,7 @@ app.post('/api/session', (req, res) => {
 });
 
 // API Routes (all protected with authentication)
-app.get('/api/data', authenticate, (req, res) => {
+app.get('/api/data', apiLimiter, authenticate, (req, res) => {
   // Log only metadata, not sensitive data
   console.log(`GET /api/data - returning ${recentData.length} items`);
   res.json({
@@ -392,7 +426,7 @@ app.post('/api/data', postLimiter, authenticate, (req, res) => {
   }
 });
 
-app.delete('/api/data', authenticate, (req, res) => {
+app.delete('/api/data', apiLimiter, authenticate, (req, res) => {
   try {
     const previousCount = recentData.length;
     recentData = [];
@@ -459,7 +493,7 @@ app.post('/api/notification', postLimiter, authenticate, (req, res) => {
   }
 });
 
-app.get('/api/notifications', authenticate, (req, res) => {
+app.get('/api/notifications', apiLimiter, authenticate, (req, res) => {
   try {
     const { since } = req.query;
     const filteredNotifications = filterBySince(notifications, since);
@@ -479,7 +513,7 @@ app.get('/api/notifications', authenticate, (req, res) => {
   }
 });
 
-app.delete('/api/notifications', authenticate, (req, res) => {
+app.delete('/api/notifications', apiLimiter, authenticate, (req, res) => {
   try {
     const previousCount = notifications.length;
     notifications = [];
@@ -502,7 +536,7 @@ app.delete('/api/notifications', authenticate, (req, res) => {
 });
 
 // ✅ NEW: Dedicated error endpoint
-app.get('/api/errors', authenticate, (req, res) => {
+app.get('/api/errors', apiLimiter, authenticate, (req, res) => {
   try {
     const { since } = req.query;
 
