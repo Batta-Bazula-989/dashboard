@@ -1,7 +1,3 @@
-/**
- * DataService
- * Handles all API calls related to data
- */
 class DataService {
     constructor() {
         this.baseUrl = '/api/data';

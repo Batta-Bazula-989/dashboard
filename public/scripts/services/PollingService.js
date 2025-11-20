@@ -1,7 +1,3 @@
-/**
- * PollingService
- * Handles data polling
- */
 class PollingService {
     constructor(onPoll) {
         this.pollingInterval = null;

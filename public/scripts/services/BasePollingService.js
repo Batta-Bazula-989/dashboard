@@ -1,7 +1,3 @@
-/**
- * SessionManager
- * Shared session token manager for all services
- */
 class SessionManager {
     constructor() {
         this.sessionToken = null;
@@ -70,10 +66,7 @@ class SessionManager {
 // Global session manager instance
 window.sessionManager = window.sessionManager || new SessionManager();
 
-/**
- * BasePollingService
- * Base class for polling services with common functionality
- */
+
 class BasePollingService {
     constructor(baseUrl, pollingRate, onDataReceived) {
         this.baseUrl = baseUrl;

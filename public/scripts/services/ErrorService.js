@@ -1,7 +1,3 @@
-/**
- * ErrorService
- * Handles error polling, logging, and management
- */
 class ErrorService extends BasePollingService {
     constructor(onErrorReceived) {
         super('/api/errors', 3000, onErrorReceived);

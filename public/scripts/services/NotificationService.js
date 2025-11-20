@@ -1,7 +1,3 @@
-/**
- * NotificationService
- * Handles notification polling and fetching
- */
 class NotificationService extends BasePollingService {
     constructor(onNotificationReceived) {
         super('/api/notifications', 2000, onNotificationReceived);
