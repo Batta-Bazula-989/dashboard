@@ -119,11 +119,10 @@
 }
 
 .counter-label {
-    font-size: 11.6px;
+    font-size: 10px;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.7px;
-    color: #7c3aed;
+    letter-spacing: 0.5px;
     line-height: 1.2;
     /* Pixelated font effect */
     font-family: 'Courier New', monospace;
@@ -131,12 +130,17 @@
     -webkit-font-smoothing: none;
     -moz-osx-font-smoothing: unset;
     font-smooth: never;
+    /* Gradient effect - lighter purple at top to darker bluish-purple at bottom */
+    background: linear-gradient(to bottom, #a78bfa, #7c3aed);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .counter-number {
-    font-size: 23.2px;
+    font-size: 28px;
     font-weight: 700;
-    color: #7c3aed;
+    color: #4c1d95;
     line-height: 1;
     /* Pixelated font effect */
     font-family: 'Courier New', monospace;
