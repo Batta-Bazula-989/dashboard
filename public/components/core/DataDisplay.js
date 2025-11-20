@@ -5,6 +5,10 @@ class DataDisplay {
         this.cardBuilder = null;
         this._statsCache = null;
         this._statsCacheValid = false;
+        // Cached DOM elements
+        this._emptyState = null;
+        this._contentArea = null;
+        this._grid = null;
     }
 
     init(container, onShowFullAnalysis = null) {
@@ -27,13 +31,6 @@ class DataDisplay {
         `;
 
         container.insertAdjacentHTML('beforeend', dataDisplayHTML);
-        
-        // Initially hide empty state to prevent flash on reload
-        // It will be shown after first data fetch if no data exists
-        const emptyState = container.querySelector('.empty-state');
-        if (emptyState) {
-            emptyState.style.display = 'none';
-        }
     }
 
     getEmptyStateTemplate() {
@@ -57,11 +54,7 @@ class DataDisplay {
     }
 
     hasData() {
-        if (!this.dataDisplay) {
-            return false;
-        }
-
-        const contentArea = this.dataDisplay.querySelector('.data-display-content');
+        const contentArea = this._getContentArea();
         if (!contentArea) {
             return false;
         }
@@ -71,6 +64,44 @@ class DataDisplay {
 
     bindElements() {
         this.dataDisplay = document.getElementById('dataDisplay');
+        this._refreshCachedElements();
+        
+        // Initially hide empty state to prevent flash on reload
+        // It will be shown after first data fetch if no data exists
+        if (this._emptyState) {
+            this._emptyState.style.display = 'none';
+        }
+    }
+
+    /**
+     * Refresh cached DOM element references
+     */
+    _refreshCachedElements() {
+        if (this.dataDisplay) {
+            this._emptyState = this.dataDisplay.querySelector('.empty-state');
+            this._contentArea = this.dataDisplay.querySelector('.data-display-content');
+            this._grid = this._contentArea?.querySelector('.card-grid') || null;
+        }
+    }
+
+    /**
+     * Get empty state element (cached)
+     */
+    _getEmptyState() {
+        if (!this._emptyState || !this.dataDisplay.contains(this._emptyState)) {
+            this._emptyState = this.dataDisplay?.querySelector('.empty-state') || null;
+        }
+        return this._emptyState;
+    }
+
+    /**
+     * Get content area element (cached)
+     */
+    _getContentArea() {
+        if (!this._contentArea || !this.dataDisplay?.contains(this._contentArea)) {
+            this._contentArea = this.dataDisplay?.querySelector('.data-display-content') || null;
+        }
+        return this._contentArea;
     }
 
     /**
@@ -78,9 +109,10 @@ class DataDisplay {
      */
     showLoading() {
         // Remove empty state if it exists
-        const emptyState = this.dataDisplay.querySelector('.empty-state');
+        const emptyState = this._getEmptyState();
         if (emptyState) {
             emptyState.remove();
+            this._emptyState = null;
         }
 
         // Remove any existing loading state
@@ -151,9 +183,10 @@ class DataDisplay {
             this.hideLoading();
 
             // Remove empty state when any data is added (text cards or video analysis)
-            const emptyState = this.dataDisplay.querySelector('.empty-state');
+            const emptyState = this._getEmptyState();
             if (emptyState) {
                 emptyState.remove();
+                this._emptyState = null;
             }
             
             // Invalidate stats cache when data changes
@@ -184,9 +217,10 @@ class DataDisplay {
       this.hideLoading();
 
       // ALWAYS remove empty state when adding a card
-      const emptyState = this.dataDisplay.querySelector('.empty-state');
+      const emptyState = this._getEmptyState();
       if (emptyState) {
           emptyState.remove();
+          this._emptyState = null;
       }
       
       // Invalidate stats cache when card is added
@@ -339,7 +373,17 @@ addCarouselAnalysis(carouselData) {
 }
 
     getOrCreateGrid() {
-        const contentArea = this.dataDisplay.querySelector('.data-display-content');
+        const contentArea = this._getContentArea();
+        if (!contentArea) {
+            return null;
+        }
+
+        // Use cached grid if it exists and is still in DOM
+        if (this._grid && contentArea.contains(this._grid)) {
+            return this._grid;
+        }
+
+        // Try to find existing grid
         let grid = contentArea.querySelector('.card-grid');
 
         if (!grid) {
@@ -348,6 +392,8 @@ addCarouselAnalysis(carouselData) {
             contentArea.appendChild(grid);
         }
 
+        // Cache the grid
+        this._grid = grid;
         return grid;
     }
 
@@ -387,7 +433,7 @@ addCarouselAnalysis(carouselData) {
    clear(showEmptyState = false) {
        if (this.dataDisplay) {
            // Clear only the content area
-           const contentArea = this.dataDisplay.querySelector('.data-display-content');
+           const contentArea = this._getContentArea();
            if (contentArea) {
                // Ensure any playing videos are fully released
                const videos = contentArea.querySelectorAll('video');
@@ -410,17 +456,21 @@ addCarouselAnalysis(carouselData) {
 
                contentArea.innerHTML = '';
                contentArea.classList.remove('has-data');
+               // Invalidate grid cache since content was cleared
+               this._grid = null;
            }
 
            // Remove loading state if it exists
            this.hideLoading();
 
            // Handle empty state based on parameter
-           const emptyState = this.dataDisplay.querySelector('.empty-state');
+           const emptyState = this._getEmptyState();
            if (showEmptyState) {
                // Show empty state if it doesn't exist
                if (!emptyState) {
                    this.dataDisplay.insertAdjacentHTML('afterbegin', this.getEmptyStateTemplate());
+                   // Refresh cache after adding empty state
+                   this._refreshCachedElements();
                } else {
                    emptyState.style.display = '';
                }
@@ -428,6 +478,7 @@ addCarouselAnalysis(carouselData) {
                // Remove the empty state if it exists
                if (emptyState) {
                    emptyState.remove();
+                   this._emptyState = null;
                }
            }
            
