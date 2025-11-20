@@ -1,4 +1,76 @@
 /**
+ * SessionManager
+ * Shared session token manager for all services
+ */
+class SessionManager {
+    constructor() {
+        this.sessionToken = null;
+        this.tokenExpiry = null;
+        this.initializing = false;
+        this.initPromise = null;
+    }
+
+    async initialize() {
+        if (this.initializing && this.initPromise) {
+            return this.initPromise;
+        }
+
+        if (this.sessionToken && this.tokenExpiry && Date.now() < this.tokenExpiry) {
+            return;
+        }
+
+        this.initializing = true;
+        this.initPromise = this._doInitialize();
+        
+        try {
+            await this.initPromise;
+        } finally {
+            this.initializing = false;
+            this.initPromise = null;
+        }
+    }
+
+    async _doInitialize() {
+        try {
+            const response = await fetch('/api/session', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to initialize session');
+            }
+
+            const data = await response.json();
+            if (data.success && data.token) {
+                this.sessionToken = data.token;
+                this.tokenExpiry = Date.now() + (data.expiresIn || 24 * 60 * 60 * 1000);
+            }
+        } catch (error) {
+            console.error('Failed to initialize session:', error);
+        }
+    }
+
+    getToken() {
+        return this.sessionToken;
+    }
+
+    isExpired() {
+        return !this.sessionToken || !this.tokenExpiry || Date.now() >= this.tokenExpiry;
+    }
+
+    clear() {
+        this.sessionToken = null;
+        this.tokenExpiry = null;
+    }
+}
+
+// Global session manager instance
+window.sessionManager = window.sessionManager || new SessionManager();
+
+/**
  * BasePollingService
  * Base class for polling services with common functionality
  */
@@ -15,22 +87,15 @@ class BasePollingService {
     }
 
     /**
-     * Get API key from window object (injected by server)
-     * @returns {string|null} API key or null if not set
-     */
-    getApiKey() {
-        return window.DASHBOARD_API_KEY || null;
-    }
-
-    /**
      * Get headers with authentication
-     * @returns {Object} Headers object with API key if available
+     * @returns {Promise<Object>} Headers object with session token
      */
-    getHeaders() {
+    async getHeaders() {
+        await window.sessionManager.initialize();
         const headers = {};
-        const apiKey = this.getApiKey();
-        if (apiKey) {
-            headers['X-API-Key'] = apiKey;
+        const token = window.sessionManager.getToken();
+        if (token) {
+            headers['X-Session-Token'] = token;
         }
         return headers;
     }

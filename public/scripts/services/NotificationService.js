@@ -19,21 +19,48 @@ class NotificationService extends BasePollingService {
             this.isFetching = true;
 
             const url = this.buildUrl();
+            const headers = await this.getHeaders();
             const response = await fetch(url, {
-                headers: this.getHeaders()
+                headers: headers
             });
 
             if (!response.ok) {
                 if (response.status === 401 || response.status === 403) {
-                    const errorData = await response.json().catch(() => ({}));
-                    throw new Error(errorData.error || 'Authentication failed. Please check your API key.');
+                    // Session may have expired, try to reinitialize
+                    window.sessionManager.clear();
+                    await window.sessionManager.initialize();
+                    const retryHeaders = await this.getHeaders();
+                    const retryResponse = await fetch(url, {
+                        headers: retryHeaders
+                    });
+                    
+                    if (!retryResponse.ok) {
+                        const errorData = await retryResponse.json().catch(() => ({}));
+                        throw new Error(errorData.error || 'Authentication failed.');
+                    }
+                    // Use retry response
+                    const result = await retryResponse.json();
+                    this._processNotifications(result);
+                    return;
                 }
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
             const result = await response.json();
+            this._processNotifications(result);
+        } catch (error) {
+            console.error('Error fetching notifications:', error);
+        } finally {
+            this.isFetching = false;
 
-            if (result.success && result.notifications && result.notifications.length > 0) {
+            if (this.isPolling) {
+                this.scheduleNextFetch();
+            }
+        }
+    }
+
+    _processNotifications(result) {
+        if (result.success && result.notifications && result.notifications.length > 0) {
                 // On initial fetch, just record the latest ID without triggering callbacks
                 if (this.isInitialFetch) {
                     if (result.latestId !== undefined) {
@@ -57,18 +84,9 @@ class NotificationService extends BasePollingService {
                         this.lastId = result.latestId;
                     }
                 }
-            } else if (this.isInitialFetch) {
-                // No notifications on initial fetch - still mark as initialized
-                this.isInitialFetch = false;
-            }
-        } catch (error) {
-            console.error('Error fetching notifications:', error);
-        } finally {
-            this.isFetching = false;
-
-            if (this.isPolling) {
-                this.scheduleNextFetch();
-            }
+        } else if (this.isInitialFetch) {
+            // No notifications on initial fetch - still mark as initialized
+            this.isInitialFetch = false;
         }
     }
 }

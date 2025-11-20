@@ -23,8 +23,9 @@ class ErrorService extends BasePollingService {
             this.isFetching = true;
 
             const url = this.buildUrl();
+            const headers = await this.getHeaders();
             const response = await fetch(url, {
-                headers: this.getHeaders()
+                headers: headers
             });
 
             if (!response.ok) {
@@ -37,48 +38,34 @@ class ErrorService extends BasePollingService {
                     }
                     // Handle authentication errors specifically
                     if (response.status === 401 || response.status === 403) {
-                        errorMessage = errorData.error || 'Authentication failed. Please check your API key.';
+                        // Session may have expired, try to reinitialize
+                        window.sessionManager.clear();
+                        await window.sessionManager.initialize();
+                        const retryHeaders = await this.getHeaders();
+                        const retryResponse = await fetch(url, {
+                            headers: retryHeaders
+                        });
+                        
+                        if (!retryResponse.ok) {
+                            errorMessage = errorData.error || 'Authentication failed.';
+                            throw new Error(errorMessage);
+                        }
+                        // Use retry response
+                        const result = await retryResponse.json();
+                        this._processErrors(result);
+                        return;
                     }
                 } catch (e) {
                     // Response is not JSON, use default message
                     if (response.status === 401 || response.status === 403) {
-                        errorMessage = 'Authentication failed. Please check your API key.';
+                        errorMessage = 'Authentication failed.';
                     }
                 }
                 throw new Error(errorMessage);
             }
 
             const result = await response.json();
-
-            if (result.success && result.errors && result.errors.length > 0) {
-                if (this.isInitialFetch) {
-                    if (result.latestId !== undefined) {
-                        this.lastId = result.latestId;
-                    }
-                    // Store in history but don't trigger UI
-                    this.errorHistory.push(...result.errors);
-                    this.trimHistory();
-                    this.isInitialFetch = false;
-                } else {
-                    result.errors.forEach(error => {
-                        // Add to history
-                        this.errorHistory.push(error);
-
-                        // Trigger callback
-                        if (this.onDataReceived) {
-                            this.onDataReceived(error);
-                        }
-                    });
-
-                    this.trimHistory();
-
-                    if (result.latestId !== undefined) {
-                        this.lastId = result.latestId;
-                    }
-                }
-            } else if (this.isInitialFetch) {
-                this.isInitialFetch = false;
-            }
+            this._processErrors(result);
         } catch (error) {
             console.error('❌ Error fetching errors:', error);
             
@@ -119,6 +106,38 @@ class ErrorService extends BasePollingService {
             if (this.isPolling) {
                 this.scheduleNextFetch();
             }
+        }
+    }
+
+    _processErrors(result) {
+        if (result.success && result.errors && result.errors.length > 0) {
+                if (this.isInitialFetch) {
+                    if (result.latestId !== undefined) {
+                        this.lastId = result.latestId;
+                    }
+                    // Store in history but don't trigger UI
+                    this.errorHistory.push(...result.errors);
+                    this.trimHistory();
+                    this.isInitialFetch = false;
+                } else {
+                    result.errors.forEach(error => {
+                        // Add to history
+                        this.errorHistory.push(error);
+
+                        // Trigger callback
+                        if (this.onDataReceived) {
+                            this.onDataReceived(error);
+                        }
+                    });
+
+                    this.trimHistory();
+
+                    if (result.latestId !== undefined) {
+                        this.lastId = result.latestId;
+                    }
+                }
+        } else if (this.isInitialFetch) {
+            this.isInitialFetch = false;
         }
     }
 
