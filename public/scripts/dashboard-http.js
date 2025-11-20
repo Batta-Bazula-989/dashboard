@@ -260,6 +260,21 @@ constructor() {
                     this.stateManager.completeFirstFetch();
                     this.updateUI();
 
+                    // After first fetch, show empty state ONLY if no data exists
+                    if (this.dataDisplay) {
+                        const hasData = this.dataDisplay.hasData();
+                        const emptyState = this.dataDisplay.dataDisplay?.querySelector('.empty-state');
+                        if (emptyState) {
+                            if (hasData) {
+                                // Hide/remove empty state if data exists
+                                emptyState.style.display = 'none';
+                            } else {
+                                // Show empty state if no data
+                                emptyState.style.display = '';
+                            }
+                        }
+                    }
+
                     console.log(`=== FIRST FETCH COMPLETE ===`);
                 }
                 else if (dataArray.length > counts.lastDataCount) {
@@ -299,12 +314,26 @@ constructor() {
                 this.stateManager.suppressWorkflowLoading('data fetch error');
             }
 
-            if (this.dataDisplay && typeof this.dataDisplay.hasData === 'function') {
-                if (!this.dataDisplay.hasData()) {
-                    this.dataDisplay.clear(true);
+            // Handle empty state based on first fetch status
+            if (this.stateManager && this.stateManager.isFirstDataFetch()) {
+                // On first fetch error, mark as complete and show empty state if no data
+                this.stateManager.completeFirstFetch();
+                if (this.dataDisplay) {
+                    const hasData = this.dataDisplay.hasData();
+                    const emptyState = this.dataDisplay.dataDisplay?.querySelector('.empty-state');
+                    if (emptyState && !hasData) {
+                        emptyState.style.display = '';
+                    }
                 }
-            } else if (this.stateManager) {
-                this.stateManager.showEmptyState();
+            } else if (this.stateManager && !this.stateManager.isFirstDataFetch()) {
+                // After first fetch, show empty state only if no data exists
+                if (this.dataDisplay && typeof this.dataDisplay.hasData === 'function') {
+                    if (!this.dataDisplay.hasData()) {
+                        this.dataDisplay.clear(true);
+                    }
+                } else if (this.stateManager) {
+                    this.stateManager.showEmptyState();
+                }
             }
         } finally {
             if (this.stateManager) {

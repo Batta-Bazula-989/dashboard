@@ -25,6 +25,13 @@ class DataDisplay {
         `;
 
         container.insertAdjacentHTML('beforeend', dataDisplayHTML);
+        
+        // Initially hide empty state to prevent flash on reload
+        // It will be shown after first data fetch if no data exists
+        const emptyState = container.querySelector('.empty-state');
+        if (emptyState) {
+            emptyState.style.display = 'none';
+        }
     }
 
     getEmptyStateTemplate() {
