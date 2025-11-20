@@ -16,7 +16,7 @@
     display: flex;
     align-items: center;
     gap: 14px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     transition: all 0.2s ease;
     min-width: 168px;
     height: 58px;
@@ -138,10 +138,11 @@
 }
 
 .counter-number {
-    font-size: 28px;
-    font-weight: 700;
-    color: #4c1d95;
+    font-size: 32px;
+    font-weight: 900;
+    color: #1a1a1a;
     line-height: 1;
+    letter-spacing: -0.5px;
     /* Pixelated font effect */
     font-family: 'Courier New', monospace;
     text-rendering: optimizeSpeed;
