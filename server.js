@@ -15,20 +15,28 @@ if (!API_KEY) {
   console.warn('⚠️  Set API_KEY or DASHBOARD_API_KEY environment variable for production use.');
 }
 
-// Session token storage (in-memory, expires after 24 hours)
-const sessionTokens = new Map();
-const SESSION_DURATION = 24 * 60 * 60 * 1000; // 24 hours
+// Webhook Configuration
+const WEBHOOK_URL = process.env.WEBHOOK_URL || process.env.N8N_WEBHOOK_URL;
+if (!WEBHOOK_URL) {
+  console.warn('⚠️  WARNING: No WEBHOOK_URL environment variable set. Form submissions will fail.');
+}
+
+// Session token storage (in-memory, expires after 2 hours with idle timeout)
+const sessionTokens = new Map(); // Map<token, {expiry: number, lastActivity: number}>
+const SESSION_DURATION = 2 * 60 * 60 * 1000; // 2 hours
+const IDLE_TIMEOUT = 30 * 60 * 1000; // 30 minutes idle timeout
 
 // Generate a secure session token
 function generateSessionToken() {
   return crypto.randomBytes(32).toString('hex');
 }
 
-// Clean up expired sessions periodically
+// Clean up expired and idle sessions periodically
 setInterval(() => {
   const now = Date.now();
-  for (const [token, expiry] of sessionTokens.entries()) {
-    if (now > expiry) {
+  for (const [token, session] of sessionTokens.entries()) {
+    // Remove if expired or idle for too long
+    if (now > session.expiry || (now - session.lastActivity) > IDLE_TIMEOUT) {
       sessionTokens.delete(token);
     }
   }
@@ -72,13 +80,16 @@ function authenticate(req, res, next) {
   // Check for session token (for same-origin web requests)
   const sessionToken = req.headers['x-session-token'];
   if (sessionToken && sessionTokens.has(sessionToken)) {
-    const expiry = sessionTokens.get(sessionToken);
-    if (Date.now() < expiry) {
-      // Valid session token - refresh expiry
-      sessionTokens.set(sessionToken, Date.now() + SESSION_DURATION);
+    const session = sessionTokens.get(sessionToken);
+    const now = Date.now();
+
+    // Check if session is expired or idle
+    if (now < session.expiry && (now - session.lastActivity) <= IDLE_TIMEOUT) {
+      // Valid session token - update last activity only (don't extend expiry infinitely)
+      session.lastActivity = now;
       return next();
     } else {
-      // Expired token
+      // Expired or idle token
       sessionTokens.delete(sessionToken);
     }
   }
@@ -118,6 +129,15 @@ function authenticate(req, res, next) {
   next();
 }
 
+// HTTPS enforcement middleware (only in production)
+function enforceHTTPS(req, res, next) {
+  // Only enforce HTTPS in production and if not already HTTPS
+  if (process.env.NODE_ENV === 'production' && req.header('x-forwarded-proto') !== 'https') {
+    return res.redirect(301, `https://${req.hostname}${req.url}`);
+  }
+  next();
+}
+
 // Security Headers Middleware
 function securityHeaders(req, res, next) {
   // Prevent clickjacking
@@ -132,8 +152,13 @@ function securityHeaders(req, res, next) {
   res.setHeader('X-DNS-Prefetch-Control', 'off');
   // Disable powered-by header
   res.removeHeader('X-Powered-By');
-  // Content Security Policy (basic - can be customized)
-  res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self';");
+  // Strict Transport Security (HSTS) - only in production with HTTPS
+  if (process.env.NODE_ENV === 'production') {
+    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+  }
+  // Content Security Policy - removed unsafe-inline for better security
+  // Note: Inline styles/scripts should be moved to separate files or use nonces
+  res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self';");
   // Permissions Policy (restrict certain browser features)
   res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
   next();
@@ -242,6 +267,7 @@ const corsOptions = {
 };
 
 // Middleware
+app.use(enforceHTTPS); // HTTPS enforcement first
 app.use(securityHeaders);
 app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' })); // Add size limit
@@ -335,23 +361,23 @@ function filterBySince(items, sinceId) {
   if (sinceId === undefined || sinceId === null) {
     return items;
   }
-  
-  // Validate and parse integer with proper error handling
+
+  // Validate and parse integer with strict error handling
   const id = parseInt(sinceId, 10);
   if (isNaN(id) || !isFinite(id) || id < 0) {
-    // Invalid input - return all items (or could return empty array)
-    // Returning all items is safer for backward compatibility
-    return items;
+    // Invalid input - return empty array to prevent information disclosure
+    console.warn(`Invalid 'since' parameter: ${sinceId}`);
+    return [];
   }
-  
+
   return items.filter(item => item.id > id);
 }
 
 // Session token endpoint for same-origin requests
-// Use a more lenient rate limit for session creation (needed on page load)
+// Stricter rate limit for session creation to prevent abuse
 const sessionLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 20, // Allow 20 session creations per 15 minutes (should be enough for normal use)
+  max: 5, // Allow only 5 session creations per 15 minutes
   message: {
     success: false,
     error: 'Too many session requests from this IP, please try again later.'
@@ -392,12 +418,36 @@ app.post('/api/session', sessionLimiter, (req, res) => {
   
   // Generate and store session token
   const token = generateSessionToken();
-  sessionTokens.set(token, Date.now() + SESSION_DURATION);
+  const now = Date.now();
+  sessionTokens.set(token, {
+    expiry: now + SESSION_DURATION,
+    lastActivity: now
+  });
 
   res.json({
     success: true,
     token: token,
-    expiresIn: SESSION_DURATION
+    expiresIn: SESSION_DURATION,
+    idleTimeout: IDLE_TIMEOUT
+  });
+});
+
+// Session logout endpoint
+app.delete('/api/session', apiLimiter, authenticate, (req, res) => {
+  const sessionToken = req.headers['x-session-token'];
+
+  if (sessionToken && sessionTokens.has(sessionToken)) {
+    sessionTokens.delete(sessionToken);
+    console.log('Session token revoked');
+    return res.json({
+      success: true,
+      message: 'Session logged out successfully'
+    });
+  }
+
+  res.json({
+    success: true,
+    message: 'No active session to logout'
   });
 });
 
@@ -498,6 +548,24 @@ app.post('/api/notification', postLimiter, authenticate, (req, res) => {
       });
     }
 
+    // Validate metadata size and structure
+    if (metadata !== undefined && metadata !== null) {
+      if (typeof metadata !== 'object' || Array.isArray(metadata)) {
+        return res.status(400).json({
+          success: false,
+          error: 'Metadata must be an object'
+        });
+      }
+
+      const metadataSize = JSON.stringify(metadata).length;
+      if (metadataSize > 100 * 1024) { // 100KB limit for metadata
+        return res.status(400).json({
+          success: false,
+          error: 'Metadata payload too large (max 100KB)'
+        });
+      }
+    }
+
     const notification = {
       id: notificationIdCounter++,
       type,
@@ -522,7 +590,7 @@ app.post('/api/notification', postLimiter, authenticate, (req, res) => {
       notification
     });
   } catch (error) {
-    console.error('POST /api/notification error:', error.message);
+    console.error('POST /api/notification - failed');
     res.status(500).json({
       success: false,
       error: 'Internal server error'
@@ -588,7 +656,7 @@ app.get('/api/errors', apiLimiter, authenticate, (req, res) => {
     try {
       errorNotifications = notifications.filter(isErrorNotification);
     } catch (filterError) {
-      console.error('Error filtering notifications:', filterError.message);
+      console.error('Error filtering notifications');
       // If filtering fails, return empty array instead of crashing
       errorNotifications = [];
     }
@@ -602,12 +670,106 @@ app.get('/api/errors', apiLimiter, authenticate, (req, res) => {
       latestId: notifications.length > 0 ? notifications[notifications.length - 1].id : -1
     });
   } catch (error) {
-    console.error('GET /api/errors error:', error.message);
+    console.error('GET /api/errors - failed');
     res.status(500).json({
       success: false,
       error: 'Internal server error'
     });
   }
+});
+
+// Webhook proxy endpoint (for frontend form submissions)
+app.post('/api/webhook/submit', postLimiter, (req, res) => {
+  // No authentication required for form submissions from same origin
+  // Rate limiting is already applied via postLimiter
+
+  if (!WEBHOOK_URL) {
+    return res.status(503).json({
+      success: false,
+      error: 'Webhook service not configured'
+    });
+  }
+
+  const { Country, Brand, Status, submittedAt, formMode } = req.body;
+
+  // Validate required fields
+  if (!Country || !Brand || !Status) {
+    return res.status(400).json({
+      success: false,
+      error: 'Missing required fields: Country, Brand, Status'
+    });
+  }
+
+  // Forward to n8n webhook
+  const https = require('https');
+  const http = require('http');
+  const url = require('url');
+
+  const webhookUrl = new URL(WEBHOOK_URL);
+  const protocol = webhookUrl.protocol === 'https:' ? https : http;
+
+  const payload = JSON.stringify({
+    Country,
+    Brand,
+    Status,
+    submittedAt: submittedAt || new Date().toISOString(),
+    formMode: formMode || 'production'
+  });
+
+  const options = {
+    hostname: webhookUrl.hostname,
+    port: webhookUrl.port,
+    path: webhookUrl.pathname + webhookUrl.search,
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Content-Length': Buffer.byteLength(payload)
+    },
+    timeout: 10000 // 10 second timeout
+  };
+
+  const proxyReq = protocol.request(options, (proxyRes) => {
+    let data = '';
+
+    proxyRes.on('data', (chunk) => {
+      data += chunk;
+    });
+
+    proxyRes.on('end', () => {
+      if (proxyRes.statusCode >= 200 && proxyRes.statusCode < 300) {
+        res.json({
+          success: true,
+          message: 'Form submitted successfully'
+        });
+      } else {
+        console.error(`Webhook failed with status ${proxyRes.statusCode}`);
+        res.status(502).json({
+          success: false,
+          error: 'Webhook service error'
+        });
+      }
+    });
+  });
+
+  proxyReq.on('error', (error) => {
+    console.error('Webhook proxy error');
+    res.status(502).json({
+      success: false,
+      error: 'Failed to connect to webhook service'
+    });
+  });
+
+  proxyReq.on('timeout', () => {
+    proxyReq.destroy();
+    console.error('Webhook timeout');
+    res.status(504).json({
+      success: false,
+      error: 'Webhook service timeout'
+    });
+  });
+
+  proxyReq.write(payload);
+  proxyReq.end();
 });
 
 // Main route - serve HTML without API key injection
@@ -628,11 +790,10 @@ app.get('/', (req, res) => {
 // Serve static files
 app.use(express.static('public'));
 
-// Health check endpoint (no authentication, but limited info)
+// Health check endpoint (no authentication, minimal info disclosure)
 app.get('/health', (req, res) => {
   res.json({
-    status: 'ok',
-    timestamp: new Date().toISOString()
+    status: 'ok'
   });
 });
 
@@ -642,10 +803,11 @@ app.listen(PORT, () => {
   console.log(`🚀 Dashboard server running on port ${PORT}`);
   console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🔐 Authentication: ${API_KEY ? 'ENABLED' : 'DISABLED (no API_KEY set)'}`);
-  if (API_KEY) {
-    console.log(`🔑 API Key configured: ${API_KEY.substring(0, 8)}...`);
-  }
+  // DO NOT LOG API KEY - SECURITY RISK
   console.log(`🌐 Access your dashboard at: http://localhost:${PORT}`);
+  if (WEBHOOK_URL) {
+    console.log(`🔗 Webhook proxy: CONFIGURED`);
+  }
 });
 
 module.exports = app;

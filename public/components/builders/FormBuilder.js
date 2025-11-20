@@ -5,7 +5,8 @@
 class FormBuilder {
     constructor() {
         this.maxCompetitors = 3;
-        this.webhookUrl = 'https://stash-312.app.n8n.cloud/webhook-test/inputrigger';
+        // Use server-side webhook proxy instead of hardcoded URL
+        this.webhookUrl = '/api/webhook/submit';
         this.competitors = [{ id: 1, value: '' }];
         this.nextId = 2;
     }
