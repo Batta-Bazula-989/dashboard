@@ -1,4 +1,3 @@
-// Railway Deployment Server
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -169,7 +168,6 @@ function securityHeaders(req, res, next) {
 }
 
 // Rate limiting configuration
-// Skip rate limiting for static files and root route
 const skipRateLimit = (req) => {
   // Skip for root route
   if (req.path === '/' || req.path === '/index.html') {
@@ -189,34 +187,8 @@ const skipRateLimit = (req) => {
   return false;
 };
 
-// Rate limiting temporarily disabled for polling services
-// const apiLimiter = rateLimit({
-//   windowMs: 15 * 60 * 1000, // 15 minutes
-//   max: 200, // Limit each IP to 200 API requests per windowMs (increased for dashboard polling)
-//   message: {
-//     success: false,
-//     error: 'Too many requests from this IP, please try again later.'
-//   },
-//   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-//   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
-//   skip: skipRateLimit, // Skip rate limiting for static files
-// });
-
 // No-op middleware (rate limiting disabled)
 const apiLimiter = (req, res, next) => next();
-
-// Rate limiting temporarily disabled for polling services
-// const postLimiter = rateLimit({
-//   windowMs: 15 * 60 * 1000, // 15 minutes
-//   max: 50, // Limit each IP to 50 POST requests per windowMs
-//   message: {
-//     success: false,
-//     error: 'Too many requests from this IP, please try again later.'
-//   },
-//   standardHeaders: true,
-//   legacyHeaders: false,
-//   skip: skipRateLimit,
-// });
 
 // No-op middleware (rate limiting disabled)
 const postLimiter = (req, res, next) => next();
@@ -242,8 +214,7 @@ const corsOptions = {
       
       // Allow same-origin requests (origin matches host header)
       // This will be checked more strictly in the session endpoint
-      
-      // Check if origin is in allowed list
+
       if (ALLOWED_ORIGINS.length > 0) {
         const isAllowed = ALLOWED_ORIGINS.some(allowed => {
           try {
@@ -383,19 +354,6 @@ function filterBySince(items, sinceId) {
 
   return items.filter(item => item.id > id);
 }
-
-// Session token endpoint for same-origin requests
-// Rate limiting disabled for polling services
-// const sessionLimiter = rateLimit({
-//   windowMs: 15 * 60 * 1000, // 15 minutes
-//   max: 5, // Allow only 5 session creations per 15 minutes
-//   message: {
-//     success: false,
-//     error: 'Too many session requests from this IP, please try again later.'
-//   },
-//   standardHeaders: true,
-//   legacyHeaders: false,
-// });
 
 // No-op middleware (rate limiting disabled)
 const sessionLimiter = (req, res, next) => next();
@@ -793,7 +751,6 @@ app.get('/', (req, res) => {
   // Read and serve HTML file directly - NO API KEY INJECTION
   fs.readFile(htmlPath, 'utf8', (err, html) => {
     if (err) {
-      console.error('Error reading index.html:', err.message);
       return res.status(500).send('Internal server error');
     }
     
@@ -817,7 +774,6 @@ app.listen(PORT, () => {
   console.log(`🚀 Dashboard server running on port ${PORT}`);
   console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🔐 Authentication: ${API_KEY ? 'ENABLED' : 'DISABLED (no API_KEY set)'}`);
-  // DO NOT LOG API KEY - SECURITY RISK
   console.log(`🌐 Access your dashboard at: http://localhost:${PORT}`);
   if (WEBHOOK_URL) {
     console.log(`🔗 Webhook proxy: CONFIGURED`);
