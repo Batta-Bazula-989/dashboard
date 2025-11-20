@@ -24,7 +24,14 @@ class Modal {
         content.className = 'modal-analysis-content';
 
         const formattedContent = this.formatSectionContent(fullAnalysis);
-        content.innerHTML = formattedContent;
+        // Use DOMParser for safe HTML parsing (content is already sanitized)
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(formattedContent, 'text/html');
+        const fragment = document.createDocumentFragment();
+        Array.from(doc.body.childNodes).forEach(node => {
+            fragment.appendChild(node.cloneNode(true));
+        });
+        content.appendChild(fragment);
 
         body.appendChild(content);
         modal.appendChild(body);

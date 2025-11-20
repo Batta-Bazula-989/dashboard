@@ -53,7 +53,7 @@ class CardBuilder {
         // Avatar
         const img = document.createElement('img');
         img.className = 'avatar';
-        img.src = entry.ad_data?.page_profile_picture_url || '';
+        img.src = URLValidator.sanitizeImageURL(entry.ad_data?.page_profile_picture_url);
         img.alt = 'Profile';
         header.appendChild(img);
 
@@ -123,8 +123,22 @@ class CardBuilder {
         const iconSvg = PlatformIcons.getIcon(platformLower);
 
         if (iconSvg && iconSvg.startsWith('<svg')) {
-            icon.innerHTML = iconSvg;
-            icon.title = platform; // Original case for tooltip
+            // Parse SVG safely using DOMParser instead of innerHTML
+            try {
+                const parser = new DOMParser();
+                const svgDoc = parser.parseFromString(iconSvg, 'image/svg+xml');
+                const svgElement = svgDoc.documentElement;
+                if (svgElement && svgElement.tagName === 'svg') {
+                    icon.appendChild(svgElement);
+                } else {
+                    // If parsing fails, use textContent fallback
+                    icon.textContent = platform.substring(0, 1).toUpperCase();
+                }
+            } catch (e) {
+                // If parsing fails, use textContent fallback
+                icon.textContent = platform.substring(0, 1).toUpperCase();
+            }
+            icon.title = Sanitizer.escapeHTML(platform); // Original case for tooltip
         } else {
             // Fallback: Show first letter
             icon.textContent = platform.substring(0, 1).toUpperCase();
@@ -135,10 +149,10 @@ class CardBuilder {
 
     buildNameLink(entry) {
         const link = document.createElement('a');
-        link.href = entry.ad_data?.page_profile_uri || '#';
+        link.href = URLValidator.sanitizeLinkURL(entry.ad_data?.page_profile_uri);
         link.target = '_blank';
         link.rel = 'noopener noreferrer';
-        link.textContent = entry.competitor_name || 'Unknown competitor';
+        link.textContent = Sanitizer.escapeHTML(entry.competitor_name || 'Unknown competitor');
         return link;
     }
 
@@ -155,8 +169,22 @@ buildPlatformBadges(platforms) {
         const icon = PlatformIcons.getIcon(platformLower); // ✅ Correct method name
 
         if (icon && icon.startsWith('<svg')) {
-            badge.innerHTML = icon;
-            badge.title = platform; // Original case for tooltip
+            // Parse SVG safely using DOMParser instead of innerHTML
+            try {
+                const parser = new DOMParser();
+                const svgDoc = parser.parseFromString(icon, 'image/svg+xml');
+                const svgElement = svgDoc.documentElement;
+                if (svgElement && svgElement.tagName === 'svg') {
+                    badge.appendChild(svgElement);
+                } else {
+                    // If parsing fails, use textContent fallback
+                    badge.textContent = platform.substring(0, 2).toUpperCase();
+                }
+            } catch (e) {
+                // If parsing fails, use textContent fallback
+                badge.textContent = platform.substring(0, 2).toUpperCase();
+            }
+            badge.title = Sanitizer.escapeHTML(platform); // Original case for tooltip
         } else {
             // Fallback: Show first 2 letters (FB, IG, etc.)
             badge.textContent = platform.substring(0, 2).toUpperCase();
@@ -171,10 +199,14 @@ buildPlatformBadges(platforms) {
     buildViewProfileLink(uri) {
         const link = document.createElement('a');
         link.className = 'view-profile-link';
-        link.href = uri || '#';
+        link.href = URLValidator.sanitizeLinkURL(uri);
         link.target = '_blank';
         link.rel = 'noopener noreferrer';
-        link.innerHTML = 'View Profile <span>↗</span>';
+        // Use textContent and createElement instead of innerHTML
+        link.textContent = 'View Profile ';
+        const arrow = document.createElement('span');
+        arrow.textContent = '↗';
+        link.appendChild(arrow);
         return link;
     }
 
@@ -206,13 +238,21 @@ buildPlatformBadges(platforms) {
         
         // Set poster image (thumbnail)
         if (video.video_preview_image_url) {
-            videoElement.poster = video.video_preview_image_url;
+            const posterUrl = URLValidator.sanitizeImageURL(video.video_preview_image_url);
+            if (posterUrl) {
+                videoElement.poster = posterUrl;
+            }
         }
         
         // Add video source
         const source = document.createElement('source');
-        source.src = video.video_sd_url || video.video_hd_url || video.video_preview_image_url;
-        source.type = 'video/mp4';
+        const videoUrl = URLValidator.sanitizeImageURL(
+            video.video_sd_url || video.video_hd_url || video.video_preview_image_url
+        );
+        if (videoUrl) {
+            source.src = videoUrl;
+            source.type = 'video/mp4';
+        }
         
         videoElement.appendChild(source);
         
@@ -236,7 +276,7 @@ buildPlatformBadges(platforms) {
         images.forEach((image, index) => {
             const img = document.createElement('img');
             img.className = 'carousel-image';
-            img.src = image.resized_image_url || image.original_image_url || '';
+            img.src = URLValidator.sanitizeImageURL(image.resized_image_url || image.original_image_url);
             img.alt = `Image ${index + 1}`;
             img.loading = 'lazy';
             
@@ -256,12 +296,12 @@ buildPlatformBadges(platforms) {
         if (images.length > 1) {
             const prevBtn = document.createElement('button');
             prevBtn.className = 'carousel-btn carousel-btn-prev';
-            prevBtn.innerHTML = '‹';
+            prevBtn.textContent = '‹';
             prevBtn.setAttribute('aria-label', 'Previous image');
             
             const nextBtn = document.createElement('button');
             nextBtn.className = 'carousel-btn carousel-btn-next';
-            nextBtn.innerHTML = '›';
+            nextBtn.textContent = '›';
             nextBtn.setAttribute('aria-label', 'Next image');
             
             // Indicators
@@ -333,7 +373,7 @@ buildPlatformBadges(platforms) {
         
         const img = document.createElement('img');
         img.className = 'single-image';
-        img.src = image.resized_image_url || image.original_image_url || '';
+        img.src = URLValidator.sanitizeImageURL(image.resized_image_url || image.original_image_url);
         img.alt = 'Ad image';
         img.loading = 'lazy';
         
@@ -360,7 +400,7 @@ buildPlatformBadges(platforms) {
             const wrapper = hasLink ? document.createElement('a') : document.createElement('div');
             
             if (hasLink) {
-                wrapper.href = card.link_url;
+                wrapper.href = URLValidator.sanitizeLinkURL(card.link_url);
                 wrapper.target = '_blank';
                 wrapper.rel = 'noopener noreferrer';
                 wrapper.className = 'carousel-card-link';
@@ -368,8 +408,8 @@ buildPlatformBadges(platforms) {
             
             const img = document.createElement('img');
             img.className = 'carousel-image';
-            img.src = card.resized_image_url || card.original_image_url || '';
-            img.alt = card.title || card.body || `Card ${index + 1}`;
+            img.src = URLValidator.sanitizeImageURL(card.resized_image_url || card.original_image_url);
+            img.alt = Sanitizer.escapeHTML(card.title || card.body || `Card ${index + 1}`);
             img.loading = 'lazy';
             
             // Show first image by default
@@ -392,12 +432,12 @@ buildPlatformBadges(platforms) {
         if (cards.length > 1) {
             const prevBtn = document.createElement('button');
             prevBtn.className = 'carousel-btn carousel-btn-prev';
-            prevBtn.innerHTML = '‹';
+            prevBtn.textContent = '‹';
             prevBtn.setAttribute('aria-label', 'Previous card');
             
             const nextBtn = document.createElement('button');
             nextBtn.className = 'carousel-btn carousel-btn-next';
-            nextBtn.innerHTML = '›';
+            nextBtn.textContent = '›';
             nextBtn.setAttribute('aria-label', 'Next card');
             
             // Indicators
@@ -472,7 +512,7 @@ buildPlatformBadges(platforms) {
         const wrapper = hasLink ? document.createElement('a') : document.createElement('div');
         
         if (hasLink) {
-            wrapper.href = card.link_url;
+            wrapper.href = URLValidator.sanitizeLinkURL(card.link_url);
             wrapper.target = '_blank';
             wrapper.rel = 'noopener noreferrer';
             wrapper.className = 'single-card-link';
@@ -480,8 +520,8 @@ buildPlatformBadges(platforms) {
         
         const img = document.createElement('img');
         img.className = 'single-image';
-        img.src = card.resized_image_url || card.original_image_url || '';
-        img.alt = card.title || card.body || 'Ad card';
+        img.src = URLValidator.sanitizeImageURL(card.resized_image_url || card.original_image_url);
+        img.alt = Sanitizer.escapeHTML(card.title || card.body || 'Ad card');
         img.loading = 'lazy';
         
         wrapper.appendChild(img);

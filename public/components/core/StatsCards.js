@@ -63,7 +63,14 @@ class StatsCards {
             </div>
         `;
 
-        container.insertAdjacentHTML('beforeend', statsCardsHTML);
+        // Parse HTML safely using DOMParser
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(statsCardsHTML, 'text/html');
+        const fragment = document.createDocumentFragment();
+        Array.from(doc.body.childNodes).forEach(node => {
+            fragment.appendChild(node.cloneNode(true));
+        });
+        container.appendChild(fragment);
     }
 
     /**

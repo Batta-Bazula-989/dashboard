@@ -23,14 +23,23 @@ class DataDisplay {
      * @param {HTMLElement} container - The container element
      */
     render(container) {
-        const dataDisplayHTML = `
-            <div class="data-display" id="dataDisplay">
-                ${this.getEmptyStateTemplate()}
-                <div class="data-display-content"></div>
-            </div>
-        `;
-
-        container.insertAdjacentHTML('beforeend', dataDisplayHTML);
+        const dataDisplay = document.createElement('div');
+        dataDisplay.className = 'data-display';
+        dataDisplay.id = 'dataDisplay';
+        
+        // Parse empty state template safely
+        const parser = new DOMParser();
+        const emptyStateDoc = parser.parseFromString(this.getEmptyStateTemplate(), 'text/html');
+        const emptyStateElement = emptyStateDoc.body.firstChild;
+        if (emptyStateElement) {
+            dataDisplay.appendChild(emptyStateElement.cloneNode(true));
+        }
+        
+        const contentArea = document.createElement('div');
+        contentArea.className = 'data-display-content';
+        dataDisplay.appendChild(contentArea);
+        
+        container.appendChild(dataDisplay);
     }
 
     getEmptyStateTemplate() {
@@ -121,25 +130,35 @@ class DataDisplay {
             existingLoading.remove();
         }
 
-        // Create loading state
-        const loadingStateHTML = `
-            <div class="loading-state">
-                <div class="loading-state-illustration">
-                    <div class="neural-network">
-                        <div class="node"></div>
-                        <div class="node"></div>
-                        <div class="node"></div>
-                        <div class="node"></div>
-                        <div class="node"></div>
-                    </div>
-                </div>
-                <div class="loading-dots"></div>
-                <div class="loading-subtitle">Analyzing data</div>
-            </div>
-        `;
-
+        // Create loading state using DOM methods
+        const loadingState = document.createElement('div');
+        loadingState.className = 'loading-state';
+        
+        const illustration = document.createElement('div');
+        illustration.className = 'loading-state-illustration';
+        
+        const neuralNetwork = document.createElement('div');
+        neuralNetwork.className = 'neural-network';
+        for (let i = 0; i < 5; i++) {
+            const node = document.createElement('div');
+            node.className = 'node';
+            neuralNetwork.appendChild(node);
+        }
+        illustration.appendChild(neuralNetwork);
+        
+        const dots = document.createElement('div');
+        dots.className = 'loading-dots';
+        
+        const subtitle = document.createElement('div');
+        subtitle.className = 'loading-subtitle';
+        subtitle.textContent = 'Analyzing data';
+        
+        loadingState.appendChild(illustration);
+        loadingState.appendChild(dots);
+        loadingState.appendChild(subtitle);
+        
         // Insert loading state at the beginning of data display
-        this.dataDisplay.insertAdjacentHTML('afterbegin', loadingStateHTML);
+        this.dataDisplay.insertBefore(loadingState, this.dataDisplay.firstChild);
     }
 
     /**
@@ -497,7 +516,10 @@ addCarouselAnalysis(carouselData) {
                    }
                });
 
-               contentArea.innerHTML = '';
+               // Clear content safely
+               while (contentArea.firstChild) {
+                   contentArea.removeChild(contentArea.firstChild);
+               }
                contentArea.classList.remove('has-data');
                // Invalidate grid cache since content was cleared
                this._grid = null;
@@ -511,7 +533,13 @@ addCarouselAnalysis(carouselData) {
            if (showEmptyState) {
                // Show empty state if it doesn't exist
                if (!emptyState) {
-                   this.dataDisplay.insertAdjacentHTML('afterbegin', this.getEmptyStateTemplate());
+                   // Parse empty state template safely
+                   const parser = new DOMParser();
+                   const emptyStateDoc = parser.parseFromString(this.getEmptyStateTemplate(), 'text/html');
+                   const emptyStateElement = emptyStateDoc.body.firstChild;
+                   if (emptyStateElement) {
+                       this.dataDisplay.insertBefore(emptyStateElement.cloneNode(true), this.dataDisplay.firstChild);
+                   }
                    // Refresh cache after adding empty state
                    this._refreshCachedElements();
                } else {

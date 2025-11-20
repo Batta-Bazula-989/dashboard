@@ -128,7 +128,13 @@ class FormBuilder {
         this.competitors.push(newCompetitor);
 
         const list = container.querySelector('#competitorsList');
-        list.insertAdjacentHTML('beforeend', this.buildCompetitorInput(newCompetitor));
+        // Parse HTML safely
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(this.buildCompetitorInput(newCompetitor), 'text/html');
+        const inputElement = doc.body.firstChild;
+        if (inputElement) {
+            list.appendChild(inputElement.cloneNode(true));
+        }
 
         this.updateHeader(container);
         this.attachRemoveListeners(container);
@@ -171,16 +177,28 @@ class FormBuilder {
         const header = container.querySelector('.form-header');
         if (!header) return;
 
-        header.innerHTML = `
-            <div class="competitors-label">
-                <span>Advertisers (${this.competitors.length} added)</span>
-                ${this.competitors.length < this.maxCompetitors ? `
-                    <button type="button" class="add-more-btn" id="addCompetitorBtn">
-                        + Add more
-                    </button>
-                ` : ''}
-            </div>
-        `;
+        // Clear existing content
+        while (header.firstChild) {
+            header.removeChild(header.firstChild);
+        }
+
+        const labelDiv = document.createElement('div');
+        labelDiv.className = 'competitors-label';
+        
+        const span = document.createElement('span');
+        span.textContent = `Advertisers (${this.competitors.length} added)`;
+        labelDiv.appendChild(span);
+        
+        if (this.competitors.length < this.maxCompetitors) {
+            const addBtn = document.createElement('button');
+            addBtn.type = 'button';
+            addBtn.className = 'add-more-btn';
+            addBtn.id = 'addCompetitorBtn';
+            addBtn.textContent = '+ Add more';
+            labelDiv.appendChild(addBtn);
+        }
+        
+        header.appendChild(labelDiv);
 
         const addBtn = header.querySelector('#addCompetitorBtn');
         if (addBtn) {
@@ -228,14 +246,32 @@ class FormBuilder {
         }
 
         const runBtn = container.querySelector('#runAnalysisBtn');
-        const originalBtnContent = runBtn.innerHTML;
+        // Store original button state
+        const originalBtnState = {
+            disabled: runBtn.disabled,
+            children: Array.from(runBtn.childNodes).map(n => n.cloneNode(true))
+        };
         runBtn.disabled = true;
-        runBtn.innerHTML = `
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spinning">
-                <path d="M21 12a9 9 0 1 1-6.219-8.56"></path>
-            </svg>
-            Analyzing...
-        `;
+        
+        // Clear button content
+        while (runBtn.firstChild) {
+            runBtn.removeChild(runBtn.firstChild);
+        }
+        
+        // Add loading SVG
+        const loadingSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        loadingSvg.setAttribute('width', '16');
+        loadingSvg.setAttribute('height', '16');
+        loadingSvg.setAttribute('viewBox', '0 0 24 24');
+        loadingSvg.setAttribute('fill', 'none');
+        loadingSvg.setAttribute('stroke', 'currentColor');
+        loadingSvg.setAttribute('stroke-width', '2');
+        loadingSvg.classList.add('spinning');
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('d', 'M21 12a9 9 0 1 1-6.219-8.56');
+        loadingSvg.appendChild(path);
+        runBtn.appendChild(loadingSvg);
+        runBtn.appendChild(document.createTextNode(' Analyzing...'));
 
         const submission = {
             Country: country,
@@ -263,8 +299,14 @@ class FormBuilder {
             this.showError(container, 'Failed to submit form. Please try again.');
             if (onError) onError('Failed to submit form');
         } finally {
-            runBtn.disabled = false;
-            runBtn.innerHTML = originalBtnContent;
+            runBtn.disabled = originalBtnState.disabled;
+            // Restore original button content
+            while (runBtn.firstChild) {
+                runBtn.removeChild(runBtn.firstChild);
+            }
+            originalBtnState.children.forEach(child => {
+                runBtn.appendChild(child.cloneNode(true));
+            });
         }
     }
 

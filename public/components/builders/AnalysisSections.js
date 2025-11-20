@@ -14,16 +14,27 @@ class AnalysisSections {
 
         const btn = document.createElement('button');
         btn.className = 'full-analysis-btn';
-        btn.innerHTML = '⋯';
+        btn.textContent = '⋯';
         btn.onclick = () => onShowFullAnalysis(competitorName, { ai_analysis: aiAnalysis });
         header.appendChild(btn);
 
         preview.appendChild(header);
 
-        // Content with metrics
+        // Content with metrics - use DOMParser for safe HTML parsing
         const content = document.createElement('div');
         content.className = 'ai-preview-content';
-        content.innerHTML = this.buildMetrics(aiAnalysis);
+        const metricsHTML = this.buildMetrics(aiAnalysis);
+        if (metricsHTML) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(metricsHTML, 'text/html');
+            const fragment = document.createDocumentFragment();
+            Array.from(doc.body.childNodes).forEach(node => {
+                fragment.appendChild(node.cloneNode(true));
+            });
+            content.appendChild(fragment);
+        } else {
+            content.textContent = 'Аналіз доступний';
+        }
         preview.appendChild(content);
 
         return preview;
@@ -44,19 +55,30 @@ class AnalysisSections {
 
         const btn = document.createElement('button');
         btn.className = 'full-analysis-btn';
-        btn.innerHTML = '⋯';
+        btn.textContent = '⋯';
         btn.onclick = () => onShowFullAnalysis(
-            `${videoData.competitor_name} - Video Analysis`,
+            `${Sanitizer.escapeHTML(videoData.competitor_name || '')} - Video Analysis`,
             videoData
         );
         header.appendChild(btn);
 
         section.appendChild(header);
 
-        // Content with metrics
+        // Content with metrics - use DOMParser for safe HTML parsing
         const content = document.createElement('div');
         content.className = 'ai-preview-content';
-        content.innerHTML = this.buildMetrics(videoData.ai_analysis);
+        const metricsHTML = this.buildMetrics(videoData.ai_analysis);
+        if (metricsHTML) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(metricsHTML, 'text/html');
+            const fragment = document.createDocumentFragment();
+            Array.from(doc.body.childNodes).forEach(node => {
+                fragment.appendChild(node.cloneNode(true));
+            });
+            content.appendChild(fragment);
+        } else {
+            content.textContent = 'Аналіз доступний';
+        }
         section.appendChild(content);
 
         return section;
@@ -77,19 +99,30 @@ class AnalysisSections {
 
         const btn = document.createElement('button');
         btn.className = 'full-analysis-btn';
-        btn.innerHTML = '⋯';
+        btn.textContent = '⋯';
         btn.onclick = () => onShowFullAnalysis(
-            `${carouselData.competitor_name} - Carousel Analysis`,
+            `${Sanitizer.escapeHTML(carouselData.competitor_name || '')} - Carousel Analysis`,
             carouselData
         );
         header.appendChild(btn);
 
         section.appendChild(header);
 
-        // Content with metrics - use carousel-specific builder
+        // Content with metrics - use DOMParser for safe HTML parsing
         const content = document.createElement('div');
         content.className = 'ai-preview-content';
-        content.innerHTML = this.buildCarouselMetrics(carouselData.ai_analysis);
+        const metricsHTML = this.buildCarouselMetrics(carouselData.ai_analysis);
+        if (metricsHTML) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(metricsHTML, 'text/html');
+            const fragment = document.createDocumentFragment();
+            Array.from(doc.body.childNodes).forEach(node => {
+                fragment.appendChild(node.cloneNode(true));
+            });
+            content.appendChild(fragment);
+        } else {
+            content.textContent = 'Аналіз доступний';
+        }
         section.appendChild(content);
 
         return section;

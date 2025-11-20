@@ -41,19 +41,28 @@ class UIManager {
             
             // Make sure it has content
             if (!existingOverlay.querySelector('.loader-container')) {
-                existingOverlay.innerHTML = `
-                    <div class="loader-container">
-                        <div class="neural-network">
-                            <div class="node"></div>
-                            <div class="node"></div>
-                            <div class="node"></div>
-                            <div class="node"></div>
-                            <div class="node"></div>
-                        </div>
-                        <div class="dots"></div>
-                        <div class="subtitle">Analyzing data</div>
-                    </div>
-                `;
+                const loaderContainer = document.createElement('div');
+                loaderContainer.className = 'loader-container';
+                
+                const neuralNetwork = document.createElement('div');
+                neuralNetwork.className = 'neural-network';
+                for (let i = 0; i < 5; i++) {
+                    const node = document.createElement('div');
+                    node.className = 'node';
+                    neuralNetwork.appendChild(node);
+                }
+                
+                const dots = document.createElement('div');
+                dots.className = 'dots';
+                
+                const subtitle = document.createElement('div');
+                subtitle.className = 'subtitle';
+                subtitle.textContent = 'Analyzing data';
+                
+                loaderContainer.appendChild(neuralNetwork);
+                loaderContainer.appendChild(dots);
+                loaderContainer.appendChild(subtitle);
+                existingOverlay.appendChild(loaderContainer);
             }
             
             // Remove the active class so it starts hidden
@@ -67,19 +76,29 @@ class UIManager {
         this.loadingOverlay = document.createElement('div');
         this.loadingOverlay.className = 'loading-overlay';
         this.loadingOverlay.id = 'loadingOverlay';
-        this.loadingOverlay.innerHTML = `
-            <div class="loader-container">
-                <div class="neural-network">
-                    <div class="node"></div>
-                    <div class="node"></div>
-                    <div class="node"></div>
-                    <div class="node"></div>
-                    <div class="node"></div>
-                </div>
-                <div class="dots"></div>
-                <div class="subtitle">Analyzing data</div>
-            </div>
-        `;
+        
+        const loaderContainer = document.createElement('div');
+        loaderContainer.className = 'loader-container';
+        
+        const neuralNetwork = document.createElement('div');
+        neuralNetwork.className = 'neural-network';
+        for (let i = 0; i < 5; i++) {
+            const node = document.createElement('div');
+            node.className = 'node';
+            neuralNetwork.appendChild(node);
+        }
+        
+        const dots = document.createElement('div');
+        dots.className = 'dots';
+        
+        const subtitle = document.createElement('div');
+        subtitle.className = 'subtitle';
+        subtitle.textContent = 'Analyzing data';
+        
+        loaderContainer.appendChild(neuralNetwork);
+        loaderContainer.appendChild(dots);
+        loaderContainer.appendChild(subtitle);
+        this.loadingOverlay.appendChild(loaderContainer);
         mainContent.appendChild(this.loadingOverlay);
     }
 
@@ -167,22 +186,66 @@ showNotification(notification) {
         const toast = document.createElement('div');
         toast.className = 'notification-toast';
         
-        toast.innerHTML = `
-            <div class="notification-accent ${type}"></div>
-            <div class="notification-icon ${type}">
-                ${iconSvg}
-            </div>
-            <div class="notification-content">
-                <p class="notification-title">${title}</p>
-                <p class="notification-message">${message}</p>
-            </div>
-            <button class="notification-close" aria-label="Close notification">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-            </button>
-        `;
+        const accent = document.createElement('div');
+        accent.className = `notification-accent ${type}`;
+        
+        const iconDiv = document.createElement('div');
+        iconDiv.className = `notification-icon ${type}`;
+        if (iconSvg) {
+            // Parse SVG safely
+            try {
+                const parser = new DOMParser();
+                const svgDoc = parser.parseFromString(iconSvg, 'image/svg+xml');
+                const svgElement = svgDoc.documentElement;
+                if (svgElement && svgElement.tagName === 'svg') {
+                    iconDiv.appendChild(svgElement);
+                }
+            } catch (e) {
+                // If parsing fails, skip icon
+            }
+        }
+        
+        const content = document.createElement('div');
+        content.className = 'notification-content';
+        const titleP = document.createElement('p');
+        titleP.className = 'notification-title';
+        titleP.textContent = Sanitizer.escapeHTML(title);
+        const messageP = document.createElement('p');
+        messageP.className = 'notification-message';
+        messageP.textContent = Sanitizer.escapeHTML(message);
+        content.appendChild(titleP);
+        content.appendChild(messageP);
+        
+        const closeBtn = document.createElement('button');
+        closeBtn.className = 'notification-close';
+        closeBtn.setAttribute('aria-label', 'Close notification');
+        const closeSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        closeSvg.setAttribute('width', '14');
+        closeSvg.setAttribute('height', '14');
+        closeSvg.setAttribute('viewBox', '0 0 24 24');
+        closeSvg.setAttribute('fill', 'none');
+        closeSvg.setAttribute('stroke', 'currentColor');
+        closeSvg.setAttribute('stroke-width', '2');
+        closeSvg.setAttribute('stroke-linecap', 'round');
+        closeSvg.setAttribute('stroke-linejoin', 'round');
+        const line1 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line1.setAttribute('x1', '18');
+        line1.setAttribute('y1', '6');
+        line1.setAttribute('x2', '6');
+        line1.setAttribute('y2', '18');
+        const line2 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line2.setAttribute('x1', '6');
+        line2.setAttribute('y1', '6');
+        line2.setAttribute('x2', '18');
+        line2.setAttribute('y2', '18');
+        closeSvg.appendChild(line1);
+        closeSvg.appendChild(line2);
+        closeBtn.appendChild(closeSvg);
+        
+        toast.appendChild(accent);
+        toast.appendChild(iconDiv);
+        toast.appendChild(content);
+        toast.appendChild(closeBtn);
 
         document.body.appendChild(toast);
 
@@ -326,41 +389,55 @@ showNotification(notification) {
             modal.style.maxWidth = '400px';
             modal.style.width = '90%';
 
-            modal.innerHTML = `
-                <div class="modal-body">
-                    <p style="margin-bottom: 20px; color: #374151; line-height: 1.5;">
-                        Are you sure you want to clear all data? This action cannot be undone.
-                    </p>
-                    <div style="display: flex; gap: 12px; justify-content: flex-end;">
-                        <button id="cancelClear" style="
-                            background: #f8fafc;
-                            border: 1px solid #d1d5db;
-                            border-radius: 6px;
-                            padding: 8px 16px;
-                            font-size: 14px;
-                            font-weight: 600;
-                            color: #374151;
-                            cursor: pointer;
-                            transition: all 0.2s ease;
-                        " onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='#f8fafc'">
-                            Cancel
-                        </button>
-                        <button id="confirmClear" style="
-                            background: #ef4444;
-                            border: 1px solid #dc2626;
-                            border-radius: 6px;
-                            padding: 8px 16px;
-                            font-size: 14px;
-                            font-weight: 600;
-                            color: white;
-                            cursor: pointer;
-                            transition: all 0.2s ease;
-                        " onmouseover="this.style.background='#dc2626'" onmouseout="this.style.background='#ef4444'">
-                            Clear All Data
-                        </button>
-                    </div>
-                </div>
-            `;
+            const modalBody = document.createElement('div');
+            modalBody.className = 'modal-body';
+            
+            const messageP = document.createElement('p');
+            messageP.style.marginBottom = '20px';
+            messageP.style.color = '#374151';
+            messageP.style.lineHeight = '1.5';
+            messageP.textContent = 'Are you sure you want to clear all data? This action cannot be undone.';
+            
+            const buttonDiv = document.createElement('div');
+            buttonDiv.style.display = 'flex';
+            buttonDiv.style.gap = '12px';
+            buttonDiv.style.justifyContent = 'flex-end';
+            
+            const cancelBtn = document.createElement('button');
+            cancelBtn.id = 'cancelClear';
+            cancelBtn.style.background = '#f8fafc';
+            cancelBtn.style.border = '1px solid #d1d5db';
+            cancelBtn.style.borderRadius = '6px';
+            cancelBtn.style.padding = '8px 16px';
+            cancelBtn.style.fontSize = '14px';
+            cancelBtn.style.fontWeight = '600';
+            cancelBtn.style.color = '#374151';
+            cancelBtn.style.cursor = 'pointer';
+            cancelBtn.style.transition = 'all 0.2s ease';
+            cancelBtn.textContent = 'Cancel';
+            cancelBtn.addEventListener('mouseover', () => cancelBtn.style.background = '#f1f5f9');
+            cancelBtn.addEventListener('mouseout', () => cancelBtn.style.background = '#f8fafc');
+            
+            const confirmBtn = document.createElement('button');
+            confirmBtn.id = 'confirmClear';
+            confirmBtn.style.background = '#ef4444';
+            confirmBtn.style.border = '1px solid #dc2626';
+            confirmBtn.style.borderRadius = '6px';
+            confirmBtn.style.padding = '8px 16px';
+            confirmBtn.style.fontSize = '14px';
+            confirmBtn.style.fontWeight = '600';
+            confirmBtn.style.color = 'white';
+            confirmBtn.style.cursor = 'pointer';
+            confirmBtn.style.transition = 'all 0.2s ease';
+            confirmBtn.textContent = 'Clear All Data';
+            confirmBtn.addEventListener('mouseover', () => confirmBtn.style.background = '#dc2626');
+            confirmBtn.addEventListener('mouseout', () => confirmBtn.style.background = '#ef4444');
+            
+            buttonDiv.appendChild(cancelBtn);
+            buttonDiv.appendChild(confirmBtn);
+            modalBody.appendChild(messageP);
+            modalBody.appendChild(buttonDiv);
+            modal.appendChild(modalBody);
 
             overlay.appendChild(modal);
             document.body.appendChild(overlay);
@@ -378,12 +455,12 @@ showNotification(notification) {
             };
             document.addEventListener('keydown', handleEscape);
 
-            document.getElementById('cancelClear').onclick = () => {
+            cancelBtn.onclick = () => {
                 cleanup();
                 resolve(false);
             };
 
-            document.getElementById('confirmClear').onclick = () => {
+            confirmBtn.onclick = () => {
                 cleanup();
                 resolve(true);
             };
@@ -430,26 +507,63 @@ showNotification(notification) {
         const clearBtn = document.getElementById('clearDataBtn');
         if (!clearBtn) return;
 
+        // Clear button content
+        while (clearBtn.firstChild) {
+            clearBtn.removeChild(clearBtn.firstChild);
+        }
+        
         if (isClearing) {
             clearBtn.disabled = true;
-            clearBtn.innerHTML = `
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <path d="m9,12 2,2 4,-4"></path>
-                </svg>
-                Clearing...
-            `;
+            const clearingSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            clearingSvg.setAttribute('width', '16');
+            clearingSvg.setAttribute('height', '16');
+            clearingSvg.setAttribute('viewBox', '0 0 24 24');
+            clearingSvg.setAttribute('fill', 'none');
+            clearingSvg.setAttribute('stroke', 'currentColor');
+            clearingSvg.setAttribute('stroke-width', '2');
+            clearingSvg.setAttribute('stroke-linecap', 'round');
+            clearingSvg.setAttribute('stroke-linejoin', 'round');
+            const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            circle.setAttribute('cx', '12');
+            circle.setAttribute('cy', '12');
+            circle.setAttribute('r', '10');
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            path.setAttribute('d', 'm9,12 2,2 4,-4');
+            clearingSvg.appendChild(circle);
+            clearingSvg.appendChild(path);
+            clearBtn.appendChild(clearingSvg);
+            clearBtn.appendChild(document.createTextNode(' Clearing...'));
         } else {
             clearBtn.disabled = false;
-            clearBtn.innerHTML = `
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="3,6 5,6 21,6"></polyline>
-                    <path d="m19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"></path>
-                    <line x1="10" y1="11" x2="10" y2="17"></line>
-                    <line x1="14" y1="11" x2="14" y2="17"></line>
-                </svg>
-                Clear All
-            `;
+            const clearSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            clearSvg.setAttribute('width', '16');
+            clearSvg.setAttribute('height', '16');
+            clearSvg.setAttribute('viewBox', '0 0 24 24');
+            clearSvg.setAttribute('fill', 'none');
+            clearSvg.setAttribute('stroke', 'currentColor');
+            clearSvg.setAttribute('stroke-width', '2');
+            clearSvg.setAttribute('stroke-linecap', 'round');
+            clearSvg.setAttribute('stroke-linejoin', 'round');
+            const polyline = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+            polyline.setAttribute('points', '3,6 5,6 21,6');
+            const path2 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            path2.setAttribute('d', 'm19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2');
+            const line1 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line1.setAttribute('x1', '10');
+            line1.setAttribute('y1', '11');
+            line1.setAttribute('x2', '10');
+            line1.setAttribute('y2', '17');
+            const line2 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line2.setAttribute('x1', '14');
+            line2.setAttribute('y1', '11');
+            line2.setAttribute('x2', '14');
+            line2.setAttribute('y2', '17');
+            clearSvg.appendChild(polyline);
+            clearSvg.appendChild(path2);
+            clearSvg.appendChild(line1);
+            clearSvg.appendChild(line2);
+            clearBtn.appendChild(clearSvg);
+            clearBtn.appendChild(document.createTextNode(' Clear All'));
         }
     }
 }
