@@ -66,9 +66,8 @@ constructor() {
     this.init();
 }
 
-    /**
-     * Initialize the dashboard
-     */
+     // Initialize the dashboard
+
    async init() {
        try {
            await this.loadComponents();
@@ -85,18 +84,16 @@ constructor() {
        }
    }
 
-    /**
-     * Load all required components
-     */
+     // Load all required components
+
     async loadComponents() {
         this.componentLoader.register('StatsCards', window.StatsCards);
         this.componentLoader.register('DataDisplay', window.DataDisplay);
         this.componentLoader.register('Modal', window.Modal);
     }
 
-    /**
-     * Initialize all components
-     */
+     // Initialize all components
+
     initializeComponents() {
         const container = document.querySelector('.container');
 
@@ -123,9 +120,8 @@ constructor() {
         this.modal = this.componentLoader.createComponent('Modal');
     }
 
-    /**
-     * Create header actions (counter badges + clear button)
-     */
+    // Create header actions (counter badges + clear button)
+
     createHeaderActions() {
         const headerActions = document.createElement('div');
         headerActions.className = 'header-actions';
@@ -400,9 +396,8 @@ constructor() {
         return headerActions;
     }
 
-    /**
-     * Initialize the form
-     */
+    // Initialize the form
+
     initializeForm(formSection) {
         // Use DOMParser to safely parse HTML
         const parser = new DOMParser();
@@ -419,9 +414,8 @@ constructor() {
         );
     }
 
-    /**
-     * Handle successful form submission
-     */
+     // Handle successful form submission
+
     handleFormSuccess(data) {
         const formContainer = document.getElementById('formContainer');
         if (formContainer) {
@@ -436,17 +430,15 @@ constructor() {
         this.uiManager.showToast('Analysis started! Results will appear shortly.', 'success');
     }
 
-    /**
-     * Handle form submission error
-     */
+    // Handle form submission error
+
     handleFormError(error) {
         console.error('Form submission error:', error);
         this.uiManager.showToast('Failed to start analysis. Please try again.', 'error');
     }
 
-    /**
-     * Fetch data from API
-     */
+    // Fetch data from API
+
     async fetchData() {
         if (this.stateManager.isFetchingData()) return;
         this.stateManager.setFetching(true);
@@ -585,9 +577,8 @@ constructor() {
         }
     }
 
-    /**
-     * Add data item to display
-     */
+    // Add data item to display
+
     addDataItem(incoming) {
         // Hide loading animation when first data arrives
         if (this.stateManager) {
@@ -606,9 +597,8 @@ constructor() {
         }
     }
 
-    /**
-     * Update UI (badges, visibility) - throttled to prevent rapid updates
-     */
+    // Update UI (badges, visibility) - throttled to prevent rapid updates
+
     updateUI() {
         // Clear existing timeout if any
         if (this._updateUITimeout) {
@@ -630,9 +620,8 @@ constructor() {
         }, 100);
     }
 
-    /**
-     * Initialize clear data button
-     */
+     // Initialize clear data button
+
     initializeClearButton() {
         const clearBtn = document.getElementById('clearDataBtn');
         if (clearBtn) {
@@ -642,9 +631,8 @@ constructor() {
         }
     }
 
-    /**
-     * Clear all data
-     */
+     // Clear all data
+
     async clearAllData() {
         const hasData = this.dataDisplay && this.dataDisplay.dataDisplay.querySelectorAll('.card').length > 0;
 
@@ -705,18 +693,16 @@ constructor() {
         }
     }
 
-    /**
-     * Show full analysis modal
-     */
+     // Show full analysis modal
+
     showFullAnalysis(competitorName, fullAnalysis) {
         if (this.modal) {
             this.modal.showFullAnalysis(competitorName, fullAnalysis);
         }
     }
 
-    /**
-     * Destroy and clean up
-     */
+    // Destroy and clean up
+
  destroy() {
      this.pollingService.stop();
      this.notificationService.stop();
