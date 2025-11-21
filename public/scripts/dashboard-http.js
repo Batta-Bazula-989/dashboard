@@ -127,187 +127,77 @@ constructor() {
         headerActions.className = 'header-actions';
         headerActions.style.display = 'none';
 
-        // Advertisers Button - EXACT match to React code
-        const competitorBadge = document.createElement('button');
+        const competitorBadge = document.createElement('div');
         competitorBadge.className = 'counter-badge';
         competitorBadge.id = 'competitorCounter';
-        competitorBadge.type = 'button';
-        // Inline styles - EXACT match to React: bg-pink-200 rounded p-4 transition-all flex items-start gap-4 border-2 border-gray-300
-        competitorBadge.style.background = '#fbcfe8'; // bg-pink-200
-        competitorBadge.style.borderRadius = '6px'; // rounded
-        competitorBadge.style.padding = '16px'; // p-4
-        competitorBadge.style.transition = 'all 150ms cubic-bezier(0.4, 0, 0.2, 1)'; // transition-all
-        competitorBadge.style.display = 'flex';
-        competitorBadge.style.alignItems = 'flex-start'; // items-start
-        competitorBadge.style.gap = '16px'; // gap-4
-        competitorBadge.style.border = '2px solid #d1d5db'; // border-2 border-gray-300
-        competitorBadge.style.boxShadow = '3px 3px 0px 0px rgba(200,200,200,1)';
-        competitorBadge.style.width = '201px'; // EXACT from React
-        competitorBadge.style.cursor = 'pointer';
-        competitorBadge.style.margin = '0';
-        competitorBadge.style.outline = 'none';
         
         const iconDiv = document.createElement('div');
         iconDiv.className = 'counter-icon';
-        // Inline styles - EXACT match to React: bg-pink-100 rounded p-3 flex-shrink-0
-        iconDiv.style.background = '#fce7f3'; // bg-pink-100
-        iconDiv.style.borderRadius = '6px'; // rounded
-        iconDiv.style.padding = '12px'; // p-3
-        iconDiv.style.flexShrink = '0';
-        iconDiv.style.display = 'flex';
-        iconDiv.style.alignItems = 'center';
-        iconDiv.style.justifyContent = 'center';
-        iconDiv.style.color = '#581c87'; // text-purple-900
+        iconDiv.style.background = '#fce7f3';
         const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        svg.setAttribute('width', '24');
-        svg.setAttribute('height', '24');
+        svg.setAttribute('width', '18');
+        svg.setAttribute('height', '18');
         svg.setAttribute('viewBox', '0 0 24 24');
-        svg.setAttribute('fill', 'currentColor');
+        svg.setAttribute('fill', 'none');
+        svg.setAttribute('stroke', '#7c3aed');
+        svg.setAttribute('stroke-width', '2');
+        svg.setAttribute('stroke-linecap', 'round');
+        svg.setAttribute('stroke-linejoin', 'round');
         const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        path.setAttribute('d', 'M4 4h4v4H4V4zm0 4h4v4H4V8zm4 0h4v4H8V8zm0-4h4v4H8V4zm4 4h4v4h-4V8zm0 4h4v4h-4v-4zm-4 0h4v4H8v-4z');
+        path.setAttribute('d', 'M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z');
         svg.appendChild(path);
         iconDiv.appendChild(svg);
         
         const contentDiv = document.createElement('div');
         contentDiv.className = 'counter-content';
-        // Inline styles - EXACT match to React: flex flex-col items-start justify-start gap-1
-        contentDiv.style.display = 'flex';
-        contentDiv.style.flexDirection = 'column'; // flex-col
-        contentDiv.style.alignItems = 'flex-start'; // items-start
-        contentDiv.style.justifyContent = 'flex-start'; // justify-start
-        contentDiv.style.gap = '4px'; // gap-1
-        
-        const label = document.createElement('span');
-        label.className = 'pixel-text';
+        const label = document.createElement('div');
+        label.className = 'counter-label';
         label.textContent = 'ADVERTISERS';
-        // Inline styles - EXACT match to React: pixel-text text-purple-900 fontSize: '8px'
-        label.style.fontFamily = "'Press Start 2P', cursive";
-        label.style.fontSize = '8px';
-        label.style.color = '#581c87'; // text-purple-900
-        label.style.webkitFontSmoothing = 'none';
-        label.style.mozOsxFontSmoothing = 'unset';
-        label.style.fontSmooth = 'never';
-        label.style.textRendering = 'optimizeSpeed';
-        label.style.imageRendering = 'pixelated';
-        
-        const number = document.createElement('span');
-        number.className = 'pixel-text';
+        const number = document.createElement('div');
+        number.className = 'counter-number';
         number.id = 'competitorBadgeCount';
         number.textContent = '0';
-        // Inline styles - EXACT match to React: pixel-text text-purple-900 fontSize: '40px', lineHeight: '1'
-        number.style.fontFamily = "'Press Start 2P', cursive";
-        number.style.fontSize = '40px';
-        number.style.lineHeight = '1';
-        number.style.color = '#581c87'; // text-purple-900
-        number.style.webkitFontSmoothing = 'none';
-        number.style.mozOsxFontSmoothing = 'unset';
-        number.style.fontSmooth = 'never';
-        number.style.textRendering = 'optimizeSpeed';
-        number.style.imageRendering = 'pixelated';
         contentDiv.appendChild(label);
         contentDiv.appendChild(number);
         
         competitorBadge.appendChild(iconDiv);
         competitorBadge.appendChild(contentDiv);
 
-        // Add hover effects for advertisers badge
-        competitorBadge.addEventListener('mouseenter', () => {
-            competitorBadge.style.boxShadow = '6px 6px 0px 0px rgba(200,200,200,1)';
-        });
-        competitorBadge.addEventListener('mouseleave', () => {
-            competitorBadge.style.boxShadow = '3px 3px 0px 0px rgba(200,200,200,1)';
-        });
-
-        // Ads Button - EXACT match to React code
-        const adsBadge = document.createElement('button');
+        const adsBadge = document.createElement('div');
         adsBadge.className = 'counter-badge';
         adsBadge.id = 'adsCounter';
-        adsBadge.type = 'button';
-        // Inline styles - EXACT match to React: bg-purple-200 rounded p-5 transition-all flex items-start gap-4 border-2 border-gray-300
-        adsBadge.style.background = '#e9d5ff'; // bg-purple-200
-        adsBadge.style.borderRadius = '6px'; // rounded
-        adsBadge.style.padding = '20px'; // p-5
-        adsBadge.style.transition = 'all 150ms cubic-bezier(0.4, 0, 0.2, 1)'; // transition-all
-        adsBadge.style.display = 'flex';
-        adsBadge.style.alignItems = 'flex-start'; // items-start
-        adsBadge.style.gap = '16px'; // gap-4
-        adsBadge.style.border = '2px solid #d1d5db'; // border-2 border-gray-300
-        adsBadge.style.boxShadow = '3px 3px 0px 0px rgba(200,200,200,1)';
-        adsBadge.style.width = '171px'; // EXACT from React
-        adsBadge.style.cursor = 'pointer';
-        adsBadge.style.margin = '0';
-        adsBadge.style.outline = 'none';
         
         const iconDiv2 = document.createElement('div');
         iconDiv2.className = 'counter-icon';
-        // Inline styles - EXACT match to React: bg-purple-100 rounded p-3 flex-shrink-0
-        iconDiv2.style.background = '#f3e8ff'; // bg-purple-100
-        iconDiv2.style.borderRadius = '6px'; // rounded
-        iconDiv2.style.padding = '12px'; // p-3
-        iconDiv2.style.flexShrink = '0';
-        iconDiv2.style.display = 'flex';
-        iconDiv2.style.alignItems = 'center';
-        iconDiv2.style.justifyContent = 'center';
-        iconDiv2.style.color = '#581c87'; // text-purple-900
+        iconDiv2.style.background = '#e9d5ff';
         const svg2 = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        svg2.setAttribute('width', '24');
-        svg2.setAttribute('height', '24');
+        svg2.setAttribute('width', '18');
+        svg2.setAttribute('height', '18');
         svg2.setAttribute('viewBox', '0 0 24 24');
-        svg2.setAttribute('fill', 'currentColor');
-        const path2 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        path2.setAttribute('d', 'M8 4h8v4H8V4zm-4 4h4v4H4V8zm16 0h4v4h-4V8zm-8 4h8v4h-8v-4zm-4 4h4v4H4v-4zm16 0h4v4h-4v-4z');
-        svg2.appendChild(path2);
+        svg2.setAttribute('fill', 'none');
+        svg2.setAttribute('stroke', '#7c3aed');
+        svg2.setAttribute('stroke-width', '2');
+        svg2.setAttribute('stroke-linecap', 'round');
+        svg2.setAttribute('stroke-linejoin', 'round');
+        const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+        polygon.setAttribute('points', '22,3 2,3 10,12.46 10,19 14,21 14,12.46');
+        svg2.appendChild(polygon);
         iconDiv2.appendChild(svg2);
         
         const contentDiv2 = document.createElement('div');
         contentDiv2.className = 'counter-content';
-        // Inline styles - EXACT match to React: flex flex-col items-start justify-start gap-1
-        contentDiv2.style.display = 'flex';
-        contentDiv2.style.flexDirection = 'column'; // flex-col
-        contentDiv2.style.alignItems = 'flex-start'; // items-start
-        contentDiv2.style.justifyContent = 'flex-start'; // justify-start
-        contentDiv2.style.gap = '4px'; // gap-1
-        
-        const label2 = document.createElement('span');
-        label2.className = 'pixel-text';
+        const label2 = document.createElement('div');
+        label2.className = 'counter-label';
         label2.textContent = 'ADS';
-        // Inline styles - EXACT match to React: pixel-text text-purple-900 fontSize: '8px'
-        label2.style.fontFamily = "'Press Start 2P', cursive";
-        label2.style.fontSize = '8px';
-        label2.style.color = '#581c87'; // text-purple-900
-        label2.style.webkitFontSmoothing = 'none';
-        label2.style.mozOsxFontSmoothing = 'unset';
-        label2.style.fontSmooth = 'never';
-        label2.style.textRendering = 'optimizeSpeed';
-        label2.style.imageRendering = 'pixelated';
-        
-        const number2 = document.createElement('span');
-        number2.className = 'pixel-text';
+        const number2 = document.createElement('div');
+        number2.className = 'counter-number';
         number2.id = 'adsBadgeCount';
         number2.textContent = '0';
-        // Inline styles - EXACT match to React: pixel-text text-purple-900 fontSize: '40px', lineHeight: '1'
-        number2.style.fontFamily = "'Press Start 2P', cursive";
-        number2.style.fontSize = '40px';
-        number2.style.lineHeight = '1';
-        number2.style.color = '#581c87'; // text-purple-900
-        number2.style.webkitFontSmoothing = 'none';
-        number2.style.mozOsxFontSmoothing = 'unset';
-        number2.style.fontSmooth = 'never';
-        number2.style.textRendering = 'optimizeSpeed';
-        number2.style.imageRendering = 'pixelated';
         contentDiv2.appendChild(label2);
         contentDiv2.appendChild(number2);
         
         adsBadge.appendChild(iconDiv2);
         adsBadge.appendChild(contentDiv2);
-
-        // Add hover effects for ads badge
-        adsBadge.addEventListener('mouseenter', () => {
-            adsBadge.style.boxShadow = '6px 6px 0px 0px rgba(200,200,200,1)';
-        });
-        adsBadge.addEventListener('mouseleave', () => {
-            adsBadge.style.boxShadow = '3px 3px 0px 0px rgba(200,200,200,1)';
-        });
 
         const clearButton = document.createElement('button');
         clearButton.type = 'button';
@@ -339,9 +229,6 @@ constructor() {
 
         const counterWrapper = document.createElement('div');
         counterWrapper.className = 'counter-badges-wrapper';
-        // EXACT match to React: flex gap-6
-        counterWrapper.style.display = 'flex';
-        counterWrapper.style.gap = '24px'; // gap-6
         counterWrapper.appendChild(competitorBadge);
         counterWrapper.appendChild(adsBadge);
 

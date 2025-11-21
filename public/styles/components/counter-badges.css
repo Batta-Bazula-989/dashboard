@@ -1,6 +1,4 @@
 /* Counter Badges Styles */
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
-
 .header-actions {
     position: absolute;
     top: 22px; /* Align with input fields (label height) */
@@ -11,42 +9,26 @@
     z-index: 10;
 }
 
-.pixel-text {
-    font-family: 'Press Start 2P', cursive;
-}
-
 .counter-badge {
-    background: #fbcfe8; /* bg-pink-200 for advertisers, will be overridden for ads */
+    background: #fef7f0;
     border-radius: 6px;
-    padding: 16px; /* p-4 */
+    padding: 16px 21px;
     display: flex;
-    align-items: flex-start; /* items-start */
-    gap: 16px; /* gap-4 */
-    border: 2px solid #d1d5db; /* border-2 border-gray-300 */
-    box-shadow: 3px 3px 0px 0px rgba(200,200,200,1);
-    transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1); /* transition-all */
-    cursor: pointer;
-    /* Reset button styles */
-    margin: 0;
-    font-family: inherit;
-    font-size: inherit;
-    line-height: inherit;
-    text-align: left;
-    outline: none;
+    align-items: center;
+    gap: 14px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+    min-width: 168px;
+    height: 58px;
     /* Pixelated font effect */
     image-rendering: pixelated;
     image-rendering: -moz-crisp-edges;
     image-rendering: crisp-edges;
 }
 
-.counter-badge:focus {
-    outline: none;
-    box-shadow: 3px 3px 0px 0px rgba(200,200,200,1);
-}
-
 .counter-badges-wrapper {
     display: flex;
-    gap: 24px; /* gap-6 - EXACT match to React */
+    gap: 12px;
     align-items: center;
 }
 
@@ -111,52 +93,40 @@
 }
 
 .counter-badge:hover {
-    box-shadow: 6px 6px 0px 0px rgba(200,200,200,1);
-}
-
-.counter-badge:active {
-    transform: translate(1px, 1px);
-    box-shadow: 2px 2px 0px 0px rgba(200,200,200,1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
 }
 
 .counter-icon {
-    width: auto;
-    height: auto;
-    border-radius: 6px;
+    width: 46px;
+    height: 46px;
+    border-radius: 4px;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    padding: 12px; /* p-3 */
+    border: 1px solid rgba(124, 58, 237, 0.3);
     /* Pixelated rendering for icons */
     image-rendering: pixelated;
     image-rendering: -moz-crisp-edges;
     image-rendering: crisp-edges;
 }
 
-.counter-icon svg {
-    width: 24px;
-    height: 24px;
-    color: currentColor;
-}
-
 .counter-content {
     display: flex;
     flex-direction: column;
-    gap: 4px; /* gap-1 */
-    align-items: flex-start;
-    justify-content: flex-start;
-    flex: 1;
+    gap: 4px;
 }
 
 .counter-label {
-    font-size: 8px;
-    font-weight: normal;
+    font-size: 10px;
+    font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0;
+    letter-spacing: 0.5px;
     line-height: 1.2;
-    color: #581c87; /* text-purple-900 */
-    font-family: 'Press Start 2P', cursive;
+    color: #1e1b4b;
+    /* Pixelated font effect */
+    font-family: 'Courier New', 'Courier', monospace;
     text-rendering: optimizeSpeed;
     -webkit-font-smoothing: none !important;
     -moz-osx-font-smoothing: unset !important;
@@ -170,12 +140,13 @@
 }
 
 .counter-number {
-    font-size: 40px;
-    font-weight: normal;
-    color: #581c87 !important; /* text-purple-900 */
+    font-size: 32px;
+    font-weight: 900;
+    color: #1e1b4b !important;
     line-height: 1;
-    letter-spacing: 0;
-    font-family: 'Press Start 2P', cursive;
+    letter-spacing: -0.5px;
+    /* Pixelated font effect */
+    font-family: 'Courier New', 'Courier', monospace;
     text-rendering: optimizeSpeed;
     -webkit-font-smoothing: none !important;
     -moz-osx-font-smoothing: unset !important;
@@ -189,12 +160,11 @@
 }
 
 #competitorCounter {
-    background: #fbcfe8; /* bg-pink-200 */
+    background: #fce7f3;
 }
 
 #adsCounter {
-    background: #e9d5ff; /* bg-purple-200 */
-    padding: 20px; /* p-5 */
+    background: #e9d5ff;
 }
 
 @media (max-width: 1024px) {
@@ -205,34 +175,23 @@
     }
     
     .counter-badge {
-        padding: 12px;
+        min-width: 162px;
+        padding: 10px 19px;
         gap: 12px;
-    }
-    
-    #competitorCounter {
-        width: 180px !important;
-    }
-    
-    #adsCounter {
-        width: 150px !important;
-        padding: 16px !important;
+        height: 42px;
     }
     
     .counter-icon {
-        padding: 10px;
-    }
-    
-    .counter-icon svg {
-        width: 20px;
-        height: 20px;
+        width: 37px;
+        height: 37px;
     }
     
     .counter-number {
-        font-size: 32px;
+        font-size: 18.6px;
     }
     
     .counter-label {
-        font-size: 7px;
+        font-size: 10.4px;
     }
     
     .counter-badges-wrapper {
@@ -263,34 +222,22 @@
     }
     
     .counter-badge {
-        padding: 10px;
-        gap: 10px;
-    }
-    
-    #competitorCounter {
-        width: 160px !important;
-    }
-    
-    #adsCounter {
-        width: 130px !important;
-        padding: 14px !important;
+        min-width: 116px;
+        padding: 7px 12px;
+        height: 42px;
     }
     
     .counter-icon {
-        padding: 8px;
-    }
-    
-    .counter-icon svg {
-        width: 18px;
-        height: 18px;
+        width: 28px;
+        height: 28px;
     }
     
     .counter-number {
-        font-size: 28px;
+        font-size: 20.9px;
     }
     
     .counter-label {
-        font-size: 6px;
+        font-size: 10.4px;
     }
     
     .counter-badges-wrapper {
@@ -322,34 +269,9 @@
     }
     
     .counter-badge {
-        padding: 8px;
-        gap: 8px;
-    }
-    
-    #competitorCounter {
-        width: 140px !important;
-    }
-    
-    #adsCounter {
-        width: 120px !important;
-        padding: 12px !important;
-    }
-    
-    .counter-icon {
-        padding: 6px;
-    }
-    
-    .counter-icon svg {
-        width: 16px;
-        height: 16px;
-    }
-    
-    .counter-number {
-        font-size: 24px;
-    }
-    
-    .counter-label {
-        font-size: 6px;
+        min-width: 104px;
+        padding: 7px 9px;
+        height: 42px;
     }
     
     .counter-badges-wrapper {
