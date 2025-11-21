@@ -4,7 +4,6 @@ class Modal {
         this.escapeHandler = null; // Store reference for cleanup
     }
 
-
     showFullAnalysis(competitorName, fullAnalysis) {
         const overlay = document.createElement('div');
         overlay.className = 'modal-overlay';
@@ -584,9 +583,8 @@ formatRecommendationsSection(recommendations) {
     return formatted;
 }
 
-    /**
-     * Close the current modal (with cleanup)
-     */
+    // Close the current modal (with cleanup)
+
     closeModal() {
         if (this.currentModal) {
             document.body.removeChild(this.currentModal);
@@ -599,10 +597,8 @@ formatRecommendationsSection(recommendations) {
         }
     }
 
-    /**
-     * Check if modal is currently open
-     * @returns {boolean}
-     */
+     // Check if modal is currently open
+
     isOpen() {
         return this.currentModal !== null;
     }

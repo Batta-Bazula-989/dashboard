@@ -1,4 +1,3 @@
-
 class Sanitizer {
     static escapeHTML(str) {
         if (typeof str !== 'string') return '';

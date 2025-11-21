@@ -1,8 +1,3 @@
-
-/**
- * URL Validator
- * Validates and sanitizes URLs to prevent XSS and SSRF attacks
- */
 class URLValidator {
     /**
      * Check if a URL is safe (http/https only, no javascript:, data:, etc.)

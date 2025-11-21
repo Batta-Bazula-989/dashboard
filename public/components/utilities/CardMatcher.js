@@ -4,7 +4,6 @@ class CardMatcher {
     static _indexedCards = null;
     static _indexedCardsVersion = 0;
 
-
     // Build or refresh card index for fast lookups
 
     static _buildIndex(container) {

@@ -1,7 +1,3 @@
-/**
- * FormBuilder Component
- * Builds and manages the competitor analysis form
- */
 class FormBuilder {
     constructor() {
         this.maxCompetitors = 3;
@@ -11,11 +7,9 @@ class FormBuilder {
         this.nextId = 2;
     }
 
-    /**
-     * Build the complete form HTML
-     * @param {boolean} isHeader - Whether this is for header use
-     * @returns {string} Form HTML
-     */
+
+    // Build the complete form HTML
+
     build(isHeader = false) {
         return `
             <div class="competitor-form">
@@ -69,9 +63,8 @@ class FormBuilder {
         `;
     }
 
-    /**
-     * Build a single competitor input field
-     */
+     // Build a single competitor input field
+
     buildCompetitorInput(competitor) {
         const isFirst = competitor.id === 1;
         return `
@@ -95,9 +88,9 @@ class FormBuilder {
         `;
     }
 
-    /**
-     * Initialize form event listeners
-     */
+
+    // Initialize form event listeners
+
     initEventListeners(container, onSuccess, onError) {
         const addBtn = container.querySelector('#addCompetitorBtn');
         if (addBtn) {
@@ -119,9 +112,8 @@ class FormBuilder {
         }
     }
 
-    /**
-     * Add a new competitor input
-     */
+    // Add a new competitor input
+
     addCompetitor(container) {
         if (this.competitors.length >= this.maxCompetitors) return;
 
@@ -144,9 +136,8 @@ class FormBuilder {
         if (newInput) newInput.focus();
     }
 
-    /**
-     * Remove a competitor input
-     */
+    // Remove a competitor input
+
     removeCompetitor(container, id) {
         if (this.competitors.length <= 1) return;
 
@@ -158,9 +149,8 @@ class FormBuilder {
         this.updateHeader(container);
     }
 
-    /**
-     * Attach remove listeners
-     */
+    // Attach remove listeners
+
     attachRemoveListeners(container) {
         const removeButtons = container.querySelectorAll('.remove-competitor-btn');
         removeButtons.forEach(btn => {
@@ -171,9 +161,8 @@ class FormBuilder {
         });
     }
 
-    /**
-     * Update form header
-     */
+   // Update form header
+
     updateHeader(container) {
         const header = container.querySelector('.form-header');
         if (!header) return;
@@ -207,9 +196,8 @@ class FormBuilder {
         }
     }
 
-    /**
-     * Validate form
-     */
+    // Validate form
+
     validateForm(competitorValues) {
         const validCompetitors = competitorValues.filter(v => v.trim() !== '');
 
@@ -220,9 +208,8 @@ class FormBuilder {
         return { valid: true, competitors: validCompetitors };
     }
 
-    /**
-     * Show form error
-     */
+    // Show form error
+
     showError(container, message) {
         const errorEl = container.querySelector('#formError');
         if (errorEl) {
@@ -232,9 +219,8 @@ class FormBuilder {
         }
     }
 
-    /**
-     * Submit form to n8n webhook
-     */
+    // Submit form to n8n webhook
+
     async submitForm(container, onSuccess, onError) {
         const competitorInput = container.querySelector('#competitorInput');
         const competitorValue = competitorInput ? competitorInput.value.trim() : '';
@@ -311,9 +297,8 @@ class FormBuilder {
         }
     }
 
-    /**
-     * Reset form to initial state
-     */
+    // Reset form to initial state
+
     resetForm(container) {
         const competitorInput = container.querySelector('#competitorInput');
         if (competitorInput) {

@@ -1,7 +1,3 @@
-/**
- * ComponentLoader
- * Handles loading and initializing components
- */
 class ComponentLoader {
     constructor() {
         this.components = new Map();

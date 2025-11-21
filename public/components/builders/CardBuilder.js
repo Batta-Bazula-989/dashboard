@@ -1,7 +1,3 @@
-/**
- * Card Builder
- * Builds competitor card DOM elements
- */
 class CardBuilder {
     constructor(onShowFullAnalysis) {
         this.onShowFullAnalysis = onShowFullAnalysis;
