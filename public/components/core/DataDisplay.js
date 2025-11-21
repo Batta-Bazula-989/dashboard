@@ -19,10 +19,8 @@ class DataDisplay {
         this.bindElements();
     }
 
-    /**
-     * Render the data display HTML
-     * @param {HTMLElement} container - The container element
-     */
+     // Render the data display HTML
+
     render(container) {
         const dataDisplay = document.createElement('div');
         dataDisplay.className = 'data-display';
@@ -75,7 +73,6 @@ class DataDisplay {
     bindElements() {
         this.dataDisplay = document.getElementById('dataDisplay');
         this._refreshCachedElements();
-        
         // Initially hide empty state to prevent flash on reload
         // It will be shown after first data fetch if no data exists
         if (this._emptyState) {
@@ -83,9 +80,8 @@ class DataDisplay {
         }
     }
 
-    /**
-     * Refresh cached DOM element references
-     */
+   // Refresh cached DOM element references
+
     _refreshCachedElements() {
         if (this.dataDisplay) {
             this._emptyState = this.dataDisplay.querySelector('.empty-state');
@@ -94,9 +90,8 @@ class DataDisplay {
         }
     }
 
-    /**
-     * Get empty state element (cached)
-     */
+     // Get empty state element (cached)
+
     _getEmptyState() {
         if (!this._emptyState || !this.dataDisplay.contains(this._emptyState)) {
             this._emptyState = this.dataDisplay?.querySelector('.empty-state') || null;
@@ -104,9 +99,8 @@ class DataDisplay {
         return this._emptyState;
     }
 
-    /**
-     * Get content area element (cached)
-     */
+     // Get content area element (cached)
+
     _getContentArea() {
         if (!this._contentArea || !this.dataDisplay?.contains(this._contentArea)) {
             this._contentArea = this.dataDisplay?.querySelector('.data-display-content') || null;
@@ -114,9 +108,8 @@ class DataDisplay {
         return this._contentArea;
     }
 
-    /**
-     * Show loading state - replaces empty state with loading animation
-     */
+     // Show loading state - replaces empty state with loading animation
+
     showLoading() {
         // Remove empty state if it exists
         const emptyState = this._getEmptyState();
@@ -162,9 +155,8 @@ class DataDisplay {
         this.dataDisplay.insertBefore(loadingState, this.dataDisplay.firstChild);
     }
 
-    /**
-     * Hide loading state
-     */
+     // Hide loading state
+
     hideLoading() {
         const loadingState = this.dataDisplay.querySelector('.loading-state');
         if (loadingState) {
@@ -232,9 +224,8 @@ class DataDisplay {
         return this.getStats();
     }
 
-    /**
-     * Batch add multiple cards efficiently using DocumentFragment
-     */
+   // Batch add multiple cards efficiently using DocumentFragment
+
     _batchAddCards(cardsToAdd) {
         const grid = this.getOrCreateGrid();
         if (!grid) return;
@@ -274,17 +265,14 @@ class DataDisplay {
         // Update cached counts incrementally
         this._cardCount += newCardCount;
         newCompetitors.forEach(name => this._competitorNames.add(name));
-
         // Invalidate CardMatcher cache
         CardMatcher.invalidateCache();
-
         // Invalidate stats cache after batch
         this._statsCacheValid = false;
     }
 
-    /**
-     * Add lazy loading to images in a card
-     */
+     // Add lazy loading to images in a card
+
     _addLazyLoading(card) {
         // Initialize Intersection Observer if not exists
         if ('IntersectionObserver' in window && !this._imageObserver) {
@@ -340,7 +328,6 @@ class DataDisplay {
     hasCarouselData(processed) {
         // This function should ONLY return true for FOLLOW-UP analysis (not original data)
         // Original data with cards/images should go through addTextCard() to create the card first
-        
         // If content_type is explicitly 'carousel', this is follow-up carousel analysis
         if (processed.content_type === 'carousel') {
             return true;
@@ -350,11 +337,10 @@ class DataDisplay {
         const hasNoVideos = !processed.ad_data?.videos || processed.ad_data.videos.length === 0;
         
         if (!hasAnalysis || !hasNoVideos) return false;
-        
+
         // Check if it has images or cards arrays in ad_data
         const hasImages = processed.ad_data?.images && Array.isArray(processed.ad_data.images) && processed.ad_data.images.length > 0;
         const hasCards = processed.ad_data?.cards && Array.isArray(processed.ad_data.cards) && processed.ad_data.cards.length > 0;
-        
         // If it has images/cards arrays, this is ORIGINAL data - should create card via addTextCard()
         // Return FALSE so it goes through addTextCard() instead
         if (hasImages || hasCards) return false;
@@ -551,10 +537,8 @@ addCarouselAnalysis(carouselData) {
         return stats;
     }
 
-   /**
-    * Clear all data from the display
-    * @param {boolean} showEmptyState - Whether to show the empty state after clearing
-    */
+    // Clear all data from the display
+
    clear(showEmptyState = false) {
        if (this.dataDisplay) {
            // Clear only the content area

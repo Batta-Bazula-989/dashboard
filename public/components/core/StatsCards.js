@@ -66,12 +66,10 @@ class StatsCards {
         container.appendChild(fragment);
     }
 
-
     bindElements() {
         this.competitorCount = document.getElementById('competitorCount');
         this.adsCount = document.getElementById('adsCount');
     }
-
 
     updateCompetitorCount(count) {
         if (this.competitorCount) {
@@ -79,19 +77,16 @@ class StatsCards {
         }
     }
 
-
     updateAdsCount(count) {
         if (this.adsCount) {
             this.adsCount.textContent = count;
         }
     }
 
-
     updateStats(competitorCount, adsCount) {
         this.updateCompetitorCount(competitorCount);
         this.updateAdsCount(adsCount);
     }
-
 
     getElement() {
         return document.querySelector('.stats-container');

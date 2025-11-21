@@ -4,9 +4,9 @@ class CardMatcher {
     static _indexedCards = null;
     static _indexedCardsVersion = 0;
 
-    /**
-     * Build or refresh card index for fast lookups
-     */
+
+    // Build or refresh card index for fast lookups
+
     static _buildIndex(container) {
         const cards = container.querySelectorAll('.card');
         const index = {
@@ -44,9 +44,8 @@ class CardMatcher {
         return index;
     }
 
-    /**
-     * Get cached index or build new one
-     */
+     // Get cached index or build new one
+
     static _getIndex(container) {
         const cacheKey = container.id || container.className || 'default';
         
@@ -64,9 +63,8 @@ class CardMatcher {
         return this._indexedCards;
     }
 
-    /**
-     * Invalidate cache when cards are added/removed
-     */
+     // Invalidate cache when cards are added/removed
+
     static invalidateCache() {
         this._cacheVersion++;
         this._indexedCards = null;
@@ -130,14 +128,11 @@ class CardMatcher {
     // Optimized: normalize strings once at the start
     static textsMatch(text1, text2) {
         if (!text1 || !text2) return false;
-        
         // Normalize both strings once at the start
         const t1 = text1.toLowerCase().trim();
         const t2 = text2.toLowerCase().trim();
-
         // Exact match (early return)
         if (t1 === t2) return true;
-
         // Match first 100 chars (more reliable than 50)
         const preview1 = t1.substring(0, 100);
         const preview2 = t2.substring(0, 100);
