@@ -10,8 +10,8 @@ class CardBuilder {
         card.appendChild(this.buildHeader(entry));
         card.appendChild(this.buildDivider());
 
-        // Store body or ad_text for matching - prefer ad_text, fallback to body
-        const textToDisplay = entry.ad_data?.ad_text || entry.body || '';
+        // Store body or ad_text for matching - prefer text_for_analysis, then ad_text, fallback to body
+        const textToDisplay = entry.text_for_analysis || entry.ad_data?.ad_text || entry.body || '';
         if (textToDisplay) {
             card.appendChild(this.buildAdText(textToDisplay));
         }

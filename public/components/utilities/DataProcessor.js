@@ -31,13 +31,14 @@ class DataProcessor {
             competitor_name: item.competitor_name || item.advertiser_name || 'Unknown Advertiser',
             content_type: item.content_type || 'text', // Preserve original content_type from N8N
             body: item.body || '',
+            text_for_analysis: item.advertiser?.text_for_analysis || item.text_for_analysis || item.body || '',
             ai_analysis: item.ai_analysis || {},
             ad_data: {
                 platforms: platforms,
                 ad_started: ad_started,
                 page_profile_uri: item.ad_data?.page_profile_uri || '#',
                 page_profile_picture_url: item.ad_data?.page_profile_picture_url || '',
-                ad_text: item.ad_data?.ad_text || item.body || '', // Use body as ad_text if ad_text is not available
+                ad_text: item.advertiser?.text_for_analysis || item.ad_data?.ad_text || item.body || '', // Prefer text_for_analysis from advertiser, then ad_text, fallback to body
                 videos: item.ad_data?.videos || [],
                 images: images,
                 cards: item.ad_data?.cards || []
