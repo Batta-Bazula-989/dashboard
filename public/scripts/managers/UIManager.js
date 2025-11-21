@@ -1,6 +1,5 @@
 class UIManager {
     constructor() {
-        // UI element references
         this.headerActions = null;
         this.competitorBadgeCount = null;
         this.adsBadgeCount = null;
@@ -14,9 +13,8 @@ class UIManager {
         this.createLoadingOverlay();
     }
 
-    /**
-     * Create loading overlay element
-     */
+     // Create loading overlay element
+
     createLoadingOverlay() {
         // Find the main-content container
         const mainContent = document.querySelector('.main-content');
@@ -95,9 +93,8 @@ class UIManager {
         mainContent.appendChild(this.loadingOverlay);
     }
 
-    /**
-     * Show loading state
-     */
+     // Show loading state
+
     showLoading() {
         if (this.loadingOverlay) {
             this.loadingOverlay.classList.add('active');
@@ -106,9 +103,8 @@ class UIManager {
         }
     }
 
-    /**
-     * Hide loading state
-     */
+     // Hide loading state
+
     hideLoading() {
         if (this.loadingOverlay) {
             this.loadingOverlay.classList.remove('active');
@@ -172,9 +168,8 @@ showNotification(notification) {
     this.showModernToast(title, message, notificationType, iconSvg);
 }
 
-    /**
-     * Show modern toast notification
-     */
+     // Show modern toast notification
+
     showModernToast(title, message, type = 'info', iconSvg = '') {
         const toast = document.createElement('div');
         toast.className = 'notification-toast';
@@ -260,9 +255,8 @@ showNotification(notification) {
         }
     }
 
-    /**
-     * Hide and remove toast
-     */
+     // Hide and remove toast
+
     hideToast(toast) {
         if (!toast || !toast.parentNode) return;
         
@@ -276,9 +270,8 @@ showNotification(notification) {
         }, 300);
     }
 
-    /**
-     * Dismiss all error notifications
-     */
+     // Dismiss all error notifications
+
     dismissAllErrorNotifications() {
         const errorToasts = document.querySelectorAll('.notification-toast .notification-accent.error');
         
@@ -290,9 +283,8 @@ showNotification(notification) {
         });
     }
 
-    /**
-     * Show error notification (separate method for ErrorService)
-     */
+     // Show error notification (separate method for ErrorService)
+
     showErrorNotification(error) {
         if (!error) {
             console.error('❌ showErrorNotification called with null/undefined error');
@@ -307,9 +299,8 @@ showNotification(notification) {
         this.showModernToast(title, message, 'error', iconSvg);
     }
 
-    /**
-     * Show simple toast notification
-     */
+     // Show simple toast notification
+
     showToast(message, type = 'success') {
         const notificationType = type === 'success' ? 'success' : 'error';
         const title = type === 'success' ? 'Success' : 'Error';
@@ -318,9 +309,8 @@ showNotification(notification) {
         this.showModernToast(title, message, notificationType, iconSvg);
     }
 
-    /**
-     * Get clock icon SVG
-     */
+     // Get clock icon SVG
+
     getClockIcon() {
         return `
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">

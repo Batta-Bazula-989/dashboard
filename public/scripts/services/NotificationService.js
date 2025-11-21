@@ -3,9 +3,8 @@ class NotificationService extends BasePollingService {
         super('/api/notifications', 2000, onNotificationReceived);
     }
 
-    /**
-     * Fetch new notifications from server
-     */
+    // Fetch new notifications from server
+
     async fetchData() {
         if (this.isFetching) {
             return;

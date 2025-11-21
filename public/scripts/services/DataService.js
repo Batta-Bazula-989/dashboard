@@ -6,10 +6,8 @@ class DataService {
         this.initializing = false;
     }
 
-    /**
-     * Initialize session token for same-origin requests
-     * @returns {Promise<void>}
-     */
+    // Initialize session token for same-origin requests
+
     async initializeSession() {
         if (this.initializing) {
             // Wait for existing initialization
@@ -55,10 +53,8 @@ class DataService {
         }
     }
 
-    /**
-     * Get headers with authentication
-     * @returns {Promise<Object>} Headers object with session token
-     */
+     // Get headers with authentication
+
     async getHeaders() {
         // Ensure session is initialized
         await this.initializeSession();
@@ -74,10 +70,8 @@ class DataService {
         return headers;
     }
 
-    /**
-     * Fetch data from API
-     * @returns {Promise<Object>} API response
-     */
+     // Fetch data from API
+
     async fetchData() {
         try {
             const headers = await this.getHeaders();
@@ -113,10 +107,8 @@ class DataService {
         }
     }
 
-    /**
-     * Clear all data on server
-     * @returns {Promise<boolean>} Success status
-     */
+     // Clear all data on server
+
     async clearData() {
         try {
             const headers = await this.getHeaders();

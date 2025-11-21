@@ -8,60 +8,52 @@ class StateManager {
         this.isWorkflowSuppressed = false;
     }
 
-    /**
-     * Set UI Manager reference
-     */
+     // Set UI Manager reference
+
     setUIManager(uiManager) {
         this.uiManager = uiManager;
     }
 
-    /**
-     * Set fetching state
-     */
+    // Set fetching state
+
     setFetching(value) {
         this.isFetching = value;
         // Note: Loading animation is now controlled manually via showWorkflowLoading()
         // NOT automatically during polling
     }
 
-    /**
-     * Check if currently fetching
-     */
+     // Check if currently fetching
+
     isFetchingData() {
         return this.isFetching;
     }
 
-    /**
-     * Mark first fetch as complete
-     */
+    // Mark first fetch as complete
+
     completeFirstFetch() {
         this.isFirstFetch = false;
     }
 
-    /**
-     * Check if this is the first fetch
-     */
+   //  * Check if this is the first fetch
+
     isFirstDataFetch() {
         return this.isFirstFetch;
     }
 
-    /**
-     * Update data counts
-     */
+     // Update data counts
+
     updateCounts(newCount) {
         this.lastDataCount = newCount;
     }
 
-    /**
-     * Increment data count
-     */
+     // Increment data count
+
     incrementDataCount() {
         this.dataCount++;
     }
 
-    /**
-     * Show loading for workflow (manual trigger)
-     */
+     // Show loading for workflow (manual trigger)
+
     showWorkflowLoading() {
         if (this.isWorkflowSuppressed) {
             return;
@@ -78,9 +70,8 @@ class StateManager {
         }
     }
 
-    /**
-     * Prevent workflow loading from showing
-     */
+     // Prevent workflow loading from showing
+
     suppressWorkflowLoading(reason = '') {
         if (!this.isWorkflowSuppressed) {
             this.isWorkflowSuppressed = true;
@@ -90,18 +81,16 @@ class StateManager {
         this.showEmptyState();
     }
 
-    /**
-     * Allow workflow loading to show again
-     */
+     // Allow workflow loading to show again
+
     allowWorkflowLoading() {
         if (this.isWorkflowSuppressed) {
             this.isWorkflowSuppressed = false;
         }
     }
 
-    /**
-     * Hide workflow loading
-     */
+     // Hide workflow loading
+
     hideWorkflowLoading(force = false) {
         if (!this.uiManager) {
             return;
@@ -116,13 +105,11 @@ class StateManager {
             return;
         }
 
-        // Add minimum display time to prevent flash
-        setTimeout(hide, 1000); // Show for at least 1 second
+        setTimeout(hide, 1000);
     }
 
-    /**
-     * Show empty state if no cards are present
-     */
+     // Show empty state if no cards are present
+
     showEmptyState() {
         const emptyState = document.querySelector('.empty-state');
         if (!emptyState) {
@@ -137,9 +124,8 @@ class StateManager {
         emptyState.style.display = '';
     }
 
-    /**
-     * Reset all state
-     */
+     // Reset all state
+
     reset() {
         this.dataCount = 0;
         this.lastDataCount = 0;
@@ -148,9 +134,8 @@ class StateManager {
         this.isWorkflowSuppressed = false;
     }
 
-    /**
-     * Get current counts
-     */
+     // Get current counts
+
     getCounts() {
         return {
             dataCount: this.dataCount,

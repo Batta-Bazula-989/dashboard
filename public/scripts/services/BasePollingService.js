@@ -79,10 +79,8 @@ class BasePollingService {
         this.isPolling = false;
     }
 
-    /**
-     * Get headers with authentication
-     * @returns {Promise<Object>} Headers object with session token
-     */
+     // Get headers with authentication
+
     async getHeaders() {
         await window.sessionManager.initialize();
         const headers = {};
@@ -93,9 +91,8 @@ class BasePollingService {
         return headers;
     }
 
-    /**
-     * Start polling
-     */
+     // Start polling
+
     start() {
         if (this.isPolling) {
             return;
@@ -105,9 +102,8 @@ class BasePollingService {
         this.fetchData();
     }
 
-    /**
-     * Stop polling
-     */
+   // Stop polling
+
     stop() {
         if (!this.isPolling) {
             return;
@@ -121,25 +117,22 @@ class BasePollingService {
         }
     }
 
-    /**
-     * Fetch data from server - to be implemented by subclasses
-     */
+     // Fetch data from server - to be implemented by subclasses
+
     async fetchData() {
         throw new Error('fetchData() must be implemented by subclass');
     }
 
-    /**
-     * Build URL with since parameter
-     */
+     // Build URL with since parameter
+
     buildUrl() {
         return this.lastId >= 0
             ? `${this.baseUrl}?since=${this.lastId}`
             : this.baseUrl;
     }
 
-    /**
-     * Schedule the next poll
-     */
+     // Schedule the next poll
+
     scheduleNextFetch() {
         if (this.pollingTimer) {
             clearTimeout(this.pollingTimer);
@@ -154,9 +147,8 @@ class BasePollingService {
         }, this.pollingRate);
     }
 
-    /**
-     * Reset state
-     */
+     // Reset state
+
     reset() {
         this.lastId = -1;
         this.isInitialFetch = true;

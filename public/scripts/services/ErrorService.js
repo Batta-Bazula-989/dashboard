@@ -7,9 +7,8 @@ class ErrorService extends BasePollingService {
         this.fetchErrorNotificationThrottle = 30000; // 30 seconds
     }
 
-    /**
-     * Fetch new errors from server
-     */
+    // Fetch new errors from server
+
     async fetchData() {
         if (this.isFetching) {
             return;
@@ -137,39 +136,34 @@ class ErrorService extends BasePollingService {
         }
     }
 
-    /**
-     * Trim error history to max size
-     */
+     // Trim error history to max size
+
     trimHistory() {
         if (this.errorHistory.length > this.maxHistory) {
             this.errorHistory = this.errorHistory.slice(-this.maxHistory);
         }
     }
 
-    /**
-     * Get error history
-     */
+     // Get error history
+
     getHistory() {
         return [...this.errorHistory];
     }
 
-    /**
-     * Get recent errors (last N)
-     */
+     // Get recent errors (last N)
+
     getRecent(count = 10) {
         return this.errorHistory.slice(-count);
     }
 
-    /**
-     * Clear error history
-     */
+    // Clear error history
+
     clearHistory() {
         this.errorHistory = [];
     }
 
-    /**
-     * Get error count by type
-     */
+    // Get error count by type
+
     getErrorStats() {
         const stats = {};
         this.errorHistory.forEach(error => {
@@ -178,16 +172,14 @@ class ErrorService extends BasePollingService {
         return stats;
     }
 
-    /**
-     * Get total error count
-     */
+   // Get total error count
+
     getErrorCount() {
         return this.errorHistory.length;
     }
 
-    /**
-     * Export errors as JSON
-     */
+   // Export errors as JSON
+
     exportErrors() {
         const data = {
             exported_at: new Date().toISOString(),
@@ -198,9 +190,8 @@ class ErrorService extends BasePollingService {
         return JSON.stringify(data, null, 2);
     }
 
-    /**
-     * Reset error state
-     */
+   // Reset error state
+
     reset() {
         super.reset();
         this.errorHistory = [];
@@ -209,4 +200,3 @@ class ErrorService extends BasePollingService {
 }
 
 window.ErrorService = ErrorService;
-

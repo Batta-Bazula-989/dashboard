@@ -5,9 +5,8 @@ class PollingService {
         this.onPoll = onPoll;
     }
 
-    /**
-     * Start polling
-     */
+     // Start polling
+
     start() {
         // Initial fetch
         if (this.onPoll) {
@@ -22,9 +21,8 @@ class PollingService {
         }, this.pollingRate);
     }
 
-    /**
-     * Stop polling
-     */
+  // Stop polling
+
     stop() {
         if (this.pollingInterval) {
             clearInterval(this.pollingInterval);
@@ -32,10 +30,8 @@ class PollingService {
         }
     }
 
-    /**
-     * Change polling rate
-     * @param {number} rate - New polling rate in milliseconds
-     */
+    // * Change polling rate
+
     setRate(rate) {
         this.pollingRate = rate;
         if (this.pollingInterval) {
