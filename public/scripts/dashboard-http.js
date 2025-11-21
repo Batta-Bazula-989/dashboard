@@ -131,34 +131,35 @@ constructor() {
         headerActions.className = 'header-actions';
         headerActions.style.display = 'none';
 
-        const competitorBadge = document.createElement('div');
+        // Advertisers Button
+        const competitorBadge = document.createElement('button');
         competitorBadge.className = 'counter-badge';
         competitorBadge.id = 'competitorCounter';
+        competitorBadge.type = 'button';
+        competitorBadge.style.boxShadow = '3px 3px 0px 0px rgba(200,200,200,1)';
+        competitorBadge.style.width = '201px';
         
         const iconDiv = document.createElement('div');
         iconDiv.className = 'counter-icon';
-        iconDiv.style.background = '#fce7f3';
+        iconDiv.style.background = '#fce7f3'; // bg-pink-100 (lighter than button)
+        iconDiv.style.color = '#581c87'; // text-purple-900
         const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        svg.setAttribute('width', '18');
-        svg.setAttribute('height', '18');
+        svg.setAttribute('width', '24');
+        svg.setAttribute('height', '24');
         svg.setAttribute('viewBox', '0 0 24 24');
-        svg.setAttribute('fill', 'none');
-        svg.setAttribute('stroke', '#7c3aed');
-        svg.setAttribute('stroke-width', '2');
-        svg.setAttribute('stroke-linecap', 'round');
-        svg.setAttribute('stroke-linejoin', 'round');
+        svg.setAttribute('fill', 'currentColor');
         const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        path.setAttribute('d', 'M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z');
+        path.setAttribute('d', 'M4 4h4v4H4V4zm0 4h4v4H4V8zm4 0h4v4H8V8zm0-4h4v4H8V4zm4 4h4v4h-4V8zm0 4h4v4h-4v-4zm-4 0h4v4H8v-4z');
         svg.appendChild(path);
         iconDiv.appendChild(svg);
         
         const contentDiv = document.createElement('div');
         contentDiv.className = 'counter-content';
-        const label = document.createElement('div');
-        label.className = 'counter-label';
+        const label = document.createElement('span');
+        label.className = 'counter-label pixel-text';
         label.textContent = 'ADVERTISERS';
-        const number = document.createElement('div');
-        number.className = 'counter-number';
+        const number = document.createElement('span');
+        number.className = 'counter-number pixel-text';
         number.id = 'competitorBadgeCount';
         number.textContent = '0';
         contentDiv.appendChild(label);
@@ -167,34 +168,43 @@ constructor() {
         competitorBadge.appendChild(iconDiv);
         competitorBadge.appendChild(contentDiv);
 
-        const adsBadge = document.createElement('div');
+        // Add hover effects for advertisers badge
+        competitorBadge.addEventListener('mouseenter', () => {
+            competitorBadge.style.boxShadow = '6px 6px 0px 0px rgba(200,200,200,1)';
+        });
+        competitorBadge.addEventListener('mouseleave', () => {
+            competitorBadge.style.boxShadow = '3px 3px 0px 0px rgba(200,200,200,1)';
+        });
+
+        // Ads Button
+        const adsBadge = document.createElement('button');
         adsBadge.className = 'counter-badge';
         adsBadge.id = 'adsCounter';
+        adsBadge.type = 'button';
+        adsBadge.style.boxShadow = '3px 3px 0px 0px rgba(200,200,200,1)';
+        adsBadge.style.width = '171px';
         
         const iconDiv2 = document.createElement('div');
         iconDiv2.className = 'counter-icon';
-        iconDiv2.style.background = '#e9d5ff';
+        iconDiv2.style.background = '#f3e8ff'; // bg-purple-100
+        iconDiv2.style.color = '#581c87'; // text-purple-900
         const svg2 = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        svg2.setAttribute('width', '18');
-        svg2.setAttribute('height', '18');
+        svg2.setAttribute('width', '24');
+        svg2.setAttribute('height', '24');
         svg2.setAttribute('viewBox', '0 0 24 24');
-        svg2.setAttribute('fill', 'none');
-        svg2.setAttribute('stroke', '#7c3aed');
-        svg2.setAttribute('stroke-width', '2');
-        svg2.setAttribute('stroke-linecap', 'round');
-        svg2.setAttribute('stroke-linejoin', 'round');
-        const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-        polygon.setAttribute('points', '22,3 2,3 10,12.46 10,19 14,21 14,12.46');
-        svg2.appendChild(polygon);
+        svg2.setAttribute('fill', 'currentColor');
+        const path2 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path2.setAttribute('d', 'M8 4h8v4H8V4zm-4 4h4v4H4V8zm16 0h4v4h-4V8zm-8 4h8v4h-8v-4zm-4 4h4v4H4v-4zm16 0h4v4h-4v-4z');
+        svg2.appendChild(path2);
         iconDiv2.appendChild(svg2);
         
         const contentDiv2 = document.createElement('div');
         contentDiv2.className = 'counter-content';
-        const label2 = document.createElement('div');
-        label2.className = 'counter-label';
+        const label2 = document.createElement('span');
+        label2.className = 'counter-label pixel-text';
         label2.textContent = 'ADS';
-        const number2 = document.createElement('div');
-        number2.className = 'counter-number';
+        const number2 = document.createElement('span');
+        number2.className = 'counter-number pixel-text';
         number2.id = 'adsBadgeCount';
         number2.textContent = '0';
         contentDiv2.appendChild(label2);
@@ -202,6 +212,14 @@ constructor() {
         
         adsBadge.appendChild(iconDiv2);
         adsBadge.appendChild(contentDiv2);
+
+        // Add hover effects for ads badge
+        adsBadge.addEventListener('mouseenter', () => {
+            adsBadge.style.boxShadow = '6px 6px 0px 0px rgba(200,200,200,1)';
+        });
+        adsBadge.addEventListener('mouseleave', () => {
+            adsBadge.style.boxShadow = '3px 3px 0px 0px rgba(200,200,200,1)';
+        });
 
         const clearButton = document.createElement('button');
         clearButton.type = 'button';
