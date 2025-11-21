@@ -127,54 +127,42 @@ constructor() {
         headerActions.className = 'header-actions';
         headerActions.style.display = 'none';
 
-        // Advertisers Button
+        // Advertisers Button - EXACT match to React code
         const competitorBadge = document.createElement('button');
         competitorBadge.className = 'counter-badge';
         competitorBadge.id = 'competitorCounter';
         competitorBadge.type = 'button';
-        // Inline styles for badge
+        // Inline styles - EXACT match to React: bg-pink-200 rounded p-4 transition-all flex items-start gap-4 border-2 border-gray-300
         competitorBadge.style.background = '#fbcfe8'; // bg-pink-200
-        competitorBadge.style.borderRadius = '6px';
+        competitorBadge.style.borderRadius = '6px'; // rounded
         competitorBadge.style.padding = '16px'; // p-4
+        competitorBadge.style.transition = 'all 150ms cubic-bezier(0.4, 0, 0.2, 1)'; // transition-all
         competitorBadge.style.display = 'flex';
         competitorBadge.style.alignItems = 'flex-start'; // items-start
         competitorBadge.style.gap = '16px'; // gap-4
         competitorBadge.style.border = '2px solid #d1d5db'; // border-2 border-gray-300
         competitorBadge.style.boxShadow = '3px 3px 0px 0px rgba(200,200,200,1)';
-        competitorBadge.style.transition = 'all 150ms cubic-bezier(0.4, 0, 0.2, 1)'; // transition-all
+        competitorBadge.style.width = '201px'; // EXACT from React
         competitorBadge.style.cursor = 'pointer';
         competitorBadge.style.margin = '0';
-        competitorBadge.style.fontFamily = 'inherit';
-        competitorBadge.style.fontSize = 'inherit';
-        competitorBadge.style.lineHeight = 'inherit';
-        competitorBadge.style.textAlign = 'left';
         competitorBadge.style.outline = 'none';
-        competitorBadge.style.width = '170.85px'; // 201px - 15%
-        competitorBadge.style.height = 'auto';
-        competitorBadge.style.minHeight = '66.7px'; // increase height by 15% (base ~58px * 1.15)
         
         const iconDiv = document.createElement('div');
         iconDiv.className = 'counter-icon';
-        // Inline styles for icon
+        // Inline styles - EXACT match to React: bg-pink-100 rounded p-3 flex-shrink-0
         iconDiv.style.background = '#fce7f3'; // bg-pink-100
-        iconDiv.style.color = '#581c87'; // text-purple-900
-        iconDiv.style.borderRadius = '6px';
+        iconDiv.style.borderRadius = '6px'; // rounded
+        iconDiv.style.padding = '12px'; // p-3
+        iconDiv.style.flexShrink = '0';
         iconDiv.style.display = 'flex';
         iconDiv.style.alignItems = 'center';
         iconDiv.style.justifyContent = 'center';
-        iconDiv.style.flexShrink = '0';
-        iconDiv.style.padding = '12px'; // p-3
-        iconDiv.style.width = 'auto';
-        iconDiv.style.height = 'auto';
+        iconDiv.style.color = '#581c87'; // text-purple-900
         const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
         svg.setAttribute('width', '24');
         svg.setAttribute('height', '24');
         svg.setAttribute('viewBox', '0 0 24 24');
         svg.setAttribute('fill', 'currentColor');
-        svg.style.width = '24px';
-        svg.style.height = '24px';
-        svg.style.color = 'currentColor';
-        svg.style.imageRendering = 'pixelated';
         const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
         path.setAttribute('d', 'M4 4h4v4H4V4zm0 4h4v4H4V8zm4 0h4v4H8V8zm0-4h4v4H8V4zm4 4h4v4h-4V8zm0 4h4v4h-4v-4zm-4 0h4v4H8v-4z');
         svg.appendChild(path);
@@ -182,52 +170,40 @@ constructor() {
         
         const contentDiv = document.createElement('div');
         contentDiv.className = 'counter-content';
-        // Inline styles for content
+        // Inline styles - EXACT match to React: flex flex-col items-start justify-start gap-1
         contentDiv.style.display = 'flex';
-        contentDiv.style.flexDirection = 'column';
+        contentDiv.style.flexDirection = 'column'; // flex-col
+        contentDiv.style.alignItems = 'flex-start'; // items-start
+        contentDiv.style.justifyContent = 'flex-start'; // justify-start
         contentDiv.style.gap = '4px'; // gap-1
-        contentDiv.style.alignItems = 'flex-start';
-        contentDiv.style.justifyContent = 'flex-start';
-        contentDiv.style.flex = '1';
         
         const label = document.createElement('span');
-        label.className = 'counter-label pixel-text';
+        label.className = 'pixel-text';
         label.textContent = 'ADVERTISERS';
-        // Inline styles for label - use setProperty to override !important
-        label.style.setProperty('font-family', "'Press Start 2P', cursive", 'important');
-        label.style.setProperty('font-size', '8px', 'important');
-        label.style.setProperty('font-weight', 'normal', 'important');
-        label.style.setProperty('text-transform', 'uppercase', 'important');
-        label.style.setProperty('letter-spacing', '0', 'important');
-        label.style.setProperty('line-height', '1.2', 'important');
-        label.style.setProperty('color', '#581c87', 'important');
-        label.style.setProperty('text-rendering', 'optimizeSpeed', 'important');
-        label.style.setProperty('-webkit-font-smoothing', 'none', 'important');
-        label.style.setProperty('-moz-osx-font-smoothing', 'unset', 'important');
-        label.style.setProperty('font-smooth', 'never', 'important');
-        label.style.setProperty('image-rendering', 'pixelated', 'important');
-        label.style.setProperty('display', 'block', 'important');
-        label.style.setProperty('opacity', '1', 'important');
-        label.style.setProperty('visibility', 'visible', 'important');
+        // Inline styles - EXACT match to React: pixel-text text-purple-900 fontSize: '8px'
+        label.style.fontFamily = "'Press Start 2P', cursive";
+        label.style.fontSize = '8px';
+        label.style.color = '#581c87'; // text-purple-900
+        label.style.webkitFontSmoothing = 'none';
+        label.style.mozOsxFontSmoothing = 'unset';
+        label.style.fontSmooth = 'never';
+        label.style.textRendering = 'optimizeSpeed';
+        label.style.imageRendering = 'pixelated';
+        
         const number = document.createElement('span');
-        number.className = 'counter-number pixel-text';
+        number.className = 'pixel-text';
         number.id = 'competitorBadgeCount';
         number.textContent = '0';
-        // Inline styles for pixelated number - use setProperty to override !important
-        number.style.setProperty('font-family', "'Press Start 2P', cursive", 'important');
-        number.style.setProperty('font-size', '40px', 'important');
-        number.style.setProperty('line-height', '1', 'important');
-        number.style.setProperty('color', '#581c87', 'important');
-        number.style.setProperty('font-weight', 'normal', 'important');
-        number.style.setProperty('letter-spacing', '0', 'important');
-        number.style.setProperty('text-rendering', 'optimizeSpeed', 'important');
-        number.style.setProperty('-webkit-font-smoothing', 'none', 'important');
-        number.style.setProperty('-moz-osx-font-smoothing', 'unset', 'important');
-        number.style.setProperty('font-smooth', 'never', 'important');
-        number.style.setProperty('image-rendering', 'pixelated', 'important');
-        number.style.setProperty('display', 'block', 'important');
-        number.style.setProperty('opacity', '1', 'important');
-        number.style.setProperty('visibility', 'visible', 'important');
+        // Inline styles - EXACT match to React: pixel-text text-purple-900 fontSize: '40px', lineHeight: '1'
+        number.style.fontFamily = "'Press Start 2P', cursive";
+        number.style.fontSize = '40px';
+        number.style.lineHeight = '1';
+        number.style.color = '#581c87'; // text-purple-900
+        number.style.webkitFontSmoothing = 'none';
+        number.style.mozOsxFontSmoothing = 'unset';
+        number.style.fontSmooth = 'never';
+        number.style.textRendering = 'optimizeSpeed';
+        number.style.imageRendering = 'pixelated';
         contentDiv.appendChild(label);
         contentDiv.appendChild(number);
         
@@ -242,54 +218,42 @@ constructor() {
             competitorBadge.style.boxShadow = '3px 3px 0px 0px rgba(200,200,200,1)';
         });
 
-        // Ads Button
+        // Ads Button - EXACT match to React code
         const adsBadge = document.createElement('button');
         adsBadge.className = 'counter-badge';
         adsBadge.id = 'adsCounter';
         adsBadge.type = 'button';
-        // Inline styles for badge
+        // Inline styles - EXACT match to React: bg-purple-200 rounded p-5 transition-all flex items-start gap-4 border-2 border-gray-300
         adsBadge.style.background = '#e9d5ff'; // bg-purple-200
-        adsBadge.style.borderRadius = '6px';
+        adsBadge.style.borderRadius = '6px'; // rounded
         adsBadge.style.padding = '20px'; // p-5
+        adsBadge.style.transition = 'all 150ms cubic-bezier(0.4, 0, 0.2, 1)'; // transition-all
         adsBadge.style.display = 'flex';
         adsBadge.style.alignItems = 'flex-start'; // items-start
         adsBadge.style.gap = '16px'; // gap-4
         adsBadge.style.border = '2px solid #d1d5db'; // border-2 border-gray-300
         adsBadge.style.boxShadow = '3px 3px 0px 0px rgba(200,200,200,1)';
-        adsBadge.style.transition = 'all 150ms cubic-bezier(0.4, 0, 0.2, 1)'; // transition-all
+        adsBadge.style.width = '171px'; // EXACT from React
         adsBadge.style.cursor = 'pointer';
         adsBadge.style.margin = '0';
-        adsBadge.style.fontFamily = 'inherit';
-        adsBadge.style.fontSize = 'inherit';
-        adsBadge.style.lineHeight = 'inherit';
-        adsBadge.style.textAlign = 'left';
         adsBadge.style.outline = 'none';
-        adsBadge.style.width = '145.35px'; // 171px - 15%
-        adsBadge.style.height = 'auto';
-        adsBadge.style.minHeight = '66.7px'; // increase height by 15% (base ~58px * 1.15)
         
         const iconDiv2 = document.createElement('div');
         iconDiv2.className = 'counter-icon';
-        // Inline styles for icon
+        // Inline styles - EXACT match to React: bg-purple-100 rounded p-3 flex-shrink-0
         iconDiv2.style.background = '#f3e8ff'; // bg-purple-100
-        iconDiv2.style.color = '#581c87'; // text-purple-900
-        iconDiv2.style.borderRadius = '6px';
+        iconDiv2.style.borderRadius = '6px'; // rounded
+        iconDiv2.style.padding = '12px'; // p-3
+        iconDiv2.style.flexShrink = '0';
         iconDiv2.style.display = 'flex';
         iconDiv2.style.alignItems = 'center';
         iconDiv2.style.justifyContent = 'center';
-        iconDiv2.style.flexShrink = '0';
-        iconDiv2.style.padding = '12px'; // p-3
-        iconDiv2.style.width = 'auto';
-        iconDiv2.style.height = 'auto';
+        iconDiv2.style.color = '#581c87'; // text-purple-900
         const svg2 = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
         svg2.setAttribute('width', '24');
         svg2.setAttribute('height', '24');
         svg2.setAttribute('viewBox', '0 0 24 24');
         svg2.setAttribute('fill', 'currentColor');
-        svg2.style.width = '24px';
-        svg2.style.height = '24px';
-        svg2.style.color = 'currentColor';
-        svg2.style.imageRendering = 'pixelated';
         const path2 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
         path2.setAttribute('d', 'M8 4h8v4H8V4zm-4 4h4v4H4V8zm16 0h4v4h-4V8zm-8 4h8v4h-8v-4zm-4 4h4v4H4v-4zm16 0h4v4h-4v-4z');
         svg2.appendChild(path2);
@@ -297,52 +261,40 @@ constructor() {
         
         const contentDiv2 = document.createElement('div');
         contentDiv2.className = 'counter-content';
-        // Inline styles for content
+        // Inline styles - EXACT match to React: flex flex-col items-start justify-start gap-1
         contentDiv2.style.display = 'flex';
-        contentDiv2.style.flexDirection = 'column';
+        contentDiv2.style.flexDirection = 'column'; // flex-col
+        contentDiv2.style.alignItems = 'flex-start'; // items-start
+        contentDiv2.style.justifyContent = 'flex-start'; // justify-start
         contentDiv2.style.gap = '4px'; // gap-1
-        contentDiv2.style.alignItems = 'flex-start';
-        contentDiv2.style.justifyContent = 'flex-start';
-        contentDiv2.style.flex = '1';
         
         const label2 = document.createElement('span');
-        label2.className = 'counter-label pixel-text';
+        label2.className = 'pixel-text';
         label2.textContent = 'ADS';
-        // Inline styles for label - use setProperty to override !important
-        label2.style.setProperty('font-family', "'Press Start 2P', cursive", 'important');
-        label2.style.setProperty('font-size', '8px', 'important');
-        label2.style.setProperty('font-weight', 'normal', 'important');
-        label2.style.setProperty('text-transform', 'uppercase', 'important');
-        label2.style.setProperty('letter-spacing', '0', 'important');
-        label2.style.setProperty('line-height', '1.2', 'important');
-        label2.style.setProperty('color', '#581c87', 'important');
-        label2.style.setProperty('text-rendering', 'optimizeSpeed', 'important');
-        label2.style.setProperty('-webkit-font-smoothing', 'none', 'important');
-        label2.style.setProperty('-moz-osx-font-smoothing', 'unset', 'important');
-        label2.style.setProperty('font-smooth', 'never', 'important');
-        label2.style.setProperty('image-rendering', 'pixelated', 'important');
-        label2.style.setProperty('display', 'block', 'important');
-        label2.style.setProperty('opacity', '1', 'important');
-        label2.style.setProperty('visibility', 'visible', 'important');
+        // Inline styles - EXACT match to React: pixel-text text-purple-900 fontSize: '8px'
+        label2.style.fontFamily = "'Press Start 2P', cursive";
+        label2.style.fontSize = '8px';
+        label2.style.color = '#581c87'; // text-purple-900
+        label2.style.webkitFontSmoothing = 'none';
+        label2.style.mozOsxFontSmoothing = 'unset';
+        label2.style.fontSmooth = 'never';
+        label2.style.textRendering = 'optimizeSpeed';
+        label2.style.imageRendering = 'pixelated';
+        
         const number2 = document.createElement('span');
-        number2.className = 'counter-number pixel-text';
+        number2.className = 'pixel-text';
         number2.id = 'adsBadgeCount';
         number2.textContent = '0';
-        // Inline styles for pixelated number - use setProperty to override !important
-        number2.style.setProperty('font-family', "'Press Start 2P', cursive", 'important');
-        number2.style.setProperty('font-size', '40px', 'important');
-        number2.style.setProperty('line-height', '1', 'important');
-        number2.style.setProperty('color', '#581c87', 'important');
-        number2.style.setProperty('font-weight', 'normal', 'important');
-        number2.style.setProperty('letter-spacing', '0', 'important');
-        number2.style.setProperty('text-rendering', 'optimizeSpeed', 'important');
-        number2.style.setProperty('-webkit-font-smoothing', 'none', 'important');
-        number2.style.setProperty('-moz-osx-font-smoothing', 'unset', 'important');
-        number2.style.setProperty('font-smooth', 'never', 'important');
-        number2.style.setProperty('image-rendering', 'pixelated', 'important');
-        number2.style.setProperty('display', 'block', 'important');
-        number2.style.setProperty('opacity', '1', 'important');
-        number2.style.setProperty('visibility', 'visible', 'important');
+        // Inline styles - EXACT match to React: pixel-text text-purple-900 fontSize: '40px', lineHeight: '1'
+        number2.style.fontFamily = "'Press Start 2P', cursive";
+        number2.style.fontSize = '40px';
+        number2.style.lineHeight = '1';
+        number2.style.color = '#581c87'; // text-purple-900
+        number2.style.webkitFontSmoothing = 'none';
+        number2.style.mozOsxFontSmoothing = 'unset';
+        number2.style.fontSmooth = 'never';
+        number2.style.textRendering = 'optimizeSpeed';
+        number2.style.imageRendering = 'pixelated';
         contentDiv2.appendChild(label2);
         contentDiv2.appendChild(number2);
         
@@ -387,6 +339,9 @@ constructor() {
 
         const counterWrapper = document.createElement('div');
         counterWrapper.className = 'counter-badges-wrapper';
+        // EXACT match to React: flex gap-6
+        counterWrapper.style.display = 'flex';
+        counterWrapper.style.gap = '24px'; // gap-6
         counterWrapper.appendChild(competitorBadge);
         counterWrapper.appendChild(adsBadge);
 
