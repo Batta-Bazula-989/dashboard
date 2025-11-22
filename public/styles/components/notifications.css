@@ -8,7 +8,7 @@
     right: 20px;
     z-index: 100001;
     background: white;
-    border: 1px solid #86efac;
+    border: 1px solid #7ce8a8;
     border-radius: 10px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.06);
     transform: translateX(450px);
@@ -49,7 +49,7 @@
 }
 
 .notification-title {
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
     color: #1e293b;
     line-height: 1.3;
@@ -57,7 +57,7 @@
 }
 
 .notification-message {
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 400;
     color: #64748b;
     line-height: 1.3;
@@ -72,7 +72,7 @@
     font-size: 18px;
     cursor: pointer;
     padding: 0;
-    margin: 0 1px 0 0;
+    margin: 0 0 0 0;
     line-height: 1;
     width: 24px;
     height: 24px;
@@ -139,17 +139,17 @@
     }
     
     .notification-title {
-        font-size: 12px;
+        font-size: 13px;
     }
     
     .notification-message {
-        font-size: 11px;
+        font-size: 12px;
     }
     
     .notification-close {
         width: 22px;
         height: 22px;
-        margin: 0 1px 0 0;
+        margin: 0 0 0 0;
     }
 }
 
