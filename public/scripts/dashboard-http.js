@@ -225,7 +225,7 @@ constructor() {
         clearSvg.appendChild(line1);
         clearSvg.appendChild(line2);
         clearButton.appendChild(clearSvg);
-        clearButton.appendChild(document.createTextNode(' CLEAR ALL'));
+        clearButton.appendChild(document.createTextNode(' CLEAR'));
 
         const counterWrapper = document.createElement('div');
         counterWrapper.className = 'counter-badges-wrapper';
