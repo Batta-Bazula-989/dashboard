@@ -5,7 +5,7 @@ constructor() {
     this.pollingService = new PollingService(() => this.fetchData());
     this.notificationService = new NotificationService((notification) => {
         // When first notification arrives, dismiss error notifications and show loading
-        const hasErrorNotifications = document.querySelectorAll('.notification-toast .notification-accent.error').length > 0;
+        const hasErrorNotifications = document.querySelectorAll('.notification-toast.notification-error').length > 0;
         
         if (hasErrorNotifications) {
             // Dismiss all error notifications

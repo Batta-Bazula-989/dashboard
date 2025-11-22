@@ -172,26 +172,7 @@ showNotification(notification) {
 
     showModernToast(title, message, type = 'info', iconSvg = '') {
         const toast = document.createElement('div');
-        toast.className = 'notification-toast';
-        
-        const accent = document.createElement('div');
-        accent.className = `notification-accent ${type}`;
-        
-        const iconDiv = document.createElement('div');
-        iconDiv.className = `notification-icon ${type}`;
-        if (iconSvg) {
-            // Parse SVG safely
-            try {
-                const parser = new DOMParser();
-                const svgDoc = parser.parseFromString(iconSvg, 'image/svg+xml');
-                const svgElement = svgDoc.documentElement;
-                if (svgElement && svgElement.tagName === 'svg') {
-                    iconDiv.appendChild(svgElement);
-                }
-            } catch (e) {
-                // If parsing fails, skip icon
-            }
-        }
+        toast.className = `notification-toast notification-${type}`;
         
         const content = document.createElement('div');
         content.className = 'notification-content';
@@ -230,8 +211,6 @@ showNotification(notification) {
         closeSvg.appendChild(line2);
         closeBtn.appendChild(closeSvg);
         
-        toast.appendChild(accent);
-        toast.appendChild(iconDiv);
         toast.appendChild(content);
         toast.appendChild(closeBtn);
 
@@ -273,13 +252,10 @@ showNotification(notification) {
      // Dismiss all error notifications
 
     dismissAllErrorNotifications() {
-        const errorToasts = document.querySelectorAll('.notification-toast .notification-accent.error');
+        const errorToasts = document.querySelectorAll('.notification-toast.notification-error');
         
-        errorToasts.forEach(accent => {
-            const toast = accent.closest('.notification-toast');
-            if (toast) {
-                this.hideToast(toast);
-            }
+        errorToasts.forEach(toast => {
+            this.hideToast(toast);
         });
     }
 
