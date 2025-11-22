@@ -135,8 +135,8 @@ constructor() {
         iconDiv.className = 'counter-icon';
         iconDiv.style.background = '#fce7f3';
         const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        svg.setAttribute('width', '18');
-        svg.setAttribute('height', '18');
+        svg.setAttribute('width', '14');
+        svg.setAttribute('height', '14');
         svg.setAttribute('viewBox', '0 0 24 24');
         svg.setAttribute('fill', 'none');
         svg.setAttribute('stroke', '#7c3aed');
@@ -171,8 +171,8 @@ constructor() {
         iconDiv2.className = 'counter-icon';
         iconDiv2.style.background = '#e9d5ff';
         const svg2 = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        svg2.setAttribute('width', '18');
-        svg2.setAttribute('height', '18');
+        svg2.setAttribute('width', '14');
+        svg2.setAttribute('height', '14');
         svg2.setAttribute('viewBox', '0 0 24 24');
         svg2.setAttribute('fill', 'none');
         svg2.setAttribute('stroke', '#7c3aed');
