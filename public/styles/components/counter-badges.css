@@ -1,6 +1,6 @@
 /* Counter Badges Styles */
 .header-actions {
-    position: absolute;
+    position: fixed;
     top: 22px; /* Align with input fields (label height) */
     right: 16px;
     display: flex;
@@ -12,13 +12,13 @@
 .counter-badge {
     background: #fef7f0;
     border-radius: 6px;
-    padding: 16px 21px;
+    padding: 12px 14px;
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 10px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     transition: all 0.2s ease;
-    min-width: 168px;
+    min-width: 140px;
     height: 58px;
     /* Pixelated font effect */
     image-rendering: pixelated;
@@ -98,14 +98,15 @@
 }
 
 .counter-icon {
-    width: 46px;
-    height: 46px;
+    width: 40px;
+    height: 40px;
     border-radius: 4px;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
     border: 1px solid rgba(124, 58, 237, 0.3);
+    margin-left: -2px;
     /* Pixelated rendering for icons */
     image-rendering: pixelated;
     image-rendering: -moz-crisp-edges;
@@ -140,7 +141,7 @@
 }
 
 .counter-number {
-    font-size: 32px;
+    font-size: 26px;
     font-weight: 900;
     color: #1e1b4b !important;
     line-height: 1;
@@ -165,6 +166,7 @@
 
 #adsCounter {
     background: #e9d5ff;
+    padding-right: 10px; /* Reduce right padding by ~30% (from 14px to 10px) */
 }
 
 @media (max-width: 1024px) {
@@ -175,19 +177,24 @@
     }
     
     .counter-badge {
-        min-width: 162px;
-        padding: 10px 19px;
-        gap: 12px;
+        min-width: 130px;
+        padding: 10px 12px;
+        gap: 8px;
         height: 42px;
     }
     
     .counter-icon {
-        width: 37px;
-        height: 37px;
+        width: 34px;
+        height: 34px;
+        margin-left: -2px;
     }
     
     .counter-number {
-        font-size: 18.6px;
+        font-size: 22px;
+    }
+    
+    #adsCounter {
+        padding-right: 8px;
     }
     
     .counter-label {
@@ -222,18 +229,24 @@
     }
     
     .counter-badge {
-        min-width: 116px;
-        padding: 7px 12px;
+        min-width: 110px;
+        padding: 7px 10px;
+        gap: 8px;
         height: 42px;
     }
     
     .counter-icon {
         width: 28px;
         height: 28px;
+        margin-left: -2px;
     }
     
     .counter-number {
-        font-size: 20.9px;
+        font-size: 20px;
+    }
+    
+    #adsCounter {
+        padding-right: 7px;
     }
     
     .counter-label {
@@ -269,9 +282,24 @@
     }
     
     .counter-badge {
-        min-width: 104px;
-        padding: 7px 9px;
+        min-width: 100px;
+        padding: 7px 8px;
+        gap: 6px;
         height: 42px;
+    }
+    
+    .counter-icon {
+        width: 26px;
+        height: 26px;
+        margin-left: -2px;
+    }
+    
+    .counter-number {
+        font-size: 18px;
+    }
+    
+    #adsCounter {
+        padding-right: 6px;
     }
     
     .counter-badges-wrapper {
