@@ -1,0 +1,75 @@
+@import './base.css';
+@import './utilities.css';
+@import './components/cards.css';
+@import './components/modal.css';
+@import './components/analysis.css';
+@import './components/form-styles.css';
+@import './components/counter-badges.css';
+@import './components/loading.css';
+@import './components/notifications.css';
+
+/* Table responsive */
+.table-responsive {
+    overflow-x: auto;
+    border-radius: var(--radius-md);
+    border: 1px solid #e2e8f0;
+}
+
+.table-responsive table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+}
+
+.table-responsive th,
+.table-responsive td {
+    padding: var(--spacing-md);
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.table-responsive th {
+    background: #f8fafc;
+    font-weight: 600;
+    color: #374151;
+}
+
+/* Connection info */
+.connection-info {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 15px;
+    padding: 20px;
+    margin: 20px 0;
+    text-align: center;
+    color: white;
+}
+
+.connection-info h3 {
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+}
+
+.connection-info p {
+    opacity: 0.9;
+    line-height: 1.5;
+}
+
+/* Raw data display */
+.raw-data {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+    margin: var(--spacing-md) 0;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #1e293b;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    /* Note: Header-actions clear button styles are in counter-badges.css */
+}

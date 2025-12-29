@@ -1,0 +1,394 @@
+/* Counter Badges Styles */
+.header-actions {
+    position: fixed;
+    top: 22px; /* Align with input fields (label height) */
+    right: 16px;
+    display: flex;
+    flex-direction: row;
+    gap: 27px !important;
+    align-items: flex-start;
+    z-index: 10;
+}
+
+.counter-badge {
+    border-radius: 9999px; /* rounded-full */
+    padding: 4px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+    min-width: 100px;
+    height: auto;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.counter-badges-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+}
+
+/* Clear button in header-actions - override ALL selectors including ID, restore original size but align horizontally */
+.header-actions .clear-data-btn,
+.header-actions #clearDataBtn {
+    padding: 0 !important;
+    width: 36px !important; /* w-9 */
+    height: 36px !important; /* h-9 */
+    border: none !important;
+    border-radius: 11px !important; /* 20% more rounded than 9px */
+    font-size: 12px !important;
+    font-weight: 500 !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0 !important;
+    transition: all 0.2s ease !important;
+    white-space: nowrap !important;
+    min-width: 36px !important;
+    max-width: 36px !important;
+    box-sizing: border-box !important;
+    background: hsl(4, 85%, 60%) !important; /* destructive */
+    color: white !important;
+    align-self: flex-start !important;
+    margin: 0 !important;
+    flex-shrink: 0 !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+    transform: none !important;
+    font-family: 'DM Sans', sans-serif;
+}
+
+.header-actions .clear-data-btn:hover:not(:disabled),
+.header-actions #clearDataBtn:hover:not(:disabled) {
+    background: hsl(4, 75%, 55%) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2) !important;
+}
+
+.header-actions .clear-data-btn:disabled,
+.header-actions #clearDataBtn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.header-actions .clear-data-btn svg,
+.header-actions #clearDataBtn svg {
+    width: 16px !important;
+    height: 16px !important;
+    stroke: white !important;
+    color: white !important;
+    fill: white !important;
+    flex-shrink: 0 !important;
+    stroke-width: 2.5 !important;
+}
+
+.counter-badge:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+.counter-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border: 1px solid rgba(124, 58, 237, 0.21); /* 30% lighter (0.3 * 0.7 = 0.21) */
+    margin-left: -4px;
+    /* Pixelated rendering for icons */
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+}
+
+.counter-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    justify-content: space-between;
+}
+
+.counter-label {
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    line-height: 1.2;
+    display: inline;
+    opacity: 1;
+    visibility: visible;
+    font-family: 'DM Sans', sans-serif;
+}
+
+.counter-number-badge {
+    background: white !important;
+    border-radius: 9999px; /* rounded-full */
+    height: 28px; /* h-7 */
+    min-width: 28px; /* min-w-[1.75rem] */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    padding: 0 6px;
+    border: 1px solid hsl(258, 30%, 90%); /* Light purple border - 30% lighter */
+}
+
+.counter-number {
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: 0;
+    display: inline !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    font-family: 'DM Sans', sans-serif;
+}
+
+/* Violet badge (ADVERTISERS) - Light mode */
+#competitorCounter {
+    background: hsl(258, 50%, 94%) !important; /* Light lavender background */
+    color: hsl(258, 60%, 40%);
+    border-color: hsl(258, 40%, 90%); /* Soft purple border - 30% lighter */
+}
+
+#competitorCounter .counter-label {
+    color: hsl(258, 60%, 34%); /* 16% darker (40% - 16% of 40% = 33.6%) */
+}
+
+#competitorCounter .counter-number-badge {
+    background: white !important;
+    border-color: hsl(258, 60%, 34%); /* Same color as label */
+}
+
+#competitorCounter .counter-number {
+    color: hsl(258, 75%, 25%) !important; /* Much darker for better visibility */
+    font-weight: 600 !important; /* Make it bolder too */
+}
+
+/* Lavender badge (ADS) - Light mode */
+#adsCounter {
+    background: hsl(258, 50%, 94%) !important; /* Light lavender background */
+    color: hsl(280, 55%, 40%);
+    border-color: hsl(258, 40%, 90%); /* Soft purple border - 30% lighter */
+}
+
+#adsCounter .counter-label {
+    color: hsl(280, 55%, 34%); /* 16% darker (40% - 16% of 40% = 33.6%) */
+}
+
+#adsCounter .counter-number-badge {
+    background: white !important;
+    border-color: hsl(280, 55%, 34%); /* Same color as label */
+}
+
+#adsCounter .counter-number {
+    color: hsl(280, 70%, 25%) !important; /* Much darker for better visibility */
+    font-weight: 600 !important; /* Make it bolder too */
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    #competitorCounter {
+        background: hsl(258, 40%, 20%);
+        color: hsl(258, 50%, 80%);
+        border-color: hsl(258, 30%, 51%); /* 30% lighter (was 30%, now 51%) */
+    }
+    
+    #competitorCounter .counter-label,
+    #competitorCounter .counter-number {
+        color: hsl(258, 50%, 80%);
+    }
+    
+    #adsCounter {
+        background: hsl(280, 35%, 20%);
+        color: hsl(280, 45%, 80%);
+        border-color: hsl(280, 25%, 51%); /* 30% lighter (was 30%, now 51%) */
+    }
+    
+    #adsCounter .counter-label,
+    #adsCounter .counter-number {
+        color: hsl(280, 45%, 80%);
+    }
+    
+    .counter-number-badge {
+        background: hsl(0, 0%, 20%) !important;
+    }
+    
+    #competitorCounter .counter-number-badge {
+        border-color: hsl(258, 50%, 80%); /* Same color as label in dark mode */
+    }
+    
+    #adsCounter .counter-number-badge {
+        border-color: hsl(280, 45%, 80%); /* Same color as label in dark mode */
+    }
+    
+    #competitorCounter .counter-number,
+    #adsCounter .counter-number {
+        color: inherit !important;
+    }
+}
+
+@media (max-width: 1024px) {
+    .header-actions {
+        top: 22px;
+        right: 16px;
+        gap: 64px !important;
+    }
+    
+    .counter-badge {
+        min-width: 90px;
+        padding: 3px 10px;
+        gap: 6px;
+        border-radius: 9999px;
+    }
+    
+    .counter-number-badge {
+        height: 24px;
+        min-width: 24px;
+    }
+    
+    .counter-number {
+        font-size: 11px;
+    }
+    
+    #adsCounter {
+        min-width: 60px;
+    }
+    
+.counter-label {
+    font-size: 11px;
+}
+    
+    .counter-badges-wrapper {
+        margin-right: 0;
+    }
+    
+    .header-actions .clear-data-btn,
+    .header-actions #clearDataBtn {
+        height: 32px;
+        width: 32px !important;
+        padding: 0 !important;
+        min-width: 32px !important;
+        max-width: 32px !important;
+        font-size: 12px;
+    }
+    
+    .header-actions .clear-data-btn svg,
+    .header-actions #clearDataBtn svg {
+        width: 14px;
+        height: 14px;
+    }
+}
+
+@media (max-width: 768px) {
+    .header-actions {
+        top: 22px;
+        right: 16px;
+        gap: 56px !important;
+    }
+    
+    .counter-badge {
+        min-width: 85px;
+        padding: 3px 10px;
+        gap: 6px;
+        border-radius: 9999px;
+    }
+    
+    .counter-number-badge {
+        height: 24px;
+        min-width: 24px;
+    }
+    
+    .counter-number {
+        font-size: 11px;
+    }
+    
+    #adsCounter {
+        min-width: 55px;
+    }
+    
+.counter-label {
+    font-size: 11px;
+}
+    
+    .counter-badges-wrapper {
+        margin-right: 0;
+    }
+    
+    .header-actions .clear-data-btn,
+    .header-actions #clearDataBtn {
+        height: 32px;
+        width: 32px !important;
+        padding: 0 !important;
+        min-width: 32px !important;
+        max-width: 32px !important;
+        font-size: 12px;
+    }
+    
+    .header-actions .clear-data-btn svg,
+    .header-actions #clearDataBtn svg {
+        width: 14px;
+        height: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .header-actions {
+        flex-direction: column;
+        top: 22px;
+        right: 8px;
+        gap: 13px;
+    }
+    
+    .counter-badge {
+        min-width: 80px;
+        padding: 3px 8px;
+        gap: 6px;
+        border-radius: 9999px;
+    }
+    
+    .counter-number-badge {
+        height: 22px;
+        min-width: 22px;
+    }
+    
+    .counter-number {
+        font-size: 10px;
+    }
+    
+    #adsCounter {
+        min-width: 50px;
+    }
+    
+    .counter-badges-wrapper {
+        margin-right: 0;
+    }
+    
+    .header-actions .clear-data-btn,
+    .header-actions #clearDataBtn {
+        height: 25px;
+        width: 25px !important;
+        padding: 5px !important;
+        min-width: 25px !important;
+        max-width: 25px !important;
+        font-size: 12px;
+        align-self: center;
+    }
+    
+    .header-actions .clear-data-btn svg,
+    .header-actions #clearDataBtn svg {
+        width: 12px;
+        height: 12px;
+    }
+}

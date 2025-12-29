@@ -1,0 +1,197 @@
+/* Loading overlay - confined to main-content container */
+.loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.95);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    border-radius: 12px;
+    overflow: visible;
+}
+
+.loading-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.loader-container {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    margin: 0 auto;
+}
+
+.dot {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #86efac;
+    box-shadow: 0 0 15px rgba(134, 239, 172, 0.4);
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+.dot:nth-child(1) {
+    top: 0;
+    left: 50%;
+    animation-delay: 0s;
+}
+
+.dot:nth-child(2) {
+    top: 14.6%;
+    right: 14.6%;
+    animation-delay: 0.1875s;
+}
+
+.dot:nth-child(3) {
+    top: 50%;
+    right: 0;
+    animation-delay: 0.375s;
+}
+
+.dot:nth-child(4) {
+    bottom: 14.6%;
+    right: 14.6%;
+    animation-delay: 0.5625s;
+}
+
+.dot:nth-child(5) {
+    bottom: 0;
+    left: 50%;
+    animation-delay: 0.75s;
+}
+
+.dot:nth-child(6) {
+    bottom: 14.6%;
+    left: 14.6%;
+    animation-delay: 0.9375s;
+}
+
+.dot:nth-child(7) {
+    top: 50%;
+    left: 0;
+    animation-delay: 1.125s;
+}
+
+.dot:nth-child(8) {
+    top: 14.6%;
+    left: 14.6%;
+    animation-delay: 1.3125s;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: translate(-50%, -50%) scale(0.5);
+        opacity: 0.3;
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.2);
+        opacity: 1;
+    }
+}
+
+.dot:nth-child(2),
+.dot:nth-child(3) {
+    animation-name: pulse-2;
+}
+
+.dot:nth-child(4) {
+    animation-name: pulse-4;
+}
+
+.dot:nth-child(5),
+.dot:nth-child(6) {
+    animation-name: pulse-5;
+}
+
+@keyframes pulse-2 {
+    0%, 100% {
+        transform: translate(50%, -50%) scale(0.5);
+        opacity: 0.3;
+    }
+    50% {
+        transform: translate(50%, -50%) scale(1.2);
+        opacity: 1;
+    }
+}
+
+@keyframes pulse-4 {
+    0%, 100% {
+        transform: translate(50%, 50%) scale(0.5);
+        opacity: 0.3;
+    }
+    50% {
+        transform: translate(50%, 50%) scale(1.2);
+        opacity: 1;
+    }
+}
+
+@keyframes pulse-5 {
+    0%, 100% {
+        transform: translate(-50%, 50%) scale(0.5);
+        opacity: 0.3;
+    }
+    50% {
+        transform: translate(-50%, 50%) scale(1.2);
+        opacity: 1;
+    }
+}
+
+.loading-text {
+    margin-top: 40px;
+    color: #4b5563;
+    font-size: 18px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    animation: fadeInOut 2s ease-in-out infinite;
+    text-align: center;
+}
+
+@keyframes fadeInOut {
+    0%, 100% {
+        opacity: 0.5;
+    }
+    50% {
+        opacity: 1;
+    }
+}
+
+.progress-bar {
+    width: 200px;
+    height: 4px;
+    background: #e5e7eb;
+    border-radius: 2px;
+    margin-top: 20px;
+    overflow: hidden;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.progress-fill {
+    height: 100%;
+    background: #3b82f6;
+    border-radius: 2px;
+    animation: progress 2.28s ease-in-out infinite;
+}
+
+@keyframes progress {
+    0% {
+        width: 0%;
+    }
+    50% {
+        width: 70%;
+    }
+    100% {
+        width: 100%;
+    }
+}
+

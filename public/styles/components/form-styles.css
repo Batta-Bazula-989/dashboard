@@ -1,0 +1,555 @@
+/* ============================================
+   COMPETITOR FORM STYLES - OVERRIDE BASE.CSS
+   ============================================ */
+
+/* CRITICAL: Override base.css white backgrounds */
+.data-section {
+    background: white !important;
+    border-radius: 12px !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+    padding: 20px !important;
+}
+
+.data-display {
+    background: transparent !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+}
+
+/* Empty state and form should NOT have background */
+.empty-state {
+    text-align: center;
+    padding: 20px !important;
+    background: transparent !important;
+    margin-top: 0px !important;
+    height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+}
+
+/* Data container should have NO background/padding when empty */
+.data-display-content {
+    background: transparent !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+.data-display-content:empty {
+    display: none !important;
+}
+
+/* Data container gets white background ONLY when it has data (has-data class) */
+.data-display-content.has-data {
+    background: white !important;
+    border-radius: 12px !important;
+    padding: 20px !important;
+    margin-top: 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Clean form styling to match screenshot */
+.form-container {
+    width: 100%;
+}
+
+.competitor-form {
+    background: transparent !important;
+    border-radius: 0;
+    padding: 0;
+    box-shadow: none;
+}
+
+/* Form layout matching screenshot */
+.form-grid {
+    display: grid;
+    grid-template-columns: minmax(200px, 1fr) 58px 69px minmax(auto, 85px) minmax(auto, 48px);
+    gap: 0 3.25px;
+    align-items: start;
+}
+
+.form-grid > .add-competitor-btn {
+    margin-left: 28px;
+    margin-right: 1px;
+}
+
+.form-grid > .run-analysis-btn {
+    margin-right: 0;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.form-group label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #374151;
+    line-height: 1.2;
+    height: 18px;
+}
+
+.competitor-input,
+.form-select {
+    padding: 8px 12px;
+    height: 32px;
+    border: 1px solid hsl(214.3, 31.8%, 91.4%);
+    border-radius: 8px;
+    font-size: 13px;
+    line-height: 18px;
+    color: #1f2937 !important;
+    font-weight: 500;
+    background: hsl(0, 0%, 98%);
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    outline: none;
+}
+
+.form-select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 8px center;
+    background-repeat: no-repeat;
+    background-size: 16px;
+    padding-right: 32px;
+}
+
+#statusSelect {
+    padding-left: 6px;
+    padding-right: 24px;
+}
+
+#countrySelect {
+    padding-left: 6px;
+    padding-right: 24px;
+}
+
+.form-select option {
+    color: #1f2937 !important;
+    background: hsl(0, 0%, 98%);
+    font-weight: 500;
+    padding: 4px 0;
+}
+
+.competitor-input:focus,
+.form-select:focus {
+    outline: none;
+    border-color: hsl(262, 83%, 58%);
+    box-shadow: 0 0 0 3px hsla(262, 83%, 58%, 0.1);
+}
+
+.competitor-input::placeholder {
+    color: hsl(215.4, 16.3%, 46.9%);
+}
+
+/* Validation feedback styles */
+.competitor-input.input-error,
+.form-select.input-error {
+    border-color: #dc2626 !important;
+    background-color: #fef2f2 !important;
+}
+
+.competitor-input.input-error:focus,
+.form-select.input-error:focus {
+    border-color: #dc2626 !important;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1) !important;
+}
+
+.competitor-input.input-valid {
+    border-color: #10b981 !important;
+}
+
+.competitor-input.input-valid:focus {
+    border-color: #10b981 !important;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1) !important;
+}
+
+.input-error-message {
+    display: block;
+    color: #dc2626;
+    font-size: 11px;
+    margin-top: 0;
+    line-height: 1.5;
+    order: 2;
+    max-width: 180px;
+    word-wrap: break-word;
+    white-space: pre-line;
+}
+
+/* Brand Name Inputs Container */
+.brand-name-inputs {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    flex-wrap: nowrap;
+    width: 100%;
+}
+
+.brand-name-input-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 0 0 auto;
+    min-width: 0;
+}
+
+.brand-name-input-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 0 0 auto;
+}
+
+.brand-name-input-wrapper .competitor-input {
+    width: 180px;
+    min-width: 150px;
+    flex: 0 0 auto;
+    border: 1px solid hsl(214.3, 31.8%, 91.4%) !important;
+    background: hsl(0, 0%, 98%) !important;
+    color: #1f2937 !important;
+}
+
+.brand-name-input-wrapper .competitor-input:focus {
+    border-color: hsl(262, 83%, 58%) !important;
+    box-shadow: 0 0 0 3px hsla(262, 83%, 58%, 0.1);
+}
+
+.brand-name-input-wrapper .competitor-input:not(:focus) {
+    border-color: hsl(214.3, 31.8%, 91.4%) !important;
+}
+
+.brand-name-group {
+    min-width: 0;
+    width: 100%;
+}
+
+.remove-brand-btn {
+    background: transparent;
+    border: none;
+    padding: 4px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    color: #6b7280;
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+}
+
+.remove-brand-btn:hover {
+    background: #f3f4f6;
+    color: #dc2626;
+}
+
+.remove-brand-btn svg {
+    width: 14px;
+    height: 14px;
+}
+
+/* Buttons matching screenshot */
+.add-competitor-btn,
+.run-analysis-btn {
+    border: 1px solid #c084fc;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    justify-content: center;
+    box-sizing: border-box;
+    margin-top: 22px;
+    margin-right: 0;
+}
+
+.add-competitor-btn {
+    background: white;
+    color: #374151;
+    border: 1px solid #c084fc;
+    padding: 8px 6px;
+    gap: 2px;
+}
+
+.add-competitor-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: #f9fafb;
+    border-color: #d1d5db;
+}
+
+.add-competitor-btn:disabled:hover {
+    background: #f9fafb;
+    border-color: #d1d5db;
+    transform: none;
+    height: 32px;
+    min-width: 50px;
+    max-width: 50px;
+    line-height: 1.2;
+}
+
+.run-analysis-btn {
+    background: hsl(262, 83%, 58%);
+    color: hsl(0, 0%, 100%);
+    border: none;
+    padding: 8px 8px;
+    height: 32px;
+    gap: 4px;
+    min-width: 48px;
+    max-width: 48px;
+}
+
+.add-competitor-btn:hover {
+    background: #f9fafb;
+    border-color: #a855f7;
+}
+
+
+.run-analysis-btn:hover:not(:disabled) {
+    background: hsl(262, 83%, 52%);
+    transform: translateY(-1px);
+}
+
+.run-analysis-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.clear-data-btn {
+    padding: 16px 18px;
+    height: 58px;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    min-width: 120px;
+    max-width: 120px;
+    justify-content: center;
+    box-sizing: border-box;
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.clear-data-btn:hover:not(:disabled) {
+    background: #fecaca;
+    border-color: #fca5a5;
+    transform: translateY(-1px);
+}
+
+.clear-data-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.add-competitor-btn svg,
+.run-analysis-btn svg {
+    width: 12px;
+    height: 12px;
+}
+
+.add-competitor-btn svg {
+    stroke: #374151;
+    color: #374151;
+    width: 10px;
+    height: 10px;
+    flex-shrink: 0;
+}
+
+.run-analysis-btn svg {
+    stroke: white;
+    color: white;
+}
+
+.clear-data-btn svg {
+    width: 16px;
+    height: 16px;
+    stroke: #dc2626;
+    color: #dc2626;
+}
+
+/* Form Header */
+.form-header {
+    margin-bottom: 16px;
+}
+
+.competitors-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+}
+
+.add-more-btn {
+    background: transparent;
+    border: none;
+    color: #4f46e5;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.add-more-btn:hover {
+    background: #eef2ff;
+}
+
+/* Competitors List */
+.competitors-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.competitor-input-group {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.competitor-input {
+    flex: 1;
+    padding: 8px 12px;
+    height: 32px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 13px;
+    line-height: 18px;
+    color: #374151;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+}
+
+.competitor-input:focus {
+    outline: none;
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.competitor-input::placeholder {
+    color: hsl(215.4, 16.3%, 46.9%);
+}
+
+.remove-competitor-btn {
+    background: #fee2e2;
+    border: none;
+    padding: 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    color: #dc2626;
+}
+
+.remove-competitor-btn:hover {
+    background: #fecaca;
+}
+
+/* Form Row */
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+/* Spinning animation for loading state */
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.spinning {
+    animation: spin 1s linear infinite;
+}
+
+/* Form Error */
+.form-error {
+    margin-top: 12px;
+    padding: 10px 14px;
+    background: #fee2e2;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    color: #dc2626;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .form-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+    
+    .form-grid .add-competitor-btn,
+    .form-grid .run-analysis-btn {
+        grid-column: span 1;
+    }
+    
+}
+
+@media (max-width: 768px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    
+    .form-grid .add-competitor-btn,
+    .form-grid .run-analysis-btn {
+        grid-column: span 1;
+        justify-self: stretch;
+    }
+    
+}
+
+@media (max-width: 480px) {
+    .competitor-input,
+    .form-select {
+        padding: 10px 12px;
+        font-size: 13px;
+    }
+    
+    .add-competitor-btn {
+        padding: 1px 3px;
+        gap: 2px;
+        height: auto;
+    }
+    
+    .run-analysis-btn,
+    .clear-data-btn {
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+    
+}

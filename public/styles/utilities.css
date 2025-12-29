@@ -1,0 +1,100 @@
+/* CSS Custom Properties (Variables) */
+:root {
+    /* Colors */
+    --color-copywriting: #e6f7e6;
+    --color-marketing: #fdf2e6;
+    --color-psychology: #e6edff;
+    --color-sales: #fef2f2;
+    --color-metrics: #f0f9ff;
+    --color-technical: #f5f3ff;
+    --color-visual: #fefce8;
+    --color-people: #f0fdf4;
+    --color-summary: #f8fafc;
+    
+    /* Stats card colors */
+    --color-stats-bg: white;
+    --color-stats-label: #6b7280;
+    --color-stats-number: #1f2937;
+    
+    /* Hover colors */
+    --color-copywriting-hover: #10b981;
+    --color-marketing-hover: #f59e0b;
+    --color-psychology-hover: #3b82f6;
+    --color-sales-hover: #ef4444;
+    --color-metrics-hover: #06b6d4;
+    --color-technical-hover: #8b5cf6;
+    --color-visual-hover: #eab308;
+    --color-people-hover: #22c55e;
+    --color-summary-hover: #64748b;
+    
+    /* Spacing */
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+    
+    /* Border radius */
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    
+    /* Shadows */
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Animations */
+@keyframes pulse-outer {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 0.8;
+    }
+    50% {
+        transform: scale(1.05);
+        opacity: 1;
+    }
+}
+
+@keyframes pulse-inner {
+    0%, 100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0.9;
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.08);
+        opacity: 1;
+    }
+}
+
+@keyframes pulse-dot {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 0.8;
+    }
+    50% {
+        transform: scale(1.3);
+        opacity: 1;
+    }
+}
+
+/* Utility classes */
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.items-center { align-items: center; }
+.justify-center { justify-content: center; }
+.justify-between { justify-content: space-between; }
+
+.hidden { display: none; }
+.visible { display: block; }
+
+/* Responsive utilities */
+@media (max-width: 768px) {
+    .mobile-hidden { display: none; }
+    .mobile-full { width: 100%; }
+}
