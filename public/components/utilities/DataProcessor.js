@@ -6,6 +6,7 @@ class DataProcessor {
         let platforms = item.ad_data?.platforms || [];
         let ad_started = item.ad_data?.ad_started || new Date().toLocaleDateString();
 
+        // Handle carousel_data - convert to ad_data.images if present
         if (item.carousel_data) {
             if (item.carousel_data.images && Array.isArray(item.carousel_data.images)) {
                 images = item.carousel_data.images.map(img => ({
@@ -22,12 +23,24 @@ class DataProcessor {
             }
         }
 
+        // ✅ Preserve content_type from n8n (critical for routing)
+        const contentType = item.content_type || 'text';
+
+        // ✅ Debug log to verify data structure
+        if (contentType === 'video') {
+            console.log('DataProcessor: Processing video item', {
+                competitor: item.competitor_name,
+                has_video_data: !!item.video_data,
+                matching_key: item.matching_key
+            });
+        }
+
         return {
             competitor_name: item.competitor_name || item.advertiser_name || 'Unknown Advertiser',
-            content_type: item.content_type || 'text',
+            content_type: contentType, // ✅ Preserve original content_type
             body: item.body || '',
             text_for_analysis: item.advertiser?.text_for_analysis || item.text_for_analysis || item.body || '',
-            matching_key: item.matching_key || null, // ✅ ADD THIS
+            matching_key: item.matching_key || null,
             ai_analysis: item.ai_analysis || {},
             video_data: item.video_data || null,
             ad_data: {

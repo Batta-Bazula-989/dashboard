@@ -206,95 +206,107 @@ class DataDisplay {
         return Math.abs(hash).toString(36);
     }
 
-    addDataItem(incoming) {
-        const payload = incoming?.data || incoming;
-        const items = Array.isArray(payload) ? payload : [payload];
+addDataItem(incoming) {
+    const payload = incoming?.data || incoming;
+    const items = Array.isArray(payload) ? payload : [payload];
 
-        let renderedCount = 0;
-        let hasProcessedItems = false;
-        
-        // Batch cards for efficient DOM updates
-        const cardsToAdd = new Map(); // Map of competitorName -> array of cards
+    let renderedCount = 0;
+    let hasProcessedItems = false;
 
-        // Process items and collect for batch rendering
-        items.forEach(item => {
-            const processed = DataProcessor.process(item);
-            if (!processed) return;
+    // Batch cards for efficient DOM updates
+    const cardsToAdd = new Map(); // Map of competitorName -> array of cards
 
-            // Generate unique ID for deduplication
-            const itemId = this._generateItemId(processed);
+    // Process items and collect for batch rendering
+    items.forEach(item => {
+        const processed = DataProcessor.process(item);
+        if (!processed) return;
 
-            // Skip if already processed
-            if (this._processedItemIds.has(itemId)) {
-                return;
-            }
-
-            // Mark as processed
-            this._processedItemIds.add(itemId);
-            hasProcessedItems = true;
-
-            if (processed.content_type === 'video') {
-                this.addVideoAnalysis(processed);
-            } else if (processed.content_type === 'carousel') {
-                // For carousel content, ONLY add analysis to existing cards - NEVER create new cards
-                this.addCarouselAnalysis(processed);
-            } else if (processed.content_type === 'image') {
-                // For image content, ONLY add analysis to existing cards - NEVER create new cards
-                this.addImageAnalysis(processed);
-            } else if (this.hasCarouselData(processed)) {
-                this.addCarouselAnalysis(processed);
-            } else if (this.hasImageAnalysisData(processed)) {
-                // Detect single image analysis even without content_type
-                this.addImageAnalysis(processed);
-            } else {
-                // Collect cards for batch processing
-                const competitorName = processed.competitor_name;
-                if (!cardsToAdd.has(competitorName)) {
-                    cardsToAdd.set(competitorName, []);
-                }
-                cardsToAdd.get(competitorName).push(processed);
-                renderedCount++;
-            }
+        // Debug log to see what's being processed
+        console.log('Processing item:', {
+            competitor: processed.competitor_name,
+            content_type: processed.content_type,
+            has_video_data: !!processed.video_data,
+            matching_key: processed.matching_key
         });
 
-        // Update cached counts immediately BEFORE async batch operation
-        // This ensures getStats() returns correct values even though DOM update is async
-        if (cardsToAdd.size > 0) {
-            // Calculate new card count
-            let newCardCount = 0;
-            cardsToAdd.forEach(cards => {
-                newCardCount += cards.length;
-            });
+        // Generate unique ID for deduplication
+        const itemId = this._generateItemId(processed);
 
-            // Update cached counts synchronously
-            this._cardCount += newCardCount;
-            cardsToAdd.forEach((cards, competitorName) => {
-                this._competitorNames.add(competitorName);
-            });
-
-            // Batch append all cards at once using requestAnimationFrame
-            requestAnimationFrame(() => {
-                this._batchAddCards(cardsToAdd);
-            });
+        // Skip if already processed
+        if (this._processedItemIds.has(itemId)) {
+            console.log('Skipping duplicate item:', itemId);
+            return;
         }
 
-        if (hasProcessedItems) {
-            // Remove loading state when data arrives (only once)
-            this.hideLoading();
+        // Mark as processed
+        this._processedItemIds.add(itemId);
+        hasProcessedItems = true;
 
-            // Remove empty state when any data is added (text cards or video analysis)
-            const emptyState = this._getEmptyState();
-            if (emptyState) {
-                emptyState.remove();
-                this._emptyState = null;
+        // Route based on content type
+        if (processed.content_type === 'video') {
+            console.log('Adding video analysis for:', processed.competitor_name);
+            this.addVideoAnalysis(processed);
+        } else if (processed.content_type === 'carousel') {
+            // For carousel content, ONLY add analysis to existing cards - NEVER create new cards
+            this.addCarouselAnalysis(processed);
+        } else if (processed.content_type === 'image') {
+            // For image content, ONLY add analysis to existing cards - NEVER create new cards
+            this.addImageAnalysis(processed);
+        } else if (this.hasCarouselData(processed)) {
+            this.addCarouselAnalysis(processed);
+        } else if (this.hasImageAnalysisData(processed)) {
+            // Detect single image analysis even without content_type
+            this.addImageAnalysis(processed);
+        } else {
+            // Only create new cards for text/default content
+            console.log('Creating new card for:', processed.competitor_name);
+            const competitorName = processed.competitor_name;
+            if (!cardsToAdd.has(competitorName)) {
+                cardsToAdd.set(competitorName, []);
             }
+            cardsToAdd.get(competitorName).push(processed);
+            renderedCount++;
+        }
+    });
 
-            // Invalidate stats cache when data changes
-            this._statsCacheValid = false;
+    // Update cached counts immediately BEFORE async batch operation
+    // This ensures getStats() returns correct values even though DOM update is async
+    if (cardsToAdd.size > 0) {
+        // Calculate new card count
+        let newCardCount = 0;
+        cardsToAdd.forEach(cards => {
+            newCardCount += cards.length;
+        });
+
+        // Update cached counts synchronously
+        this._cardCount += newCardCount;
+        cardsToAdd.forEach((cards, competitorName) => {
+            this._competitorNames.add(competitorName);
+        });
+
+        // Batch append all cards at once using requestAnimationFrame
+        requestAnimationFrame(() => {
+            this._batchAddCards(cardsToAdd);
+        });
+    }
+
+    if (hasProcessedItems) {
+        // Remove loading state when data arrives (only once)
+        this.hideLoading();
+
+        // Remove empty state when any data is added (text cards or video analysis)
+        const emptyState = this._getEmptyState();
+        if (emptyState) {
+            emptyState.remove();
+            this._emptyState = null;
         }
 
-        return this.getStats();
+        // Invalidate stats cache when data changes
+        this._statsCacheValid = false;
     }
+
+    return this.getStats();
+}
 
     // Batch add multiple cards efficiently using DocumentFragment
 
