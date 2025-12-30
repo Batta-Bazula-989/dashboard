@@ -171,6 +171,11 @@ class DataDisplay {
 
     // Generate unique ID for an item to prevent duplicates
     _generateItemId(processed) {
+        // ✅ PRIORITY 1: Use matching_key if available (most reliable)
+        if (processed.matching_key) {
+            return processed.matching_key;
+        }
+
         // For video content, use video_id if available
         if (processed.content_type === 'video' && processed.video_data?.video_id) {
             return `video_${processed.video_data.video_id}`;
