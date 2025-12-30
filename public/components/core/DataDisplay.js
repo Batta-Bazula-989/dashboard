@@ -226,7 +226,6 @@ addDataItem(incoming) {
 
         const itemId = this._generateItemId(processed);
 
-        // ✅ CRITICAL DEBUG - Show the actual matching_key and generated ID
         console.log('=== ITEM DEBUG ===');
         console.log('Competitor:', processed.competitor_name);
         console.log('Content Type:', processed.content_type);
@@ -235,6 +234,18 @@ addDataItem(incoming) {
         console.log('Already processed?', this._processedItemIds.has(itemId));
         console.log('==================');
 
+        // ✅ Special handling for video content
+        if (processed.content_type === 'video') {
+            console.log('✅ ROUTING TO addVideoAnalysis');
+            // Always call addVideoAnalysis, regardless of whether it's a duplicate
+            // The video analysis will attach to the existing card
+            this.addVideoAnalysis(processed);
+            this._processedItemIds.add(itemId); // Mark as processed to avoid duplicates later
+            hasProcessedItems = true;
+            return; // Exit early after handling video
+        }
+
+        // For non-video content, skip if already processed
         if (this._processedItemIds.has(itemId)) {
             console.log('⚠️ SKIPPING DUPLICATE:', itemId);
             return;
@@ -243,10 +254,7 @@ addDataItem(incoming) {
         this._processedItemIds.add(itemId);
         hasProcessedItems = true;
 
-        if (processed.content_type === 'video') {
-            console.log('✅ ROUTING TO addVideoAnalysis');
-            this.addVideoAnalysis(processed);
-        } else if (processed.content_type === 'carousel') {
+        if (processed.content_type === 'carousel') {
             this.addCarouselAnalysis(processed);
         } else if (processed.content_type === 'image') {
             this.addImageAnalysis(processed);
@@ -265,7 +273,6 @@ addDataItem(incoming) {
         }
     });
 
-    // ... rest of method stays the same
     if (cardsToAdd.size > 0) {
         let newCardCount = 0;
         cardsToAdd.forEach(cards => {
