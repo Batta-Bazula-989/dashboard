@@ -505,20 +505,29 @@ class DataDisplay {
         return false;
     }
 
-addVideoAnalysis(videoData) {
-    // Try multiple matching strategies to find the right card
+    addVideoAnalysis(videoData) {
     let existingCards = [];
-    
-    // Strategy 1: Match by competitor name + body text (primary)
-    if (videoData.body) {
+
+    // ✅ Strategy 0: Match by matching_key (MOST RELIABLE)
+    if (videoData.matching_key) {
+        existingCards = CardMatcher.findAll(
+            this.dataDisplay,
+            videoData.competitor_name,
+            null,
+            videoData.matching_key // Pass matching_key as 4th parameter
+        );
+    }
+
+    // Strategy 1: Fallback - Match by competitor name + body text
+    if (existingCards.length === 0 && videoData.body) {
         existingCards = CardMatcher.findAll(
             this.dataDisplay,
             videoData.competitor_name,
             videoData.body
         );
     }
-    
-    // Strategy 2: If no match, try matching by competitor name + text_for_analysis
+
+    // Strategy 2: Fallback - Match by competitor name + text_for_analysis
     if (existingCards.length === 0 && videoData.text_for_analysis) {
         existingCards = CardMatcher.findAll(
             this.dataDisplay,
@@ -526,8 +535,8 @@ addVideoAnalysis(videoData) {
             videoData.text_for_analysis
         );
     }
-    
-    // Strategy 3: If still no match, try matching by competitor name + ad_text
+
+    // Strategy 3: Fallback - Match by competitor name + ad_text
     if (existingCards.length === 0 && videoData.ad_data?.ad_text) {
         existingCards = CardMatcher.findAll(
             this.dataDisplay,
@@ -535,23 +544,20 @@ addVideoAnalysis(videoData) {
             videoData.ad_data.ad_text
         );
     }
-    
-    // Strategy 4: If still no match, try matching by competitor name only and check for video element
+
+    // Strategy 4: Last resort - Match by name only and filter for video elements
     if (existingCards.length === 0) {
         const nameOnlyCards = CardMatcher.findAll(
             this.dataDisplay,
             videoData.competitor_name,
             null
         );
-        // Filter to only cards that have a video element
         existingCards = nameOnlyCards.filter(card => {
             return card.querySelector('video.video-thumb') !== null;
         });
     }
 
-    // ✅ CRITICAL FIX: Filter out cards without video elements
-    // This ensures video analysis only attaches to cards that actually have videos
-    // (Strategies 1-3 match by text only, which can match non-video cards)
+    // ✅ Filter out cards without video elements
     existingCards = existingCards.filter(card => {
         return card.querySelector('video.video-thumb') !== null;
     });
@@ -572,11 +578,9 @@ addVideoAnalysis(videoData) {
         card.appendChild(divider);
         card.appendChild(section);
     });
-    
-    // Invalidate stats cache when analysis is added
+
     this._statsCacheValid = false;
-    
-    // If no cards found, store for retry after cards are rendered
+
     if (existingCards.length === 0) {
         this._storePendingVideoAnalysis(videoData);
     }

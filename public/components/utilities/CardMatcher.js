@@ -8,20 +8,31 @@ class CardMatcher {
     static _buildIndex(container) {
         const cards = container.querySelectorAll('.card');
         const index = {
-            byName: new Map(), // competitorName -> [cards]
-            byNameAndText: new Map(), // "name|text" -> [cards]
+            byName: new Map(),
+            byNameAndText: new Map(),
+            byMatchingKey: new Map(), // ✅ NEW
             allCards: Array.from(cards)
         };
 
-        // Cache DOM queries per card to avoid repeated queries
         cards.forEach(card => {
             const link = card.querySelector('.name-row a');
             const adTextEl = card.querySelector('.ad-text');
+
+            // ✅ Get matching_key from dataset
+            const matchingKey = card.dataset.matchingKey;
 
             if (!link?.textContent) return;
 
             const existingName = link.textContent.trim().toLowerCase();
             const existingAdText = (adTextEl?.textContent.trim() || '').toLowerCase();
+
+            // ✅ Index by matching_key (most reliable)
+            if (matchingKey) {
+                if (!index.byMatchingKey.has(matchingKey)) {
+                    index.byMatchingKey.set(matchingKey, []);
+                }
+                index.byMatchingKey.get(matchingKey).push(card);
+            }
 
             // Index by name only
             if (!index.byName.has(existingName)) {
@@ -42,15 +53,13 @@ class CardMatcher {
         return index;
     }
 
-    // Get cached index or build new one
     static _getIndex(container) {
         const cacheKey = container.id || container.className || 'default';
-        
-        // Check if we need to rebuild index
+
         const currentCards = container.querySelectorAll('.card');
         const currentCount = currentCards.length;
-        
-        if (!this._indexedCards || 
+
+        if (!this._indexedCards ||
             this._indexedCardsVersion !== this._cacheVersion ||
             this._indexedCards.allCards.length !== currentCount) {
             this._indexedCards = this._buildIndex(container);
@@ -60,21 +69,29 @@ class CardMatcher {
         return this._indexedCards;
     }
 
-    // Invalidate cache when cards are added/removed
     static invalidateCache() {
         this._cacheVersion++;
         this._indexedCards = null;
     }
 
-    static findAll(container, competitorName, adText = null) {
+    // ✅ Updated to accept matchingKey parameter
+    static findAll(container, competitorName, adText = null, matchingKey = null) {
         if (!container) return [];
 
-        const normalizedName = competitorName ? competitorName.toLowerCase().trim() : null;
-        const normalizedText = adText ? adText.toLowerCase().trim() : null;
-
-        // Get indexed cards
         const index = this._getIndex(container);
         const matches = [];
+
+        // ✅ PRIORITY 1: Match by matching_key (most reliable)
+        if (matchingKey && index.byMatchingKey) {
+            const keyMatches = index.byMatchingKey.get(matchingKey);
+            if (keyMatches && keyMatches.length > 0) {
+                return keyMatches; // Early return - exact match found
+            }
+        }
+
+        // PRIORITY 2: Text-based matching (fallback)
+        const normalizedName = competitorName ? competitorName.toLowerCase().trim() : null;
+        const normalizedText = adText ? adText.toLowerCase().trim() : null;
 
         if (!normalizedName) {
             return matches;
@@ -94,7 +111,6 @@ class CardMatcher {
             const nameMatches = index.byName.get(normalizedName);
             if (nameMatches) {
                 if (normalizedText) {
-                    // Filter by text match if text provided
                     nameMatches.forEach(card => {
                         const adTextEl = card.querySelector('.ad-text');
                         const existingAdText = (adTextEl?.textContent.trim() || '').toLowerCase();
@@ -120,15 +136,11 @@ class CardMatcher {
 
     static textsMatch(text1, text2) {
         if (!text1 || !text2) return false;
-        // Normalize both strings once at the start
         const t1 = text1.toLowerCase().trim();
         const t2 = text2.toLowerCase().trim();
-        // Exact match (early return)
         if (t1 === t2) return true;
-        // Match first 100 chars (more reliable than 50)
         const preview1 = t1.substring(0, 100);
         const preview2 = t2.substring(0, 100);
-
         return preview1 === preview2;
     }
 }

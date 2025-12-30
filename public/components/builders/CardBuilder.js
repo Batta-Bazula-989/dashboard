@@ -3,44 +3,49 @@ class CardBuilder {
         this.onShowFullAnalysis = onShowFullAnalysis;
     }
 
-    build(entry) {
-        const card = document.createElement('div');
-        card.className = 'card';
+build(entry) {
+    const card = document.createElement('div');
+    card.className = 'card';
 
-        card.appendChild(this.buildHeader(entry));
-        card.appendChild(this.buildDivider());
-
-        // Store body or ad_text for matching - prefer text_for_analysis, then ad_text, fallback to body
-        const textToDisplay = entry.text_for_analysis || entry.ad_data?.ad_text || entry.body || '';
-        if (textToDisplay) {
-            card.appendChild(this.buildAdText(textToDisplay));
-        }
-
-        // Priority: video first, then cards carousel, then images carousel, then single card/image
-        if (entry.ad_data?.videos?.[0]?.video_preview_image_url) {
-            card.appendChild(this.buildVideoThumbnail(entry.ad_data.videos[0]));
-        } else if (entry.ad_data?.cards && entry.ad_data.cards.length > 1) {
-            card.appendChild(this.buildCardsCarousel(entry.ad_data.cards));
-        } else if (entry.ad_data?.cards?.[0]) {
-            card.appendChild(this.buildSingleCard(entry.ad_data.cards[0]));
-        } else if (entry.ad_data?.images && entry.ad_data.images.length > 1) {
-            card.appendChild(this.buildImageCarousel(entry.ad_data.images));
-        } else if (entry.ad_data?.images?.[0]) {
-            card.appendChild(this.buildSingleImage(entry.ad_data.images[0]));
-        }
-
-        if (entry.ai_analysis) {
-            card.appendChild(
-                AnalysisSections.createTextAnalysis(
-                    entry.ai_analysis,
-                    this.onShowFullAnalysis,
-                    entry.competitor_name
-                )
-            );
-        }
-
-        return card;
+    // ✅ Store matching_key in dataset for efficient video analysis matching
+    if (entry.matching_key) {
+        card.dataset.matchingKey = entry.matching_key;
     }
+
+    card.appendChild(this.buildHeader(entry));
+    card.appendChild(this.buildDivider());
+
+    // Store body or ad_text for matching - prefer text_for_analysis, then ad_text, fallback to body
+    const textToDisplay = entry.text_for_analysis || entry.ad_data?.ad_text || entry.body || '';
+    if (textToDisplay) {
+        card.appendChild(this.buildAdText(textToDisplay));
+    }
+
+    // Priority: video first, then cards carousel, then images carousel, then single card/image
+    if (entry.ad_data?.videos?.[0]?.video_preview_image_url) {
+        card.appendChild(this.buildVideoThumbnail(entry.ad_data.videos[0]));
+    } else if (entry.ad_data?.cards && entry.ad_data.cards.length > 1) {
+        card.appendChild(this.buildCardsCarousel(entry.ad_data.cards));
+    } else if (entry.ad_data?.cards?.[0]) {
+        card.appendChild(this.buildSingleCard(entry.ad_data.cards[0]));
+    } else if (entry.ad_data?.images && entry.ad_data.images.length > 1) {
+        card.appendChild(this.buildImageCarousel(entry.ad_data.images));
+    } else if (entry.ad_data?.images?.[0]) {
+        card.appendChild(this.buildSingleImage(entry.ad_data.images[0]));
+    }
+
+    if (entry.ai_analysis) {
+        card.appendChild(
+            AnalysisSections.createTextAnalysis(
+                entry.ai_analysis,
+                this.onShowFullAnalysis,
+                entry.competitor_name
+            )
+        );
+    }
+
+    return card;
+}
 
     buildHeader(entry) {
         const header = document.createElement('div');
