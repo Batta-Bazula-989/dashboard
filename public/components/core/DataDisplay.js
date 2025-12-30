@@ -218,53 +218,44 @@ addDataItem(incoming) {
     let renderedCount = 0;
     let hasProcessedItems = false;
 
-    // Batch cards for efficient DOM updates
-    const cardsToAdd = new Map(); // Map of competitorName -> array of cards
+    const cardsToAdd = new Map();
 
-    // Process items and collect for batch rendering
     items.forEach(item => {
         const processed = DataProcessor.process(item);
         if (!processed) return;
 
-        // Debug log to see what's being processed
-        console.log('Processing item:', {
-            competitor: processed.competitor_name,
-            content_type: processed.content_type,
-            has_video_data: !!processed.video_data,
-            matching_key: processed.matching_key
-        });
-
-        // Generate unique ID for deduplication
         const itemId = this._generateItemId(processed);
 
-        // Skip if already processed
+        // ✅ CRITICAL DEBUG - Show the actual matching_key and generated ID
+        console.log('=== ITEM DEBUG ===');
+        console.log('Competitor:', processed.competitor_name);
+        console.log('Content Type:', processed.content_type);
+        console.log('Matching Key:', processed.matching_key);
+        console.log('Generated ID:', itemId);
+        console.log('Already processed?', this._processedItemIds.has(itemId));
+        console.log('==================');
+
         if (this._processedItemIds.has(itemId)) {
-            console.log('Skipping duplicate item:', itemId);
+            console.log('⚠️ SKIPPING DUPLICATE:', itemId);
             return;
         }
 
-        // Mark as processed
         this._processedItemIds.add(itemId);
         hasProcessedItems = true;
 
-        // Route based on content type
         if (processed.content_type === 'video') {
-            console.log('Adding video analysis for:', processed.competitor_name);
+            console.log('✅ ROUTING TO addVideoAnalysis');
             this.addVideoAnalysis(processed);
         } else if (processed.content_type === 'carousel') {
-            // For carousel content, ONLY add analysis to existing cards - NEVER create new cards
             this.addCarouselAnalysis(processed);
         } else if (processed.content_type === 'image') {
-            // For image content, ONLY add analysis to existing cards - NEVER create new cards
             this.addImageAnalysis(processed);
         } else if (this.hasCarouselData(processed)) {
             this.addCarouselAnalysis(processed);
         } else if (this.hasImageAnalysisData(processed)) {
-            // Detect single image analysis even without content_type
             this.addImageAnalysis(processed);
         } else {
-            // Only create new cards for text/default content
-            console.log('Creating new card for:', processed.competitor_name);
+            console.log('❌ CREATING NEW CARD');
             const competitorName = processed.competitor_name;
             if (!cardsToAdd.has(competitorName)) {
                 cardsToAdd.set(competitorName, []);
@@ -274,39 +265,32 @@ addDataItem(incoming) {
         }
     });
 
-    // Update cached counts immediately BEFORE async batch operation
-    // This ensures getStats() returns correct values even though DOM update is async
+    // ... rest of method stays the same
     if (cardsToAdd.size > 0) {
-        // Calculate new card count
         let newCardCount = 0;
         cardsToAdd.forEach(cards => {
             newCardCount += cards.length;
         });
 
-        // Update cached counts synchronously
         this._cardCount += newCardCount;
         cardsToAdd.forEach((cards, competitorName) => {
             this._competitorNames.add(competitorName);
         });
 
-        // Batch append all cards at once using requestAnimationFrame
         requestAnimationFrame(() => {
             this._batchAddCards(cardsToAdd);
         });
     }
 
     if (hasProcessedItems) {
-        // Remove loading state when data arrives (only once)
         this.hideLoading();
 
-        // Remove empty state when any data is added (text cards or video analysis)
         const emptyState = this._getEmptyState();
         if (emptyState) {
             emptyState.remove();
             this._emptyState = null;
         }
 
-        // Invalidate stats cache when data changes
         this._statsCacheValid = false;
     }
 
