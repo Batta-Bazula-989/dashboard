@@ -467,23 +467,29 @@ app.post('/api/data', postLimiter, authenticate, (req, res) => {
       console.log(`POST /api/data - received data, size: ${JSON.stringify(data).length} bytes, requestId: ${requestId}`);
     }
 
-    // NO FILTERING - all data goes to ad_analysis
-    let dataType = 'ad_analysis';
+    // Handle both single items and arrays
+    const dataType = 'ad_analysis';
+    const items = Array.isArray(data) ? data : [data];
 
-    const newItem = {
-      data,
-      dataType,
-      timestamp: new Date().toISOString(),
-      requestId,
-      source: 'api'
-    };
+    // Add each item separately to recentData
+    items.forEach(item => {
+      const newItem = {
+        data: item,
+        dataType,
+        timestamp: new Date().toISOString(),
+        requestId,
+        source: 'api'
+      };
 
-    recentData.push(newItem);
+      recentData.push(newItem);
 
-    if (recentData.length > maxDataSize) recentData.shift();
+      if (recentData.length > maxDataSize) {
+        recentData.shift();
+      }
+    });
 
     if (process.env.NODE_ENV !== 'production') {
-      console.log(`POST /api/data - added ${dataType} item, total items: ${recentData.length}`);
+      console.log(`POST /api/data - added ${items.length} ${dataType} item(s), total items: ${recentData.length}`);
     }
 
     res.json({
