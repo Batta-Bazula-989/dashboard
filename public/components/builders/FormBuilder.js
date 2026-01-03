@@ -441,9 +441,7 @@ class FormBuilder {
             inputsContainer.appendChild(newField.cloneNode(true));
             this.attachBrandNameListeners(container);
             
-            // Update X buttons: remove from previous last field, add to new last field
-            this.updateRemoveButtons(container);
-            
+            // Buttons are already in HTML from buildBrandNameInput, no need to update
             // Update Add button state
             this.updateAddButtonState(container);
             
