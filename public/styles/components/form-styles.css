@@ -241,20 +241,23 @@
     align-items: center;
     justify-content: center;
     transition: all 0.2s ease;
-    color: #6b7280;
+    color: #dc2626;
     flex-shrink: 0;
     width: 24px;
     height: 24px;
+    align-self: flex-start;
+    margin-top: 2px;
 }
 
 .remove-brand-btn:hover {
-    background: #f3f4f6;
+    background: #fee2e2;
     color: #dc2626;
 }
 
 .remove-brand-btn svg {
     width: 14px;
     height: 14px;
+    stroke: #dc2626;
 }
 
 /* Buttons matching screenshot */

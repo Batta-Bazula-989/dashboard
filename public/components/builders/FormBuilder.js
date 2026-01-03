@@ -58,8 +58,8 @@ class FormBuilder {
     // Build a single brand name input field
     buildBrandNameInput(id, value = '', isLast = false) {
         const isFirst = id === 1;
-        // Only show X button if it's not the first field AND it's the last field
-        const showRemoveButton = !isFirst && isLast;
+        // Show remove button for fields 2 and 3 only (not field 1)
+        const showRemoveButton = id === 2 || id === 3;
         // Sanitize value for HTML attribute (use escapeHTMLAttribute for attributes)
         const safeValue = typeof Sanitizer !== 'undefined' ? 
             Sanitizer.escapeHTMLAttribute(value) : 
@@ -80,15 +80,15 @@ class FormBuilder {
                         autocomplete="off"
                         spellcheck="false"
                     />
-                    ${showRemoveButton ? `
-                        <button type="button" class="remove-brand-btn" data-brand-id="${id}" title="Remove">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <line x1="18" y1="6" x2="6" y2="18"></line>
-                                <line x1="6" y1="6" x2="18" y2="18"></line>
-                            </svg>
-                        </button>
-                    ` : ''}
                 </div>
+                ${showRemoveButton ? `
+                    <button type="button" class="remove-brand-btn" data-brand-id="${id}" title="Remove">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                ` : ''}
             </div>
         `;
     }
@@ -333,35 +333,23 @@ class FormBuilder {
         }
     }
 
-    // Update remove buttons - only show X on the last field
+    // Update remove buttons - show on fields 2 and 3 only
     updateRemoveButtons(container) {
         const allFields = container.querySelectorAll('.brand-name-input-wrapper');
         if (allFields.length === 0) return;
-
-        // Find the last field (highest ID)
-        let lastField = null;
-        let maxId = 0;
-        
-        allFields.forEach(field => {
-            const fieldId = parseInt(field.dataset.brandId);
-            if (fieldId > maxId) {
-                maxId = fieldId;
-                lastField = field;
-            }
-        });
 
         // Remove all existing remove buttons
         const allRemoveButtons = container.querySelectorAll('.remove-brand-btn');
         allRemoveButtons.forEach(btn => btn.remove());
 
-        // Add remove button only to the last field (if it's not the first field)
-        if (lastField && maxId > 1) {
-            const input = lastField.querySelector('.brand-name-input');
-            if (input) {
+        // Add remove buttons to fields with id 2 or 3
+        allFields.forEach(field => {
+            const fieldId = parseInt(field.dataset.brandId);
+            if (fieldId === 2 || fieldId === 3) {
                 const removeBtn = document.createElement('button');
                 removeBtn.type = 'button';
                 removeBtn.className = 'remove-brand-btn';
-                removeBtn.dataset.brandId = maxId;
+                removeBtn.dataset.brandId = fieldId;
                 removeBtn.title = 'Remove';
                 // Use DOMParser for safe SVG insertion instead of innerHTML
                 const parser = new DOMParser();
@@ -376,12 +364,12 @@ class FormBuilder {
                     // Fallback to text if SVG parsing fails
                     removeBtn.textContent = '×';
                 }
-                lastField.appendChild(removeBtn);
-                
-                // Reattach listeners
-                this.attachBrandNameListeners(container);
+                field.appendChild(removeBtn);
             }
-        }
+        });
+        
+        // Reattach listeners
+        this.attachBrandNameListeners(container);
     }
 
     // Add a new competitor input (brand name field)
