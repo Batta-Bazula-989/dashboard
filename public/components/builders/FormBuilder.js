@@ -82,8 +82,8 @@ class FormBuilder {
                     />
                 </div>
                 ${showRemoveButton ? `
-                    <button type="button" class="remove-brand-btn" data-brand-id="${id}" title="Remove">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <button type="button" class="remove-brand-btn" data-brand-id="${id}" title="Remove" style="display: flex !important; opacity: 1 !important; visibility: visible !important;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="stroke: #dc2626 !important; fill: none !important;">
                             <line x1="18" y1="6" x2="6" y2="18"></line>
                             <line x1="6" y1="6" x2="18" y2="18"></line>
                         </svg>
@@ -352,13 +352,18 @@ class FormBuilder {
                 removeBtn.dataset.brandId = fieldId;
                 removeBtn.title = 'Remove';
                 // Use DOMParser for safe SVG insertion instead of innerHTML
+                removeBtn.style.display = 'flex';
+                removeBtn.style.opacity = '1';
+                removeBtn.style.visibility = 'visible';
                 const parser = new DOMParser();
                 const svgDoc = parser.parseFromString(
-                    '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>',
+                    '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>',
                     'image/svg+xml'
                 );
                 const svgElement = svgDoc.documentElement;
                 if (svgElement && svgElement.tagName === 'svg') {
+                    svgElement.style.stroke = '#dc2626';
+                    svgElement.style.fill = 'none';
                     removeBtn.appendChild(svgElement);
                 } else {
                     // Fallback to text if SVG parsing fails
