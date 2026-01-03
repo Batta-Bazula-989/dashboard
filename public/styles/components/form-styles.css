@@ -73,7 +73,7 @@
 
 .form-grid > .add-competitor-btn {
     margin-left: 4px;
-    margin-right: 24px;
+    margin-right: 28px;
 }
 
 .form-grid > .run-analysis-btn {
@@ -378,6 +378,8 @@
 .run-analysis-btn svg {
     stroke: white;
     color: white;
+    width: 13px;
+    height: 13px;
 }
 
 .clear-data-btn svg {
