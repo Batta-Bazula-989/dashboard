@@ -72,8 +72,8 @@
 }
 
 .form-grid > .add-competitor-btn {
-    margin-left: 8px;
-    margin-right: 1px;
+    margin-left: -8px;
+    margin-right: 8px;
 }
 
 .form-grid > .run-analysis-btn {
