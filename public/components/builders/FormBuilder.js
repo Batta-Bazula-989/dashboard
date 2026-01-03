@@ -21,7 +21,6 @@ class FormBuilder {
                         <label for="countrySelect">Country</label>
                         <select id="countrySelect" class="form-select" required>
                             <option value="UA">UA</option>
-                            <option value="PL">PL</option>
                         </select>
                     </div>
                     

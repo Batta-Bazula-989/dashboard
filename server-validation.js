@@ -123,8 +123,8 @@ const VALIDATION_SCHEMAS = {
     type: 'string',
     exactLength: 2,
     // Whitelist: only uppercase ISO country codes
-    allowedValues: ['UA', 'PL'],
-    description: 'Country must be a valid 2-letter ISO code (UA or PL)',
+    allowedValues: ['UA'],
+    description: 'Country must be a valid 2-letter ISO code (UA)',
     caseSensitive: true
   },
   status: {
