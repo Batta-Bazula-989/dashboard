@@ -21,15 +21,15 @@ const app = express();
 // Authentication Configuration
 const API_KEY = process.env.API_KEY || process.env.DASHBOARD_API_KEY;
 if (!API_KEY) {
-  console.error(LOG_MESSAGES.API_KEY_WARNING);
-  console.error('Set API_KEY or DASHBOARD_API_KEY environment variable for production use.');
+  console.warn(LOG_MESSAGES.API_KEY_WARNING);
+  console.warn('Set API_KEY or DASHBOARD_API_KEY environment variable for production use.');
 }
 
 // Webhook Configuration
 const WEBHOOK_URL = process.env.WEBHOOK_URL || process.env.N8N_WEBHOOK_URL;
 if (!WEBHOOK_URL) {
-  console.error('WARNING: able set. Form submissions will fail.');
-}No WEBHOOK_URL environment vari
+  console.warn('WARNING: No WEBHOOK_URL environment variable set. Form submissions will fail.');
+}
 
 // Session token storage (in-memory, expires after 2 hours with idle timeout)
 const sessionTokens = new Map(); // Map<token, {expiry: number, lastActivity: number}>

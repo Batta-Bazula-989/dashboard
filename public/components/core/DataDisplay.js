@@ -226,17 +226,8 @@ addDataItem(incoming) {
 
         const itemId = this._generateItemId(processed);
 
-        console.log('=== ITEM DEBUG ===');
-        console.log('Competitor:', processed.competitor_name);
-        console.log('Content Type:', processed.content_type);
-        console.log('Matching Key:', processed.matching_key);
-        console.log('Generated ID:', itemId);
-        console.log('Already processed?', this._processedItemIds.has(itemId));
-        console.log('==================');
-
         // ✅ Special handling for video content
         if (processed.content_type === 'video') {
-            console.log('✅ ROUTING TO addVideoAnalysis');
             // Always call addVideoAnalysis, regardless of whether it's a duplicate
             // The video analysis will attach to the existing card
             this.addVideoAnalysis(processed);
@@ -247,7 +238,6 @@ addDataItem(incoming) {
 
         // For non-video content, skip if already processed
         if (this._processedItemIds.has(itemId)) {
-            console.log('⚠️ SKIPPING DUPLICATE:', itemId);
             return;
         }
 
@@ -263,7 +253,6 @@ addDataItem(incoming) {
         } else if (this.hasImageAnalysisData(processed)) {
             this.addImageAnalysis(processed);
         } else {
-            console.log('❌ CREATING NEW CARD');
             const competitorName = processed.competitor_name;
             if (!cardsToAdd.has(competitorName)) {
                 cardsToAdd.set(competitorName, []);
