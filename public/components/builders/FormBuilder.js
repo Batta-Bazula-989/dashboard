@@ -324,10 +324,19 @@ class FormBuilder {
             field.remove();
             // Remove from competitors array
             this.competitors = this.competitors.filter(c => c.id !== id);
-            // Remove all subsequent fields
-            this.removeSubsequentFields(container, id - 1);
-            // Update X buttons after removal
-            this.updateRemoveButtons(container);
+            // Remove all subsequent fields (fields with id > the removed id)
+            const inputsContainer = container.querySelector('#brandNameInputs');
+            if (inputsContainer) {
+                const fieldsToRemove = container.querySelectorAll(`.brand-name-input-wrapper[data-brand-id]`);
+                fieldsToRemove.forEach(fieldToRemove => {
+                    const fieldId = parseInt(fieldToRemove.dataset.brandId);
+                    if (fieldId > id) {
+                        fieldToRemove.remove();
+                        this.competitors = this.competitors.filter(c => c.id !== fieldId);
+                    }
+                });
+            }
+            // Buttons are already correct in HTML from buildBrandNameInput, no need to update
             // Update Add button state
             this.updateAddButtonState(container);
         }
