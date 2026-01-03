@@ -61,7 +61,7 @@ class DataDisplay {
                     </div>
                 </div>
                 <h2 class="empty-state-title">Start Your Analysis</h2>
-                <p class="empty-state-description">Enter competitor names and click <span class="highlight">GO</span> to discover their advertising strategies and performance metrics</p>
+                <p class="empty-state-description">Enter brand names and click <span class="highlight">GO</span> to discover their advertising strategies and performance metrics</p>
             </div>
         `;
     }
