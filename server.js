@@ -767,9 +767,6 @@ app.post('/api/webhook/submit', postLimiter, (req, res) => {
     timeout: 10000 // 10 second timeout
   };
 
-  // Log the request details for debugging (only in development)
-  // NOTE: Never log WEBHOOK_URL to prevent exposure in logs
-
   const proxyReq = protocol.request(options, (proxyRes) => {
     let data = '';
 
