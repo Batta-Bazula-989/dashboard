@@ -21,15 +21,15 @@ const app = express();
 // Authentication Configuration
 const API_KEY = process.env.API_KEY || process.env.DASHBOARD_API_KEY;
 if (!API_KEY) {
-  console.warn(LOG_MESSAGES.API_KEY_WARNING);
-  console.warn('Set API_KEY or DASHBOARD_API_KEY environment variable for production use.');
+  console.error(LOG_MESSAGES.API_KEY_WARNING);
+  console.error('Set API_KEY or DASHBOARD_API_KEY environment variable for production use.');
 }
 
 // Webhook Configuration
 const WEBHOOK_URL = process.env.WEBHOOK_URL || process.env.N8N_WEBHOOK_URL;
 if (!WEBHOOK_URL) {
-  console.warn('WARNING: No WEBHOOK_URL environment variable set. Form submissions will fail.');
-}
+  console.error('WARNING: able set. Form submissions will fail.');
+}No WEBHOOK_URL environment vari
 
 // Session token storage (in-memory, expires after 2 hours with idle timeout)
 const sessionTokens = new Map(); // Map<token, {expiry: number, lastActivity: number}>
@@ -768,8 +768,9 @@ app.post('/api/webhook/submit', postLimiter, (req, res) => {
   };
 
   // Log the request details for debugging (only in development)
+  // NOTE: Never log WEBHOOK_URL to prevent exposure in logs
   if (process.env.NODE_ENV !== 'production') {
-    console.log('Sending webhook request to:', WEBHOOK_URL);
+    console.log('Sending webhook request');
     console.log('Request path:', options.path);
     console.log('Payload size:', Buffer.byteLength(payload), 'bytes');
   }
@@ -791,9 +792,12 @@ app.post('/api/webhook/submit', postLimiter, (req, res) => {
           message: 'Form submitted successfully'
         });
       } else {
-        console.error(`Webhook failed with status ${proxyRes.statusCode}`);
-        console.error(`Response headers:`, proxyRes.headers);
-        console.error(`Response data: ${data.substring(0, 500)}`);
+        // Only log errors in development to prevent information disclosure
+        if (process.env.NODE_ENV !== 'production') {
+          console.error(`Webhook failed with status ${proxyRes.statusCode}`);
+          console.error(`Response headers:`, proxyRes.headers);
+          console.error(`Response data: ${data.substring(0, 500)}`);
+        }
         res.status(502).json({
           success: false,
           error: `Webhook service error (status ${proxyRes.statusCode}): ${data.substring(0, 100)}`
@@ -803,8 +807,11 @@ app.post('/api/webhook/submit', postLimiter, (req, res) => {
   });
 
   proxyReq.on('error', (error) => {
-    console.error('Webhook proxy error:', error.message);
-    console.error('Webhook URL:', WEBHOOK_URL);
+    // Only log errors in development to prevent information disclosure
+    // Never log WEBHOOK_URL to prevent exposure in logs
+    if (process.env.NODE_ENV !== 'production') {
+      console.error('Webhook proxy error:', error.message);
+    }
     res.status(502).json({
       success: false,
       error: `Failed to connect to webhook service: ${error.message}`
@@ -813,7 +820,10 @@ app.post('/api/webhook/submit', postLimiter, (req, res) => {
 
   proxyReq.on('timeout', () => {
     proxyReq.destroy();
-    console.error('Webhook timeout');
+    // Only log errors in development to prevent information disclosure
+    if (process.env.NODE_ENV !== 'production') {
+      console.error('Webhook timeout');
+    }
     res.status(504).json({
       success: false,
       error: 'Webhook service timeout'
