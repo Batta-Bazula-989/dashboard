@@ -769,11 +769,6 @@ app.post('/api/webhook/submit', postLimiter, (req, res) => {
 
   // Log the request details for debugging (only in development)
   // NOTE: Never log WEBHOOK_URL to prevent exposure in logs
-  if (process.env.NODE_ENV !== 'production') {
-    console.log('Sending webhook request');
-    console.log('Request path:', options.path);
-    console.log('Payload size:', Buffer.byteLength(payload), 'bytes');
-  }
 
   const proxyReq = protocol.request(options, (proxyRes) => {
     let data = '';
