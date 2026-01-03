@@ -307,8 +307,8 @@
     padding: 8px 8px;
     height: 32px;
     gap: 4px;
-    min-width: 48px;
-    max-width: 48px;
+    min-width: 56px;
+    max-width: 56px;
 }
 
 .add-competitor-btn:hover {
@@ -361,8 +361,7 @@
     transform: none;
 }
 
-.add-competitor-btn svg,
-.run-analysis-btn svg {
+.add-competitor-btn svg {
     width: 12px;
     height: 12px;
 }
