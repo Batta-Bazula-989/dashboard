@@ -247,6 +247,8 @@
     height: 24px;
     align-self: flex-start;
     margin-top: 2px;
+    opacity: 1;
+    visibility: visible;
 }
 
 .remove-brand-btn:hover {
@@ -257,7 +259,11 @@
 .remove-brand-btn svg {
     width: 14px;
     height: 14px;
-    stroke: #dc2626;
+    stroke: #dc2626 !important;
+    fill: none !important;
+    stroke-width: 2;
+    opacity: 1;
+    visibility: visible;
 }
 
 /* Buttons matching screenshot */
