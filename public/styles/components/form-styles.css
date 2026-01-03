@@ -237,7 +237,7 @@
     padding: 4px;
     border-radius: 4px;
     cursor: pointer;
-    display: flex;
+    display: flex !important;
     align-items: center;
     justify-content: center;
     transition: all 0.2s ease;
@@ -247,8 +247,8 @@
     height: 24px;
     align-self: flex-start;
     margin-top: 2px;
-    opacity: 1;
-    visibility: visible;
+    opacity: 1 !important;
+    visibility: visible !important;
 }
 
 .remove-brand-btn:hover {
