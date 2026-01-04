@@ -419,9 +419,6 @@ app.delete('/api/session', apiLimiter, authenticate, (req, res) => {
 
   if (sessionToken && sessionTokens.has(sessionToken)) {
     sessionTokens.delete(sessionToken);
-    if (process.env.NODE_ENV !== 'production') {
-      console.log('Session token revoked');
-    }
     return res.json({
       success: true,
       message: 'Session logged out successfully'
@@ -436,10 +433,6 @@ app.delete('/api/session', apiLimiter, authenticate, (req, res) => {
 
 // API Routes (all protected with authentication)
 app.get('/api/data', apiLimiter, authenticate, (req, res) => {
-  // Log only metadata, not sensitive data (only in development)
-  if (process.env.NODE_ENV !== 'production') {
-    console.log(`GET /api/data - returning ${recentData.length} items`);
-  }
   res.json({
     success: true,
     data: recentData,
@@ -460,11 +453,6 @@ app.post('/api/data', postLimiter, authenticate, (req, res) => {
         success: false,
         error: validation.error
       });
-    }
-
-    // Log only metadata, not full data (only in development)
-    if (process.env.NODE_ENV !== 'production') {
-      console.log(`POST /api/data - received data, size: ${JSON.stringify(data).length} bytes, requestId: ${requestId}`);
     }
 
     // Handle both single items and arrays
@@ -488,10 +476,6 @@ app.post('/api/data', postLimiter, authenticate, (req, res) => {
       }
     });
 
-    if (process.env.NODE_ENV !== 'production') {
-      console.log(`POST /api/data - added ${items.length} ${dataType} item(s), total items: ${recentData.length}`);
-    }
-
     res.json({
       success: true,
       message: `${dataType} data received and stored`,
@@ -512,10 +496,6 @@ app.delete('/api/data', apiLimiter, authenticate, (req, res) => {
   try {
     const previousCount = recentData.length;
     recentData = [];
-
-    if (process.env.NODE_ENV !== 'production') {
-      console.log(`DELETE /api/data - cleared ${previousCount} items`);
-    }
 
     res.json({
       success: true,
@@ -605,11 +585,6 @@ app.post('/api/notification', postLimiter, authenticate, (req, res) => {
       notifications.shift();
     }
 
-    // Log only type and message, not full metadata (only in development)
-    if (process.env.NODE_ENV !== 'production') {
-      console.log(`NOTIFICATION: [${type}] ${message || 'No message'}`);
-    }
-
     res.json({
       success: true,
       notification
@@ -648,10 +623,6 @@ app.delete('/api/notifications', apiLimiter, authenticate, (req, res) => {
     const previousCount = notifications.length;
     notifications = [];
     notificationIdCounter = 0;
-
-    if (process.env.NODE_ENV !== 'production') {
-      console.log(`DELETE /api/notifications - cleared ${previousCount} notifications`);
-    }
 
     res.json({
       success: true,
@@ -776,9 +747,6 @@ app.post('/api/webhook/submit', postLimiter, (req, res) => {
 
     proxyRes.on('end', () => {
       if (proxyRes.statusCode >= 200 && proxyRes.statusCode < 300) {
-        if (process.env.NODE_ENV !== 'production') {
-          console.log('Webhook request successful');
-        }
         res.json({
           success: true,
           message: 'Form submitted successfully'
@@ -852,16 +820,6 @@ app.get('/health', (req, res) => {
 
 // Start server
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  if (process.env.NODE_ENV !== 'production') {
-    console.log(`Dashboard server running on port ${PORT}`);
-    console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-    console.log(`Authentication: ${API_KEY ? 'ENABLED' : 'DISABLED (no API_KEY set)'}`);
-    console.log(`Access your dashboard at: http://localhost:${PORT}`);
-    if (WEBHOOK_URL) {
-      console.log(`Webhook proxy: CONFIGURED`);
-    }
-  }
-});
+app.listen(PORT, () => {});
 
 module.exports = app;

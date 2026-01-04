@@ -26,15 +26,6 @@ class DataProcessor {
         // ✅ Preserve content_type from n8n (critical for routing)
         const contentType = item.content_type || 'text';
 
-        // ✅ Debug log to verify data structure
-        if (contentType === 'video') {
-            console.log('DataProcessor: Processing video item', {
-                competitor: item.competitor_name,
-                has_video_data: !!item.video_data,
-                matching_key: item.matching_key
-            });
-        }
-
         return {
             competitor_name: item.competitor_name || item.advertiser_name || 'Unknown Advertiser',
             content_type: contentType, // ✅ Preserve original content_type
