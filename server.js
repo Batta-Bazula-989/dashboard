@@ -760,7 +760,9 @@ app.post('/api/webhook/submit', postLimiter, (req, res) => {
         }
         res.status(502).json({
           success: false,
-          error: `Webhook service error (status ${proxyRes.statusCode}): ${data.substring(0, 100)}`
+          error: process.env.NODE_ENV !== 'production'
+            ? `Webhook service error (status ${proxyRes.statusCode}): ${data.substring(0, 100)}`
+            : 'Failed to submit form. Please try again later.'
         });
       }
     });
@@ -774,7 +776,9 @@ app.post('/api/webhook/submit', postLimiter, (req, res) => {
     }
     res.status(502).json({
       success: false,
-      error: `Failed to connect to webhook service: ${error.message}`
+      error: process.env.NODE_ENV !== 'production'
+        ? `Failed to connect to webhook service: ${error.message}`
+        : 'Failed to submit form. Please try again later.'
     });
   });
 
