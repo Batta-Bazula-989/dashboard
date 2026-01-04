@@ -7,11 +7,18 @@ class DataService {
         // Use global session manager
         await window.sessionManager.initialize();
 
-        // Session token is now automatically sent via HttpOnly cookie
-        // No need to manually add X-Session-Token header
-        return {
+        const headers = {
             'Content-Type': 'application/json'
         };
+
+        // Use getValidToken() to atomically check validity and get token
+        // This prevents race condition where token expires between check and use
+        const token = window.sessionManager.getValidToken();
+        if (token) {
+            headers['X-Session-Token'] = token;
+        }
+
+        return headers;
     }
 
     async fetchData() {
@@ -19,8 +26,7 @@ class DataService {
             const headers = await this.getHeaders();
             const response = await fetch(this.baseUrl, {
                 method: 'GET',
-                headers: headers,
-                credentials: 'include' // Send cookies with request
+                headers: headers
             });
 
             if (!response.ok) {
@@ -30,8 +36,7 @@ class DataService {
                     const retryHeaders = await this.getHeaders();
                     const retryResponse = await fetch(this.baseUrl, {
                         method: 'GET',
-                        headers: retryHeaders,
-                        credentials: 'include' // Send cookies with request
+                        headers: retryHeaders
                     });
 
                     if (!retryResponse.ok) {
@@ -61,8 +66,7 @@ class DataService {
             const headers = await this.getHeaders();
             const response = await fetch(this.baseUrl, {
                 method: 'DELETE',
-                headers: headers,
-                credentials: 'include' // Send cookies with request
+                headers: headers
             });
 
             if (!response.ok) {
@@ -72,8 +76,7 @@ class DataService {
                     const retryHeaders = await this.getHeaders();
                     const retryResponse = await fetch(this.baseUrl, {
                         method: 'DELETE',
-                        headers: retryHeaders,
-                        credentials: 'include' // Send cookies with request
+                        headers: retryHeaders
                     });
 
                     if (!retryResponse.ok) {

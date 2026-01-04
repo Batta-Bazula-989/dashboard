@@ -1,6 +1,6 @@
 class SessionManager {
     constructor() {
-        this.sessionEstablished = false;
+        this.sessionToken = null;
         this.tokenExpiry = null;
         this.initializing = false;
         this.initPromise = null;
@@ -12,7 +12,7 @@ class SessionManager {
             return this.initPromise;
         }
 
-        if (this.sessionEstablished && this.tokenExpiry && Date.now() < (this.tokenExpiry - this.EXPIRY_BUFFER_MS)) {
+        if (this.sessionToken && this.tokenExpiry && Date.now() < (this.tokenExpiry - this.EXPIRY_BUFFER_MS)) {
             return;
         }
 
@@ -33,8 +33,7 @@ class SessionManager {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
-                },
-                credentials: 'include' // Important: sends and receives cookies
+                }
             });
 
             if (!response.ok) {
@@ -42,9 +41,8 @@ class SessionManager {
             }
 
             const data = await response.json();
-            if (data.success) {
-                // Session token is now stored in HttpOnly cookie automatically
-                this.sessionEstablished = true;
+            if (data.success && data.token) {
+                this.sessionToken = data.token;
                 this.tokenExpiry = Date.now() + (data.expiresIn || 24 * 60 * 60 * 1000);
             }
         } catch (error) {
@@ -55,12 +53,24 @@ class SessionManager {
         }
     }
 
+    getToken() {
+        return this.sessionToken;
+    }
+
+    getValidToken() {
+        // Atomically check validity and return token to prevent race condition
+        if (this.isExpired()) {
+            return null;
+        }
+        return this.sessionToken;
+    }
+
     isExpired() {
-        return !this.sessionEstablished || !this.tokenExpiry || Date.now() >= (this.tokenExpiry - this.EXPIRY_BUFFER_MS);
+        return !this.sessionToken || !this.tokenExpiry || Date.now() >= (this.tokenExpiry - this.EXPIRY_BUFFER_MS);
     }
 
     clear() {
-        this.sessionEstablished = false;
+        this.sessionToken = null;
         this.tokenExpiry = null;
     }
 }
@@ -144,9 +154,14 @@ class BasePollingService {
 
     async getHeaders() {
         await window.sessionManager.initialize();
-        // Session token is now automatically sent via HttpOnly cookie
-        // No need to manually add X-Session-Token header
-        return {};
+        const headers = {};
+        // Use getValidToken() to atomically check validity and get token
+        // This prevents race condition where token expires between check and use
+        const token = window.sessionManager.getValidToken();
+        if (token) {
+            headers['X-Session-Token'] = token;
+        }
+        return headers;
     }
 
      // Start polling
