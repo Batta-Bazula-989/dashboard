@@ -605,12 +605,14 @@ addDataItem(incoming) {
         const stillPending = [];
         
         this._pendingVideoAnalysis.forEach(videoData => {
-            // Try to attach again
-            const existingCards = CardMatcher.findAll(
+            // Try to attach again - use matching_key for reliable matching
+            let existingCards = CardMatcher.findAll(
                 this.dataDisplay,
                 videoData.competitor_name,
-                videoData.body || videoData.text_for_analysis || videoData.ad_data?.ad_text
+                videoData.body || videoData.text_for_analysis || videoData.ad_data?.ad_text,
+                videoData.matching_key
             );
+            let matchedByKey = existingCards.length > 0 && videoData.matching_key;
             
             // If still no match, try by name only with video element
             let matchedCards = existingCards;
@@ -625,11 +627,12 @@ addDataItem(incoming) {
                 });
             }
 
-            // ✅ CRITICAL FIX: Filter out cards without video elements
-            // Apply the same fix as in addVideoAnalysis()
-            matchedCards = matchedCards.filter(card => {
-                return card.querySelector('video.video-thumb') !== null;
-            });
+            // ✅ ONLY filter for video elements if we DIDN'T match by matching_key
+            if (!matchedByKey) {
+                matchedCards = matchedCards.filter(card => {
+                    return card.querySelector('video.video-thumb') !== null;
+                });
+            }
 
             if (matchedCards.length > 0) {
                 // Found cards, attach video analysis
