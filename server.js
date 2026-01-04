@@ -41,6 +41,20 @@ function generateSessionToken() {
   return crypto.randomBytes(32).toString('hex');
 }
 
+// Parse cookies from request header
+function parseCookies(req) {
+  const cookieHeader = req.headers.cookie;
+  if (!cookieHeader) return {};
+
+  return cookieHeader.split(';').reduce((cookies, cookie) => {
+    const [name, ...rest] = cookie.trim().split('=');
+    if (name) {
+      cookies[name] = rest.join('=');
+    }
+    return cookies;
+  }, {});
+}
+
 // Clean up expired and idle sessions periodically
 setInterval(() => {
   const now = Date.now();
@@ -88,7 +102,10 @@ function authenticate(req, res, next) {
   }
 
   // Check for session token (for same-origin web requests)
-  const sessionToken = req.headers['x-session-token'];
+  // First check header (backward compatibility), then check HttpOnly cookie
+  const cookies = parseCookies(req);
+  const sessionToken = req.headers['x-session-token'] || cookies.sessionToken;
+
   if (sessionToken && sessionTokens.has(sessionToken)) {
     const session = sessionTokens.get(sessionToken);
     const now = Date.now();
@@ -255,7 +272,7 @@ const corsOptions = {
   credentials: true,
   methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'X-API-Key', 'Authorization', 'X-Session-Token', 'X-Request-ID'],
-  exposedHeaders: ['X-Session-Token'],
+  exposedHeaders: [], // Session token no longer exposed for security
   maxAge: 86400 // 24 hours
 };
 
@@ -405,9 +422,16 @@ app.post('/api/session', sessionLimiter, (req, res) => {
     lastActivity: now
   });
 
+  // Set token in HttpOnly cookie (not accessible via JavaScript)
+  res.cookie('sessionToken', token, {
+    httpOnly: true,  // Not accessible via JavaScript - prevents XSS
+    secure: process.env.NODE_ENV === 'production', // HTTPS only in production
+    sameSite: 'strict', // CSRF protection
+    maxAge: SESSION_DURATION
+  });
+
   res.json({
     success: true,
-    token: token,
     expiresIn: SESSION_DURATION,
     idleTimeout: IDLE_TIMEOUT
   });
@@ -415,19 +439,23 @@ app.post('/api/session', sessionLimiter, (req, res) => {
 
 // Session logout endpoint
 app.delete('/api/session', apiLimiter, authenticate, (req, res) => {
-  const sessionToken = req.headers['x-session-token'];
+  const cookies = parseCookies(req);
+  const sessionToken = req.headers['x-session-token'] || cookies.sessionToken;
 
   if (sessionToken && sessionTokens.has(sessionToken)) {
     sessionTokens.delete(sessionToken);
-    return res.json({
-      success: true,
-      message: 'Session logged out successfully'
-    });
   }
+
+  // Clear the cookie regardless
+  res.clearCookie('sessionToken', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict'
+  });
 
   res.json({
     success: true,
-    message: 'No active session to logout'
+    message: 'Session logged out successfully'
   });
 });
 

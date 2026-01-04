@@ -30,7 +30,8 @@ class NotificationService extends BasePollingService {
             const url = this.buildUrl();
             const headers = await this.getHeaders();
             const response = await fetch(url, {
-                headers: headers
+                headers: headers,
+                credentials: 'include' // Send cookies with request
             });
 
             if (!response.ok) {
@@ -40,7 +41,8 @@ class NotificationService extends BasePollingService {
                     await window.sessionManager.initialize();
                     const retryHeaders = await this.getHeaders();
                     const retryResponse = await fetch(url, {
-                        headers: retryHeaders
+                        headers: retryHeaders,
+                        credentials: 'include' // Send cookies with request
                     });
                     
                     if (!retryResponse.ok) {
