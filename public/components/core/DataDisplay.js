@@ -328,6 +328,10 @@ addDataItem(incoming) {
 
             cards.forEach(data => {
                 const card = this.cardBuilder.build(data);
+                console.log('📇 Created card:', {
+                    competitor: data.competitor_name,
+                    matching_key: data.matching_key
+                });
                 // Add lazy loading to images
                 this._addLazyLoading(card);
                 fragment.appendChild(card);
@@ -515,6 +519,11 @@ addDataItem(incoming) {
              return;
          }
 
+         console.log('🎥 Trying to match video:', {
+             competitor: videoData.competitor_name,
+             matching_key: videoData.matching_key
+         });
+
          let existingCards = [];
          let matchedByKey = false; // Track if we matched by matching_key
 
@@ -526,6 +535,7 @@ addDataItem(incoming) {
                  null,
                  videoData.matching_key
              );
+             console.log('🔍 Matched by key:', existingCards.length, 'cards found');
              if (existingCards.length > 0) {
                  matchedByKey = true; // Mark that we matched by key
              }
@@ -598,7 +608,10 @@ addDataItem(incoming) {
          this._statsCacheValid = false;
 
          if (existingCards.length === 0) {
+             console.warn('⚠️ Video not matched, storing as pending:', videoData.competitor_name);
              this._storePendingVideoAnalysis(videoData);
+         } else {
+             console.log('✅ Video attached to', existingCards.length, 'card(s)');
          }
      } catch (error) {
          console.error('Error in addVideoAnalysis:', error, videoData);
