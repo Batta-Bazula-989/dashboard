@@ -221,44 +221,49 @@ addDataItem(incoming) {
     const cardsToAdd = new Map();
 
     items.forEach(item => {
-        const processed = DataProcessor.process(item);
-        if (!processed) return;
+        try {
+            const processed = DataProcessor.process(item);
+            if (!processed) return;
 
-        const itemId = this._generateItemId(processed);
+            const itemId = this._generateItemId(processed);
 
-        // ✅ Special handling for video content
-        if (processed.content_type === 'video') {
-            // Always call addVideoAnalysis, regardless of whether it's a duplicate
-            // The video analysis will attach to the existing card
-            this.addVideoAnalysis(processed);
-            this._processedItemIds.add(itemId); // Mark as processed to avoid duplicates later
-            hasProcessedItems = true;
-            return; // Exit early after handling video
-        }
-
-        // For non-video content, skip if already processed
-        if (this._processedItemIds.has(itemId)) {
-            return;
-        }
-
-        this._processedItemIds.add(itemId);
-        hasProcessedItems = true;
-
-        if (processed.content_type === 'carousel') {
-            this.addCarouselAnalysis(processed);
-        } else if (processed.content_type === 'image') {
-            this.addImageAnalysis(processed);
-        } else if (this.hasCarouselData(processed)) {
-            this.addCarouselAnalysis(processed);
-        } else if (this.hasImageAnalysisData(processed)) {
-            this.addImageAnalysis(processed);
-        } else {
-            const competitorName = processed.competitor_name;
-            if (!cardsToAdd.has(competitorName)) {
-                cardsToAdd.set(competitorName, []);
+            // ✅ Special handling for video content
+            if (processed.content_type === 'video') {
+                // Always call addVideoAnalysis, regardless of whether it's a duplicate
+                // The video analysis will attach to the existing card
+                this.addVideoAnalysis(processed);
+                this._processedItemIds.add(itemId); // Mark as processed to avoid duplicates later
+                hasProcessedItems = true;
+                return; // Exit early after handling video
             }
-            cardsToAdd.get(competitorName).push(processed);
-            renderedCount++;
+
+            // For non-video content, skip if already processed
+            if (this._processedItemIds.has(itemId)) {
+                return;
+            }
+
+            this._processedItemIds.add(itemId);
+            hasProcessedItems = true;
+
+            if (processed.content_type === 'carousel') {
+                this.addCarouselAnalysis(processed);
+            } else if (processed.content_type === 'image') {
+                this.addImageAnalysis(processed);
+            } else if (this.hasCarouselData(processed)) {
+                this.addCarouselAnalysis(processed);
+            } else if (this.hasImageAnalysisData(processed)) {
+                this.addImageAnalysis(processed);
+            } else {
+                const competitorName = processed.competitor_name;
+                if (!cardsToAdd.has(competitorName)) {
+                    cardsToAdd.set(competitorName, []);
+                }
+                cardsToAdd.get(competitorName).push(processed);
+                renderedCount++;
+            }
+        } catch (error) {
+            console.error('Error processing item:', error, item);
+            return; // Skip this item and continue with next
         }
     });
 
@@ -503,86 +508,100 @@ addDataItem(incoming) {
     }
 
  addVideoAnalysis(videoData) {
-     let existingCards = [];
-     let matchedByKey = false; // Track if we matched by matching_key
-
-     // ✅ Strategy 0: Match by matching_key (MOST RELIABLE)
-     if (videoData.matching_key) {
-         existingCards = CardMatcher.findAll(
-             this.dataDisplay,
-             videoData.competitor_name,
-             null,
-             videoData.matching_key
-         );
-         if (existingCards.length > 0) {
-             matchedByKey = true; // Mark that we matched by key
-         }
-     }
-
-     // Strategy 1-3: Fallback text matching (same as before)
-     if (existingCards.length === 0 && videoData.body) {
-         existingCards = CardMatcher.findAll(
-             this.dataDisplay,
-             videoData.competitor_name,
-             videoData.body
-         );
-     }
-
-     if (existingCards.length === 0 && videoData.text_for_analysis) {
-         existingCards = CardMatcher.findAll(
-             this.dataDisplay,
-             videoData.competitor_name,
-             videoData.text_for_analysis
-         );
-     }
-
-     if (existingCards.length === 0 && videoData.ad_data?.ad_text) {
-         existingCards = CardMatcher.findAll(
-             this.dataDisplay,
-             videoData.competitor_name,
-             videoData.ad_data.ad_text
-         );
-     }
-
-     // Strategy 4: Last resort - name only + video filter
-     if (existingCards.length === 0) {
-         const nameOnlyCards = CardMatcher.findAll(
-             this.dataDisplay,
-             videoData.competitor_name,
-             null
-         );
-         existingCards = nameOnlyCards.filter(card => {
-             return card.querySelector('video.video-thumb') !== null;
-         });
-     }
-
-     // ✅ ONLY filter for video elements if we DIDN'T match by matching_key
-     if (!matchedByKey) {
-         existingCards = existingCards.filter(card => {
-             return card.querySelector('video.video-thumb') !== null;
-         });
-     }
-
-     existingCards.forEach((card) => {
-         const hasVideoAnalysis = card.querySelector('.video-analysis-section');
-         if (hasVideoAnalysis) {
+     try {
+         // Validate required fields
+         if (!videoData || !videoData.competitor_name) {
+             console.warn('Invalid video data - missing competitor_name:', videoData);
              return;
          }
 
-         const section = AnalysisSections.createVideoAnalysis(
-             videoData,
-             this.onShowFullAnalysis
-         );
-         const divider = document.createElement('div');
-         divider.className = 'section-divider';
-         card.appendChild(divider);
-         card.appendChild(section);
-     });
+         let existingCards = [];
+         let matchedByKey = false; // Track if we matched by matching_key
 
-     this._statsCacheValid = false;
+         // ✅ Strategy 0: Match by matching_key (MOST RELIABLE)
+         if (videoData.matching_key) {
+             existingCards = CardMatcher.findAll(
+                 this.dataDisplay,
+                 videoData.competitor_name,
+                 null,
+                 videoData.matching_key
+             );
+             if (existingCards.length > 0) {
+                 matchedByKey = true; // Mark that we matched by key
+             }
+         }
 
-     if (existingCards.length === 0) {
-         this._storePendingVideoAnalysis(videoData);
+         // Strategy 1-3: Fallback text matching (same as before)
+         if (existingCards.length === 0 && videoData.body) {
+             existingCards = CardMatcher.findAll(
+                 this.dataDisplay,
+                 videoData.competitor_name,
+                 videoData.body
+             );
+         }
+
+         if (existingCards.length === 0 && videoData.text_for_analysis) {
+             existingCards = CardMatcher.findAll(
+                 this.dataDisplay,
+                 videoData.competitor_name,
+                 videoData.text_for_analysis
+             );
+         }
+
+         if (existingCards.length === 0 && videoData.ad_data?.ad_text) {
+             existingCards = CardMatcher.findAll(
+                 this.dataDisplay,
+                 videoData.competitor_name,
+                 videoData.ad_data.ad_text
+             );
+         }
+
+         // Strategy 4: Last resort - name only + video filter
+         if (existingCards.length === 0) {
+             const nameOnlyCards = CardMatcher.findAll(
+                 this.dataDisplay,
+                 videoData.competitor_name,
+                 null
+             );
+             existingCards = nameOnlyCards.filter(card => {
+                 return card.querySelector('video.video-thumb') !== null;
+             });
+         }
+
+         // ✅ ONLY filter for video elements if we DIDN'T match by matching_key
+         if (!matchedByKey) {
+             existingCards = existingCards.filter(card => {
+                 return card.querySelector('video.video-thumb') !== null;
+             });
+         }
+
+         existingCards.forEach((card) => {
+             try {
+                 const hasVideoAnalysis = card.querySelector('.video-analysis-section');
+                 if (hasVideoAnalysis) {
+                     return;
+                 }
+
+                 const section = AnalysisSections.createVideoAnalysis(
+                     videoData,
+                     this.onShowFullAnalysis
+                 );
+                 const divider = document.createElement('div');
+                 divider.className = 'section-divider';
+                 card.appendChild(divider);
+                 card.appendChild(section);
+             } catch (error) {
+                 console.error('Error attaching video analysis to card:', error, videoData);
+             }
+         });
+
+         this._statsCacheValid = false;
+
+         if (existingCards.length === 0) {
+             this._storePendingVideoAnalysis(videoData);
+         }
+     } catch (error) {
+         console.error('Error in addVideoAnalysis:', error, videoData);
      }
  }
 
