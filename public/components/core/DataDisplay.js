@@ -239,8 +239,19 @@ addDataItem(incoming) {
 
             // For non-video content, skip if already processed
             if (this._processedItemIds.has(itemId)) {
+                console.warn('🚫 DUPLICATE DETECTED - Skipping:', {
+                    itemId,
+                    competitor: processed.competitor_name,
+                    ad_uuid: processed.matching_key
+                });
                 return;
             }
+
+            console.log('✅ NEW ITEM - Creating card:', {
+                itemId,
+                competitor: processed.competitor_name,
+                ad_uuid: processed.matching_key
+            });
 
             this._processedItemIds.add(itemId);
             hasProcessedItems = true;
