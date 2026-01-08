@@ -18,7 +18,7 @@ class CardMatcher {
             const link = card.querySelector('.name-row a');
             const adTextEl = card.querySelector('.ad-text');
 
-            // ✅ Get matching_key from dataset
+            // ✅ Get matching_key (ad_uuid) from dataset
             const matchingKey = card.dataset.matchingKey;
 
             if (!link?.textContent) return;
@@ -26,7 +26,7 @@ class CardMatcher {
             const existingName = link.textContent.trim().toLowerCase();
             const existingAdText = (adTextEl?.textContent.trim() || '').toLowerCase();
 
-            // ✅ Index by matching_key (most reliable)
+            // ✅ Index by ad_uuid (most reliable)
             if (matchingKey) {
                 if (!index.byMatchingKey.has(matchingKey)) {
                     index.byMatchingKey.set(matchingKey, []);
@@ -74,16 +74,16 @@ class CardMatcher {
         this._indexedCards = null;
     }
 
-    // ✅ Updated to accept matchingKey parameter
-    static findAll(container, competitorName, adText = null, matchingKey = null) {
+    // ✅ Updated to accept adUuid parameter
+    static findAll(container, competitorName, adText = null, adUuid = null) {
         if (!container) return [];
 
         const index = this._getIndex(container);
         const matches = [];
 
-        // ✅ PRIORITY 1: Match by matching_key (most reliable)
-        if (matchingKey && index.byMatchingKey) {
-            const keyMatches = index.byMatchingKey.get(matchingKey);
+        // ✅ PRIORITY 1: Match by ad_uuid (most reliable)
+        if (adUuid && index.byMatchingKey) {
+            const keyMatches = index.byMatchingKey.get(adUuid);
             if (keyMatches && keyMatches.length > 0) {
                 return keyMatches; // Early return - exact match found
             }

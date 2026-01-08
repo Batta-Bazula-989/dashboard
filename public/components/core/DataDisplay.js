@@ -171,7 +171,7 @@ class DataDisplay {
 
     // Generate unique ID for an item to prevent duplicates
     _generateItemId(processed) {
-        // ✅ PRIORITY 1: Use matching_key if available (most reliable)
+        // ✅ PRIORITY 1: Use matching_key (contains ad_uuid) if available (most reliable)
         if (processed.matching_key) {
             return processed.matching_key;
         }
@@ -330,7 +330,7 @@ addDataItem(incoming) {
                 const card = this.cardBuilder.build(data);
                 console.log('📇 Created card:', {
                     competitor: data.competitor_name,
-                    matching_key: data.matching_key
+                    ad_uuid: data.matching_key
                 });
                 // Add lazy loading to images
                 this._addLazyLoading(card);
@@ -521,19 +521,19 @@ addDataItem(incoming) {
 
          console.log('🎥 Trying to match video:', {
              competitor: videoData.competitor_name,
-             matching_key: videoData.matching_key
+             ad_uuid: videoData.matching_key
          });
 
          let existingCards = [];
-         let matchedByKey = false; // Track if we matched by matching_key
+         let matchedByKey = false; // Track if we matched by ad_uuid
 
-         // ✅ Strategy 0: Match by matching_key (MOST RELIABLE)
+         // ✅ Strategy 0: Match by ad_uuid (MOST RELIABLE)
          if (videoData.matching_key) {
              existingCards = CardMatcher.findAll(
                  this.dataDisplay,
                  videoData.competitor_name,
                  null,
-                 videoData.matching_key
+                 videoData.matching_key  // This now contains ad_uuid
              );
              console.log('🔍 Matched by key:', existingCards.length, 'cards found');
              if (existingCards.length > 0) {
@@ -578,7 +578,7 @@ addDataItem(incoming) {
              });
          }
 
-         // ✅ ONLY filter for video elements if we DIDN'T match by matching_key
+         // ✅ ONLY filter for video elements if we DIDN'T match by ad_uuid
          if (!matchedByKey) {
              existingCards = existingCards.filter(card => {
                  return card.querySelector('video.video-thumb') !== null;
@@ -637,12 +637,12 @@ addDataItem(incoming) {
         const stillPending = [];
         
         this._pendingVideoAnalysis.forEach(videoData => {
-            // Try to attach again - use matching_key for reliable matching
+            // Try to attach again - use ad_uuid for reliable matching
             let existingCards = CardMatcher.findAll(
                 this.dataDisplay,
                 videoData.competitor_name,
                 videoData.body || videoData.text_for_analysis || videoData.ad_data?.ad_text,
-                videoData.matching_key
+                videoData.matching_key  // This now contains ad_uuid
             );
             let matchedByKey = existingCards.length > 0 && videoData.matching_key;
             
@@ -659,7 +659,7 @@ addDataItem(incoming) {
                 });
             }
 
-            // ✅ ONLY filter for video elements if we DIDN'T match by matching_key
+            // ✅ ONLY filter for video elements if we DIDN'T match by ad_uuid
             if (!matchedByKey) {
                 matchedCards = matchedCards.filter(card => {
                     return card.querySelector('video.video-thumb') !== null;

@@ -31,7 +31,7 @@ class DataProcessor {
             content_type: contentType, // ✅ Preserve original content_type
             body: item.body || '',
             text_for_analysis: item.advertiser?.text_for_analysis || item.text_for_analysis || item.body || '',
-            matching_key: item.matching_key || null,
+            matching_key: item.ad_uuid || item.matching_key || null,  // ✅ Use ad_uuid first
             ai_analysis: item.ai_analysis || {},
             video_data: item.video_data || null,
             ad_data: {
