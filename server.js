@@ -329,11 +329,9 @@ function validateDataInput(data) {
   return { valid: true };
 }
 
-// In-memory data storage (persists within Railway instance)
-let recentData = [];
+// In-memory notification storage (persists within Railway instance)
 let notifications = [];
 let notificationIdCounter = 0;
-const maxDataSize = 100;
 const maxNotifications = 50;
 
 // Helper functions
@@ -435,8 +433,8 @@ app.delete('/api/session', apiLimiter, authenticate, (req, res) => {
 app.get('/api/data', apiLimiter, authenticate, (req, res) => {
   res.json({
     success: true,
-    data: recentData,
-    count: recentData.length,
+    data: [],
+    count: 0,
     timestamp: new Date().toISOString()
   });
 });
@@ -455,33 +453,14 @@ app.post('/api/data', postLimiter, authenticate, (req, res) => {
       });
     }
 
-    // Handle both single items and arrays
+    // Data received but NOT stored
     const dataType = 'ad_analysis';
-    const items = Array.isArray(data) ? data : [data];
-
-    // Add each item separately to recentData
-    items.forEach(item => {
-      const newItem = {
-        data: item,
-        dataType,
-        timestamp: new Date().toISOString(),
-        requestId,
-        source: 'api'
-      };
-
-      recentData.push(newItem);
-
-      if (recentData.length > maxDataSize) {
-        recentData.shift();
-      }
-    });
 
     res.json({
       success: true,
-      message: `${dataType} data received and stored`,
+      message: `${dataType} data received`,
       dataType,
-      requestId,
-      totalItems: recentData.length
+      requestId
     });
   } catch (error) {
     logError(LOG_MESSAGES.DATA_POST_ERROR, error);
@@ -494,13 +473,11 @@ app.post('/api/data', postLimiter, authenticate, (req, res) => {
 
 app.delete('/api/data', apiLimiter, authenticate, (req, res) => {
   try {
-    const previousCount = recentData.length;
-    recentData = [];
-
+    // No data stored, so nothing to clear
     res.json({
       success: true,
-      message: 'All data cleared successfully',
-      previousCount,
+      message: 'No data to clear',
+      previousCount: 0,
       currentCount: 0
     });
   } catch (error) {
