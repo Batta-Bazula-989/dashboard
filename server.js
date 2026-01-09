@@ -476,7 +476,10 @@ app.get('/api/data/stream', apiLimiter, (req, res, next) => {
   // Send initial connection message
   res.write('data: {"type":"connected","timestamp":"' + new Date().toISOString() + '"}\n\n');
 
-  // Send heartbeat every 30 seconds to keep connection alive
+  // Flush immediately
+  if (res.flush) res.flush();
+
+  // Send heartbeat every 15 seconds to keep connection alive (Railway/proxy friendly)
   const heartbeat = setInterval(() => {
     if (res.writableEnded) {
       clearInterval(heartbeat);
@@ -485,11 +488,12 @@ app.get('/api/data/stream', apiLimiter, (req, res, next) => {
     }
     try {
       res.write(': heartbeat\n\n');
+      if (res.flush) res.flush();
     } catch (error) {
       clearInterval(heartbeat);
       sseClients.delete(res);
     }
-  }, 30000);
+  }, 15000);
 
   // Remove client on disconnect
   req.on('close', () => {
