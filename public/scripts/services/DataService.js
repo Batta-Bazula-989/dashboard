@@ -1,6 +1,12 @@
 class DataService {
-    constructor() {
+    constructor(onDataReceived) {
         this.baseUrl = '/api/data';
+        this.streamUrl = '/api/data/stream';
+        this.onDataReceived = onDataReceived;
+        this.eventSource = null;
+        this.reconnectAttempts = 0;
+        this.maxReconnectAttempts = 5;
+        this.reconnectDelay = 2000; // 2 seconds
     }
 
     async getHeaders() {
@@ -12,7 +18,6 @@ class DataService {
         };
 
         // Use getValidToken() to atomically check validity and get token
-        // This prevents race condition where token expires between check and use
         const token = window.sessionManager.getValidToken();
         if (token) {
             headers['X-Session-Token'] = token;
@@ -21,43 +26,80 @@ class DataService {
         return headers;
     }
 
-    async fetchData() {
+    async connect() {
+        if (this.eventSource) {
+            return; // Already connected
+        }
+
         try {
-            const headers = await this.getHeaders();
-            const response = await fetch(this.baseUrl, {
-                method: 'GET',
-                headers: headers
-            });
+            // Get session token
+            await window.sessionManager.initialize();
+            const token = window.sessionManager.getValidToken();
 
-            if (!response.ok) {
-                if (response.status === 401 || response.status === 403) {
-                    // Session may have expired, try to reinitialize
-                    window.sessionManager.clear();
-                    const retryHeaders = await this.getHeaders();
-                    const retryResponse = await fetch(this.baseUrl, {
-                        method: 'GET',
-                        headers: retryHeaders
-                    });
+            // Build URL with token as query parameter (EventSource doesn't support custom headers)
+            const url = token
+                ? `${this.streamUrl}?token=${encodeURIComponent(token)}`
+                : this.streamUrl;
 
-                    if (!retryResponse.ok) {
-                        const errorData = await retryResponse.json().catch((error) => {
-                            console.error('Failed to parse error response JSON:', error);
-                            return {};
-                        });
-                        throw new Error(errorData.error || ERROR_MESSAGES.AUTH_FAILED);
+            this.eventSource = new EventSource(url);
+
+            this.eventSource.onopen = () => {
+                console.log('SSE connection opened');
+                this.reconnectAttempts = 0;
+            };
+
+            this.eventSource.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+
+                    // Skip connection messages
+                    if (data.type === 'connected') {
+                        return;
                     }
-                    return await retryResponse.json();
-                }
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
 
-            return await response.json();
+                    // Trigger callback with received data
+                    if (this.onDataReceived) {
+                        this.onDataReceived(data);
+                    }
+                } catch (error) {
+                    console.error('Error parsing SSE message:', error);
+                }
+            };
+
+            this.eventSource.onerror = (error) => {
+                console.error('SSE connection error:', error);
+
+                // Close and attempt reconnection
+                this.disconnect();
+                this.attemptReconnect();
+            };
+
         } catch (error) {
-            // Only log non-network errors to console (suppress expected network errors)
-            if (!isNetworkError(error)) {
-                console.error(ERROR_MESSAGES.DATA_FETCH_ERROR, error);
-            }
-            throw error;
+            console.error('Failed to establish SSE connection:', error);
+            this.attemptReconnect();
+        }
+    }
+
+    attemptReconnect() {
+        if (this.reconnectAttempts >= this.maxReconnectAttempts) {
+            console.error('Max reconnection attempts reached');
+            return;
+        }
+
+        this.reconnectAttempts++;
+        const delay = this.reconnectDelay * this.reconnectAttempts;
+
+        console.log(`Attempting to reconnect in ${delay}ms (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
+
+        setTimeout(() => {
+            this.connect();
+        }, delay);
+    }
+
+    disconnect() {
+        if (this.eventSource) {
+            this.eventSource.close();
+            this.eventSource = null;
         }
     }
 

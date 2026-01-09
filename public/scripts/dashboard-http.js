@@ -1,7 +1,6 @@
 class DataDashboard {
 constructor() {
-    this.dataService = new DataService();
-    this.pollingService = new PollingService(() => this.fetchData());
+    this.dataService = new DataService((dataPacket) => this.handleIncomingData(dataPacket));
     this.notificationService = new NotificationService((notification) => {
         // When first notification arrives, dismiss error notifications and show loading
         const hasErrorNotifications = document.querySelectorAll('.notification-toast.notification-error').length > 0;
@@ -149,7 +148,7 @@ constructor() {
            this.initializeComponents();
            this.uiManager.init();
            this.stateManager.setUIManager(this.uiManager);
-           this.pollingService.start();
+           this.dataService.connect();
            this.notificationService.start();
            this.errorService.start();
            this.initializeClearButton();
@@ -315,6 +314,18 @@ constructor() {
 
     handleFormError(error) {
         this.uiManager.showToast('Failed to start analysis. Please try again.', 'error');
+    }
+
+    handleIncomingData(dataPacket) {
+        // Data received via SSE - process immediately
+        if (this.stateManager.isFirstDataFetch()) {
+            if (this.dataDisplay) {
+                this.dataDisplay.clear();
+            }
+            this.stateManager.completeFirstFetch();
+        }
+
+        this.addDataItem(dataPacket);
     }
 
     async fetchData() {
@@ -558,10 +569,10 @@ constructor() {
 
         const resumeServices = [];
 
-        // Temporarily stop polling services to prevent data repopulation mid-clear
-        if (this.pollingService && this.pollingService.pollingInterval) {
-            this.pollingService.stop();
-            resumeServices.push(() => this.pollingService.start());
+        // Temporarily disconnect SSE to prevent data repopulation mid-clear
+        if (this.dataService && this.dataService.eventSource) {
+            this.dataService.disconnect();
+            resumeServices.push(() => this.dataService.connect());
         }
 
         if (this.notificationService && this.notificationService.pollingInterval) {
@@ -739,7 +750,7 @@ constructor() {
     }
 
  destroy() {
-     this.pollingService.stop();
+     this.dataService.disconnect();
      this.notificationService.stop();
      this.errorService.stop();
 

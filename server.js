@@ -329,12 +329,13 @@ function validateDataInput(data) {
   return { valid: true };
 }
 
-// In-memory data storage (persists within Railway instance)
-let recentData = [];
+// In-memory notification storage (persists within Railway instance)
 let notifications = [];
 let notificationIdCounter = 0;
-const maxDataSize = 100;
 const maxNotifications = 50;
+
+// SSE clients for real-time data broadcasting
+const sseClients = new Set();
 
 // Helper functions
 function isErrorNotification(notification) {
@@ -435,9 +436,49 @@ app.delete('/api/session', apiLimiter, authenticate, (req, res) => {
 app.get('/api/data', apiLimiter, authenticate, (req, res) => {
   res.json({
     success: true,
-    data: recentData,
-    count: recentData.length,
+    data: [],
+    count: 0,
     timestamp: new Date().toISOString()
+  });
+});
+
+// SSE endpoint for real-time data streaming
+app.get('/api/data/stream', apiLimiter, (req, res, next) => {
+  // SSE-specific authentication (supports query parameter since EventSource doesn't support custom headers)
+  if (API_KEY) {
+    const sessionToken = req.query.token || req.headers['x-session-token'];
+
+    if (sessionToken && sessionTokens.has(sessionToken)) {
+      const session = sessionTokens.get(sessionToken);
+      const now = Date.now();
+
+      if (now < session.expiry && (now - session.lastActivity) <= IDLE_TIMEOUT) {
+        session.lastActivity = now;
+        // Valid session - continue
+      } else {
+        sessionTokens.delete(sessionToken);
+        return res.status(401).json({ success: false, error: 'Session expired' });
+      }
+    } else {
+      return res.status(401).json({ success: false, error: 'Authentication required' });
+    }
+  }
+
+  // Set SSE headers
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+  res.setHeader('X-Accel-Buffering', 'no'); // Disable nginx buffering
+
+  // Add client to set
+  sseClients.add(res);
+
+  // Send initial connection message
+  res.write('data: {"type":"connected","timestamp":"' + new Date().toISOString() + '"}\n\n');
+
+  // Remove client on disconnect
+  req.on('close', () => {
+    sseClients.delete(res);
   });
 });
 
@@ -459,9 +500,9 @@ app.post('/api/data', postLimiter, authenticate, (req, res) => {
     const dataType = 'ad_analysis';
     const items = Array.isArray(data) ? data : [data];
 
-    // Add each item separately to recentData
+    // Broadcast to all connected SSE clients
     items.forEach(item => {
-      const newItem = {
+      const dataPacket = {
         data: item,
         dataType,
         timestamp: new Date().toISOString(),
@@ -469,19 +510,23 @@ app.post('/api/data', postLimiter, authenticate, (req, res) => {
         source: 'api'
       };
 
-      recentData.push(newItem);
+      const sseMessage = `data: ${JSON.stringify(dataPacket)}\n\n`;
 
-      if (recentData.length > maxDataSize) {
-        recentData.shift();
-      }
+      sseClients.forEach(client => {
+        try {
+          client.write(sseMessage);
+        } catch (error) {
+          // Remove dead clients
+          sseClients.delete(client);
+        }
+      });
     });
 
     res.json({
       success: true,
-      message: `${dataType} data received and stored`,
+      message: `${dataType} data received`,
       dataType,
-      requestId,
-      totalItems: recentData.length
+      requestId
     });
   } catch (error) {
     logError(LOG_MESSAGES.DATA_POST_ERROR, error);
@@ -494,13 +539,10 @@ app.post('/api/data', postLimiter, authenticate, (req, res) => {
 
 app.delete('/api/data', apiLimiter, authenticate, (req, res) => {
   try {
-    const previousCount = recentData.length;
-    recentData = [];
-
     res.json({
       success: true,
       message: 'All data cleared successfully',
-      previousCount,
+      previousCount: 0,
       currentCount: 0
     });
   } catch (error) {
