@@ -476,8 +476,24 @@ app.get('/api/data/stream', apiLimiter, (req, res, next) => {
   // Send initial connection message
   res.write('data: {"type":"connected","timestamp":"' + new Date().toISOString() + '"}\n\n');
 
+  // Send heartbeat every 30 seconds to keep connection alive
+  const heartbeat = setInterval(() => {
+    if (res.writableEnded) {
+      clearInterval(heartbeat);
+      sseClients.delete(res);
+      return;
+    }
+    try {
+      res.write(': heartbeat\n\n');
+    } catch (error) {
+      clearInterval(heartbeat);
+      sseClients.delete(res);
+    }
+  }, 30000);
+
   // Remove client on disconnect
   req.on('close', () => {
+    clearInterval(heartbeat);
     sseClients.delete(res);
   });
 });
