@@ -782,12 +782,25 @@ addImageAnalysis(imageData) {
         return;
     }
 
-    // Match by competitor name + body text
-    let existingCards = CardMatcher.findAll(
-        this.dataDisplay,
-        imageData.competitor_name,
-        matchText
-    );
+    // Strategy 0: Match by ad_uuid (most reliable, same as video)
+    let existingCards = [];
+    if (imageData.matching_key) {
+        existingCards = CardMatcher.findAll(
+            this.dataDisplay,
+            imageData.competitor_name,
+            null,
+            imageData.matching_key
+        );
+    }
+
+    // Fallback: Match by competitor name + text
+    if (existingCards.length === 0) {
+        existingCards = CardMatcher.findAll(
+            this.dataDisplay,
+            imageData.competitor_name,
+            matchText
+        );
+    }
 
     existingCards.forEach((card) => {
         // Check if this card already has image analysis (check for IMAGE badge)
