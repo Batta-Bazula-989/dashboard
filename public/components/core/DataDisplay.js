@@ -536,7 +536,6 @@ addDataItem(incoming) {
          });
 
          let existingCards = [];
-         let matchedByKey = false; // Track if we matched by ad_uuid
 
          // ✅ Strategy 0: Match by ad_uuid (MOST RELIABLE)
          if (videoData.matching_key) {
@@ -544,12 +543,9 @@ addDataItem(incoming) {
                  this.dataDisplay,
                  videoData.competitor_name,
                  null,
-                 videoData.matching_key  // This now contains ad_uuid
+                 videoData.matching_key
              );
              console.log('🔍 Matched by key:', existingCards.length, 'cards found');
-             if (existingCards.length > 0) {
-                 matchedByKey = true; // Mark that we matched by key
-             }
          }
 
          // Strategy 1-3: Fallback text matching (same as before)
@@ -589,12 +585,10 @@ addDataItem(incoming) {
              });
          }
 
-         // ✅ ONLY filter for video elements if we DIDN'T match by ad_uuid
-         if (!matchedByKey) {
-             existingCards = existingCards.filter(card => {
-                 return card.querySelector('video.video-thumb') !== null;
-             });
-         }
+         // Always filter for video elements - even uuid match must have a video card
+         existingCards = existingCards.filter(card => {
+             return card.querySelector('video.video-thumb') !== null;
+         });
 
          existingCards.forEach((card) => {
              try {
