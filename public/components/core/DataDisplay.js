@@ -721,12 +721,25 @@ addCarouselAnalysis(carouselData) {
         return;
     }
 
-    // Match by competitor name + body text
-    let existingCards = CardMatcher.findAll(
-        this.dataDisplay,
-        carouselData.competitor_name,
-        matchText
-    );
+    // Strategy 0: Match by ad_uuid (most reliable, same as video)
+    let existingCards = [];
+    if (carouselData.matching_key) {
+        existingCards = CardMatcher.findAll(
+            this.dataDisplay,
+            carouselData.competitor_name,
+            null,
+            carouselData.matching_key
+        );
+    }
+
+    // Fallback: Match by competitor name + text
+    if (existingCards.length === 0) {
+        existingCards = CardMatcher.findAll(
+            this.dataDisplay,
+            carouselData.competitor_name,
+            matchText
+        );
+    }
 
     existingCards.forEach((card) => {
         // Check if this card already has carousel analysis section
