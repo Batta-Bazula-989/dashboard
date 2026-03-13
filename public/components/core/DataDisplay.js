@@ -586,8 +586,10 @@ addDataItem(incoming) {
          }
 
          // Always filter for video elements - even uuid match must have a video card
+         // Also exclude cards that already have carousel analysis (they are carousel ads, not video ads)
          existingCards = existingCards.filter(card => {
-             return card.querySelector('video.video-thumb') !== null;
+             return card.querySelector('video.video-thumb') !== null &&
+                    card.querySelector('.carousel-analysis-section') === null;
          });
 
          existingCards.forEach((card) => {

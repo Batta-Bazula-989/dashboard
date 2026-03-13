@@ -954,7 +954,6 @@ formatRecommendationsSection(recommendations) {
 }
 
     // Close the current modal (with cleanup) hello
-
     closeModal() {
         if (this.currentModal) {
             document.body.removeChild(this.currentModal);
@@ -968,7 +967,6 @@ formatRecommendationsSection(recommendations) {
     }
 
      // Check if modal is currently open
-
     isOpen() {
         return this.currentModal !== null;
     }
