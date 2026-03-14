@@ -653,8 +653,6 @@ addDataItem(incoming) {
                 videoData.body || videoData.text_for_analysis || videoData.ad_data?.ad_text,
                 videoData.matching_key  // This now contains ad_uuid
             );
-            let matchedByKey = existingCards.length > 0 && videoData.matching_key;
-            
             // If still no match, try by name only with video element
             let matchedCards = existingCards;
             if (matchedCards.length === 0) {
@@ -668,12 +666,13 @@ addDataItem(incoming) {
                 });
             }
 
-            // ✅ ONLY filter for video elements if we DIDN'T match by ad_uuid
-            if (!matchedByKey) {
-                matchedCards = matchedCards.filter(card => {
-                    return card.querySelector('video.video-thumb') !== null;
-                });
-            }
+            // Always require video element and exclude carousel cards
+            matchedCards = matchedCards.filter(card => {
+                return card.querySelector('video.video-thumb') !== null &&
+                       card.querySelector('.carousel-analysis-section') === null &&
+                       card.querySelector('.image-carousel-container') === null &&
+                       card.querySelector('.carousel-card-item') === null;
+            });
 
             if (matchedCards.length > 0) {
                 // Found cards, attach video analysis
