@@ -32,7 +32,6 @@ class DataDisplay {
     }
 
      // Render the data display HTML
-
     render(container) {
         const dataDisplay = document.createElement('div');
         dataDisplay.className = 'data-display';
@@ -93,7 +92,6 @@ class DataDisplay {
     }
 
      // Refresh cached DOM element references
-
     _refreshCachedElements() {
         if (this.dataDisplay) {
             this._emptyState = this.dataDisplay.querySelector('.empty-state');
@@ -103,7 +101,6 @@ class DataDisplay {
     }
 
      // Get empty state element (cached)
-
     _getEmptyState() {
         if (!this._emptyState || !this.dataDisplay.contains(this._emptyState)) {
             this._emptyState = this.dataDisplay?.querySelector('.empty-state') || null;
@@ -112,7 +109,6 @@ class DataDisplay {
     }
 
      // Get content area element (cached)
-
     _getContentArea() {
         if (!this._contentArea || !this.dataDisplay?.contains(this._contentArea)) {
             this._contentArea = this.dataDisplay?.querySelector('.data-display-content') || null;
@@ -121,7 +117,6 @@ class DataDisplay {
     }
 
      // Show loading state - replaces empty state with loading animation
-
     showLoading() {
         // Remove empty state if it exists
         const emptyState = this._getEmptyState();
@@ -168,7 +163,6 @@ class DataDisplay {
     }
 
      // Hide loading state
-
     hideLoading() {
         const loadingState = this.dataDisplay.querySelector('.loading-state');
         if (loadingState) {
@@ -315,7 +309,6 @@ addDataItem(incoming) {
 }
 
     // Batch add multiple cards efficiently using DocumentFragment
-
     _batchAddCards(cardsToAdd) {
         const grid = this.getOrCreateGrid();
         if (!grid) return;
@@ -384,7 +377,6 @@ addDataItem(incoming) {
     }
 
     // Add lazy loading to images in a card
-
     _addLazyLoading(card) {
         // Initialize Intersection Observer if not exists
         if ('IntersectionObserver' in window && !this._imageObserver) {
@@ -805,7 +797,6 @@ _retryPendingCarouselAnalysis() {
     }
 
     // Clear all data from the display
-
    clear(showEmptyState = false) {
        if (this.dataDisplay) {
            // Clear only the content area
