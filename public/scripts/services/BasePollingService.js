@@ -107,6 +107,9 @@ class BasePollingService {
         this.isPageVisible = !document.hidden;
         this.visibilityChangeHandler = null;
         this.setupVisibilityListener();
+
+        // Subclass hook: set in constructor to the relevant ERROR_MESSAGES key
+        this._fetchErrorMessage = '';
     }
 
      // Setup Page Visibility API listener
@@ -192,11 +195,76 @@ class BasePollingService {
         }
     }
 
-     // Fetch data from server - to be implemented by subclasses
+     // Shared fetch loop — handles circuit breaker, auth retry, backoff scheduling.
+     // Subclasses implement _processData(result) for their domain logic.
 
     async fetchData() {
-        throw new Error('fetchData() must be implemented by subclass');
+        if (this.isFetching) {
+            return;
+        }
+
+        if (this.circuitState === 'OPEN') {
+            if (this._shouldAttemptRecovery()) {
+                // Transitioning to half-open for test
+            } else {
+                if (this.isPolling) {
+                    this.scheduleNextFetch();
+                }
+                return;
+            }
+        }
+
+        const wasInitialFetch = this.isInitialFetch;
+
+        try {
+            this.isFetching = true;
+
+            const url = this.buildUrl();
+            const headers = await this.getHeaders();
+            let response = await fetch(url, { headers });
+
+            if (!response.ok) {
+                if (response.status === 401 || response.status === 403) {
+                    window.sessionManager.clear();
+                    await window.sessionManager.initialize();
+                    const retryHeaders = await this.getHeaders();
+                    response = await fetch(url, { headers: retryHeaders });
+
+                    if (!response.ok) {
+                        const errorData = await response.json().catch(() => ({}));
+                        throw new Error(errorData.error || ERROR_MESSAGES.AUTH_FAILED);
+                    }
+                } else {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+            }
+
+            const result = await response.json();
+            this._processData(result);
+            this.onFetchSuccess();
+        } catch (error) {
+            if (!isNetworkError(error)) {
+                console.error(this._fetchErrorMessage, error);
+            }
+            this.onFetchError(error);
+            this._onFetchFailure(error, wasInitialFetch);
+        } finally {
+            this.isFetching = false;
+            if (this.isPolling) {
+                this.scheduleNextFetch();
+            }
+        }
     }
+
+     // Process fetched result — must be implemented by subclasses
+
+    _processData(result) {
+        throw new Error('_processData() must be implemented by subclass');
+    }
+
+     // Optional hook called on fetch failure — subclasses may override
+
+    _onFetchFailure(error, wasInitialFetch) {}
 
      // Build URL with since parameter
 
