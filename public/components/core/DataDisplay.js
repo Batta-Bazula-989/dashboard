@@ -712,13 +712,6 @@ addCarouselAnalysis(carouselData) {
         return;
     }
 
-    // Match by text_for_analysis first (same priority as CardBuilder)
-    const matchText = carouselData.text_for_analysis || carouselData.ad_data?.ad_text || carouselData.body || '';
-
-    if (!matchText) {
-        return;
-    }
-
     // Strategy 0: Match by ad_uuid (most reliable, same as video)
     let existingCards = [];
     if (carouselData.matching_key) {
@@ -732,6 +725,10 @@ addCarouselAnalysis(carouselData) {
 
     // Fallback: Match by competitor name + text
     if (existingCards.length === 0) {
+        const matchText = carouselData.text_for_analysis || carouselData.ad_data?.ad_text || carouselData.body || '';
+        if (!matchText) {
+            return;
+        }
         existingCards = CardMatcher.findAll(
             this.dataDisplay,
             carouselData.competitor_name,
@@ -785,14 +782,6 @@ addImageAnalysis(imageData) {
         return;
     }
 
-    // Match by text_for_analysis first (same priority as CardBuilder uses for display)
-    // This ensures we match against the same text that's shown in the card
-    const matchText = imageData.text_for_analysis || imageData.ad_data?.ad_text || imageData.body || '';
-
-    if (!matchText) {
-        return;
-    }
-
     // Strategy 0: Match by ad_uuid (most reliable, same as video)
     let existingCards = [];
     if (imageData.matching_key) {
@@ -806,6 +795,10 @@ addImageAnalysis(imageData) {
 
     // Fallback: Match by competitor name + text
     if (existingCards.length === 0) {
+        const matchText = imageData.text_for_analysis || imageData.ad_data?.ad_text || imageData.body || '';
+        if (!matchText) {
+            return;
+        }
         existingCards = CardMatcher.findAll(
             this.dataDisplay,
             imageData.competitor_name,
@@ -880,13 +873,24 @@ _retryPendingImageAnalysis() {
     const stillPending = [];
 
     this._pendingImageAnalysis.forEach(imageData => {
-        // Try to attach again - use same text priority as CardBuilder
-        const matchText = imageData.text_for_analysis || imageData.ad_data?.ad_text || imageData.body || '';
-        const existingCards = CardMatcher.findAll(
-            this.dataDisplay,
-            imageData.competitor_name,
-            matchText
-        );
+        // Try UUID first, then fall back to text
+        let existingCards = [];
+        if (imageData.matching_key) {
+            existingCards = CardMatcher.findAll(
+                this.dataDisplay,
+                imageData.competitor_name,
+                null,
+                imageData.matching_key
+            );
+        }
+        if (existingCards.length === 0) {
+            const matchText = imageData.text_for_analysis || imageData.ad_data?.ad_text || imageData.body || '';
+            existingCards = CardMatcher.findAll(
+                this.dataDisplay,
+                imageData.competitor_name,
+                matchText
+            );
+        }
 
         if (existingCards.length > 0) {
             // Found cards, attach image analysis
@@ -955,13 +959,24 @@ _retryPendingCarouselAnalysis() {
     const stillPending = [];
 
     this._pendingCarouselAnalysis.forEach(carouselData => {
-        // Try to attach again - use same text priority as CardBuilder
-        const matchText = carouselData.text_for_analysis || carouselData.ad_data?.ad_text || carouselData.body || '';
-        const existingCards = CardMatcher.findAll(
-            this.dataDisplay,
-            carouselData.competitor_name,
-            matchText
-        );
+        // Try UUID first, then fall back to text
+        let existingCards = [];
+        if (carouselData.matching_key) {
+            existingCards = CardMatcher.findAll(
+                this.dataDisplay,
+                carouselData.competitor_name,
+                null,
+                carouselData.matching_key
+            );
+        }
+        if (existingCards.length === 0) {
+            const matchText = carouselData.text_for_analysis || carouselData.ad_data?.ad_text || carouselData.body || '';
+            existingCards = CardMatcher.findAll(
+                this.dataDisplay,
+                carouselData.competitor_name,
+                matchText
+            );
+        }
 
         if (existingCards.length > 0) {
             // Found cards, attach carousel analysis
