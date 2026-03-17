@@ -172,28 +172,30 @@ class DataDisplay {
 
     // Generate unique ID for an item to prevent duplicates
     _generateItemId(processed) {
-        // ✅ PRIORITY 1: Use matching_key (contains ad_uuid) if available (most reliable)
-        if (processed.matching_key) {
-            return processed.matching_key;
+        const baseKey = processed.matching_key;
+
+        // For card-creating items that have visual content, append a visual hash so that
+        // two ads with identical text (same deterministic UUID) but different images/carousels
+        // are treated as distinct cards.
+        if (baseKey) {
+            const firstImage = processed.ad_data?.images?.[0];
+            if (firstImage) {
+                const url = firstImage.original_image_url || firstImage.resized_image_url || '';
+                if (url) return `${baseKey}_${this._simpleHash(url)}`;
+            }
+            const firstCard = processed.ad_data?.cards?.[0];
+            if (firstCard) {
+                const url = firstCard.original_image_url || firstCard.video_sd_url || '';
+                if (url) return `${baseKey}_${this._simpleHash(url)}`;
+            }
+            const videoId = processed.video_data?.video_id;
+            if (videoId) return `${baseKey}_${videoId}`;
+            return baseKey;
         }
 
         // For video content, use video_id if available
         if (processed.content_type === 'video' && processed.video_data?.video_id) {
             return `video_${processed.video_data.video_id}`;
-        }
-
-        // For carousel content, use competitor name + first image URL
-        if (processed.content_type === 'carousel' && processed.ad_data?.images?.[0]) {
-            const firstImageUrl = processed.ad_data.images[0].original_image_url ||
-                                 processed.ad_data.images[0].resized_image_url || '';
-            return `carousel_${processed.competitor_name}_${this._simpleHash(firstImageUrl)}`;
-        }
-
-        // For image content, use competitor name + first image URL + analysis suffix
-        if (processed.content_type === 'image' && processed.ad_data?.images?.[0]) {
-            const firstImageUrl = processed.ad_data.images[0].original_image_url ||
-                                 processed.ad_data.images[0].resized_image_url || '';
-            return `image_${processed.competitor_name}_${this._simpleHash(firstImageUrl)}_analysis`;
         }
 
         // For text or other content, use competitor name + body hash
