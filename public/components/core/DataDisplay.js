@@ -236,11 +236,13 @@ addDataItem(incoming) {
                 return;
             }
             if (processed.content_type === 'image') {
+                console.log('🖼 Routing to addImageAnalysis:', { competitor: processed.competitor_name, uuid: processed.matching_key });
                 this.addImageAnalysis(processed);
                 hasProcessedItems = true;
                 return;
             }
             if (processed.content_type === 'carousel') {
+                console.log('🎠 Routing to addCarouselAnalysis:', { competitor: processed.competitor_name, uuid: processed.matching_key });
                 this.addCarouselAnalysis(processed);
                 hasProcessedItems = true;
                 return;
@@ -611,7 +613,9 @@ addDataItem(incoming) {
 addCarouselAnalysis(carouselData) {
     if (!carouselData.ai_analysis || Object.keys(carouselData.ai_analysis).length === 0) return;
 
+    console.log('🎠 addCarouselAnalysis called:', { competitor: carouselData.competitor_name, uuid: carouselData.matching_key });
     const existingCards = this._findMatchingCards(carouselData);
+    console.log('🎠 carousel matched cards:', existingCards.length);
 
     existingCards.forEach(card => {
         if (card.querySelector('.carousel-analysis-section')) return;
@@ -628,7 +632,9 @@ addCarouselAnalysis(carouselData) {
 addImageAnalysis(imageData) {
     if (!imageData.ai_analysis || Object.keys(imageData.ai_analysis).length === 0) return;
 
+    console.log('🖼 addImageAnalysis called:', { competitor: imageData.competitor_name, uuid: imageData.matching_key });
     const existingCards = this._findMatchingCards(imageData);
+    console.log('🖼 image matched cards:', existingCards.length);
 
     existingCards.forEach(card => {
         if (this._cardHasImageAnalysis(card)) return;
