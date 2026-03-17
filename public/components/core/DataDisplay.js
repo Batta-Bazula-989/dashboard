@@ -541,16 +541,33 @@ addDataItem(incoming) {
 
          console.log('🎥 Trying to match video:', { competitor: videoData.competitor_name, ad_uuid: videoData.matching_key });
 
-         // UUID → text fallback, then name-only + video element as last resort
-         let existingCards = this._findMatchingCards(videoData);
-         if (existingCards.length === 0) {
-             existingCards = CardMatcher.findAll(this.dataDisplay, videoData.competitor_name, null)
-                 .filter(card => card.querySelector(DataDisplay.SEL_VIDEO) !== null);
+         // UUID match first — if found by UUID, only exclude carousel (no video element required,
+         // because the text payload may not include video data even for real video ads)
+         let matchedByUUID = false;
+         let existingCards = [];
+         if (videoData.matching_key) {
+             existingCards = CardMatcher.findAll(this.dataDisplay, videoData.competitor_name, null, videoData.matching_key);
+             matchedByUUID = existingCards.length > 0;
          }
 
-         // Always require a video element and exclude carousel cards
+         if (!matchedByUUID) {
+             // Text fallback, then name-only + video element as last resort
+             const matchText = videoData.text_for_analysis || videoData.ad_data?.ad_text || videoData.body || '';
+             if (matchText) {
+                 existingCards = CardMatcher.findAll(this.dataDisplay, videoData.competitor_name, matchText);
+             }
+             if (existingCards.length === 0) {
+                 existingCards = CardMatcher.findAll(this.dataDisplay, videoData.competitor_name, null)
+                     .filter(card => card.querySelector(DataDisplay.SEL_VIDEO) !== null);
+             }
+             // When not matched by UUID, require video element to avoid attaching to wrong cards
+             existingCards = existingCards.filter(card =>
+                 card.querySelector(DataDisplay.SEL_VIDEO) !== null
+             );
+         }
+
+         // Always exclude carousel cards regardless of match strategy
          existingCards = existingCards.filter(card =>
-             card.querySelector(DataDisplay.SEL_VIDEO) !== null &&
              DataDisplay.CAROUSEL_EXCL.every(sel => card.querySelector(sel) === null)
          );
 
@@ -582,14 +599,26 @@ addDataItem(incoming) {
         const stillPending = [];
 
         this._pendingVideoAnalysis.forEach(videoData => {
-            let matchedCards = this._findMatchingCards(videoData);
-            if (matchedCards.length === 0) {
-                matchedCards = CardMatcher.findAll(this.dataDisplay, videoData.competitor_name, null)
-                    .filter(card => card.querySelector(DataDisplay.SEL_VIDEO) !== null);
+            let matchedByUUID = false;
+            let matchedCards = [];
+            if (videoData.matching_key) {
+                matchedCards = CardMatcher.findAll(this.dataDisplay, videoData.competitor_name, null, videoData.matching_key);
+                matchedByUUID = matchedCards.length > 0;
             }
-
+            if (!matchedByUUID) {
+                const matchText = videoData.text_for_analysis || videoData.ad_data?.ad_text || videoData.body || '';
+                if (matchText) {
+                    matchedCards = CardMatcher.findAll(this.dataDisplay, videoData.competitor_name, matchText);
+                }
+                if (matchedCards.length === 0) {
+                    matchedCards = CardMatcher.findAll(this.dataDisplay, videoData.competitor_name, null)
+                        .filter(card => card.querySelector(DataDisplay.SEL_VIDEO) !== null);
+                }
+                matchedCards = matchedCards.filter(card =>
+                    card.querySelector(DataDisplay.SEL_VIDEO) !== null
+                );
+            }
             matchedCards = matchedCards.filter(card =>
-                card.querySelector(DataDisplay.SEL_VIDEO) !== null &&
                 DataDisplay.CAROUSEL_EXCL.every(sel => card.querySelector(sel) === null)
             );
 
