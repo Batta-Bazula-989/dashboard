@@ -227,17 +227,24 @@ addDataItem(incoming) {
 
             const itemId = this._generateItemId(processed);
 
-            // ✅ Special handling for video content
+            // ✅ Special handling for analysis-only content types — attach to existing cards, never create new ones
             if (processed.content_type === 'video') {
-                // Always call addVideoAnalysis, regardless of whether it's a duplicate
-                // The video analysis will attach to the existing card
                 this.addVideoAnalysis(processed);
-                this._processedItemIds.add(itemId); // Mark as processed to avoid duplicates later
                 hasProcessedItems = true;
-                return; // Exit early after handling video
+                return;
+            }
+            if (processed.content_type === 'image') {
+                this.addImageAnalysis(processed);
+                hasProcessedItems = true;
+                return;
+            }
+            if (processed.content_type === 'carousel') {
+                this.addCarouselAnalysis(processed);
+                hasProcessedItems = true;
+                return;
             }
 
-            // For non-video content, skip if already processed
+            // For card-creating content, skip if already processed
             if (this._processedItemIds.has(itemId)) {
                 console.warn('🚫 DUPLICATE DETECTED - Skipping:', {
                     itemId,
@@ -256,11 +263,7 @@ addDataItem(incoming) {
             this._processedItemIds.add(itemId);
             hasProcessedItems = true;
 
-            if (processed.content_type === 'carousel') {
-                this.addCarouselAnalysis(processed);
-            } else if (processed.content_type === 'image') {
-                this.addImageAnalysis(processed);
-            } else if (this.hasCarouselData(processed)) {
+            if (this.hasCarouselData(processed)) {
                 this.addCarouselAnalysis(processed);
             } else if (this.hasImageAnalysisData(processed)) {
                 this.addImageAnalysis(processed);
