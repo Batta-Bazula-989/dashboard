@@ -171,23 +171,9 @@ class DataDisplay {
 
     // Generate unique ID for an item to prevent duplicates
     _generateItemId(processed) {
-        const baseKey = processed.matching_key;
-        // When a UUID exists, append a visual hash so two ads with identical text
-        // but different images/carousels get distinct dedup IDs
-        if (baseKey) {
-            const firstImage = processed.ad_data?.images?.[0];
-            if (firstImage) {
-                const url = firstImage.original_image_url || firstImage.resized_image_url || '';
-                if (url) return `${baseKey}_${this._simpleHash(url)}`;
-            }
-            const firstCard = processed.ad_data?.cards?.[0];
-            if (firstCard) {
-                const url = firstCard.original_image_url || firstCard.video_sd_url || '';
-                if (url) return `${baseKey}_${this._simpleHash(url)}`;
-            }
-            const videoId = processed.video_data?.video_id;
-            if (videoId) return `${baseKey}_${videoId}`;
-            return baseKey;
+        // ✅ PRIORITY 1: Use matching_key (contains ad_uuid) if available (most reliable)
+        if (processed.matching_key) {
+            return processed.matching_key;
         }
 
         // For video content, use video_id if available
@@ -241,24 +227,17 @@ addDataItem(incoming) {
 
             const itemId = this._generateItemId(processed);
 
-            // Analysis-only types — bypass duplicate check, attach to existing cards
+            // ✅ Special handling for video content
             if (processed.content_type === 'video') {
+                // Always call addVideoAnalysis, regardless of whether it's a duplicate
+                // The video analysis will attach to the existing card
                 this.addVideoAnalysis(processed);
+                this._processedItemIds.add(itemId); // Mark as processed to avoid duplicates later
                 hasProcessedItems = true;
-                return;
-            }
-            if (processed.content_type === 'image') {
-                this.addImageAnalysis(processed);
-                hasProcessedItems = true;
-                return;
-            }
-            if (processed.content_type === 'carousel') {
-                this.addCarouselAnalysis(processed);
-                hasProcessedItems = true;
-                return;
+                return; // Exit early after handling video
             }
 
-            // For card-creating content, skip if already processed
+            // For non-video content, skip if already processed
             if (this._processedItemIds.has(itemId)) {
                 console.warn('🚫 DUPLICATE DETECTED - Skipping:', {
                     itemId,
@@ -277,7 +256,11 @@ addDataItem(incoming) {
             this._processedItemIds.add(itemId);
             hasProcessedItems = true;
 
-            if (this.hasCarouselData(processed)) {
+            if (processed.content_type === 'carousel') {
+                this.addCarouselAnalysis(processed);
+            } else if (processed.content_type === 'image') {
+                this.addImageAnalysis(processed);
+            } else if (this.hasCarouselData(processed)) {
                 this.addCarouselAnalysis(processed);
             } else if (this.hasImageAnalysisData(processed)) {
                 this.addImageAnalysis(processed);
@@ -553,9 +536,8 @@ addDataItem(incoming) {
          });
 
          let existingCards = [];
-         let matchedByUUID = false;
 
-         // Strategy 0: Match by UUID — no video element required (text payload may lack video data)
+         // ✅ Strategy 0: Match by ad_uuid (MOST RELIABLE)
          if (videoData.matching_key) {
              existingCards = CardMatcher.findAll(
                  this.dataDisplay,
@@ -563,37 +545,54 @@ addDataItem(incoming) {
                  null,
                  videoData.matching_key
              );
-             matchedByUUID = existingCards.length > 0;
              console.log('🔍 Matched by key:', existingCards.length, 'cards found');
          }
 
-         // Strategy 1-3: Fallback text matching
+         // Strategy 1-3: Fallback text matching (same as before)
          if (existingCards.length === 0 && videoData.body) {
-             existingCards = CardMatcher.findAll(this.dataDisplay, videoData.competitor_name, videoData.body);
+             existingCards = CardMatcher.findAll(
+                 this.dataDisplay,
+                 videoData.competitor_name,
+                 videoData.body
+             );
          }
+
          if (existingCards.length === 0 && videoData.text_for_analysis) {
-             existingCards = CardMatcher.findAll(this.dataDisplay, videoData.competitor_name, videoData.text_for_analysis);
+             existingCards = CardMatcher.findAll(
+                 this.dataDisplay,
+                 videoData.competitor_name,
+                 videoData.text_for_analysis
+             );
          }
+
          if (existingCards.length === 0 && videoData.ad_data?.ad_text) {
-             existingCards = CardMatcher.findAll(this.dataDisplay, videoData.competitor_name, videoData.ad_data.ad_text);
+             existingCards = CardMatcher.findAll(
+                 this.dataDisplay,
+                 videoData.competitor_name,
+                 videoData.ad_data.ad_text
+             );
          }
 
-         // Strategy 4: Last resort — name only + video element
+         // Strategy 4: Last resort - name only + video filter
          if (existingCards.length === 0) {
-             existingCards = CardMatcher.findAll(this.dataDisplay, videoData.competitor_name, null)
-                 .filter(card => card.querySelector('video.video-thumb') !== null);
+             const nameOnlyCards = CardMatcher.findAll(
+                 this.dataDisplay,
+                 videoData.competitor_name,
+                 null
+             );
+             existingCards = nameOnlyCards.filter(card => {
+                 return card.querySelector('video.video-thumb') !== null;
+             });
          }
 
-         // When matched by text/name, require video element to avoid wrong cards
-         // When matched by UUID, trust the match — only exclude carousel cards
-         if (!matchedByUUID) {
-             existingCards = existingCards.filter(card => card.querySelector('video.video-thumb') !== null);
-         }
-         existingCards = existingCards.filter(card =>
-             card.querySelector('.carousel-analysis-section') === null &&
-             card.querySelector('.image-carousel-container') === null &&
-             card.querySelector('.carousel-card-item') === null
-         );
+         // Always filter for video elements - even uuid match must have a video card
+         // Also exclude cards that have carousel content (image carousel or card carousel) — these are carousel ads, not video ads
+         existingCards = existingCards.filter(card => {
+             return card.querySelector('video.video-thumb') !== null &&
+                    card.querySelector('.carousel-analysis-section') === null &&
+                    card.querySelector('.image-carousel-container') === null &&
+                    card.querySelector('.carousel-card-item') === null;
+         });
 
          existingCards.forEach((card) => {
              try {
@@ -647,34 +646,33 @@ addDataItem(incoming) {
         const stillPending = [];
         
         this._pendingVideoAnalysis.forEach(videoData => {
-            let matchedCards = [];
-            let matchedByUUID = false;
-
-            if (videoData.matching_key) {
-                matchedCards = CardMatcher.findAll(this.dataDisplay, videoData.competitor_name, null, videoData.matching_key);
-                matchedByUUID = matchedCards.length > 0;
-            }
-            if (matchedCards.length === 0 && videoData.body) {
-                matchedCards = CardMatcher.findAll(this.dataDisplay, videoData.competitor_name, videoData.body);
-            }
-            if (matchedCards.length === 0 && videoData.text_for_analysis) {
-                matchedCards = CardMatcher.findAll(this.dataDisplay, videoData.competitor_name, videoData.text_for_analysis);
-            }
-            if (matchedCards.length === 0 && videoData.ad_data?.ad_text) {
-                matchedCards = CardMatcher.findAll(this.dataDisplay, videoData.competitor_name, videoData.ad_data.ad_text);
-            }
-            if (matchedCards.length === 0) {
-                matchedCards = CardMatcher.findAll(this.dataDisplay, videoData.competitor_name, null)
-                    .filter(card => card.querySelector('video.video-thumb') !== null);
-            }
-            if (!matchedByUUID) {
-                matchedCards = matchedCards.filter(card => card.querySelector('video.video-thumb') !== null);
-            }
-            matchedCards = matchedCards.filter(card =>
-                card.querySelector('.carousel-analysis-section') === null &&
-                card.querySelector('.image-carousel-container') === null &&
-                card.querySelector('.carousel-card-item') === null
+            // Try to attach again - use ad_uuid for reliable matching
+            let existingCards = CardMatcher.findAll(
+                this.dataDisplay,
+                videoData.competitor_name,
+                videoData.body || videoData.text_for_analysis || videoData.ad_data?.ad_text,
+                videoData.matching_key  // This now contains ad_uuid
             );
+            // If still no match, try by name only with video element
+            let matchedCards = existingCards;
+            if (matchedCards.length === 0) {
+                const nameOnlyCards = CardMatcher.findAll(
+                    this.dataDisplay,
+                    videoData.competitor_name,
+                    null
+                );
+                matchedCards = nameOnlyCards.filter(card => {
+                    return card.querySelector('video.video-thumb') !== null;
+                });
+            }
+
+            // Always require video element and exclude carousel cards
+            matchedCards = matchedCards.filter(card => {
+                return card.querySelector('video.video-thumb') !== null &&
+                       card.querySelector('.carousel-analysis-section') === null &&
+                       card.querySelector('.image-carousel-container') === null &&
+                       card.querySelector('.carousel-card-item') === null;
+            });
 
             if (matchedCards.length > 0) {
                 // Found cards, attach video analysis
