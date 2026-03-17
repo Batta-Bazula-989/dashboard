@@ -250,8 +250,14 @@ addDataItem(incoming) {
             if (this._processedItemIds.has(itemId)) {
                 console.warn('🚫 DUPLICATE DETECTED - Skipping:', {
                     itemId,
+                    content_type: processed.content_type,
                     competitor: processed.competitor_name,
-                    ad_uuid: processed.matching_key
+                    ad_uuid: processed.matching_key,
+                    has_images: !!(processed.ad_data?.images?.length),
+                    has_cards: !!(processed.ad_data?.cards?.length),
+                    has_video_data: !!(processed.video_data),
+                    video_id: processed.video_data?.video_id,
+                    body_snippet: (processed.body || '').slice(0, 60)
                 });
                 return;
             }
