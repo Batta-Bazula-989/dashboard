@@ -539,12 +539,9 @@ addDataItem(incoming) {
 
          // Match by UUID first — UUID is set on card.dataset.matchingKey when the text card
          // was created, so it unambiguously identifies the right card regardless of content.
-         let existingCards = CardMatcher.findAll(
-             this.dataDisplay,
-             videoData.competitor_name,
-             null,
-             videoData.matching_key || null
-         );
+         let existingCards = videoData.matching_key
+             ? CardMatcher.findAll(this.dataDisplay, videoData.competitor_name, null, videoData.matching_key)
+             : [];
 
          // Fallback to text matching if no UUID or UUID not found yet
          if (existingCards.length === 0) {
@@ -599,12 +596,9 @@ addDataItem(incoming) {
         const stillPending = [];
 
         this._pendingVideoAnalysis.forEach(videoData => {
-            let matchedCards = CardMatcher.findAll(
-                this.dataDisplay,
-                videoData.competitor_name,
-                null,
-                videoData.matching_key || null
-            );
+            let matchedCards = videoData.matching_key
+                ? CardMatcher.findAll(this.dataDisplay, videoData.competitor_name, null, videoData.matching_key)
+                : [];
 
             if (matchedCards.length === 0) {
                 const text = videoData.text_for_analysis || videoData.ad_data?.ad_text || videoData.body || '';
@@ -644,12 +638,9 @@ addDataItem(incoming) {
 addCarouselAnalysis(carouselData) {
     if (!carouselData.ai_analysis || Object.keys(carouselData.ai_analysis).length === 0) return;
 
-    let existingCards = CardMatcher.findAll(
-        this.dataDisplay,
-        carouselData.competitor_name,
-        null,
-        carouselData.matching_key || null
-    );
+    let existingCards = carouselData.matching_key
+        ? CardMatcher.findAll(this.dataDisplay, carouselData.competitor_name, null, carouselData.matching_key)
+        : [];
 
     if (existingCards.length === 0) {
         const text = carouselData.text_for_analysis || carouselData.ad_data?.ad_text || carouselData.body || '';
@@ -683,12 +674,9 @@ addCarouselAnalysis(carouselData) {
 addImageAnalysis(imageData) {
     if (!imageData.ai_analysis || Object.keys(imageData.ai_analysis).length === 0) return;
 
-    let existingCards = CardMatcher.findAll(
-        this.dataDisplay,
-        imageData.competitor_name,
-        null,
-        imageData.matching_key || null
-    );
+    let existingCards = imageData.matching_key
+        ? CardMatcher.findAll(this.dataDisplay, imageData.competitor_name, null, imageData.matching_key)
+        : [];
 
     if (existingCards.length === 0) {
         const text = imageData.text_for_analysis || imageData.ad_data?.ad_text || imageData.body || '';
@@ -736,12 +724,9 @@ _retryPendingImageAnalysis() {
     const stillPending = [];
 
     this._pendingImageAnalysis.forEach(imageData => {
-        let existingCards = CardMatcher.findAll(
-            this.dataDisplay,
-            imageData.competitor_name,
-            null,
-            imageData.matching_key || null
-        );
+        let existingCards = imageData.matching_key
+            ? CardMatcher.findAll(this.dataDisplay, imageData.competitor_name, null, imageData.matching_key)
+            : [];
         if (existingCards.length === 0) {
             const text = imageData.text_for_analysis || imageData.ad_data?.ad_text || imageData.body || '';
             if (text) {
@@ -794,12 +779,9 @@ _retryPendingCarouselAnalysis() {
     const stillPending = [];
 
     this._pendingCarouselAnalysis.forEach(carouselData => {
-        let existingCards = CardMatcher.findAll(
-            this.dataDisplay,
-            carouselData.competitor_name,
-            null,
-            carouselData.matching_key || null
-        );
+        let existingCards = carouselData.matching_key
+            ? CardMatcher.findAll(this.dataDisplay, carouselData.competitor_name, null, carouselData.matching_key)
+            : [];
         if (existingCards.length === 0) {
             const text = carouselData.text_for_analysis || carouselData.ad_data?.ad_text || carouselData.body || '';
             if (text) {
