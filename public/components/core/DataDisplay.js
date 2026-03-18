@@ -172,7 +172,15 @@ class DataDisplay {
     // Generate unique ID for an item to prevent duplicates
     _generateItemId(processed) {
         // ✅ PRIORITY 1: Use matching_key (contains ad_uuid) if available (most reliable)
+        // For analysis types (carousel/image), prefix the key so they don't collide with
+        // the text card's entry in _processedItemIds (which uses the bare matching_key).
         if (processed.matching_key) {
+            if (processed.content_type === 'carousel') {
+                return `carousel_analysis_${processed.matching_key}`;
+            }
+            if (processed.content_type === 'image') {
+                return `image_analysis_${processed.matching_key}`;
+            }
             return processed.matching_key;
         }
 
@@ -524,94 +532,39 @@ addDataItem(incoming) {
 
  addVideoAnalysis(videoData) {
      try {
-         // Validate required fields
          if (!videoData || !videoData.competitor_name) {
              console.warn('Invalid video data - missing competitor_name:', videoData);
              return;
          }
 
-         console.log('🎥 Trying to match video:', {
-             competitor: videoData.competitor_name,
-             ad_uuid: videoData.matching_key
-         });
+         // Match by UUID first — UUID is set on card.dataset.matchingKey when the text card
+         // was created, so it unambiguously identifies the right card regardless of content.
+         let existingCards = CardMatcher.findAll(
+             this.dataDisplay,
+             videoData.competitor_name,
+             null,
+             videoData.matching_key || null
+         );
 
-         let existingCards = [];
-
-         // ✅ Strategy 0: Match by ad_uuid (MOST RELIABLE)
-         if (videoData.matching_key) {
-             existingCards = CardMatcher.findAll(
-                 this.dataDisplay,
-                 videoData.competitor_name,
-                 null,
-                 videoData.matching_key
-             );
-             console.log('🔍 Matched by key:', existingCards.length, 'cards found');
-         }
-
-         // Strategy 1-3: Fallback text matching (same as before)
-         if (existingCards.length === 0 && videoData.body) {
-             existingCards = CardMatcher.findAll(
-                 this.dataDisplay,
-                 videoData.competitor_name,
-                 videoData.body
-             );
-         }
-
-         if (existingCards.length === 0 && videoData.text_for_analysis) {
-             existingCards = CardMatcher.findAll(
-                 this.dataDisplay,
-                 videoData.competitor_name,
-                 videoData.text_for_analysis
-             );
-         }
-
-         if (existingCards.length === 0 && videoData.ad_data?.ad_text) {
-             existingCards = CardMatcher.findAll(
-                 this.dataDisplay,
-                 videoData.competitor_name,
-                 videoData.ad_data.ad_text
-             );
-         }
-
-         // Strategy 4: Last resort - name only + video filter
+         // Fallback to text matching if no UUID or UUID not found yet
          if (existingCards.length === 0) {
-             const nameOnlyCards = CardMatcher.findAll(
-                 this.dataDisplay,
-                 videoData.competitor_name,
-                 null
-             );
-             existingCards = nameOnlyCards.filter(card => {
-                 return card.querySelector('video.video-thumb') !== null;
-             });
+             const text = videoData.text_for_analysis || videoData.ad_data?.ad_text || videoData.body || '';
+             if (text) {
+                 existingCards = CardMatcher.findAll(
+                     this.dataDisplay,
+                     videoData.competitor_name,
+                     text
+                 );
+             }
          }
-
-         // Always filter for video elements - even uuid match must have a video card
-         // Also exclude cards that have carousel content (image carousel or card carousel) — these are carousel ads, not video ads
-         existingCards = existingCards.filter(card => {
-             return card.querySelector('video.video-thumb') !== null &&
-                    card.querySelector('.carousel-analysis-section') === null &&
-                    card.querySelector('.image-carousel-container') === null &&
-                    card.querySelector('.carousel-card-item') === null;
-         });
 
          existingCards.forEach((card) => {
-             try {
-                 const hasVideoAnalysis = card.querySelector('.video-analysis-section');
-                 if (hasVideoAnalysis) {
-                     return;
-                 }
-
-                 const section = AnalysisSections.createVideoAnalysis(
-                     videoData,
-                     this.onShowFullAnalysis
-                 );
-                 const divider = document.createElement('div');
-                 divider.className = 'section-divider';
-                 card.appendChild(divider);
-                 card.appendChild(section);
-             } catch (error) {
-                 console.error('Error attaching video analysis to card:', error, videoData);
-             }
+             if (card.querySelector('.video-analysis-section')) return;
+             const section = AnalysisSections.createVideoAnalysis(videoData, this.onShowFullAnalysis);
+             const divider = document.createElement('div');
+             divider.className = 'section-divider';
+             card.appendChild(divider);
+             card.appendChild(section);
          });
 
          this._statsCacheValid = false;
@@ -644,53 +597,36 @@ addDataItem(incoming) {
         }
         
         const stillPending = [];
-        
+
         this._pendingVideoAnalysis.forEach(videoData => {
-            // Try to attach again - use ad_uuid for reliable matching
-            let existingCards = CardMatcher.findAll(
+            let matchedCards = CardMatcher.findAll(
                 this.dataDisplay,
                 videoData.competitor_name,
-                videoData.body || videoData.text_for_analysis || videoData.ad_data?.ad_text,
-                videoData.matching_key  // This now contains ad_uuid
+                null,
+                videoData.matching_key || null
             );
-            // If still no match, try by name only with video element
-            let matchedCards = existingCards;
+
             if (matchedCards.length === 0) {
-                const nameOnlyCards = CardMatcher.findAll(
-                    this.dataDisplay,
-                    videoData.competitor_name,
-                    null
-                );
-                matchedCards = nameOnlyCards.filter(card => {
-                    return card.querySelector('video.video-thumb') !== null;
-                });
+                const text = videoData.text_for_analysis || videoData.ad_data?.ad_text || videoData.body || '';
+                if (text) {
+                    matchedCards = CardMatcher.findAll(
+                        this.dataDisplay,
+                        videoData.competitor_name,
+                        text
+                    );
+                }
             }
 
-            // Always require video element and exclude carousel cards
-            matchedCards = matchedCards.filter(card => {
-                return card.querySelector('video.video-thumb') !== null &&
-                       card.querySelector('.carousel-analysis-section') === null &&
-                       card.querySelector('.image-carousel-container') === null &&
-                       card.querySelector('.carousel-card-item') === null;
-            });
-
             if (matchedCards.length > 0) {
-                // Found cards, attach video analysis
                 matchedCards.forEach((card) => {
-                    const hasVideoAnalysis = card.querySelector('.video-analysis-section');
-                    if (!hasVideoAnalysis) {
-                        const section = AnalysisSections.createVideoAnalysis(
-                            videoData,
-                            this.onShowFullAnalysis
-                        );
-                        const divider = document.createElement('div');
-                        divider.className = 'section-divider';
-                        card.appendChild(divider);
-                        card.appendChild(section);
-                    }
+                    if (card.querySelector('.video-analysis-section')) return;
+                    const section = AnalysisSections.createVideoAnalysis(videoData, this.onShowFullAnalysis);
+                    const divider = document.createElement('div');
+                    divider.className = 'section-divider';
+                    card.appendChild(divider);
+                    card.appendChild(section);
                 });
             } else {
-                // Still no match, keep it pending (but limit retries)
                 stillPending.push(videoData);
             }
         });
@@ -706,148 +642,78 @@ addDataItem(incoming) {
     }
 
 addCarouselAnalysis(carouselData) {
-    // Only add analysis if ai_analysis is available
-    if (!carouselData.ai_analysis || Object.keys(carouselData.ai_analysis).length === 0) {
-        return;
-    }
+    if (!carouselData.ai_analysis || Object.keys(carouselData.ai_analysis).length === 0) return;
 
-    // Strategy 0: Match by ad_uuid (most reliable, same as video)
-    let existingCards = [];
-    if (carouselData.matching_key) {
-        existingCards = CardMatcher.findAll(
-            this.dataDisplay,
-            carouselData.competitor_name,
-            null,
-            carouselData.matching_key
-        );
-    }
+    let existingCards = CardMatcher.findAll(
+        this.dataDisplay,
+        carouselData.competitor_name,
+        null,
+        carouselData.matching_key || null
+    );
 
-    // Fallback: Match by competitor name + text
     if (existingCards.length === 0) {
-        const matchText = carouselData.text_for_analysis || carouselData.ad_data?.ad_text || carouselData.body || '';
-        if (!matchText) {
-            return;
+        const text = carouselData.text_for_analysis || carouselData.ad_data?.ad_text || carouselData.body || '';
+        if (text) {
+            existingCards = CardMatcher.findAll(this.dataDisplay, carouselData.competitor_name, text);
         }
-        existingCards = CardMatcher.findAll(
-            this.dataDisplay,
-            carouselData.competitor_name,
-            matchText
-        );
     }
 
     existingCards.forEach((card) => {
-        // Check if this card already has carousel analysis section
-        const hasCarouselAnalysis = card.querySelector('.carousel-analysis-section');
-        if (hasCarouselAnalysis) {
-            return;
-        }
-
-        const section = AnalysisSections.createCarouselAnalysis(
-            carouselData,
-            this.onShowFullAnalysis
-        );
-
-        // Find the text analysis section to insert after it
-        const textAnalysisSection = card.querySelector('.ai-preview');
-
-        if (textAnalysisSection) {
-            // Insert after text analysis section
-            const divider = document.createElement('div');
-            divider.className = 'section-divider';
-            // Insert divider and section right after text analysis
-            textAnalysisSection.insertAdjacentElement('afterend', divider);
+        if (card.querySelector('.carousel-analysis-section')) return;
+        const section = AnalysisSections.createCarouselAnalysis(carouselData, this.onShowFullAnalysis);
+        const textSection = card.querySelector('.ai-preview');
+        const divider = document.createElement('div');
+        divider.className = 'section-divider';
+        if (textSection) {
+            textSection.insertAdjacentElement('afterend', divider);
             divider.insertAdjacentElement('afterend', section);
         } else {
-            // If no text analysis section, append at the end (shouldn't happen normally)
-            const divider = document.createElement('div');
-            divider.className = 'section-divider';
             card.appendChild(divider);
             card.appendChild(section);
         }
     });
 
-    // Invalidate stats cache when analysis is added
     this._statsCacheValid = false;
 
-    // If no cards found, store for retry after cards are rendered
     if (existingCards.length === 0) {
         this._storePendingCarouselAnalysis(carouselData);
     }
 }
 
 addImageAnalysis(imageData) {
-    // Only add analysis if ai_analysis is available
-    if (!imageData.ai_analysis || Object.keys(imageData.ai_analysis).length === 0) {
-        return;
-    }
+    if (!imageData.ai_analysis || Object.keys(imageData.ai_analysis).length === 0) return;
 
-    // Strategy 0: Match by ad_uuid (most reliable, same as video)
-    let existingCards = [];
-    if (imageData.matching_key) {
-        existingCards = CardMatcher.findAll(
-            this.dataDisplay,
-            imageData.competitor_name,
-            null,
-            imageData.matching_key
-        );
-    }
+    let existingCards = CardMatcher.findAll(
+        this.dataDisplay,
+        imageData.competitor_name,
+        null,
+        imageData.matching_key || null
+    );
 
-    // Fallback: Match by competitor name + text
     if (existingCards.length === 0) {
-        const matchText = imageData.text_for_analysis || imageData.ad_data?.ad_text || imageData.body || '';
-        if (!matchText) {
-            return;
+        const text = imageData.text_for_analysis || imageData.ad_data?.ad_text || imageData.body || '';
+        if (text) {
+            existingCards = CardMatcher.findAll(this.dataDisplay, imageData.competitor_name, text);
         }
-        existingCards = CardMatcher.findAll(
-            this.dataDisplay,
-            imageData.competitor_name,
-            matchText
-        );
     }
 
     existingCards.forEach((card) => {
-        // Check if this card already has image analysis (check for IMAGE badge)
-        const allPreviews = card.querySelectorAll('.ai-preview');
-        let hasImageAnalysis = false;
-        allPreviews.forEach(preview => {
-            const badge = preview.querySelector('.analysis-badge');
-            if (badge && badge.textContent === 'IMAGE') {
-                hasImageAnalysis = true;
-            }
-        });
-
-        if (hasImageAnalysis) {
-            return;
-        }
-
-        const section = AnalysisSections.createImageAnalysis(
-            imageData,
-            this.onShowFullAnalysis
-        );
-
-        // Find the text analysis section to insert after it
-        const textAnalysisSection = card.querySelector('.ai-preview');
-
-        if (textAnalysisSection) {
-            // Insert after text analysis section
-            const divider = document.createElement('div');
-            divider.className = 'section-divider';
-            // Insert divider and section right after text analysis
-            textAnalysisSection.insertAdjacentElement('afterend', divider);
+        if (card.querySelector('.image-analysis-section')) return;
+        const section = AnalysisSections.createImageAnalysis(imageData, this.onShowFullAnalysis);
+        const textSection = card.querySelector('.ai-preview');
+        const divider = document.createElement('div');
+        divider.className = 'section-divider';
+        if (textSection) {
+            textSection.insertAdjacentElement('afterend', divider);
             divider.insertAdjacentElement('afterend', section);
         } else {
-            // If no text analysis section, append at the end (shouldn't happen normally)
-            const divider = document.createElement('div');
-            divider.className = 'section-divider';
             card.appendChild(divider);
             card.appendChild(section);
         }
     });
 
-    // Invalidate stats cache when analysis is added
     this._statsCacheValid = false;
 
-    // If no cards found, store for retry after cards are rendered
     if (existingCards.length === 0) {
         this._storePendingImageAnalysis(imageData);
     }
@@ -865,77 +731,47 @@ _storePendingImageAnalysis(imageData) {
 
 // Retry attaching pending image analysis to newly rendered cards
 _retryPendingImageAnalysis() {
-    if (this._pendingImageAnalysis.length === 0) {
-        return;
-    }
+    if (this._pendingImageAnalysis.length === 0) return;
 
     const stillPending = [];
 
     this._pendingImageAnalysis.forEach(imageData => {
-        // Try UUID first, then fall back to text
-        let existingCards = [];
-        if (imageData.matching_key) {
-            existingCards = CardMatcher.findAll(
-                this.dataDisplay,
-                imageData.competitor_name,
-                null,
-                imageData.matching_key
-            );
-        }
+        let existingCards = CardMatcher.findAll(
+            this.dataDisplay,
+            imageData.competitor_name,
+            null,
+            imageData.matching_key || null
+        );
         if (existingCards.length === 0) {
-            const matchText = imageData.text_for_analysis || imageData.ad_data?.ad_text || imageData.body || '';
-            existingCards = CardMatcher.findAll(
-                this.dataDisplay,
-                imageData.competitor_name,
-                matchText
-            );
+            const text = imageData.text_for_analysis || imageData.ad_data?.ad_text || imageData.body || '';
+            if (text) {
+                existingCards = CardMatcher.findAll(this.dataDisplay, imageData.competitor_name, text);
+            }
         }
 
         if (existingCards.length > 0) {
-            // Found cards, attach image analysis
             existingCards.forEach((card) => {
-                // Check if this card already has image analysis (check for IMAGE badge)
-                const allPreviews = card.querySelectorAll('.ai-preview');
-                let hasImageAnalysis = false;
-                allPreviews.forEach(preview => {
-                    const badge = preview.querySelector('.analysis-badge');
-                    if (badge && badge.textContent === 'IMAGE') {
-                        hasImageAnalysis = true;
-                    }
-                });
-
-                if (!hasImageAnalysis) {
-                    const section = AnalysisSections.createImageAnalysis(
-                        imageData,
-                        this.onShowFullAnalysis
-                    );
-                    const textAnalysisSection = card.querySelector('.ai-preview');
-
-                    if (textAnalysisSection) {
-                        const divider = document.createElement('div');
-                        divider.className = 'section-divider';
-                        textAnalysisSection.insertAdjacentElement('afterend', divider);
-                        divider.insertAdjacentElement('afterend', section);
-                    } else {
-                        const divider = document.createElement('div');
-                        divider.className = 'section-divider';
-                        card.appendChild(divider);
-                        card.appendChild(section);
-                    }
+                if (card.querySelector('.image-analysis-section')) return;
+                const section = AnalysisSections.createImageAnalysis(imageData, this.onShowFullAnalysis);
+                const textSection = card.querySelector('.ai-preview');
+                const divider = document.createElement('div');
+                divider.className = 'section-divider';
+                if (textSection) {
+                    textSection.insertAdjacentElement('afterend', divider);
+                    divider.insertAdjacentElement('afterend', section);
+                } else {
+                    card.appendChild(divider);
+                    card.appendChild(section);
                 }
             });
         } else {
-            // Still no match, keep pending
             stillPending.push(imageData);
         }
     });
 
-    // Update pending list and retry again if needed
     this._pendingImageAnalysis = stillPending;
     if (stillPending.length > 0) {
-        setTimeout(() => {
-            this._retryPendingImageAnalysis();
-        }, 1000);
+        setTimeout(() => this._retryPendingImageAnalysis(), 1000);
     }
 }
 
@@ -958,64 +794,42 @@ _retryPendingCarouselAnalysis() {
     const stillPending = [];
 
     this._pendingCarouselAnalysis.forEach(carouselData => {
-        // Try UUID first, then fall back to text
-        let existingCards = [];
-        if (carouselData.matching_key) {
-            existingCards = CardMatcher.findAll(
-                this.dataDisplay,
-                carouselData.competitor_name,
-                null,
-                carouselData.matching_key
-            );
-        }
+        let existingCards = CardMatcher.findAll(
+            this.dataDisplay,
+            carouselData.competitor_name,
+            null,
+            carouselData.matching_key || null
+        );
         if (existingCards.length === 0) {
-            const matchText = carouselData.text_for_analysis || carouselData.ad_data?.ad_text || carouselData.body || '';
-            existingCards = CardMatcher.findAll(
-                this.dataDisplay,
-                carouselData.competitor_name,
-                matchText
-            );
+            const text = carouselData.text_for_analysis || carouselData.ad_data?.ad_text || carouselData.body || '';
+            if (text) {
+                existingCards = CardMatcher.findAll(this.dataDisplay, carouselData.competitor_name, text);
+            }
         }
 
         if (existingCards.length > 0) {
-            // Found cards, attach carousel analysis
             existingCards.forEach((card) => {
-                // Check if this card already has carousel analysis section
-                const hasCarouselAnalysis = card.querySelector('.carousel-analysis-section');
-                if (hasCarouselAnalysis) {
-                    return;
-                }
-
-                const section = AnalysisSections.createCarouselAnalysis(
-                    carouselData,
-                    this.onShowFullAnalysis
-                );
-                const textAnalysisSection = card.querySelector('.ai-preview');
-
-                if (textAnalysisSection) {
-                    const divider = document.createElement('div');
-                    divider.className = 'section-divider';
-                    textAnalysisSection.insertAdjacentElement('afterend', divider);
+                if (card.querySelector('.carousel-analysis-section')) return;
+                const section = AnalysisSections.createCarouselAnalysis(carouselData, this.onShowFullAnalysis);
+                const textSection = card.querySelector('.ai-preview');
+                const divider = document.createElement('div');
+                divider.className = 'section-divider';
+                if (textSection) {
+                    textSection.insertAdjacentElement('afterend', divider);
                     divider.insertAdjacentElement('afterend', section);
                 } else {
-                    const divider = document.createElement('div');
-                    divider.className = 'section-divider';
                     card.appendChild(divider);
                     card.appendChild(section);
                 }
             });
         } else {
-            // Still no match, keep pending
             stillPending.push(carouselData);
         }
     });
 
-    // Update pending list and retry again if needed
     this._pendingCarouselAnalysis = stillPending;
     if (stillPending.length > 0) {
-        setTimeout(() => {
-            this._retryPendingCarouselAnalysis();
-        }, 1000);
+        setTimeout(() => this._retryPendingCarouselAnalysis(), 1000);
     }
 }
 

@@ -129,9 +129,8 @@ class AnalysisSections {
     }
 
     static createImageAnalysis(imageData, onShowFullAnalysis) {
-        // Use EXACT same structure as TEXT analysis (ai-preview class)
         const preview = document.createElement('div');
-        preview.className = 'ai-preview';
+        preview.className = 'ai-preview image-analysis-section';
 
         // Header with IMAGE badge and ⋯ button
         const header = document.createElement('div');
