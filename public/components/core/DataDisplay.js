@@ -181,6 +181,9 @@ class DataDisplay {
             if (processed.content_type === 'image') {
                 return `image_analysis_${processed.matching_key}`;
             }
+            if (processed.content_type === 'video') {
+                return `video_analysis_${processed.matching_key}`;
+            }
             return processed.matching_key;
         }
 
@@ -251,17 +254,7 @@ addDataItem(incoming) {
 
             const itemId = this._generateItemId(processed);
 
-            // ✅ Special handling for video content
-            if (processed.content_type === 'video') {
-                // Always call addVideoAnalysis, regardless of whether it's a duplicate
-                // The video analysis will attach to the existing card
-                this.addVideoAnalysis(processed);
-                this._processedItemIds.add(itemId); // Mark as processed to avoid duplicates later
-                hasProcessedItems = true;
-                return; // Exit early after handling video
-            }
-
-            // For non-video content, skip if already processed
+            // Skip if already processed (applies to ALL content types including video)
             if (this._processedItemIds.has(itemId)) {
                 console.warn('🚫 DUPLICATE DETECTED - Skipping:', {
                     itemId,
@@ -271,14 +264,20 @@ addDataItem(incoming) {
                 return;
             }
 
+            this._processedItemIds.add(itemId);
+            hasProcessedItems = true;
+
+            // ✅ Route video analysis early (after duplicate check)
+            if (processed.content_type === 'video') {
+                this.addVideoAnalysis(processed);
+                return;
+            }
+
             console.log('✅ NEW ITEM - Creating card:', {
                 itemId,
                 competitor: processed.competitor_name,
                 ad_uuid: processed.matching_key
             });
-
-            this._processedItemIds.add(itemId);
-            hasProcessedItems = true;
 
             if (processed.content_type === 'carousel') {
                 this.addCarouselAnalysis(processed);
@@ -553,25 +552,29 @@ addDataItem(incoming) {
              return;
          }
 
-         // Match by UUID first — UUID is set on card.dataset.matchingKey when the text card
-         // was created, so it unambiguously identifies the right card regardless of content.
-         let existingCards = videoData.matching_key
+         // UUID match: authoritative — skip format filter, UUID already identifies the exact card.
+         const uuidCards = videoData.matching_key
              ? CardMatcher.findAll(this.dataDisplay, videoData.competitor_name, null, videoData.matching_key)
              : [];
 
-         // Fallback to text matching if no UUID or UUID not found yet
-         if (existingCards.length === 0) {
+         let videoCards;
+         if (uuidCards.length > 0) {
+             // UUID found — trust it, no format filter needed.
+             videoCards = uuidCards;
+         } else if (videoData.matching_key) {
+             // UUID provided but card not in DOM yet — store pending, don't text-fallback
+             // (text fallback could match a different ad for the same competitor).
+             console.warn('⚠️ Video UUID miss, storing as pending:', videoData.competitor_name);
+             this._storePendingVideoAnalysis(videoData);
+             return;
+         } else {
+             // No UUID — use text fallback with format filter.
              const text = videoData.text_for_analysis || videoData.ad_data?.ad_text || videoData.body || '';
-             if (text) {
-                 existingCards = CardMatcher.findAll(
-                     this.dataDisplay,
-                     videoData.competitor_name,
-                     text
-                 );
-             }
+             const textCards = text
+                 ? CardMatcher.findAll(this.dataDisplay, videoData.competitor_name, text)
+                 : [];
+             videoCards = this._filterCardsByFormat(textCards, 'video');
          }
-
-         const videoCards = this._filterCardsByFormat(existingCards, 'video');
 
          videoCards.forEach((card) => {
              if (card.querySelector('.video-analysis-section')) return;
@@ -610,26 +613,31 @@ addDataItem(incoming) {
         if (this._pendingVideoAnalysis.length === 0) {
             return;
         }
-        
+
         const stillPending = [];
 
         this._pendingVideoAnalysis.forEach(videoData => {
-            let matchedCards = videoData.matching_key
+            // UUID match: authoritative, no format filter.
+            const uuidCards = videoData.matching_key
                 ? CardMatcher.findAll(this.dataDisplay, videoData.competitor_name, null, videoData.matching_key)
                 : [];
 
-            if (matchedCards.length === 0) {
+            let videoCards;
+            if (uuidCards.length > 0) {
+                videoCards = uuidCards;
+            } else if (videoData.matching_key) {
+                // UUID provided but still not in DOM — keep pending.
+                stillPending.push(videoData);
+                return;
+            } else {
+                // No UUID — text fallback with format filter.
                 const text = videoData.text_for_analysis || videoData.ad_data?.ad_text || videoData.body || '';
-                if (text) {
-                    matchedCards = CardMatcher.findAll(
-                        this.dataDisplay,
-                        videoData.competitor_name,
-                        text
-                    );
-                }
+                const textCards = text
+                    ? CardMatcher.findAll(this.dataDisplay, videoData.competitor_name, text)
+                    : [];
+                videoCards = this._filterCardsByFormat(textCards, 'video');
             }
 
-            const videoCards = this._filterCardsByFormat(matchedCards, 'video');
             if (videoCards.length > 0) {
                 videoCards.forEach((card) => {
                     if (card.querySelector('.video-analysis-section')) return;
@@ -643,9 +651,9 @@ addDataItem(incoming) {
                 stillPending.push(videoData);
             }
         });
-        
+
         this._pendingVideoAnalysis = stillPending;
-        
+
         // If there are still pending items and we have cards, try one more time after a delay
         if (stillPending.length > 0 && this.hasData()) {
             setTimeout(() => {
@@ -657,18 +665,26 @@ addDataItem(incoming) {
 addCarouselAnalysis(carouselData) {
     if (!carouselData.ai_analysis || Object.keys(carouselData.ai_analysis).length === 0) return;
 
-    let existingCards = carouselData.matching_key
+    // UUID match: authoritative, no format filter.
+    const uuidCards = carouselData.matching_key
         ? CardMatcher.findAll(this.dataDisplay, carouselData.competitor_name, null, carouselData.matching_key)
         : [];
 
-    if (existingCards.length === 0) {
+    let carouselCards;
+    if (uuidCards.length > 0) {
+        carouselCards = uuidCards;
+    } else if (carouselData.matching_key) {
+        // UUID provided but card not in DOM yet — store pending, don't text-fallback.
+        this._storePendingCarouselAnalysis(carouselData);
+        return;
+    } else {
+        // No UUID — text fallback with format filter.
         const text = carouselData.text_for_analysis || carouselData.ad_data?.ad_text || carouselData.body || '';
-        if (text) {
-            existingCards = CardMatcher.findAll(this.dataDisplay, carouselData.competitor_name, text);
-        }
+        const textCards = text
+            ? CardMatcher.findAll(this.dataDisplay, carouselData.competitor_name, text)
+            : [];
+        carouselCards = this._filterCardsByFormat(textCards, 'carousel');
     }
-
-    const carouselCards = this._filterCardsByFormat(existingCards, 'carousel');
 
     carouselCards.forEach((card) => {
         if (card.querySelector('.carousel-analysis-section')) return;
@@ -695,18 +711,26 @@ addCarouselAnalysis(carouselData) {
 addImageAnalysis(imageData) {
     if (!imageData.ai_analysis || Object.keys(imageData.ai_analysis).length === 0) return;
 
-    let existingCards = imageData.matching_key
+    // UUID match: authoritative, no format filter.
+    const uuidCards = imageData.matching_key
         ? CardMatcher.findAll(this.dataDisplay, imageData.competitor_name, null, imageData.matching_key)
         : [];
 
-    if (existingCards.length === 0) {
+    let imageCards;
+    if (uuidCards.length > 0) {
+        imageCards = uuidCards;
+    } else if (imageData.matching_key) {
+        // UUID provided but card not in DOM yet — store pending, don't text-fallback.
+        this._storePendingImageAnalysis(imageData);
+        return;
+    } else {
+        // No UUID — text fallback with format filter.
         const text = imageData.text_for_analysis || imageData.ad_data?.ad_text || imageData.body || '';
-        if (text) {
-            existingCards = CardMatcher.findAll(this.dataDisplay, imageData.competitor_name, text);
-        }
+        const textCards = text
+            ? CardMatcher.findAll(this.dataDisplay, imageData.competitor_name, text)
+            : [];
+        imageCards = this._filterCardsByFormat(textCards, 'image');
     }
-
-    const imageCards = this._filterCardsByFormat(existingCards, 'image');
 
     imageCards.forEach((card) => {
         if (card.querySelector('.image-analysis-section')) return;
@@ -747,17 +771,27 @@ _retryPendingImageAnalysis() {
     const stillPending = [];
 
     this._pendingImageAnalysis.forEach(imageData => {
-        let existingCards = imageData.matching_key
+        // UUID match: authoritative, no format filter.
+        const uuidCards = imageData.matching_key
             ? CardMatcher.findAll(this.dataDisplay, imageData.competitor_name, null, imageData.matching_key)
             : [];
-        if (existingCards.length === 0) {
+
+        let imageCards;
+        if (uuidCards.length > 0) {
+            imageCards = uuidCards;
+        } else if (imageData.matching_key) {
+            // UUID provided but still not in DOM — keep pending.
+            stillPending.push(imageData);
+            return;
+        } else {
+            // No UUID — text fallback with format filter.
             const text = imageData.text_for_analysis || imageData.ad_data?.ad_text || imageData.body || '';
-            if (text) {
-                existingCards = CardMatcher.findAll(this.dataDisplay, imageData.competitor_name, text);
-            }
+            const textCards = text
+                ? CardMatcher.findAll(this.dataDisplay, imageData.competitor_name, text)
+                : [];
+            imageCards = this._filterCardsByFormat(textCards, 'image');
         }
 
-        const imageCards = this._filterCardsByFormat(existingCards, 'image');
         if (imageCards.length > 0) {
             imageCards.forEach((card) => {
                 if (card.querySelector('.image-analysis-section')) return;
@@ -803,17 +837,27 @@ _retryPendingCarouselAnalysis() {
     const stillPending = [];
 
     this._pendingCarouselAnalysis.forEach(carouselData => {
-        let existingCards = carouselData.matching_key
+        // UUID match: authoritative, no format filter.
+        const uuidCards = carouselData.matching_key
             ? CardMatcher.findAll(this.dataDisplay, carouselData.competitor_name, null, carouselData.matching_key)
             : [];
-        if (existingCards.length === 0) {
+
+        let carouselCards;
+        if (uuidCards.length > 0) {
+            carouselCards = uuidCards;
+        } else if (carouselData.matching_key) {
+            // UUID provided but still not in DOM — keep pending.
+            stillPending.push(carouselData);
+            return;
+        } else {
+            // No UUID — text fallback with format filter.
             const text = carouselData.text_for_analysis || carouselData.ad_data?.ad_text || carouselData.body || '';
-            if (text) {
-                existingCards = CardMatcher.findAll(this.dataDisplay, carouselData.competitor_name, text);
-            }
+            const textCards = text
+                ? CardMatcher.findAll(this.dataDisplay, carouselData.competitor_name, text)
+                : [];
+            carouselCards = this._filterCardsByFormat(textCards, 'carousel');
         }
 
-        const carouselCards = this._filterCardsByFormat(existingCards, 'carousel');
         if (carouselCards.length > 0) {
             carouselCards.forEach((card) => {
                 if (card.querySelector('.carousel-analysis-section')) return;
