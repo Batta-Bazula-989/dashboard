@@ -11,6 +11,9 @@ build(entry) {
     if (entry.matching_key) {
         card.dataset.matchingKey = entry.matching_key;
     }
+    if (entry.display_format) {
+        card.dataset.displayFormat = entry.display_format;
+    }
 
     card.appendChild(this.buildHeader(entry));
     card.appendChild(this.buildDivider());

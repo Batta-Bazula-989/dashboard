@@ -29,6 +29,7 @@ class DataProcessor {
         return {
             competitor_name: item.competitor_name || item.advertiser_name || 'Unknown Advertiser',
             content_type: contentType, // ✅ Preserve original content_type
+            display_format: item.advertiser?.display_format || item.display_format || null,
             body: item.body || '',
             text_for_analysis: item.advertiser?.text_for_analysis || item.text_for_analysis || item.body || '',
             matching_key: item.ad_uuid || item.matching_key || null,  // ✅ Use ad_uuid first

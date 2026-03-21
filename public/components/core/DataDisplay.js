@@ -207,6 +207,22 @@ class DataDisplay {
         return `${processed.content_type}_${processed.competitor_name}_${this._simpleHash(processed.body)}`;
     }
 
+    // Filter cards by display_format compatibility with the analysis type.
+    // Falls back to DOM element check if display_format was not stored on the card.
+    _filterCardsByFormat(cards, analysisType) {
+        const VIDEO_FORMATS = ['VIDEO'];
+        const MULTI_FORMATS = ['CAROUSEL', 'MULTI_IMAGES', 'DPA', 'DCO'];
+
+        return cards.filter(card => {
+            const fmt = card.dataset.displayFormat;
+            if (analysisType === 'video') {
+                return fmt ? VIDEO_FORMATS.includes(fmt) : !!card.querySelector('video.video-thumb');
+            }
+            // image or carousel analysis — must not be a video card
+            return fmt ? !VIDEO_FORMATS.includes(fmt) : !card.querySelector('video.video-thumb');
+        });
+    }
+
     // Simple hash function for generating IDs
     _simpleHash(str) {
         if (!str) return '0';
@@ -555,7 +571,9 @@ addDataItem(incoming) {
              }
          }
 
-         existingCards.forEach((card) => {
+         const videoCards = this._filterCardsByFormat(existingCards, 'video');
+
+         videoCards.forEach((card) => {
              if (card.querySelector('.video-analysis-section')) return;
              const section = AnalysisSections.createVideoAnalysis(videoData, this.onShowFullAnalysis);
              const divider = document.createElement('div');
@@ -566,11 +584,11 @@ addDataItem(incoming) {
 
          this._statsCacheValid = false;
 
-         if (existingCards.length === 0) {
+         if (videoCards.length === 0) {
              console.warn('⚠️ Video not matched, storing as pending:', videoData.competitor_name);
              this._storePendingVideoAnalysis(videoData);
          } else {
-             console.log('✅ Video attached to', existingCards.length, 'card(s)');
+             console.log('✅ Video attached to', videoCards.length, 'card(s)');
          }
      } catch (error) {
          console.error('Error in addVideoAnalysis:', error, videoData);
@@ -611,8 +629,9 @@ addDataItem(incoming) {
                 }
             }
 
-            if (matchedCards.length > 0) {
-                matchedCards.forEach((card) => {
+            const videoCards = this._filterCardsByFormat(matchedCards, 'video');
+            if (videoCards.length > 0) {
+                videoCards.forEach((card) => {
                     if (card.querySelector('.video-analysis-section')) return;
                     const section = AnalysisSections.createVideoAnalysis(videoData, this.onShowFullAnalysis);
                     const divider = document.createElement('div');
@@ -649,7 +668,9 @@ addCarouselAnalysis(carouselData) {
         }
     }
 
-    existingCards.forEach((card) => {
+    const carouselCards = this._filterCardsByFormat(existingCards, 'carousel');
+
+    carouselCards.forEach((card) => {
         if (card.querySelector('.carousel-analysis-section')) return;
         const section = AnalysisSections.createCarouselAnalysis(carouselData, this.onShowFullAnalysis);
         const textSection = card.querySelector('.ai-preview');
@@ -666,7 +687,7 @@ addCarouselAnalysis(carouselData) {
 
     this._statsCacheValid = false;
 
-    if (existingCards.length === 0) {
+    if (carouselCards.length === 0) {
         this._storePendingCarouselAnalysis(carouselData);
     }
 }
@@ -685,7 +706,9 @@ addImageAnalysis(imageData) {
         }
     }
 
-    existingCards.forEach((card) => {
+    const imageCards = this._filterCardsByFormat(existingCards, 'image');
+
+    imageCards.forEach((card) => {
         if (card.querySelector('.image-analysis-section')) return;
         const section = AnalysisSections.createImageAnalysis(imageData, this.onShowFullAnalysis);
         const textSection = card.querySelector('.ai-preview');
@@ -702,7 +725,7 @@ addImageAnalysis(imageData) {
 
     this._statsCacheValid = false;
 
-    if (existingCards.length === 0) {
+    if (imageCards.length === 0) {
         this._storePendingImageAnalysis(imageData);
     }
 }
@@ -734,8 +757,9 @@ _retryPendingImageAnalysis() {
             }
         }
 
-        if (existingCards.length > 0) {
-            existingCards.forEach((card) => {
+        const imageCards = this._filterCardsByFormat(existingCards, 'image');
+        if (imageCards.length > 0) {
+            imageCards.forEach((card) => {
                 if (card.querySelector('.image-analysis-section')) return;
                 const section = AnalysisSections.createImageAnalysis(imageData, this.onShowFullAnalysis);
                 const textSection = card.querySelector('.ai-preview');
@@ -789,8 +813,9 @@ _retryPendingCarouselAnalysis() {
             }
         }
 
-        if (existingCards.length > 0) {
-            existingCards.forEach((card) => {
+        const carouselCards = this._filterCardsByFormat(existingCards, 'carousel');
+        if (carouselCards.length > 0) {
+            carouselCards.forEach((card) => {
                 if (card.querySelector('.carousel-analysis-section')) return;
                 const section = AnalysisSections.createCarouselAnalysis(carouselData, this.onShowFullAnalysis);
                 const textSection = card.querySelector('.ai-preview');
