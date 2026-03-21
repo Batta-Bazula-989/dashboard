@@ -11,8 +11,11 @@ build(entry) {
     if (entry.matching_key) {
         card.dataset.matchingKey = entry.matching_key;
     }
-    if (entry.display_format) {
-        card.dataset.displayFormat = entry.display_format;
+    // Use explicit display_format, or infer VIDEO from video data when not explicitly set
+    const effectiveFormat = entry.display_format ||
+        (entry.ad_data?.videos?.length > 0 ? 'VIDEO' : null);
+    if (effectiveFormat) {
+        card.dataset.displayFormat = effectiveFormat;
     }
 
     card.appendChild(this.buildHeader(entry));
