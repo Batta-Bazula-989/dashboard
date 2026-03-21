@@ -259,7 +259,9 @@ addDataItem(incoming) {
                 console.warn('🚫 DUPLICATE DETECTED - Skipping:', {
                     itemId,
                     competitor: processed.competitor_name,
-                    ad_uuid: processed.matching_key
+                    ad_uuid: processed.matching_key,
+                    content_type: processed.content_type,
+                    display_format: processed.display_format
                 });
                 return;
             }
@@ -552,10 +554,19 @@ addDataItem(incoming) {
              return;
          }
 
+         console.log('🎥 VIDEO ANALYSIS INCOMING:', {
+             competitor: videoData.competitor_name,
+             matching_key: videoData.matching_key,
+             body_preview: (videoData.body || videoData.text_for_analysis || '').substring(0, 60)
+         });
+
          // UUID match: authoritative — skip format filter, UUID already identifies the exact card.
          const uuidCards = videoData.matching_key
              ? CardMatcher.findAll(this.dataDisplay, videoData.competitor_name, null, videoData.matching_key)
              : [];
+
+         console.log('🎥 UUID match result:', uuidCards.length, 'cards found for key:', videoData.matching_key);
+         uuidCards.forEach(c => console.log('  → card uuid:', c.dataset.matchingKey, '| name:', c.querySelector('.name-row a')?.textContent?.trim()));
 
          let videoCards;
          if (uuidCards.length > 0) {
@@ -569,15 +580,18 @@ addDataItem(incoming) {
              return;
          } else {
              // No UUID — use text fallback with format filter.
+             console.warn('🎥 No UUID — using text fallback for:', videoData.competitor_name);
              const text = videoData.text_for_analysis || videoData.ad_data?.ad_text || videoData.body || '';
              const textCards = text
                  ? CardMatcher.findAll(this.dataDisplay, videoData.competitor_name, text)
                  : [];
              videoCards = this._filterCardsByFormat(textCards, 'video');
+             console.log('🎥 Text fallback found:', videoCards.length, 'cards after format filter');
          }
 
          videoCards.forEach((card) => {
              if (card.querySelector('.video-analysis-section')) return;
+             console.log('🎥 Attaching video to card:', card.dataset.matchingKey, '|', card.querySelector('.name-row a')?.textContent?.trim());
              const section = AnalysisSections.createVideoAnalysis(videoData, this.onShowFullAnalysis);
              const divider = document.createElement('div');
              divider.className = 'section-divider';
