@@ -109,18 +109,6 @@ build(entry) {
         return row;
     }
 
-    buildSocialIconsGrid(platforms) {
-        const grid = document.createElement('div');
-        grid.className = 'social-icons-grid';
-
-        platforms.forEach(platform => {
-            const icon = this.buildSingleSocialIcon(platform);
-            grid.appendChild(icon);
-        });
-
-        return grid;
-    }
-
     buildSingleSocialIcon(platform) {
         const icon = document.createElement('span');
         icon.className = 'social-icon';
@@ -166,78 +154,6 @@ build(entry) {
         link.textContent = Sanitizer.escapeHTML(entry.competitor_name || 'Unknown competitor');
         return link;
     }
-
-buildPlatformBadges(platforms) {
-    const badges = document.createElement('div');
-    badges.className = 'badges';
-
-    (platforms || []).forEach(platform => {
-        const badge = document.createElement('span');
-        badge.className = 'badge platform-badge';
-
-        // ✅ Normalize to lowercase before getting icon
-        const platformLower = String(platform).toLowerCase();
-        const icon = PlatformIcons.getIcon(platformLower); // ✅ Correct method name
-
-        if (icon && icon.startsWith('<svg')) {
-            // Parse SVG safely using DOMParser instead of innerHTML
-            try {
-                const parser = new DOMParser();
-                const svgDoc = parser.parseFromString(icon, 'image/svg+xml');
-                
-                // Check for parsing errors
-                const parserError = svgDoc.querySelector('parsererror');
-                if (parserError) {
-                    console.warn('SVG parsing error for platform:', platform, parserError.textContent);
-                    badge.textContent = platform.substring(0, 2).toUpperCase();
-                } else {
-                    const svgElement = svgDoc.documentElement;
-                    if (svgElement && svgElement.tagName === 'svg') {
-                        // Preserve fill attributes on paths (important for colored icons)
-                        const paths = svgElement.querySelectorAll('path');
-                        paths.forEach(path => {
-                            const fillAttr = path.getAttribute('fill');
-                            if (fillAttr) {
-                                // Set via inline style with !important to override any CSS
-                                path.style.setProperty('fill', fillAttr, 'important');
-                                // Also keep the attribute for fallback
-                                path.setAttribute('fill', fillAttr);
-                            }
-                        });
-                        
-                        // Preserve fill on rect elements too
-                        const rects = svgElement.querySelectorAll('rect');
-                        rects.forEach(rect => {
-                            const fillAttr = rect.getAttribute('fill');
-                            if (fillAttr) {
-                                rect.style.setProperty('fill', fillAttr, 'important');
-                                rect.setAttribute('fill', fillAttr);
-                            }
-                        });
-                        
-                        badge.appendChild(svgElement);
-                    } else {
-                        // If parsing fails, use textContent fallback
-                        badge.textContent = platform.substring(0, 2).toUpperCase();
-                    }
-                }
-            } catch (e) {
-                console.warn('SVG parsing exception for platform:', platform, e);
-                // If parsing fails, use textContent fallback
-                badge.textContent = platform.substring(0, 2).toUpperCase();
-            }
-            badge.title = Sanitizer.escapeHTML(platform); // Original case for tooltip
-        } else {
-            // Fallback: Show first 2 letters (FB, IG, etc.)
-            badge.textContent = platform.substring(0, 2).toUpperCase();
-            badge.title = Sanitizer.escapeHTML(platform);
-        }
-
-        badges.appendChild(badge);
-    });
-
-    return badges;
-}
 
     buildViewProfileLink(uri) {
         const link = document.createElement('a');

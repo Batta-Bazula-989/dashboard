@@ -433,30 +433,6 @@ addDataItem(incoming) {
         });
     }
 
-  addTextCard(data) {
-      // This method is kept for backward compatibility
-      // But now uses batching internally for better performance
-      const cardsToAdd = new Map();
-      cardsToAdd.set(data.competitor_name, [data]);
-      
-      requestAnimationFrame(() => {
-          this._batchAddCards(cardsToAdd);
-      });
-      
-      // Remove loading state when adding cards (only once)
-      this.hideLoading();
-
-      // ALWAYS remove empty state when adding a card
-      const emptyState = this._getEmptyState();
-      if (emptyState) {
-          emptyState.remove();
-          this._emptyState = null;
-      }
-      
-      // Invalidate stats cache when card is added
-      this._statsCacheValid = false;
-  }
-
     hasImageAnalysisData(processed) {
         // ONLY treat as image analysis if:
         // 1. Has AI analysis
@@ -496,7 +472,6 @@ addDataItem(incoming) {
 
     hasCarouselData(processed) {
         // This function should ONLY return true for FOLLOW-UP analysis (not original data)
-        // Original data with cards/images should go through addTextCard() to create the card first
         // If content_type is explicitly 'carousel', this is follow-up carousel analysis
         if (processed.content_type === 'carousel') {
             return true;
@@ -510,8 +485,7 @@ addDataItem(incoming) {
         // Check if it has images or cards arrays in ad_data
         const hasImages = processed.ad_data?.images && Array.isArray(processed.ad_data.images) && processed.ad_data.images.length > 0;
         const hasCards = processed.ad_data?.cards && Array.isArray(processed.ad_data.cards) && processed.ad_data.cards.length > 0;
-        // If it has images/cards arrays, this is ORIGINAL data - should create card via addTextCard()
-        // Return FALSE so it goes through addTextCard() instead
+        // If it has images/cards arrays, this is ORIGINAL data — return FALSE
         if (hasImages || hasCards) return false;
         
         // If it only has ai_analysis (follow-up analysis), check if we can match it to existing card with carousel
