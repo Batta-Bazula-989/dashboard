@@ -588,6 +588,7 @@ addDataItem(incoming) {
 
     // Store video analysis that couldn't be attached yet (cards not rendered)
     _storePendingVideoAnalysis(videoData) {
+        videoData._pendingRetries = 0;
         this._pendingVideoAnalysis.push(videoData);
         
         // Retry attaching after a short delay to allow cards to be rendered
@@ -615,7 +616,9 @@ addDataItem(incoming) {
                 videoCards = uuidCards;
             } else if (videoData.matching_key) {
                 // UUID provided but still not in DOM — keep pending.
-                stillPending.push(videoData);
+                videoData._pendingRetries = (videoData._pendingRetries || 0) + 1;
+                if (videoData._pendingRetries < 10) stillPending.push(videoData);
+                else console.warn('⏱️ Video analysis dropped after max retries:', videoData.competitor_name);
                 return;
             } else {
                 // No UUID — text fallback with format filter.
@@ -636,7 +639,9 @@ addDataItem(incoming) {
                     card.appendChild(section);
                 });
             } else {
-                stillPending.push(videoData);
+                videoData._pendingRetries = (videoData._pendingRetries || 0) + 1;
+                if (videoData._pendingRetries < 10) stillPending.push(videoData);
+                else console.warn('⏱️ Video analysis dropped after max retries:', videoData.competitor_name);
             }
         });
 
@@ -744,6 +749,7 @@ addImageAnalysis(imageData) {
 
 // Store image analysis that couldn't be attached yet (cards not rendered)
 _storePendingImageAnalysis(imageData) {
+    imageData._pendingRetries = 0;
     this._pendingImageAnalysis.push(imageData);
 
     // Retry attaching after a short delay to allow cards to be rendered
@@ -769,7 +775,9 @@ _retryPendingImageAnalysis() {
             imageCards = uuidCards;
         } else if (imageData.matching_key) {
             // UUID provided but still not in DOM — keep pending.
-            stillPending.push(imageData);
+            imageData._pendingRetries = (imageData._pendingRetries || 0) + 1;
+            if (imageData._pendingRetries < 10) stillPending.push(imageData);
+            else console.warn('⏱️ Image analysis dropped after max retries:', imageData.competitor_name);
             return;
         } else {
             // No UUID — text fallback with format filter.
@@ -796,7 +804,9 @@ _retryPendingImageAnalysis() {
                 }
             });
         } else {
-            stillPending.push(imageData);
+            imageData._pendingRetries = (imageData._pendingRetries || 0) + 1;
+            if (imageData._pendingRetries < 10) stillPending.push(imageData);
+            else console.warn('⏱️ Image analysis dropped after max retries:', imageData.competitor_name);
         }
     });
 
@@ -808,6 +818,7 @@ _retryPendingImageAnalysis() {
 
 // Store carousel analysis that couldn't be attached yet (cards not rendered)
 _storePendingCarouselAnalysis(carouselData) {
+    carouselData._pendingRetries = 0;
     this._pendingCarouselAnalysis.push(carouselData);
 
     // Retry attaching after a short delay to allow cards to be rendered
@@ -835,7 +846,9 @@ _retryPendingCarouselAnalysis() {
             carouselCards = uuidCards;
         } else if (carouselData.matching_key) {
             // UUID provided but still not in DOM — keep pending.
-            stillPending.push(carouselData);
+            carouselData._pendingRetries = (carouselData._pendingRetries || 0) + 1;
+            if (carouselData._pendingRetries < 10) stillPending.push(carouselData);
+            else console.warn('⏱️ Carousel analysis dropped after max retries:', carouselData.competitor_name);
             return;
         } else {
             // No UUID — text fallback with format filter.
@@ -862,7 +875,9 @@ _retryPendingCarouselAnalysis() {
                 }
             });
         } else {
-            stillPending.push(carouselData);
+            carouselData._pendingRetries = (carouselData._pendingRetries || 0) + 1;
+            if (carouselData._pendingRetries < 10) stillPending.push(carouselData);
+            else console.warn('⏱️ Carousel analysis dropped after max retries:', carouselData.competitor_name);
         }
     });
 
